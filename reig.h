@@ -1,6 +1,8 @@
 #ifndef REIG_H_INCLUDED
 #define REIG_H_INCLUDED
 
+#include <vector>
+
 namespace reig {
     inline namespace value_types {
         using ubyte_t = unsigned char;
@@ -46,6 +48,27 @@ namespace reig {
             };
         };
         
+        struct Triangle {
+            Triangle() = default;
+            Triangle(float_t x0, float_t y0, float_t x1, float_t y1, float_t x2, float_t y2)
+                : pos0{x0, y0}, pos1{x1, y1}, pos2{x2, y2} {}
+            Triangle(Point const& pos0, Point const& pos1, Point const& pos2)
+                : pos0{pos0}, pos1{pos1}, pos2{pos2} {}
+                
+            union {
+                Point pos0 {};
+                struct { float_t x0; float_t y0; };
+            };
+            union {
+                Point pos1 {};
+                struct { float_t x1; float_t y1; };
+            };
+            union {
+                Point pos2 {};
+                struct { float_t x2; float_t y2; };
+            };
+        };
+        
         struct Color {
             Color(ubyte_t r = {}, ubyte_t g = {}, ubyte_t b = {}, ubyte_t a = {0xFFu})
                 : r{r}, g{g}, b{b}, a{a} {}
@@ -62,6 +85,13 @@ namespace reig {
         };
         
         using Colour = Color;
+        
+        struct Vertex {
+            Vertex() = default;
+            
+            Point position {};
+            Color color {};
+        };
     }
     
     inline namespace helpers {
@@ -93,6 +123,20 @@ namespace reig {
     class Context {
     public:
         Context() = default;
+        
+        class Figure;
+        using DrawData = std::vector<Figure>;
+        
+        /**
+         * @brief Set's a user function, which will draw the gui, based 
+         * @param drawData
+         */
+        void set_render_handler(void (*handler)(DrawData const& drawData));
+        
+        /**
+         * @brief Uses stored drawData and draws everything using the user handler
+         */
+        void render_all() const;
         
         /**
          * @brief Resets draw data and inputs
@@ -126,11 +170,56 @@ namespace reig {
          * @return True if the button was clicked, false otherwise
          */
         bool button(Rectangle rect, Color color);
+         
+        // Render primitives
+        /**
+         * @brief Schedules a rectangle drawing
+         * @param rect Position and size
+         * @param color Color
+         */
+        void render_rectangle(Rectangle const& rect, Color const& color);
+        
+        /**
+         * @brief Schedules a triangle drawing
+         * @param triangle Position and size
+         * @param color Color
+         */
+        void render_triangle(Triangle const& triangle, Color const& color);
+        
+        /**
+         * @class Figure
+         * @brief A bunch of vertices and indices to render a figure
+         * Can be collected by the user, but formation is accessible only for the Context
+         */
+        class Figure {
+        public:
+            Figure() = default;
+            
+            /**
+             * @brief Returns figure's read-only vertices
+             */
+            std::vector<Vertex> const& vertices() const;
+            /**
+             * @brief Returns figure's read-only indices
+             */
+            std::vector<uint_t> const&  indices() const;
+        private:
+            friend class Context;
+            
+            void form(std::vector<Vertex>& vertices, std::vector<uint_t>& indices);
+        
+            std::vector<Vertex> _vertices;
+            std::vector<uint_t>  _indices;
+        };
     
     private:
         Point _mousePrevPos {};
         Point _mouseCurrPos {};
         bool  _mouseClicked = false;
+        
+        std::vector<Figure> _drawData;
+        
+        void (*_renderHandler)(DrawData const&);
     };
 }
 
