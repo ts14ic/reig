@@ -14,23 +14,23 @@ void reig::Context::render_all() const {
 }
 
 void reig::Context::start_new_frame() {
-    _mousePrevPos = _mouseCurrPos;
-    _mouseClicked = false;
+    _inputs.mouseLeftClicked = false;
     _drawData.clear();
 }
 
 void reig::Context::move_mouse(float_t difx, float_t dify) {
-    _mouseCurrPos.x += difx;
-    _mouseCurrPos.y += dify;
+    _inputs.mouseCurrPos.x += difx;
+    _inputs.mouseCurrPos.y += dify;
 }
 
 void reig::Context::place_mouse(float_t x, float_t y) {
-    _mouseCurrPos.x = x;
-    _mouseCurrPos.y = y;
+    _inputs.mouseCurrPos.x = x;
+    _inputs.mouseCurrPos.y = y;
 }
 
-void reig::Context::click_mouse(bool clicked) {
-    _mouseClicked = clicked;
+void reig::Context::click_mouse(Point const& pos) {
+    _inputs.mouseClickedPos = pos;
+    _inputs.mouseLeftClicked = true;
 }
 
 void reig::Context::Figure::form(std::vector<Vertex>& vertices, std::vector<uint_t>& indices) {
@@ -58,14 +58,13 @@ bool reig::Context::button(Rectangle aRect, Color aColor) {
     
     aRect.x += 2; aRect.y += 2;
     aRect.w -= 4; aRect.h -= 4;
-    bool inBox = in_box(_mouseCurrPos, aRect);
-    if(inBox) {
+    if(in_box(_inputs.mouseCurrPos, aRect)) {
         aColor.r < 205 ? aColor.r += 50 : aColor.r = 255;
         aColor.g < 205 ? aColor.g += 50 : aColor.g = 255;
         aColor.b < 205 ? aColor.b += 50 : aColor.b = 255;
     }
     render_rectangle(aRect, aColor);
-    return _mouseClicked && inBox;
+    return _inputs.mouseLeftClicked && in_box(_inputs.mouseClickedPos, aRect);
 }
 
 void reig::Context::render_triangle(Triangle const& aTri, Color const& aColor) {

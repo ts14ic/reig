@@ -159,8 +159,9 @@ namespace reig {
         
         /**
          * @brief Sets mouse clicked state
+         * @param position X and Y of where the mouse was clicked
          */
-        void click_mouse(bool clicked = true);
+        void click_mouse(Point const& position);
         
         // Widget renders
         /**
@@ -213,9 +214,11 @@ namespace reig {
         };
     
     private:
-        Point _mousePrevPos {};
-        Point _mouseCurrPos {};
-        bool  _mouseClicked = false;
+        struct {
+            Point mouseCurrPos;
+            Point mouseClickedPos;
+            bool  mouseLeftClicked = false;
+        } _inputs;
         
         std::vector<Figure> _drawData;
         
