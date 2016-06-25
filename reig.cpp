@@ -141,7 +141,7 @@ bool reig::Context::slider(
     float_t min = detail::min(aMin, aMax);
     float_t max = detail::max(aMin, aMax);
     float_t value = detail::clamp(aValue, min, max);
-    int_t offset = static_cast<int>((value - min) / aStep);
+    int_t offset = static_cast<int_t>((value - min) / aStep);
     int_t valuesNum = (max - min) / aStep + 1;
     
     // Render the cursor
@@ -158,7 +158,7 @@ bool reig::Context::slider(
         auto distance = _mouse.cursorPos.x - cursorBox.x - halfCursorW;
         
         if(detail::abs(distance) > halfCursorW) {
-            value += static_cast<int>(distance / cursorBox.w) * aStep;
+            value += static_cast<int_t>(distance / cursorBox.w) * aStep;
             value = detail::clamp(value, min, max);
         }
     }
