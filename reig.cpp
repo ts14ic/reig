@@ -1,5 +1,20 @@
 #include "reig.h"
 
+namespace reig::detail {
+    Color get_yiq_contrast(Color color) {
+        uint_t y = (299 * color.r + 587 * color.g + 114 * color.b) / 1000;
+        return y >= 128 ? Color{0u, 0u, 0u} : Color{255u, 255u, 255u};
+    }
+    
+    Color lighten_color_by(Color color, ubyte_t delta) {
+        ubyte_t max = 255u;
+        color.r < max - delta ? color.r += delta : color.r = max;
+        color.g < max - delta ? color.g += delta : color.g = max;
+        color.b < max - delta ? color.b += delta : color.b = max;
+        return color;
+    }
+}
+
 bool reig::helpers::in_box(Point const& pt, Rectangle const& box) {
     return between(pt.x, box.x, box.x + box.w) && between(pt.y, box.y, box.y + box.h);
 }
@@ -47,24 +62,33 @@ std::vector<reig::uint_t> const& reig::Context::Figure::indices() const {
 }
 
 bool reig::Context::button(Rectangle aRect, Color aColor) {
-    int darken = 0x50;
-    Color outlineCol (
-        (aColor.r > darken ? aColor.r - darken : aColor.r),
-        (aColor.g > darken ? aColor.g - darken : aColor.g),
-        (aColor.b > darken ? aColor.b - darken : aColor.b)
-    );
-    
+    // Render button outline first
+    Color outlineCol = detail::get_yiq_contrast(aColor);
     render_rectangle(aRect, outlineCol);
     
+    // if cursor is over the button, hightlight it
+    if(in_box(_inputs.mouseCurrPos, aRect)) {
+        aColor = detail::lighten_color_by(aColor, 50);
+    }
+    // Make the bounding box smaller and render the button's body
     aRect.x += 2; aRect.y += 2;
     aRect.w -= 4; aRect.h -= 4;
-    if(in_box(_inputs.mouseCurrPos, aRect)) {
-        aColor.r < 205 ? aColor.r += 50 : aColor.r = 255;
-        aColor.g < 205 ? aColor.g += 50 : aColor.g = 255;
-        aColor.b < 205 ? aColor.b += 50 : aColor.b = 255;
-    }
     render_rectangle(aRect, aColor);
     return _inputs.mouseLeftClicked && in_box(_inputs.mouseClickedPos, aRect);
+}
+
+reig::int_t reig::Context::slider(
+    Rectangle box, Color color, 
+    int_t value, int_t min, int_t max, int_t step
+) {
+    return 0;
+}
+
+reig::float_t reig::Context::slider(
+    Rectangle box, Color color, 
+    float_t value, float_t min, float_t max, float_t step
+) {
+    return 0.0f;
 }
 
 void reig::Context::render_triangle(Triangle const& aTri, Color const& aColor) {

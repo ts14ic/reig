@@ -6,9 +6,9 @@
 namespace reig {
     inline namespace value_types {
         using ubyte_t = unsigned char;
-        using int_t   = int;
+        using int_t   = signed;
         using uint_t  = unsigned;
-        using size_t  = unsigned long;        
+        using size_t  = unsigned long long;        
         using float_t = float;
         
         static_assert(sizeof(uint_t) >= 4 * sizeof(ubyte_t), "uint_t is too small");
@@ -166,11 +166,35 @@ namespace reig {
         // Widget renders
         /**
          * @brief Render a button
-         * @param rect Button position and size
+         * @param box Button's bounding box
          * @param color Button's base color
          * @return True if the button was clicked, false otherwise
          */
-        bool button(Rectangle rect, Color color);
+        bool button(Rectangle box, Color color);
+        
+        /**
+         * @brief Renders a slider. Integer overload.
+         * @param box Slider's bounding box
+         * @param color Slider's base color
+         * @param value The value to be represented on slider
+         * @param min The lowest represantable value
+         * @param max The highest represantable value
+         * @param step The discrete portion by which the value can change
+         * @return The new value is returned, so the slider can be used 
+         */
+        int_t slider(Rectangle box, Color color, int_t value, int_t min, int_t max, int_t step);
+        
+        /**
+         * @brief Renders a slider. Float overload.
+         * @param box Slider's bounding box
+         * @param color Slider's base color
+         * @param value The value to be represented on slider
+         * @param min The lowest represantable value
+         * @param max The highest represantable value
+         * @param step The discrete portion by which the value can change
+         * @return The new value is returned, so the slider can be used 
+         */
+        float_t slider(Rectangle box, Color color, float_t value, float_t min, float_t max, float_t step);
          
         // Render primitives
         /**
