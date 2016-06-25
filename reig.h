@@ -16,19 +16,21 @@ namespace reig {
     
     inline namespace graphic_base_types {
         struct Point {
-            Point(float_t x = {}, float_t y = {})
+            Point() = default;
+            Point(float_t x, float_t y)
                 : x{x}, y{y} {}
             
-            float_t x;
-            float_t y;
+            float_t x {};
+            float_t y {};
         };
         
         struct Size {
-            Size(float_t w = {}, float_t h = {})
+            Size() = default;
+            Size(float_t w, float_t h)
                 : w{w}, h{h} {}
             
-            float_t w;
-            float_t h;
+            float_t w {};
+            float_t h {};
         };
         
         struct Rectangle {
@@ -70,7 +72,9 @@ namespace reig {
         };
         
         struct Color {
-            Color(ubyte_t r = {}, ubyte_t g = {}, ubyte_t b = {}, ubyte_t a = {0xFFu})
+            Color() 
+                : asUint{0u} { a = 0xFF; }
+            Color(ubyte_t r, ubyte_t g, ubyte_t b, ubyte_t a = {0xFFu})
                 : r{r}, g{g}, b{b}, a{a} {}
             
             union {
@@ -92,28 +96,6 @@ namespace reig {
             Point position {};
             Color color {};
         };
-    }
-    
-    inline namespace helpers {
-        /**
-         * @brief Find if a value is between two other
-         * @param val Value to check
-         * @param min Lower boundary
-         * @param max Upper boundary
-         * @return true, if val is bigger than min and smaller than max
-         */
-        template <typename T>
-        bool between(T val, T min, T max) {
-            return val > min && val < max;
-        }
-        
-        /**
-         * @brief Find if a point is within a rectangle
-         * @param pt Point to be checked
-         * @param box Rectangle to be checked
-         * @return true if pt is within box
-         */
-        bool in_box(Point const& pt, Rectangle const& box);
     }
     
     /**
@@ -158,10 +140,16 @@ namespace reig {
         void place_mouse(float_t x, float_t y);
         
         /**
-         * @brief Sets mouse clicked state
-         * @param position X and Y of where the mouse was clicked
+         * @brief Sets mouse pressed and clicked states
+         * @param x X coordinate
+         * @param y Y coordinate
          */
-        void click_mouse(Point const& position);
+        void mouse_press_left(float_t x, float_t y);
+        
+        /**
+         * @brief Unsets mouse pressed state
+         */
+        void mouse_release_left();
         
         // Widget renders
         /**
@@ -173,28 +161,16 @@ namespace reig {
         bool button(Rectangle box, Color color);
         
         /**
-         * @brief Renders a slider. Integer overload.
+         * @brief Renders a slider.
          * @param box Slider's bounding box
          * @param color Slider's base color
-         * @param value The value to be represented on slider
+         * @param value A reference to the value to be represented and changed
          * @param min The lowest represantable value
          * @param max The highest represantable value
          * @param step The discrete portion by which the value can change
-         * @return The new value is returned, so the slider can be used 
+         * @return True if value changed
          */
-        int_t slider(Rectangle box, Color color, int_t value, int_t min, int_t max, int_t step);
-        
-        /**
-         * @brief Renders a slider. Float overload.
-         * @param box Slider's bounding box
-         * @param color Slider's base color
-         * @param value The value to be represented on slider
-         * @param min The lowest represantable value
-         * @param max The highest represantable value
-         * @param step The discrete portion by which the value can change
-         * @return The new value is returned, so the slider can be used 
-         */
-        float_t slider(Rectangle box, Color color, float_t value, float_t min, float_t max, float_t step);
+        bool slider(Rectangle box, Color color, float_t& value, float_t min, float_t max, float_t step);
          
         // Render primitives
         /**
@@ -238,14 +214,19 @@ namespace reig {
         };
     
     private:
-        struct {
-            Point mouseCurrPos;
-            Point mouseClickedPos;
-            bool  mouseLeftClicked = false;
-        } _inputs;
+        struct Mouse {
+            struct Button {
+                bool pressed = false;
+                bool clicked = false;
+                Point clickedPos;
+            } 
+            left;
+            
+            Point cursorPos;
+        }
+        _mouse;
         
         std::vector<Figure> _drawData;
-        
         void (*_renderHandler)(DrawData const&);
     };
 }
