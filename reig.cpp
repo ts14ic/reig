@@ -77,26 +77,30 @@ void reig::Context::start_new_frame() {
     _drawData.clear();
 }
 
-void reig::Context::move_mouse(float_t difx, float_t dify) {
-    _mouse.cursorPos.x += difx;
-    _mouse.cursorPos.y += dify;
+reig::Context::Mouse& reig::Context::mouse() {
+    return _mouse;
 }
 
-void reig::Context::place_mouse(float_t x, float_t y) {
-    _mouse.cursorPos.x = x;
-    _mouse.cursorPos.y = y;
+void reig::Context::Mouse::move(float_t difx, float_t dify) {
+    cursorPos.x += difx;
+    cursorPos.y += dify;
 }
 
-void reig::Context::mouse_press_left(float_t x, float_t y) {
-    if(!_mouse.left.pressed) {
-        _mouse.left.pressed = true;
-        _mouse.left.clicked = true;
-        _mouse.left.clickedPos = {x, y};
+void reig::Context::Mouse::place(float_t x, float_t y) {
+    cursorPos.x = x;
+    cursorPos.y = y;
+}
+
+void reig::Context::Mouse::press_left(float_t x, float_t y) {
+    if(!left.pressed) {
+        left.pressed = true;
+        left.clicked = true;
+        left.clickedPos = {x, y};
     }
 }
 
-void reig::Context::mouse_release_left() {
-    _mouse.left.pressed = false;
+void reig::Context::Mouse::release_left() {
+    left.pressed = false;
 }
 
 void reig::Context::Figure::form(std::vector<Vertex>& vertices, std::vector<uint_t>& indices) {

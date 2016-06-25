@@ -126,30 +126,8 @@ namespace reig {
         void start_new_frame();
         
         // Context inputs
-        /**
-         * @brief Moves cursor against previous position
-         * @param difx Delta x coordinate
-         * @param dify Delta y coordinate
-         */
-        void move_mouse(float_t difx, float_t dify);
-        /**
-         * @brief Places the cursors in abosulute coordinates
-         * @param x X coordinate
-         * @param y Y coordiante
-         */
-        void place_mouse(float_t x, float_t y);
-        
-        /**
-         * @brief Sets mouse pressed and clicked states
-         * @param x X coordinate
-         * @param y Y coordinate
-         */
-        void mouse_press_left(float_t x, float_t y);
-        
-        /**
-         * @brief Unsets mouse pressed state
-         */
-        void mouse_release_left();
+        class Mouse;
+        Mouse& mouse();
         
         // Widget renders
         /**
@@ -212,9 +190,36 @@ namespace reig {
             std::vector<Vertex> _vertices;
             std::vector<uint_t>  _indices;
         };
-    
-    private:
-        struct Mouse {
+        
+        class Mouse {
+        public:
+            /**
+             * @brief Moves cursor against previous position
+             * @param difx Delta x coordinate
+             * @param dify Delta y coordinate
+             */
+            void move(float_t difx, float_t dify);
+            /**
+             * @brief Places the cursors in abosulute coordinates
+             * @param x X coordinate
+             * @param y Y coordiante
+             */
+            void place(float_t x, float_t y);
+            
+            /**
+             * @brief Sets mouse pressed and clicked states
+             * @param x X coordinate
+             * @param y Y coordinate
+             */
+            void press_left(float_t x, float_t y);
+            
+            /**
+             * @brief Unsets mouse pressed state
+             */
+            void release_left();
+        private:
+            friend class Context;
+            
             struct Button {
                 bool pressed = false;
                 bool clicked = false;
@@ -223,12 +228,14 @@ namespace reig {
             left;
             
             Point cursorPos;
-        }
-        _mouse;
+        };
+    
+    private:
+        Mouse _mouse;
         
         std::vector<Figure> _drawData;
         void (*_renderHandler)(DrawData const&);
-    };
+    };    
 }
 
 #endif // REIG_H_INCLUDED
