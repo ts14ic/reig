@@ -149,6 +149,15 @@ namespace reig {
          * @return True if value changed
          */
         bool slider(Rectangle box, Color color, float_t& value, float_t min, float_t max, float_t step);
+        
+        /**
+         * @brief Renders a square checkbox
+         * @param box Checkbox's position and size
+         * @param color Checkbox's base color
+         * @param value A reference value to the bool to be changed
+         * @return True if value changed
+         */
+        bool checkbox(Rectangle box, Color color, bool& value);
          
         // Render primitives
         /**

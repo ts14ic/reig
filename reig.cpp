@@ -176,6 +176,29 @@ bool reig::Context::slider(
     }
 }
 
+bool reig::Context::checkbox(Rectangle aBox, Color aColor, bool& aValue) {
+    // Render checkbox's base
+    Color contrastColor = detail::get_yiq_contrast(aColor);
+    render_rectangle(aBox, contrastColor);
+    aBox = detail::decrease(aBox, 4);
+    render_rectangle(aBox, aColor);
+    
+    // Render check
+    if(aValue) {
+        aBox = detail::decrease(aBox, 4);
+        render_rectangle(aBox, contrastColor);
+    }
+    
+    // True if state changed
+    if(_mouse.left.clicked && detail::in_box(_mouse.left.clickedPos, aBox)) {
+        aValue = !aValue;
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 void reig::Context::render_triangle(Triangle const& aTri, Color const& aColor) {
     std::vector<Vertex> vertices (3);
     vertices[0].position = {aTri.pos0};
