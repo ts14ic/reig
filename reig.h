@@ -108,12 +108,26 @@ namespace reig {
         
         class Figure;
         using DrawData = std::vector<Figure>;
+        using CallbackType = void (*)(DrawData const&, void*);
         
         /**
          * @brief Set's a user function, which will draw the gui, based 
-         * @param drawData
+         * @param handler A C function pointer to a rendering callback
+         * The handler should return void and take in DrawData const& and void*
          */
-        void set_render_handler(void (*handler)(DrawData const& drawData));
+        void set_render_handler(CallbackType handler);
+        
+        /**
+         * @brief Set a user pointer to store in the context.
+         * @param ptr A user data pointer.
+         * The pointer is then automatically passed to callbacks.
+         */
+        void set_user_ptr(void* ptr);
+        
+        /**
+         * @brief Gets the stored user pointer
+         */
+        void const* get_user_ptr() const;
         
         /**
          * @brief Uses stored drawData and draws everything using the user handler
@@ -154,10 +168,22 @@ namespace reig {
          * @brief Renders a square checkbox
          * @param box Checkbox's position and size
          * @param color Checkbox's base color
-         * @param value A reference value to the bool to be changed
+         * @param value A reference to the bool to be changed
          * @return True if value changed
          */
         bool checkbox(Rectangle box, Color color, bool& value);
+        
+        /**
+         * @brief Renders a vertical scrollbar
+         * @param box Scrollbar's position and size
+         * @param color Checkbox's base color
+         * @param value A reference to the bool to be changed
+         * @param min Scrollbar's output min value
+         * @param max Scrollbar's output max value
+         * @param logicalHeight Max logical value 
+         * @return 
+         */
+        bool scrollbar(Rectangle box, Color color, float_t& value, float_t min, float_t max, float_t logicalHeight);
          
         // Render primitives
         /**
@@ -239,11 +265,13 @@ namespace reig {
             Point cursorPos;
         };
     
+    
     private:
         Mouse _mouse;
         
         std::vector<Figure> _drawData;
-        void (*_renderHandler)(DrawData const&);
+        CallbackType _renderHandler;
+        void* _userPtr;
     };    
 }
 
