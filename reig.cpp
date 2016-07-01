@@ -134,9 +134,15 @@ bool reig::Context::button(Rectangle aRect, Color aColor) {
         aColor = detail::lighten_color_by(aColor, 50);
     }
     aRect = detail::decrease(aRect, 4);
+    
+    bool clickedButton = detail::in_box(_mouse.left.clickedPos, aRect);
+    
+    if(_mouse.left.pressed && clickedButton) {
+        aColor = detail::lighten_color_by(aColor, 50);
+    }
     render_rectangle(aRect, aColor);
     
-    return _mouse.left.clicked && detail::in_box(_mouse.left.clickedPos, aRect);
+    return _mouse.left.clicked && clickedButton;
 }
 
 bool reig::Context::slider(
