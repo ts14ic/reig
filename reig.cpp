@@ -81,46 +81,42 @@ void reig::Context::render_all() const {
 }
 
 void reig::Context::start_new_frame() {
-    _mouse.left.clicked = false;
+    mouse.left.clicked = false;
     _drawData.clear();
 }
 
-reig::Context::Mouse& reig::Context::mouse() {
-    return _mouse;
-}
-
-void reig::Context::Mouse::move(float_t difx, float_t dify) {
+void reig::Mouse::move(float_t difx, float_t dify) {
     cursorPos.x += difx;
     cursorPos.y += dify;
 }
 
-void reig::Context::Mouse::place(float_t x, float_t y) {
+void reig::Mouse::place(float_t x, float_t y) {
     cursorPos.x = x;
     cursorPos.y = y;
 }
 
-void reig::Context::Mouse::press_left(float_t x, float_t y) {
-    if(!left.pressed) {
-        left.pressed = true;
-        left.clicked = true;
-        left.clickedPos = {x, y};
+void reig::MouseButton::press(float_t x, float_t y) {
+    if(!pressed) {
+        pressed = true;
+        clicked = true;
+        clickedPos = {x, y};
     }
 }
 
-void reig::Context::Mouse::release_left() {
-    left.pressed = false;
+void reig::MouseButton::release() {
+    pressed = false;
 }
 
-void reig::Context::Figure::form(std::vector<Vertex>& vertices, std::vector<uint_t>& indices) {
+void reig::Figure::form(std::vector<Vertex>& vertices, std::vector<uint_t>& indices) {
     vertices.swap(_vertices);
     indices.swap(_indices);
 }
 
-std::vector<reig::Vertex> const& reig::Context::Figure::vertices() const {
+std::vector<reig::Vertex> const& reig::Figure::vertices() const {
     return _vertices;
 }
 
-std::vector<reig::uint_t> const& reig::Context::Figure::indices() const {
+std::vector<reig::uint_t> const& reig::Figure::indices() const {
     return _indices;
 }
 
@@ -130,19 +126,19 @@ bool reig::Context::button(Rectangle aRect, Color aColor) {
     render_rectangle(aRect, outlineCol);
     
     // if cursor is over the button, highlight it
-    if(detail::in_box(_mouse.cursorPos, aRect)) {
+    if(detail::in_box(mouse.cursorPos, aRect)) {
         aColor = detail::lighten_color_by(aColor, 50);
     }
     aRect = detail::decrease(aRect, 4);
     
-    bool clickedButton = detail::in_box(_mouse.left.clickedPos, aRect);
+    bool clickedButton = detail::in_box(mouse.left.clickedPos, aRect);
     
-    if(_mouse.left.pressed && clickedButton) {
+    if(mouse.left.pressed && clickedButton) {
         aColor = detail::lighten_color_by(aColor, 50);
     }
     render_rectangle(aRect, aColor);
     
-    return _mouse.left.clicked && clickedButton;
+    return mouse.left.clicked && clickedButton;
 }
 
 bool reig::Context::slider(
@@ -166,14 +162,14 @@ bool reig::Context::slider(
     auto cursorBox = detail::decrease(aBox, 4);
     cursorBox.w /= valuesNum;
     cursorBox.x += offset * cursorBox.w;
-    if(detail::in_box(_mouse.cursorPos, cursorBox)) {
+    if(detail::in_box(mouse.cursorPos, cursorBox)) {
         cursorColor = detail::lighten_color_by(cursorColor, 50);
     }
     render_rectangle(cursorBox, cursorColor);
     
-    if(_mouse.left.pressed && detail::in_box(_mouse.left.clickedPos, aBox)) {
+    if(mouse.left.pressed && detail::in_box(mouse.left.clickedPos, aBox)) {
         auto halfCursorW = cursorBox.w / 2;
-        auto distance = _mouse.cursorPos.x - cursorBox.x - halfCursorW;
+        auto distance = mouse.cursorPos.x - cursorBox.x - halfCursorW;
         
         if(detail::abs(distance) > halfCursorW) {
             value += static_cast<int_t>(distance / cursorBox.w) * aStep;
@@ -204,7 +200,7 @@ bool reig::Context::checkbox(Rectangle aBox, Color aColor, bool& aValue) {
     }
     
     // True if state changed
-    if(_mouse.left.clicked && detail::in_box(_mouse.left.clickedPos, aBox)) {
+    if(mouse.left.clicked && detail::in_box(mouse.left.clickedPos, aBox)) {
         aValue = !aValue;
         return true;
     }
@@ -233,6 +229,9 @@ bool reig::Context::scrollbar(
     float_t step = aLogicalHeight / aBox.h;
     int_t offset = static_cast<int_t>((value - min) / step);
     int_t valuesNum = (max - min) / step + 1;
+    
+    (void) offset;
+    (void) valuesNum;
     
     return false;
 }

@@ -98,6 +98,89 @@ namespace reig {
         };
     }
     
+    /*forward*/ class Context;
+    /*forward*/ class Mouse;
+    class MouseButton {
+    public:
+        /**
+         * @brief Sets mouse pressed and clicked states
+         * @param x X coordinate
+         * @param y Y coordinate
+         */
+        void press(float_t x, float_t y);
+        
+        /**
+         * @brief Unsets mouse pressed state
+         */
+        void release();
+    private:
+        friend class ::reig::Context;
+        friend class ::reig::Mouse;
+        
+        MouseButton() = default;
+        MouseButton(MouseButton const&) = delete;
+        MouseButton(MouseButton&&) = delete;
+        MouseButton& operator=(MouseButton const&) = delete;
+        MouseButton& operator=(MouseButton&&) = delete;
+    
+        Point clickedPos;
+        bool pressed = false;
+        bool clicked = false;
+    };
+    
+    class Mouse {
+    public:
+        Mouse() = default;
+        Mouse(Mouse const&) = delete;
+        Mouse(Mouse&&) = delete;
+        Mouse& operator=(Mouse const&) = delete;
+        Mouse& operator=(Mouse&&) = delete;
+    
+        MouseButton left, right;
+    
+        /**
+         * @brief Moves cursor against previous position
+         * @param difx Delta x coordinate
+         * @param dify Delta y coordinate
+         */
+        void move(float_t difx, float_t dify);
+        
+        /**
+         * @brief Places the cursors in abosulute coordinates
+         * @param x X coordinate
+         * @param y Y coordiante
+         */
+        void place(float_t x, float_t y);
+    private:
+        friend class ::reig::Context;
+        Point cursorPos;
+    };
+    
+    /**
+     * @class Figure
+     * @brief A bunch of vertices and indices to render a figure
+     * Can be collected by the user, but formation is accessible only for the Context
+     */
+    class Figure {
+    public:
+        /**
+         * @brief Returns figure's read-only vertices
+         */
+        std::vector<Vertex> const& vertices() const;
+        /**
+         * @brief Returns figure's read-only indices
+         */
+        std::vector<uint_t> const&  indices() const;
+    private:
+        Figure() = default;
+        friend class ::reig::Context;
+        
+        void form(std::vector<Vertex>& vertices, std::vector<uint_t>& indices);
+    
+        std::vector<Vertex> _vertices;
+        std::vector<uint_t> _indices;
+    };
+    
     /**
      * @class Context
      * @brief Used to pump in input and request gui creation
@@ -106,7 +189,6 @@ namespace reig {
     public:
         Context() = default;
         
-        class Figure;
         using DrawData = std::vector<Figure>;
         using CallbackType = void (*)(DrawData const&, void*);
         
@@ -130,18 +212,17 @@ namespace reig {
         void const* get_user_ptr() const;
         
         /**
-         * @brief Uses stored drawData and draws everything using the user handler
-         */
-        void render_all() const;
-        
-        /**
          * @brief Resets draw data and inputs
          */
         void start_new_frame();
         
-        // Context inputs
-        class Mouse;
-        Mouse& mouse();
+        /**
+         * @brief Uses stored drawData and draws everything using the user handler
+         */
+        void render_all() const;
+        
+        // Inputs
+        Mouse mouse;
         
         // Widget renders
         /**
@@ -185,7 +266,7 @@ namespace reig {
          */
         bool scrollbar(Rectangle box, Color color, float_t& value, float_t min, float_t max, float_t logicalHeight);
          
-        // Render primitives
+        // Primitive renders
         /**
          * @brief Schedules a rectangle drawing
          * @param rect Position and size
@@ -199,79 +280,10 @@ namespace reig {
          * @param color Color
          */
         void render_triangle(Triangle const& triangle, Color const& color);
-        
-        /**
-         * @class Figure
-         * @brief A bunch of vertices and indices to render a figure
-         * Can be collected by the user, but formation is accessible only for the Context
-         */
-        class Figure {
-        public:
-            Figure() = default;
-            
-            /**
-             * @brief Returns figure's read-only vertices
-             */
-            std::vector<Vertex> const& vertices() const;
-            /**
-             * @brief Returns figure's read-only indices
-             */
-            std::vector<uint_t> const&  indices() const;
-        private:
-            friend class Context;
-            
-            void form(std::vector<Vertex>& vertices, std::vector<uint_t>& indices);
-        
-            std::vector<Vertex> _vertices;
-            std::vector<uint_t>  _indices;
-        };
-        
-        class Mouse {
-        public:
-            /**
-             * @brief Moves cursor against previous position
-             * @param difx Delta x coordinate
-             * @param dify Delta y coordinate
-             */
-            void move(float_t difx, float_t dify);
-            /**
-             * @brief Places the cursors in abosulute coordinates
-             * @param x X coordinate
-             * @param y Y coordiante
-             */
-            void place(float_t x, float_t y);
-            
-            /**
-             * @brief Sets mouse pressed and clicked states
-             * @param x X coordinate
-             * @param y Y coordinate
-             */
-            void press_left(float_t x, float_t y);
-            
-            /**
-             * @brief Unsets mouse pressed state
-             */
-            void release_left();
-        private:
-            friend class Context;
-            
-            struct Button {
-                bool pressed = false;
-                bool clicked = false;
-                Point clickedPos;
-            } 
-            left;
-            
-            Point cursorPos;
-        };
-    
-    
     private:
-        Mouse _mouse;
-        
         std::vector<Figure> _drawData;
-        CallbackType _renderHandler;
-        void* _userPtr;
+        CallbackType        _renderHandler;
+        void*               _userPtr;
     };    
 }
 
