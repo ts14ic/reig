@@ -209,33 +209,6 @@ bool reig::Context::checkbox(Rectangle aBox, Color aColor, bool& aValue) {
     }
 }
 
-bool reig::Context::scrollbar(
-    Rectangle aBox, Color aColor,
-    float_t& aValue,
-    float_t aMin,
-    float_t aMax,
-    float_t aLogicalHeight
-) {
-    // Render slider's base
-    Color cursorColor = detail::get_yiq_contrast(aColor);
-    render_rectangle(aBox, cursorColor);
-    aBox = detail::decrease(aBox, 4);
-    render_rectangle(aBox, aColor);
-    
-    // Prepare the values
-    float_t min = detail::min(aMin, aMax);
-    float_t max = detail::max(aMin, aMax);
-    float_t value = detail::clamp(aValue, min, max);
-    float_t step = aLogicalHeight / aBox.h;
-    int_t offset = static_cast<int_t>((value - min) / step);
-    int_t valuesNum = (max - min) / step + 1;
-    
-    (void) offset;
-    (void) valuesNum;
-    
-    return false;
-}
-
 void reig::Context::render_triangle(Triangle const& aTri, Color const& aColor) {
     std::vector<Vertex> vertices (3);
     vertices[0].position = {aTri.pos0};
