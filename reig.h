@@ -123,9 +123,9 @@ namespace reig {
         MouseButton& operator=(MouseButton const&) = delete;
         MouseButton& operator=(MouseButton&&) = delete;
     
-        Point clickedPos;
-        bool pressed = false;
-        bool clicked = false;
+        Point _clickedPos;
+        bool  _pressed = false;
+        bool  _clicked = false;
     };
     
     class Mouse {
@@ -151,9 +151,16 @@ namespace reig {
          * @param y Y coordiante
          */
         void place(float_t x, float_t y);
+        
+        /**
+         * @brief Scrolls the virtual mouse wheel
+         * @param dy Amount of scrolling
+         */
+        void scroll(float dy);
     private:
         friend class ::reig::Context;
-        Point cursorPos;
+        Point _cursorPos;
+        float _scroll;
     };
     
     /**
