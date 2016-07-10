@@ -1,4 +1,11 @@
 #include "reig.h"
+#define STB_TRUETYPE_IMPLEMENTATION
+#include "stb_truetype.h"
+//#include <iostream>
+#include <cstdio>
+#include <iterator>
+
+using std::vector;
 
 namespace reig::detail {
     template <typename T>
@@ -75,6 +82,63 @@ void const* reig::Context::get_user_ptr() const {
     return _userPtr;
 }
 
+namespace {
+    
+}
+
+void reig::FontData::auto_free() {
+    _free = true;
+}
+
+reig::FontData::~FontData() {
+    if(_free && bitmap) delete[] bitmap;
+}
+
+reig::FontData reig::Context::set_font(char const* aPath, uint_t aTextureId, float aSize) {
+    auto file = std::fopen("/usr/share/fonts/TTF/monof55.ttf", "rb");
+    std::fseek(file, 0, SEEK_END);
+    auto size = ftell(file);
+    std::rewind(file);
+    auto fileContents = new unsigned char[size];
+    std::fread(fileContents, 1, size, file);
+    std::fclose(file);
+    
+    int const charsNum = 96;
+    
+    auto bitmap = new unsigned char[256 * 256];
+    auto bakedChars = new stbtt_bakedchar[charsNum];
+    stbtt_BakeFontBitmap(fileContents, 0, 20.f, bitmap, 256, 256, ' ', charsNum, bakedChars);
+    
+    FontData ret;
+    ret.width = 256;
+    ret.height = 256;
+    ret.bitmap = new ubyte_t[ret.width * ret.height];
+    
+    if(_font.bakedChars) delete[] _font.bakedChars;
+    _font.bakedChars = new stbtt_bakedchar[charsNum];
+    _font.texture = aTextureId;
+    _font.width = ret.width;
+    _font.height = ret.height;
+    _font.size = aSize;
+    
+    stbtt_BakeFontBitmap(
+        fileContents, 0, aSize, 
+        ret.bitmap, ret.width, ret.height, 
+        ' ', 96, 
+        _font.bakedChars
+    );
+    
+    // DEBUG-PRINT
+//    for(auto j = 0u; j < _font.height; ++j) {
+//        for(auto i = 0u; i < _font.width; ++i) {
+//            std::cout << " .:-=+*#"[ret.bitmap[j * _font.width + i] >> 5];
+//        }   std::cout << std::endl;
+//    }
+    // DEBUG-END
+    
+    return ret;
+}
+
 void reig::Context::render_all() const {
     if(!_renderHandler) return;
     _renderHandler(_drawData, _userPtr);
@@ -113,38 +177,54 @@ void reig::MouseButton::release() {
     _pressed = false;
 }
 
-void reig::Figure::form(std::vector<Vertex>& vertices, std::vector<uint_t>& indices) {
+void reig::Figure::form(vector<Vertex>& vertices, vector<uint_t>& indices, uint_t id) {
     vertices.swap(_vertices);
     indices.swap(_indices);
+    _texture = id;
 }
 
-std::vector<reig::Vertex> const& reig::Figure::vertices() const {
+vector<reig::Vertex> const&
+reig::Figure::vertices() const {
     return _vertices;
 }
 
-std::vector<reig::uint_t> const& reig::Figure::indices() const {
+vector<reig::uint_t> const&
+reig::Figure::indices() const {
     return _indices;
 }
 
-bool reig::Context::button(Rectangle aRect, Color aColor) {
+reig::uint_t
+reig::Figure::texture() const {
+    return _texture;
+}
+
+bool reig::Context::button(Rectangle aBox, Color aColor) {
     // Render button outline first
     Color outlineCol = detail::get_yiq_contrast(aColor);
-    render_rectangle(aRect, outlineCol);
+    render_rectangle(aBox, outlineCol);
     
     // if cursor is over the button, highlight it
-    if(detail::in_box(mouse._cursorPos, aRect)) {
+    if(detail::in_box(mouse._cursorPos, aBox)) {
         aColor = detail::lighten_color_by(aColor, 50);
     }
-    aRect = detail::decrease(aRect, 4);
+    aBox = detail::decrease(aBox, 4);
     
-    bool clickedButton = detail::in_box(mouse.left._clickedPos, aRect);
+    bool clickedButton = detail::in_box(mouse.left._clickedPos, aBox);
     
     if(mouse.left._pressed && clickedButton) {
         aColor = detail::lighten_color_by(aColor, 50);
     }
-    render_rectangle(aRect, aColor);
+    render_rectangle(aBox, aColor);
     
     return mouse.left._clicked && clickedButton;
+}
+
+bool reig::Context::button(char const* aTitle, Rectangle aBox, Color aColor) {
+    bool ret = button(aBox, aColor);
+    
+    render_text(aTitle, aBox);
+    
+    return ret;
 }
 
 bool reig::Context::slider(
@@ -220,7 +300,7 @@ bool reig::Context::checkbox(Rectangle aBox, Color aColor, bool& aValue) {
 }
 
 void reig::Context::render_triangle(Triangle const& aTri, Color const& aColor) {
-    std::vector<Vertex> vertices (3);
+    vector<Vertex> vertices (3);
     vertices[0].position = {aTri.pos0};
     vertices[1].position = {aTri.pos1};
     vertices[2].position = {aTri.pos2};
@@ -229,15 +309,47 @@ void reig::Context::render_triangle(Triangle const& aTri, Color const& aColor) {
         vert.color = aColor;
     }
     
-    std::vector<uint_t> indices = {0, 1, 2};
+    vector<uint_t> indices = {0, 1, 2};
     
     Figure fig;
     fig.form(vertices, indices);
     _drawData.push_back(fig);
 }
 
+void reig::Context::render_text(char const* ch, Rectangle aBox) {
+    if(!ch) return;
+    
+    aBox = detail::decrease(aBox, 8);
+    float x = aBox.x;
+    float y = aBox.y + aBox.h - _font.size / 2;
+    
+    for(; *ch; ++ch) {
+        stbtt_aligned_quad q;
+        stbtt_GetBakedQuad(
+            _font.bakedChars,
+            _font.width, _font.height, *ch - ' ', &x, &y, &q, 1
+        );
+        if(x > aBox.x + aBox.w) break;
+        
+        Color transparent {0, 0, 0, 0};
+        
+        vector<Vertex> vertices {
+            {{q.x0, q.y0}, {q.s0, q.t0}, transparent},
+            {{q.x1, q.y0}, {q.s1, q.t0}, transparent},
+            {{q.x1, q.y1}, {q.s1, q.t1}, transparent},
+            {{q.x0, q.y1}, {q.s0, q.t1}, transparent}
+        };
+        
+        vector<uint_t> indices {0, 1, 2, 2, 3, 0};
+
+        Figure fig;
+        fig.form(vertices, indices, _font.texture);
+        _drawData.push_back(fig);
+    }
+}
+
 void reig::Context::render_rectangle(Rectangle const& aRect, Color const& aColor) {
-    std::vector<Vertex> vertices (4);
+    vector<Vertex> vertices (4);
     vertices[0].position = Point{aRect.x          , aRect.y          };
     vertices[1].position = Point{aRect.x + aRect.w, aRect.y          };
     vertices[2].position = Point{aRect.x + aRect.w, aRect.y + aRect.h};
@@ -247,8 +359,8 @@ void reig::Context::render_rectangle(Rectangle const& aRect, Color const& aColor
         vert.color = aColor;
     }
     
-    std::vector<uint_t> indices {0, 1, 2, 2, 3, 0};
-    
+    vector<uint_t> indices {0, 1, 2, 2, 3, 0};
+
     Figure fig;
     fig.form(vertices, indices);
     _drawData.push_back(fig);

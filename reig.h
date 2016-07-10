@@ -1,6 +1,7 @@
 #ifndef REIG_H_INCLUDED
 #define REIG_H_INCLUDED
 
+#include <stb_truetype.h>
 #include <vector>
 
 namespace reig {
@@ -94,7 +95,8 @@ namespace reig {
             Vertex() = default;
             
             Point position {};
-            Color color {};
+            Point texCoord {};
+            Color color    {};
         };
     }
     
@@ -174,19 +176,40 @@ namespace reig {
          * @brief Returns figure's read-only vertices
          */
         std::vector<Vertex> const& vertices() const;
+        
         /**
          * @brief Returns figure's read-only indices
          */
         std::vector<uint_t> const&  indices() const;
+        
+        /**
+         * @brief Return figure's texture index
+         */
+        uint_t texture() const;
     private:
         Figure() = default;
         friend class ::reig::Context;
         
-        void form(std::vector<Vertex>& vertices, std::vector<uint_t>& indices);
+        void form(std::vector<Vertex>& vertices, std::vector<uint_t>& indices, uint_t id = 0);
     
         std::vector<Vertex> _vertices;
         std::vector<uint_t> _indices;
+        uint_t              _texture = 0;
     };
+    
+    struct FontData {
+        ubyte_t* bitmap = nullptr;
+        uint_t width    = 0;
+        uint_t height   = 0;
+        
+        void auto_free();
+        ~FontData();
+    private:
+        bool _free = false;
+    };
+    
+    using DrawData = std::vector<Figure>;
+    using CallbackType = void (*)(DrawData const&, void*);
     
     /**
      * @class Context
@@ -195,9 +218,6 @@ namespace reig {
     class Context {
     public:
         Context() = default;
-        
-        using DrawData = std::vector<Figure>;
-        using CallbackType = void (*)(DrawData const&, void*);
         
         /**
          * @brief Set's a user function, which will draw the gui, based 
@@ -217,6 +237,16 @@ namespace reig {
          * @brief Gets the stored user pointer
          */
         void const* get_user_ptr() const;
+        
+        /**
+         * @brief Sets reig's font to be used for labels
+         * @param path The path to fonts .ttf file.
+         * @param textureId This id will be passed by reig to render_handler with text vertices
+         * @param size Font's pixel size
+         * @return Returns the bitmap, which is used to create a texture by user.
+         * Set returned bitmap field to nullptr, to avoid deletion
+         */
+        FontData set_font(char const* path, uint_t textureId, float size);
         
         /**
          * @brief Resets draw data and inputs
@@ -239,6 +269,15 @@ namespace reig {
          * @return True if the button was clicked, false otherwise
          */
         bool button(Rectangle box, Color color);
+        
+        /**
+         * @brief Render a titled button
+         * @param title Text to be displayed on button
+         * @param box Button's bounding box
+         * @param color Button's base color
+         * @return True if the button was clicked, false otherwise
+         */
+        bool button(char const* title, Rectangle box, Color color);
         
         /**
          * @brief Renders a slider.
@@ -275,6 +314,13 @@ namespace reig {
          
         // Primitive renders
         /**
+         * @brief Render some text
+         * @param text Text to be displayed
+         * @param box Text's bounding box
+         */
+        void render_text(char const* text, Rectangle box);
+        
+        /**
          * @brief Schedules a rectangle drawing
          * @param rect Position and size
          * @param color Color
@@ -289,8 +335,17 @@ namespace reig {
         void render_triangle(Triangle const& triangle, Color const& color);
     private:
         std::vector<Figure> _drawData;
-        CallbackType        _renderHandler;
-        void*               _userPtr;
+        CallbackType        _renderHandler = nullptr;
+        void*               _userPtr = nullptr;
+        
+        struct Font {
+            stbtt_bakedchar* bakedChars = nullptr;
+            float_t size   = 0.f;
+            uint_t texture = 0;
+            uint_t width   = 0;
+            uint_t height  = 0;
+        } 
+        _font;
     };    
 }
 
