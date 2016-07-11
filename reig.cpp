@@ -80,7 +80,7 @@ reig::Color reig::violet      {173, 127, 168};
 reig::Color reig::brown       {143,  89,   2};
 reig::Color reig::white       {255, 255, 255};
 reig::Color reig::lightGrey   {186, 189, 182};
-reig::Color reig::middleGrey  {136, 138, 133};
+reig::Color reig::mediumGrey  {136, 138, 133};
 reig::Color reig::darkGrey    { 46,  52,  54};
 reig::Color reig::black       {  0,   0,   0};
 
@@ -238,28 +238,37 @@ void reig::Context::end_window() {
     _window.h += 4;
     
     vector<Vertex> headerVertices {
-        {{*_window.x,             *_window.y                     }, {}, {50, 50, 50, 150}},
-        {{*_window.x + _window.w, *_window.y                     }, {}, {50, 50, 50, 150}},
-        {{*_window.x + _window.w, *_window.y + _window.headerSize}, {}, {50, 50, 50, 150}},
-        {{*_window.x,             *_window.y + _window.headerSize}, {}, {50, 50, 50, 150}}
+        {{*_window.x,             *_window.y                     }, {}, darkGrey},
+        {{*_window.x + _window.w, *_window.y                     }, {}, darkGrey},
+        {{*_window.x + _window.w, *_window.y + _window.headerSize}, {}, darkGrey},
+        {{*_window.x,             *_window.y + _window.headerSize}, {}, darkGrey}
     };
     vector<uint_t> headerIndices {0, 1, 2, 2, 3, 0};
     Figure header;
     header.form(headerVertices, headerIndices);
     
     vector<Vertex> bodyVertices {
-        {{*_window.x,             *_window.y            }, {}, {85, 85, 85, 150}},
-        {{*_window.x + _window.w, *_window.y            }, {}, {85, 85, 85, 150}},
-        {{*_window.x + _window.w, *_window.y + _window.h}, {}, {85, 85, 85, 150}},
-        {{*_window.x,             *_window.y + _window.h}, {}, {85, 85, 85, 150}},
+        {{*_window.x,             *_window.y + _window.headerSize}, {}, mediumGrey},
+        {{*_window.x + _window.w, *_window.y + _window.headerSize}, {}, mediumGrey},
+        {{*_window.x + _window.w, *_window.y + _window.h         }, {}, mediumGrey},
+        {{*_window.x,             *_window.y + _window.h         }, {}, mediumGrey},
         
     };
     vector<uint_t> bodyIndices {0, 1, 2, 2, 3, 0};
     Figure body;
     body.form(bodyVertices, bodyIndices);
     
+    Triangle arrowDown {
+        *_window.x + 3.f,                            *_window.y + 3.f,
+        *_window.x + 3.f + _window.headerSize,       *_window.y + 3.f,
+        *_window.x + 3.f + _window.headerSize / 2.f, *_window.y + _window.headerSize - 3.f
+    };
+    
     _window.drawData.push_back(header);
-    label(_window.title, {*_window.x, *_window.y, _window.w, _window.headerSize});
+    render_text(_window.title, {
+        *_window.x + _window.headerSize, *_window.y, _window.w - _window.headerSize, _window.headerSize
+    });
+    render_triangle(arrowDown, lightGrey);
     _window.drawData.push_back(body);
     
     Rectangle headerBox {*_window.x, *_window.y, _window.w, _window.headerSize};
@@ -291,39 +300,8 @@ void reig::Context::Window::expand(Rectangle& aBox) {
 }
 
 void reig::Context::label(char const* ch, Rectangle aBox) {
-    if(_font.bakedChars == nullptr) return;
-    if(ch == nullptr) return;
-    
-    aBox = detail::decrease(aBox, 8);
-    float x = aBox.x;
-    float y = aBox.y + aBox.h / 2 + _font.size / 2;
-    
-    for(; *ch; ++ch) {
-        stbtt_aligned_quad q;
-        stbtt_GetBakedQuad(
-            _font.bakedChars,
-            _font.width, _font.height, *ch - ' ', &x, &y, &q, 1
-        );
-        if(q.x0 > aBox.x + aBox.w) {
-            break;
-        }
-        if(q.x1 > aBox.x + aBox.w) {
-            q.x1 = aBox.x + aBox.w;
-        }
-        
-        vector<Vertex> vertices {
-            {{q.x0, q.y0}, {q.s0, q.t0}, {}},
-            {{q.x1, q.y0}, {q.s1, q.t0}, {}},
-            {{q.x1, q.y1}, {q.s1, q.t1}, {}},
-            {{q.x0, q.y1}, {q.s0, q.t1}, {}}
-        };
-        
-        vector<uint_t> indices {0, 1, 2, 2, 3, 0};
-
-        Figure fig;
-        fig.form(vertices, indices, _font.texture);
-        _drawData.push_back(fig);
-    }
+    _window.expand(aBox);
+    render_text(ch, aBox);
 }
 
 bool reig::Context::button(char const* aTitle, Rectangle aBox, Color aColor) {
@@ -345,7 +323,7 @@ bool reig::Context::button(char const* aTitle, Rectangle aBox, Color aColor) {
         aColor = detail::lighten_color_by(aColor, 50);
     }
     render_rectangle(aBox, aColor);
-    label(aTitle, aBox);
+    render_text(aTitle, aBox);
     
     return mouse.left._clicked && clickedButton;
 }
@@ -365,7 +343,7 @@ bool reig::Context::button(char const* aTitle, Rectangle aBox, int aBaseTexture,
     
     aBox = detail::decrease(aBox, 8);
     
-    label(aTitle, aBox);
+    render_text(aTitle, aBox);
     
     return mouse.left._clicked && clickedButton;
 }
@@ -510,6 +488,42 @@ bool reig::Context::checkbox(Rectangle aBox, int aBaseTexture, int aTickTexture,
     }
     else {
         return false;
+    }
+}
+
+void reig::Context::render_text(char const* ch, Rectangle aBox) {
+    if(_font.bakedChars == nullptr) return;
+    if(ch == nullptr) return;
+    
+    aBox = detail::decrease(aBox, 8);
+    float x = aBox.x;
+    float y = aBox.y + aBox.h / 2 + _font.size / 2;
+    
+    for(; *ch; ++ch) {
+        stbtt_aligned_quad q;
+        stbtt_GetBakedQuad(
+            _font.bakedChars,
+            _font.width, _font.height, *ch - ' ', &x, &y, &q, 1
+        );
+        if(q.x0 > aBox.x + aBox.w) {
+            break;
+        }
+        if(q.x1 > aBox.x + aBox.w) {
+            q.x1 = aBox.x + aBox.w;
+        }
+        
+        vector<Vertex> vertices {
+            {{q.x0, q.y0}, {q.s0, q.t0}, {}},
+            {{q.x1, q.y0}, {q.s1, q.t0}, {}},
+            {{q.x1, q.y1}, {q.s1, q.t1}, {}},
+            {{q.x0, q.y1}, {q.s0, q.t1}, {}}
+        };
+        
+        vector<uint_t> indices {0, 1, 2, 2, 3, 0};
+
+        Figure fig;
+        fig.form(vertices, indices, _font.texture);
+        _drawData.push_back(fig);
     }
 }
 

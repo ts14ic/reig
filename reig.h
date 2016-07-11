@@ -112,7 +112,7 @@ namespace reig {
     extern Color brown;
     extern Color white;
     extern Color lightGrey;
-    extern Color middleGrey;
+    extern Color mediumGrey;
     extern Color darkGrey;
     extern Color black;
     
@@ -283,7 +283,7 @@ namespace reig {
         void end_window();
         
         /**
-         * @brief Render some text
+         * @brief Render a label, which get's enclose in current window, if any
          * @param text Text to be displayed
          * @param box Text's bounding box
          */
@@ -365,6 +365,12 @@ namespace reig {
         bool scrollbar(Rectangle box, Color color, float_t& value, float_t min, float_t max, float_t logicalHeight);
          
         // Primitive renders
+        /**
+         * @brief Render some text
+         * @param text Text to be displayed
+         * @param box Text's bounding box
+         */
+        void render_text(char const* text, Rectangle box);
         /**
          * @brief Schedules a rectangle drawing
          * @param rect Position and size
