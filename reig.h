@@ -38,6 +38,8 @@ namespace reig {
             Rectangle() = default;
             Rectangle(float_t x, float_t y, float_t w, float_t h)
                 : x{x}, y{y}, w{w}, h{h} {}
+            Rectangle(float_t x, float_t y, Size size)
+                : x{x}, y{y}, size{size} {}
             Rectangle(Point pos, Size size) 
                 : pos{pos}, size{size} {}
             
