@@ -225,9 +225,13 @@ bool reig::Context::button(Rectangle aBox, int texture) {
 
 bool reig::Context::button(char const* aTitle, Rectangle aBox, Color aColor) {
     bool ret = button(aBox, aColor);
-    
     label(aTitle, aBox);
-    
+    return ret;
+}
+
+bool reig::Context::button(char const* aTitle, Rectangle aBox, int texture) {
+    bool ret = button(aBox, texture);
+    label(aTitle, aBox);
     return ret;
 }
 
@@ -256,6 +260,54 @@ bool reig::Context::slider(
         cursorColor = detail::lighten_color_by(cursorColor, 50);
     }
     render_rectangle(cursorBox, cursorColor);
+    
+    if(mouse.left._pressed && detail::in_box(mouse.left._clickedPos, aBox)) {
+        auto halfCursorW = cursorBox.w / 2;
+        auto distance = mouse._cursorPos.x - cursorBox.x - halfCursorW;
+        
+        if(detail::abs(distance) > halfCursorW) {
+            value += static_cast<int_t>(distance / cursorBox.w) * aStep;
+            value = detail::clamp(value, min, max);
+        }
+    }
+    else if(mouse._scroll != 0 && detail::in_box(mouse._cursorPos, aBox)) {
+        value += static_cast<int_t>(mouse._scroll) * aStep;
+        value = detail::clamp(value, min, max);
+    }
+    
+    if(aValue != value) {
+        aValue = value;
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+bool reig::Context::slider(
+    Rectangle aBox, 
+    int aBaseTexture, 
+    int aCursorTexture, 
+    float& aValue, 
+    float_t aMin, 
+    float_t aMax, 
+    float_t aStep
+) {
+    // Render slider's base
+    render_rectangle(aBox, aBaseTexture);
+    
+    // Prepare the values
+    float_t min = detail::min(aMin, aMax);
+    float_t max = detail::max(aMin, aMax);
+    float_t value = detail::clamp(aValue, min, max);
+    int_t offset = static_cast<int_t>((value - min) / aStep);
+    int_t valuesNum = (max - min) / aStep + 1;
+    
+    // Render the cursor
+    auto cursorBox = detail::decrease(aBox, 4);
+    cursorBox.w /= valuesNum;
+    cursorBox.x += offset * cursorBox.w;
+    render_rectangle(cursorBox, aCursorTexture);
     
     if(mouse.left._pressed && detail::in_box(mouse.left._clickedPos, aBox)) {
         auto halfCursorW = cursorBox.w / 2;

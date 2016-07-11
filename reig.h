@@ -280,7 +280,7 @@ namespace reig {
         /**
          * @brief Render a textured button
          * @param box Button's bouding box
-         * @param texture Button's base color
+         * @param texture Button's texture index
          * @return True if the button was clicked, false otherwise
          */
         bool button(Rectangle box, int texture);
@@ -295,6 +295,14 @@ namespace reig {
         bool button(char const* title, Rectangle box, Color color);
         
         /**
+         * @brief Render a titled textured button
+         * @param box Button's bouding box
+         * @param texture Button's texture index
+         * @return True if the button was clicked, false otherwise
+         */
+        bool button(char const* title, Rectangle box, int texture);
+        
+        /**
          * @brief Renders a slider.
          * @param box Slider's bounding box
          * @param color Slider's base color
@@ -305,6 +313,20 @@ namespace reig {
          * @return True if value changed
          */
         bool slider(Rectangle box, Color color, float_t& value, float_t min, float_t max, float_t step);
+        
+        /**
+         * @brief 
+         * @brief Renders a slider.
+         * @param box Slider's bounding box
+         * @param baseTexture Slider's base texture index
+         * @param cursorTexture Slider's cursor texture index
+         * @param value A reference to the value to be represented and changed
+         * @param min The lowest represantable value
+         * @param max The highest represantable value
+         * @param step The discrete portion by which the value can change
+         * @return True if value changed
+         */
+        bool slider(Rectangle box, int baseTexture, int cursorTexture, float& value, float_t min, float_t max, float_t step);
         
         /**
          * @brief Renders a square checkbox
