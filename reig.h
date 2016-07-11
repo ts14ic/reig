@@ -80,6 +80,12 @@ namespace reig {
             Color(ubyte_t r, ubyte_t g, ubyte_t b, ubyte_t a = {0xFFu})
                 : r{r}, g{g}, b{b}, a{a} {}
             
+            
+            Color red  (ubyte_t val);
+            Color green(ubyte_t val);
+            Color blue (ubyte_t val);
+            Color alpha(ubyte_t val);
+            
             union {
                 struct {
                     ubyte_t r;

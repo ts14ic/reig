@@ -70,6 +70,30 @@ namespace reig::detail {
     }
 }
 
+reig::Color reig::Color::red(ubyte_t val) {
+    Color ret = *this;
+    ret.r = val;
+    return ret;
+}
+
+reig::Color reig::Color::green(ubyte_t val) {
+    Color ret = *this;
+    ret.g = val;
+    return ret;
+}
+
+reig::Color reig::Color::blue(ubyte_t val) {
+    Color ret = *this;
+    ret.b = val;
+    return ret;
+}
+
+reig::Color reig::Color::alpha(ubyte_t val) {
+    Color ret = *this;
+    ret.a = val;
+    return ret;
+}
+
 reig::Color reig::transparent {};
 reig::Color reig::red         {239,  41,  41};
 reig::Color reig::orange      {252, 175,  62};
@@ -94,10 +118,6 @@ void reig::Context::set_user_ptr(void* ptr) {
 
 void const* reig::Context::get_user_ptr() const {
     return _userPtr;
-}
-
-namespace {
-    
 }
 
 void reig::FontData::auto_free() {
@@ -134,14 +154,6 @@ reig::FontData reig::Context::set_font(char const* aPath, uint_t aTextureId, flo
     _font.width = 256;
     _font.height = height;
     _font.size = aSize;
-    
-    // DEBUG-PRINT
-//    for(auto j = 0u; j < _font.height; ++j) {
-//        for(auto i = 0u; i < _font.width; ++i) {
-//            std::cout << " .:-=+*#"[ret.bitmap[j * _font.width + i] >> 5];
-//        }   std::cout << std::endl;
-//    }
-    // DEBUG-END
     
     FontData ret;
     ret.bitmap = bitmap;
@@ -238,20 +250,20 @@ void reig::Context::end_window() {
     _window.h += 4;
     
     vector<Vertex> headerVertices {
-        {{*_window.x,             *_window.y                     }, {}, darkGrey},
-        {{*_window.x + _window.w, *_window.y                     }, {}, darkGrey},
-        {{*_window.x + _window.w, *_window.y + _window.headerSize}, {}, darkGrey},
-        {{*_window.x,             *_window.y + _window.headerSize}, {}, darkGrey}
+        {{*_window.x,             *_window.y                     }, {}, darkGrey.alpha(200)},
+        {{*_window.x + _window.w, *_window.y                     }, {}, darkGrey.alpha(200)},
+        {{*_window.x + _window.w, *_window.y + _window.headerSize}, {}, darkGrey.alpha(200)},
+        {{*_window.x,             *_window.y + _window.headerSize}, {}, darkGrey.alpha(200)}
     };
     vector<uint_t> headerIndices {0, 1, 2, 2, 3, 0};
     Figure header;
     header.form(headerVertices, headerIndices);
     
     vector<Vertex> bodyVertices {
-        {{*_window.x,             *_window.y + _window.headerSize}, {}, mediumGrey},
-        {{*_window.x + _window.w, *_window.y + _window.headerSize}, {}, mediumGrey},
-        {{*_window.x + _window.w, *_window.y + _window.h         }, {}, mediumGrey},
-        {{*_window.x,             *_window.y + _window.h         }, {}, mediumGrey},
+        {{*_window.x,             *_window.y + _window.headerSize}, {}, mediumGrey.alpha(100)},
+        {{*_window.x + _window.w, *_window.y + _window.headerSize}, {}, mediumGrey.alpha(100)},
+        {{*_window.x + _window.w, *_window.y + _window.h         }, {}, mediumGrey.alpha(100)},
+        {{*_window.x,             *_window.y + _window.h         }, {}, mediumGrey.alpha(100)},
         
     };
     vector<uint_t> bodyIndices {0, 1, 2, 2, 3, 0};
@@ -266,7 +278,8 @@ void reig::Context::end_window() {
     
     _window.drawData.push_back(header);
     render_text(_window.title, {
-        *_window.x + _window.headerSize, *_window.y, _window.w - _window.headerSize, _window.headerSize
+        *_window.x + _window.headerSize, *_window.y, 
+        _window.w - _window.headerSize, _window.headerSize
     });
     render_triangle(arrowDown, lightGrey);
     _window.drawData.push_back(body);
