@@ -196,7 +196,7 @@ reig::Figure::texture() const {
     return _texture;
 }
 
-bool reig::Context::button(Rectangle aBox, Color aColor) {
+bool reig::Context::button(char const* aTitle, Rectangle aBox, Color aColor) {
     // Render button outline first
     Color outlineCol = detail::get_yiq_contrast(aColor);
     render_rectangle(aBox, outlineCol);
@@ -213,26 +213,27 @@ bool reig::Context::button(Rectangle aBox, Color aColor) {
         aColor = detail::lighten_color_by(aColor, 50);
     }
     render_rectangle(aBox, aColor);
+    label(aTitle, aBox);
     
     return mouse.left._clicked && clickedButton;
 }
 
-bool reig::Context::button(Rectangle aBox, int texture) {
-    render_rectangle(aBox, texture);
+bool reig::Context::button(char const* aTitle, Rectangle aBox, int aBaseTexture, int aHoverTexture) {
+    bool clickedButton = detail::in_box(mouse.left._clickedPos, aBox);
+    bool hoveredButton = detail::in_box(mouse._cursorPos, aBox);
     
-    return mouse.left._clicked && detail::in_box(mouse.left._clickedPos, aBox);
-}
-
-bool reig::Context::button(char const* aTitle, Rectangle aBox, Color aColor) {
-    bool ret = button(aBox, aColor);
+    if((mouse.left._pressed && clickedButton) || hoveredButton) {
+        render_rectangle(aBox, aBaseTexture);
+    }
+    else {
+        render_rectangle(aBox, aHoverTexture);
+    }
+    
+    aBox = detail::decrease(aBox, 8);
+    
     label(aTitle, aBox);
-    return ret;
-}
-
-bool reig::Context::button(char const* aTitle, Rectangle aBox, int texture) {
-    bool ret = button(aBox, texture);
-    label(aTitle, aBox);
-    return ret;
+    
+    return mouse.left._clicked && clickedButton;
 }
 
 bool reig::Context::slider(
@@ -285,13 +286,8 @@ bool reig::Context::slider(
 }
 
 bool reig::Context::slider(
-    Rectangle aBox, 
-    int aBaseTexture, 
-    int aCursorTexture, 
-    float& aValue, 
-    float_t aMin, 
-    float_t aMax, 
-    float_t aStep
+    Rectangle aBox, int aBaseTexture, int aCursorTexture, 
+    float& aValue, float_t aMin, float_t aMax, float_t aStep
 ) {
     // Render slider's base
     render_rectangle(aBox, aBaseTexture);
@@ -304,7 +300,7 @@ bool reig::Context::slider(
     int_t valuesNum = (max - min) / aStep + 1;
     
     // Render the cursor
-    auto cursorBox = detail::decrease(aBox, 4);
+    auto cursorBox = detail::decrease(aBox, 8);
     cursorBox.w /= valuesNum;
     cursorBox.x += offset * cursorBox.w;
     render_rectangle(cursorBox, aCursorTexture);
@@ -430,7 +426,7 @@ void reig::Context::label(char const* ch, Rectangle aBox) {
     }
 }
 
-void reig::Context::render_rectangle(Rectangle const& aBox, int texture) {
+void reig::Context::render_rectangle(Rectangle const& aBox, int aTexture) {
     Color transparent {0, 0, 0, 0};
     
     vector<Vertex> vertices {
@@ -442,7 +438,7 @@ void reig::Context::render_rectangle(Rectangle const& aBox, int texture) {
     vector<uint_t> indices {0, 1, 2, 2, 3, 0};
     
     Figure fig;
-    fig.form(vertices, indices, texture);
+    fig.form(vertices, indices, aTexture);
     _drawData.push_back(fig);
 }
 

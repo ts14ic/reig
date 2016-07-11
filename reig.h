@@ -273,22 +273,6 @@ namespace reig {
         void label(char const* text, Rectangle box);
         
         /**
-         * @brief Render a button
-         * @param box Button's bounding box
-         * @param color Button's base color
-         * @return True if the button was clicked, false otherwise
-         */
-        bool button(Rectangle box, Color color);
-        
-        /**
-         * @brief Render a textured button
-         * @param box Button's bouding box
-         * @param texture Button's texture index
-         * @return True if the button was clicked, false otherwise
-         */
-        bool button(Rectangle box, int texture);
-        
-        /**
          * @brief Render a titled button
          * @param title Text to be displayed on button
          * @param box Button's bounding box
@@ -300,10 +284,11 @@ namespace reig {
         /**
          * @brief Render a titled textured button
          * @param box Button's bouding box
-         * @param texture Button's texture index
+         * @param baseTexture Button's texture index, when idle
+         * @param hoverTexture Button's texture index, when button is hoverred
          * @return True if the button was clicked, false otherwise
          */
-        bool button(char const* title, Rectangle box, int texture);
+        bool button(char const* title, Rectangle box, int baseTexture, int hoverTexture);
         
         /**
          * @brief Renders a slider.
