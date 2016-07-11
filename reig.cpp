@@ -217,10 +217,16 @@ bool reig::Context::button(Rectangle aBox, Color aColor) {
     return mouse.left._clicked && clickedButton;
 }
 
+bool reig::Context::button(Rectangle aBox, int texture) {
+    render_rectangle(aBox, texture);
+    
+    return mouse.left._clicked && detail::in_box(mouse.left._clickedPos, aBox);
+}
+
 bool reig::Context::button(char const* aTitle, Rectangle aBox, Color aColor) {
     bool ret = button(aBox, aColor);
     
-    render_text(aTitle, aBox);
+    label(aTitle, aBox);
     
     return ret;
 }
@@ -314,7 +320,7 @@ void reig::Context::render_triangle(Triangle const& aTri, Color const& aColor) {
     _drawData.push_back(fig);
 }
 
-void reig::Context::render_text(char const* ch, Rectangle aBox) {
+void reig::Context::label(char const* ch, Rectangle aBox) {
     if(_font.bakedChars == nullptr) return;
     if(ch == nullptr) return;
     
@@ -352,17 +358,29 @@ void reig::Context::render_text(char const* ch, Rectangle aBox) {
     }
 }
 
+void reig::Context::render_rectangle(Rectangle const& aBox, int texture) {
+    Color transparent {0, 0, 0, 0};
+    
+    vector<Vertex> vertices {
+        {{aBox.x,          aBox.y         }, {0.f, 0.f}, transparent},
+        {{aBox.x + aBox.w, aBox.y         }, {1.f, 0.f}, transparent},
+        {{aBox.x + aBox.w, aBox.y + aBox.h}, {1.f, 1.f}, transparent},
+        {{aBox.x,          aBox.y + aBox.h}, {0.f, 1.f}, transparent}
+    };
+    vector<uint_t> indices {0, 1, 2, 2, 3, 0};
+    
+    Figure fig;
+    fig.form(vertices, indices, texture);
+    _drawData.push_back(fig);
+}
+
 void reig::Context::render_rectangle(Rectangle const& aRect, Color const& aColor) {
-    vector<Vertex> vertices (4);
-    vertices[0].position = Point{aRect.x          , aRect.y          };
-    vertices[1].position = Point{aRect.x + aRect.w, aRect.y          };
-    vertices[2].position = Point{aRect.x + aRect.w, aRect.y + aRect.h};
-    vertices[3].position = Point{aRect.x          , aRect.y + aRect.h};
-    
-    for(auto& vert : vertices) {
-        vert.color = aColor;
-    }
-    
+    vector<Vertex> vertices {
+        {{aRect.x,           aRect.y          }, {}, aColor},
+        {{aRect.x + aRect.w, aRect.y          }, {}, aColor},
+        {{aRect.x + aRect.w, aRect.y + aRect.h}, {}, aColor},
+        {{aRect.x,           aRect.y + aRect.h}, {}, aColor}
+    };
     vector<uint_t> indices {0, 1, 2, 2, 3, 0};
 
     Figure fig;

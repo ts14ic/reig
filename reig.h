@@ -263,12 +263,27 @@ namespace reig {
         
         // Widget renders
         /**
+         * @brief Render some text
+         * @param text Text to be displayed
+         * @param box Text's bounding box
+         */
+        void label(char const* text, Rectangle box);
+        
+        /**
          * @brief Render a button
          * @param box Button's bounding box
          * @param color Button's base color
          * @return True if the button was clicked, false otherwise
          */
         bool button(Rectangle box, Color color);
+        
+        /**
+         * @brief Render a textured button
+         * @param box Button's bouding box
+         * @param texture Button's base color
+         * @return True if the button was clicked, false otherwise
+         */
+        bool button(Rectangle box, int texture);
         
         /**
          * @brief Render a titled button
@@ -314,18 +329,18 @@ namespace reig {
          
         // Primitive renders
         /**
-         * @brief Render some text
-         * @param text Text to be displayed
-         * @param box Text's bounding box
-         */
-        void render_text(char const* text, Rectangle box);
-        
-        /**
          * @brief Schedules a rectangle drawing
          * @param rect Position and size
          * @param color Color
          */
         void render_rectangle(Rectangle const& rect, Color const& color);
+        
+        /**
+         * @brief Schedules a textured rectangle drawing (the texture is stretched)
+         * @param rect Position and size
+         * @param texture Index to the texture
+         */
+        void render_rectangle(Rectangle const& rect, int texture);
         
         /**
          * @brief Schedules a triangle drawing
