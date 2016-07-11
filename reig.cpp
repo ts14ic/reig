@@ -1,9 +1,9 @@
 #include "reig.h"
 #define STB_TRUETYPE_IMPLEMENTATION
+#define STBTT_STATIC
 #include "stb_truetype.h"
-//#include <iostream>
 #include <cstdio>
-#include <iterator>
+#include <cassert>
 
 using std::vector;
 
@@ -95,7 +95,7 @@ reig::FontData::~FontData() {
 }
 
 reig::FontData reig::Context::set_font(char const* aPath, uint_t aTextureId, float aSize) {
-    auto file = std::fopen("/usr/share/fonts/TTF/monof55.ttf", "rb");
+    auto file = std::fopen(aPath, "rb");
     std::fseek(file, 0, SEEK_END);
     auto size = ftell(file);
     std::rewind(file);
@@ -105,28 +105,21 @@ reig::FontData reig::Context::set_font(char const* aPath, uint_t aTextureId, flo
     
     int const charsNum = 96;
     
-    auto bitmap = new unsigned char[256 * 256];
     auto bakedChars = new stbtt_bakedchar[charsNum];
-    stbtt_BakeFontBitmap(fileContents, 0, 20.f, bitmap, 256, 256, ' ', charsNum, bakedChars);
     
-    FontData ret;
-    ret.width = 256;
-    ret.height = 256;
-    ret.bitmap = new ubyte_t[ret.width * ret.height];
+    auto bitmap = new ubyte_t[256 * 256];
+    auto height = stbtt_BakeFontBitmap(
+        fileContents, 0, aSize, bitmap, 256, 256, ' ', charsNum, bakedChars
+    );
+    assert(height <= 256);
+    delete[] fileContents;
     
     if(_font.bakedChars) delete[] _font.bakedChars;
-    _font.bakedChars = new stbtt_bakedchar[charsNum];
+    _font.bakedChars = bakedChars;
     _font.texture = aTextureId;
-    _font.width = ret.width;
-    _font.height = ret.height;
+    _font.width = 256;
+    _font.height = height;
     _font.size = aSize;
-    
-    stbtt_BakeFontBitmap(
-        fileContents, 0, aSize, 
-        ret.bitmap, ret.width, ret.height, 
-        ' ', 96, 
-        _font.bakedChars
-    );
     
     // DEBUG-PRINT
 //    for(auto j = 0u; j < _font.height; ++j) {
@@ -135,6 +128,11 @@ reig::FontData reig::Context::set_font(char const* aPath, uint_t aTextureId, flo
 //        }   std::cout << std::endl;
 //    }
     // DEBUG-END
+    
+    FontData ret;
+    ret.bitmap = bitmap;
+    ret.width = 256;
+    ret.height = height;
     
     return ret;
 }
@@ -317,11 +315,12 @@ void reig::Context::render_triangle(Triangle const& aTri, Color const& aColor) {
 }
 
 void reig::Context::render_text(char const* ch, Rectangle aBox) {
-    if(!ch) return;
+    if(_font.bakedChars == nullptr) return;
+    if(ch == nullptr) return;
     
     aBox = detail::decrease(aBox, 8);
     float x = aBox.x;
-    float y = aBox.y + aBox.h - _font.size / 2;
+    float y = aBox.y + aBox.h / 2 + _font.size / 2;
     
     for(; *ch; ++ch) {
         stbtt_aligned_quad q;
@@ -329,7 +328,12 @@ void reig::Context::render_text(char const* ch, Rectangle aBox) {
             _font.bakedChars,
             _font.width, _font.height, *ch - ' ', &x, &y, &q, 1
         );
-        if(x > aBox.x + aBox.w) break;
+        if(q.x0 > aBox.x + aBox.w) {
+            break;
+        }
+        if(q.x1 > aBox.x + aBox.w) {
+            q.x1 = aBox.x + aBox.w;
+        }
         
         Color transparent {0, 0, 0, 0};
         
