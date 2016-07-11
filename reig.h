@@ -161,6 +161,7 @@ namespace reig {
         void scroll(float dy);
     private:
         friend class ::reig::Context;
+        
         Point _cursorPos;
         float _scroll;
     };
@@ -256,7 +257,7 @@ namespace reig {
         /**
          * @brief Uses stored drawData and draws everything using the user handler
          */
-        void render_all() const;
+        void render_all();
         
         // Inputs
         Mouse mouse;
@@ -381,6 +382,20 @@ namespace reig {
             uint_t height  = 0;
         } 
         _font;
+        
+        struct Window {
+            std::vector<Figure> drawData;
+            char const* title = nullptr;
+            float* x = nullptr;
+            float* y = nullptr;
+            float w = 0.f;
+            float h = 0.f;
+            float headerSize = 0.f;
+            bool started = false;
+            
+            void expand(Rectangle& box);
+        }
+        _window;
     };    
 }
 

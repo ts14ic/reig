@@ -137,12 +137,20 @@ reig::FontData reig::Context::set_font(char const* aPath, uint_t aTextureId, flo
     return ret;
 }
 
-void reig::Context::render_all() const {
+void reig::Context::render_all() {
     if(!_renderHandler) return;
-    _renderHandler(_drawData, _userPtr);
+    if(_window.started) end_window();
+    
+    if(!_window.drawData.empty()) {
+        _renderHandler(_window.drawData, _userPtr);
+    }
+    if(!_drawData.empty()) {
+        _renderHandler(_drawData, _userPtr);
+    }
 }
 
 void reig::Context::start_new_frame() {
+    _window.drawData.clear();
     _drawData.clear();
     
     mouse.left._clicked = false;
@@ -196,7 +204,119 @@ reig::Figure::texture() const {
     return _texture;
 }
 
+void reig::Context::start_window(char const* aTitle, float& aX, float& aY) {
+    if(_window.started) end_window();
+    
+    _window.started = true;
+    _window.title   = aTitle;
+    _window.x = &aX;
+    _window.y = &aY;
+    _window.w = 0;
+    _window.h = 0;
+    _window.headerSize = 8 + _font.size;
+}
+
+void reig::Context::end_window() {
+    if(!_window.started) return;
+    _window.started = false;
+    
+    _window.w += 4;
+    _window.h += 4;
+    
+    vector<Vertex> headerVertices {
+        {{*_window.x,             *_window.y                     }, {}, {50, 50, 50, 150}},
+        {{*_window.x + _window.w, *_window.y                     }, {}, {50, 50, 50, 150}},
+        {{*_window.x + _window.w, *_window.y + _window.headerSize}, {}, {50, 50, 50, 150}},
+        {{*_window.x,             *_window.y + _window.headerSize}, {}, {50, 50, 50, 150}}
+    };
+    vector<uint_t> headerIndices {0, 1, 2, 2, 3, 0};
+    Figure header;
+    header.form(headerVertices, headerIndices);
+    
+    vector<Vertex> bodyVertices {
+        {{*_window.x,             *_window.y            }, {}, {85, 85, 85, 150}},
+        {{*_window.x + _window.w, *_window.y            }, {}, {85, 85, 85, 150}},
+        {{*_window.x + _window.w, *_window.y + _window.h}, {}, {85, 85, 85, 150}},
+        {{*_window.x,             *_window.y + _window.h}, {}, {85, 85, 85, 150}},
+        
+    };
+    vector<uint_t> bodyIndices {0, 1, 2, 2, 3, 0};
+    Figure body;
+    body.form(bodyVertices, bodyIndices);
+    
+    _window.drawData.push_back(header);
+    label(_window.title, {*_window.x, *_window.y, _window.w, _window.headerSize});
+    _window.drawData.push_back(body);
+    
+    Rectangle headerBox {*_window.x, *_window.y, _window.w, _window.headerSize};
+    if(mouse.left._pressed && detail::in_box(mouse.left._clickedPos, headerBox)) {
+        Point moved  {
+            mouse._cursorPos.x - mouse.left._clickedPos.x,
+            mouse._cursorPos.y - mouse.left._clickedPos.y
+        };
+        
+        *_window.x += moved.x;
+        *_window.y += moved.y;
+        mouse.left._clickedPos.x += moved.x;
+        mouse.left._clickedPos.y += moved.y;
+    }
+}
+
+void reig::Context::Window::expand(Rectangle& aBox) {
+    if(started) {
+        aBox.x += *x + 4;
+        aBox.y += *y + headerSize + 4;
+        
+        if(*x + w < aBox.x + aBox.w) {
+            w = aBox.x + aBox.w - *x;
+        }
+        if(*y + h < aBox.y + aBox.h) {
+            h = aBox.y + aBox.h - *y;
+        }
+    }
+}
+
+void reig::Context::label(char const* ch, Rectangle aBox) {
+    if(_font.bakedChars == nullptr) return;
+    if(ch == nullptr) return;
+    
+    aBox = detail::decrease(aBox, 8);
+    float x = aBox.x;
+    float y = aBox.y + aBox.h / 2 + _font.size / 2;
+    
+    for(; *ch; ++ch) {
+        stbtt_aligned_quad q;
+        stbtt_GetBakedQuad(
+            _font.bakedChars,
+            _font.width, _font.height, *ch - ' ', &x, &y, &q, 1
+        );
+        if(q.x0 > aBox.x + aBox.w) {
+            break;
+        }
+        if(q.x1 > aBox.x + aBox.w) {
+            q.x1 = aBox.x + aBox.w;
+        }
+        
+        Color transparent {0, 0, 0, 0};
+        
+        vector<Vertex> vertices {
+            {{q.x0, q.y0}, {q.s0, q.t0}, transparent},
+            {{q.x1, q.y0}, {q.s1, q.t0}, transparent},
+            {{q.x1, q.y1}, {q.s1, q.t1}, transparent},
+            {{q.x0, q.y1}, {q.s0, q.t1}, transparent}
+        };
+        
+        vector<uint_t> indices {0, 1, 2, 2, 3, 0};
+
+        Figure fig;
+        fig.form(vertices, indices, _font.texture);
+        _drawData.push_back(fig);
+    }
+}
+
 bool reig::Context::button(char const* aTitle, Rectangle aBox, Color aColor) {
+    _window.expand(aBox);
+    
     // Render button outline first
     Color outlineCol = detail::get_yiq_contrast(aColor);
     render_rectangle(aBox, outlineCol);
@@ -219,6 +339,8 @@ bool reig::Context::button(char const* aTitle, Rectangle aBox, Color aColor) {
 }
 
 bool reig::Context::button(char const* aTitle, Rectangle aBox, int aBaseTexture, int aHoverTexture) {
+    _window.expand(aBox);
+    
     bool clickedButton = detail::in_box(mouse.left._clickedPos, aBox);
     bool hoveredButton = detail::in_box(mouse._cursorPos, aBox);
     
@@ -240,6 +362,8 @@ bool reig::Context::slider(
     Rectangle aBox, Color aColor, 
     float_t& aValue, float_t aMin, float_t aMax, float_t aStep
 ) {
+    _window.expand(aBox);
+    
     // Render slider's base
     Color cursorColor = detail::get_yiq_contrast(aColor);
     render_rectangle(aBox, cursorColor);
@@ -289,6 +413,8 @@ bool reig::Context::slider(
     Rectangle aBox, int aBaseTexture, int aCursorTexture, 
     float& aValue, float_t aMin, float_t aMax, float_t aStep
 ) {
+    _window.expand(aBox);
+    
     // Render slider's base
     render_rectangle(aBox, aBaseTexture);
     
@@ -329,6 +455,8 @@ bool reig::Context::slider(
 }
 
 bool reig::Context::checkbox(Rectangle aBox, Color aColor, bool& aValue) {
+    _window.expand(aBox);
+    
     // Render checkbox's base
     Color contrastColor = detail::get_yiq_contrast(aColor);
     render_rectangle(aBox, contrastColor);
@@ -352,6 +480,8 @@ bool reig::Context::checkbox(Rectangle aBox, Color aColor, bool& aValue) {
 }
 
 bool reig::Context::checkbox(Rectangle aBox, int aBaseTexture, int aTickTexture, bool& aValue) {
+    _window.expand(aBox);
+    
     // Render checkbox's base
     render_rectangle(aBox, aBaseTexture);
     
@@ -386,44 +516,6 @@ void reig::Context::render_triangle(Triangle const& aTri, Color const& aColor) {
     Figure fig;
     fig.form(vertices, indices);
     _drawData.push_back(fig);
-}
-
-void reig::Context::label(char const* ch, Rectangle aBox) {
-    if(_font.bakedChars == nullptr) return;
-    if(ch == nullptr) return;
-    
-    aBox = detail::decrease(aBox, 8);
-    float x = aBox.x;
-    float y = aBox.y + aBox.h / 2 + _font.size / 2;
-    
-    for(; *ch; ++ch) {
-        stbtt_aligned_quad q;
-        stbtt_GetBakedQuad(
-            _font.bakedChars,
-            _font.width, _font.height, *ch - ' ', &x, &y, &q, 1
-        );
-        if(q.x0 > aBox.x + aBox.w) {
-            break;
-        }
-        if(q.x1 > aBox.x + aBox.w) {
-            q.x1 = aBox.x + aBox.w;
-        }
-        
-        Color transparent {0, 0, 0, 0};
-        
-        vector<Vertex> vertices {
-            {{q.x0, q.y0}, {q.s0, q.t0}, transparent},
-            {{q.x1, q.y0}, {q.s1, q.t0}, transparent},
-            {{q.x1, q.y1}, {q.s1, q.t1}, transparent},
-            {{q.x0, q.y1}, {q.s0, q.t1}, transparent}
-        };
-        
-        vector<uint_t> indices {0, 1, 2, 2, 3, 0};
-
-        Figure fig;
-        fig.form(vertices, indices, _font.texture);
-        _drawData.push_back(fig);
-    }
 }
 
 void reig::Context::render_rectangle(Rectangle const& aBox, int aTexture) {
