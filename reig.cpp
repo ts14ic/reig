@@ -70,6 +70,20 @@ namespace reig::detail {
     }
 }
 
+reig::Color reig::transparent {};
+reig::Color reig::red         {239,  41,  41};
+reig::Color reig::orange      {252, 175,  62};
+reig::Color reig::yellow      {252, 233,  79};
+reig::Color reig::green       {138, 226,  52};
+reig::Color reig::blue        {114, 159, 207};
+reig::Color reig::violet      {173, 127, 168};
+reig::Color reig::brown       {143,  89,   2};
+reig::Color reig::white       {255, 255, 255};
+reig::Color reig::lightGrey   {186, 189, 182};
+reig::Color reig::middleGrey  {136, 138, 133};
+reig::Color reig::darkGrey    { 46,  52,  54};
+reig::Color reig::black       {  0,   0,   0};
+
 void reig::Context::set_render_handler(CallbackType renderHandler) {
     _renderHandler = renderHandler;
 }
@@ -297,13 +311,11 @@ void reig::Context::label(char const* ch, Rectangle aBox) {
             q.x1 = aBox.x + aBox.w;
         }
         
-        Color transparent {0, 0, 0, 0};
-        
         vector<Vertex> vertices {
-            {{q.x0, q.y0}, {q.s0, q.t0}, transparent},
-            {{q.x1, q.y0}, {q.s1, q.t0}, transparent},
-            {{q.x1, q.y1}, {q.s1, q.t1}, transparent},
-            {{q.x0, q.y1}, {q.s0, q.t1}, transparent}
+            {{q.x0, q.y0}, {q.s0, q.t0}, {}},
+            {{q.x1, q.y0}, {q.s1, q.t0}, {}},
+            {{q.x1, q.y1}, {q.s1, q.t1}, {}},
+            {{q.x0, q.y1}, {q.s0, q.t1}, {}}
         };
         
         vector<uint_t> indices {0, 1, 2, 2, 3, 0};
@@ -519,13 +531,11 @@ void reig::Context::render_triangle(Triangle const& aTri, Color const& aColor) {
 }
 
 void reig::Context::render_rectangle(Rectangle const& aBox, int aTexture) {
-    Color transparent {0, 0, 0, 0};
-    
     vector<Vertex> vertices {
-        {{aBox.x,          aBox.y         }, {0.f, 0.f}, transparent},
-        {{aBox.x + aBox.w, aBox.y         }, {1.f, 0.f}, transparent},
-        {{aBox.x + aBox.w, aBox.y + aBox.h}, {1.f, 1.f}, transparent},
-        {{aBox.x,          aBox.y + aBox.h}, {0.f, 1.f}, transparent}
+        {{aBox.x,          aBox.y         }, {0.f, 0.f}, {}},
+        {{aBox.x + aBox.w, aBox.y         }, {1.f, 0.f}, {}},
+        {{aBox.x + aBox.w, aBox.y + aBox.h}, {1.f, 1.f}, {}},
+        {{aBox.x,          aBox.y + aBox.h}, {0.f, 1.f}, {}}
     };
     vector<uint_t> indices {0, 1, 2, 2, 3, 0};
     

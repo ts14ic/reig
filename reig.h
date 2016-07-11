@@ -100,6 +100,20 @@ namespace reig {
         };
     }
     
+    extern Color transparent;
+    extern Color red;
+    extern Color orange;
+    extern Color yellow;
+    extern Color green;
+    extern Color blue;
+    extern Color violet;
+    extern Color brown;
+    extern Color white;
+    extern Color lightGrey;
+    extern Color middleGrey;
+    extern Color darkGrey;
+    extern Color black;
+    
     /*forward*/ class Context;
     /*forward*/ class Mouse;
     class MouseButton {
