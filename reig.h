@@ -262,6 +262,9 @@ namespace reig {
         Mouse mouse;
         
         // Widget renders
+        void start_window(char const* title, float& x, float& y);
+        void end_window();
+        
         /**
          * @brief Render some text
          * @param text Text to be displayed
@@ -329,13 +332,23 @@ namespace reig {
         bool slider(Rectangle box, int baseTexture, int cursorTexture, float& value, float_t min, float_t max, float_t step);
         
         /**
-         * @brief Renders a square checkbox
+         * @brief Renders a checkbox
          * @param box Checkbox's position and size
          * @param color Checkbox's base color
          * @param value A reference to the bool to be changed
          * @return True if value changed
          */
         bool checkbox(Rectangle box, Color color, bool& value);
+        
+        /**
+         * @brief Renders a textured checkbox
+         * @param box Checkbox's position and size
+         * @param baseTexture Checkbox's base texture
+         * @param tickTexture Checkbox's tick texture
+         * @param value A reference to the bool to be changed
+         * @return True if value changed
+         */
+        bool checkbox(Rectangle box, int baseTexture, int tickTexture, bool& value);
         
         /**
          * @brief Renders a vertical scrollbar

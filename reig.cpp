@@ -355,6 +355,26 @@ bool reig::Context::checkbox(Rectangle aBox, Color aColor, bool& aValue) {
     }
 }
 
+bool reig::Context::checkbox(Rectangle aBox, int aBaseTexture, int aTickTexture, bool& aValue) {
+    // Render checkbox's base
+    render_rectangle(aBox, aBaseTexture);
+    
+    // Render check
+    if(aValue) {
+        aBox = detail::decrease(aBox, 8);
+        render_rectangle(aBox, aTickTexture);
+    }
+    
+    // True if state changed
+    if(mouse.left._clicked && detail::in_box(mouse.left._clickedPos, aBox)) {
+        aValue = !aValue;
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 void reig::Context::render_triangle(Triangle const& aTri, Color const& aColor) {
     vector<Vertex> vertices (3);
     vertices[0].position = {aTri.pos0};
