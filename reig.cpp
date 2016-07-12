@@ -309,6 +309,14 @@ void reig::Context::Window::expand(Rectangle& aBox) {
         if(*y + h < aBox.y + aBox.h) {
             h = aBox.y + aBox.h - *y;
         }
+        if(aBox.x < *x) {
+            auto d = *x - aBox.x;
+            aBox.x += d + 4;
+        }
+        if(aBox.y < *y) {
+            auto d = *y - aBox.y;
+            aBox.y += d + 4;
+        }
     }
 }
 
@@ -541,15 +549,11 @@ void reig::Context::render_text(char const* ch, Rectangle aBox) {
 }
 
 void reig::Context::render_triangle(Triangle const& aTri, Color const& aColor) {
-    vector<Vertex> vertices (3);
-    vertices[0].position = {aTri.pos0};
-    vertices[1].position = {aTri.pos1};
-    vertices[2].position = {aTri.pos2};
-    
-    for(auto& vert : vertices) {
-        vert.color = aColor;
-    }
-    
+    vector<Vertex> vertices {
+        {{aTri.pos0}, {}, aColor},
+        {{aTri.pos1}, {}, aColor},
+        {{aTri.pos2}, {}, aColor}
+    };
     vector<uint_t> indices = {0, 1, 2};
     
     Figure fig;
