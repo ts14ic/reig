@@ -120,44 +120,63 @@ void const* reig::Context::get_user_ptr() const {
     return _userPtr;
 }
 
-void reig::FontData::auto_free() {
+void reig::FontData::free() {
     _free = true;
 }
 
 reig::FontData::~FontData() {
-    if(_free && bitmap) delete[] bitmap;
+    if(_free && bitmap) {
+        delete[] bitmap;
+    }
 }
 
 reig::FontData reig::Context::set_font(char const* aPath, uint_t aTextureId, float aSize) {
+    // 0 is used as no texture
+    if(aTextureId == 0) return {};
+    if(aSize <= 0) return {};
+    
+    // C io plays nicely with bytes
     auto file = std::fopen(aPath, "rb");
+    // If file can't be accessed
+    if(!file) return {};
+    // Find the amount of memory to allocate for filebuffer
     std::fseek(file, 0, SEEK_END);
-    auto size = ftell(file);
+    auto fileSize = ftell(file);
     std::rewind(file);
-    auto fileContents = new unsigned char[size];
-    std::fread(fileContents, 1, size, file);
+    auto fileContents = new unsigned char[fileSize];
+    std::fread(fileContents, 1, fileSize, file);
     std::fclose(file);
     
+    // We want all ASCII chars from space to square
     int const charsNum = 96;
+    struct { int w = 512, h = 512; } const bmp;
     
     auto bakedChars = new stbtt_bakedchar[charsNum];
-    
-    auto bitmap = new ubyte_t[256 * 256];
+    auto bitmap = new ubyte_t[bmp.w * bmp.h];
     auto height = stbtt_BakeFontBitmap(
-        fileContents, 0, aSize, bitmap, 256, 256, ' ', charsNum, bakedChars
+        fileContents, 0, aSize, bitmap, bmp.w, bmp.h, ' ', charsNum, bakedChars
     );
-    assert(height <= 256);
+    // No longer need the file, after creating the bitmap
     delete[] fileContents;
     
+    // If the bitmap was not large enough, free memory
+    if(height < 0 || height > bmp.h) {
+        delete[] bitmap;
+        return {};
+    }
+    
+    // If all successfull, replace current font data
     if(_font.bakedChars) delete[] _font.bakedChars;
     _font.bakedChars = bakedChars;
     _font.texture = aTextureId;
-    _font.width = 256;
+    _font.width = bmp.w;
     _font.height = height;
     _font.size = aSize;
     
+    // Return texture creation info
     FontData ret;
     ret.bitmap = bitmap;
-    ret.width = 256;
+    ret.width = bmp.w;
     ret.height = height;
     
     return ret;
@@ -505,12 +524,11 @@ bool reig::Context::checkbox(Rectangle aBox, int aBaseTexture, int aTickTexture,
 }
 
 void reig::Context::render_text(char const* ch, Rectangle aBox) {
-    if(_font.bakedChars == nullptr) return;
-    if(ch == nullptr) return;
+    if(!_font.bakedChars || !ch) return;
     
     aBox = detail::decrease(aBox, 8);
     float x = aBox.x;
-    float y = aBox.y + aBox.h / 2 + _font.size / 2;
+    float y = aBox.y + aBox.h;
     
     for(; *ch; ++ch) {
         stbtt_aligned_quad q;
@@ -524,6 +542,9 @@ void reig::Context::render_text(char const* ch, Rectangle aBox) {
         if(q.x1 > aBox.x + aBox.w) {
             q.x1 = aBox.x + aBox.w;
         }
+        if(q.y0 < aBox.y) {
+            q.y0 = aBox.y;
+        }
         
         vector<Vertex> vertices {
             {{q.x0, q.y0}, {q.s0, q.t0}, {}},
@@ -531,7 +552,6 @@ void reig::Context::render_text(char const* ch, Rectangle aBox) {
             {{q.x1, q.y1}, {q.s1, q.t1}, {}},
             {{q.x0, q.y1}, {q.s0, q.t1}, {}}
         };
-        
         vector<uint_t> indices {0, 1, 2, 2, 3, 0};
 
         Figure fig;

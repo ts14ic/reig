@@ -225,7 +225,10 @@ namespace reig {
         uint_t width    = 0;
         uint_t height   = 0;
         
-        void auto_free();
+        /**
+         * @brief Enable RAII memory freeing for this object
+         */
+        void free();
         ~FontData();
     private:
         bool _free = false;
