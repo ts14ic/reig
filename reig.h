@@ -81,10 +81,10 @@ namespace reig {
                 : r{r}, g{g}, b{b}, a{a} {}
             
             
-            Color red  (ubyte_t val);
-            Color green(ubyte_t val);
-            Color blue (ubyte_t val);
-            Color alpha(ubyte_t val);
+            Color red  (ubyte_t val) const;
+            Color green(ubyte_t val) const;
+            Color blue (ubyte_t val) const;
+            Color alpha(ubyte_t val) const;
             
             union {
                 struct {
@@ -108,19 +108,19 @@ namespace reig {
         };
     }
     
-    extern Color transparent;
-    extern Color red;
-    extern Color orange;
-    extern Color yellow;
-    extern Color green;
-    extern Color blue;
-    extern Color violet;
-    extern Color brown;
-    extern Color white;
-    extern Color lightGrey;
-    extern Color mediumGrey;
-    extern Color darkGrey;
-    extern Color black;
+    extern Color const transparent;
+    extern Color const red;
+    extern Color const orange;
+    extern Color const yellow;
+    extern Color const green;
+    extern Color const blue;
+    extern Color const violet;
+    extern Color const brown;
+    extern Color const white;
+    extern Color const lightGrey;
+    extern Color const mediumGrey;
+    extern Color const darkGrey;
+    extern Color const black;
     
     /*forward*/ class Context;
     /*forward*/ class Mouse;

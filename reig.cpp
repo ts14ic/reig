@@ -70,43 +70,43 @@ namespace reig::detail {
     }
 }
 
-reig::Color reig::Color::red(ubyte_t val) {
+reig::Color reig::Color::red(ubyte_t val) const {
     Color ret = *this;
     ret.r = val;
     return ret;
 }
 
-reig::Color reig::Color::green(ubyte_t val) {
+reig::Color reig::Color::green(ubyte_t val) const {
     Color ret = *this;
     ret.g = val;
     return ret;
 }
 
-reig::Color reig::Color::blue(ubyte_t val) {
+reig::Color reig::Color::blue(ubyte_t val) const {
     Color ret = *this;
     ret.b = val;
     return ret;
 }
 
-reig::Color reig::Color::alpha(ubyte_t val) {
+reig::Color reig::Color::alpha(ubyte_t val) const {
     Color ret = *this;
     ret.a = val;
     return ret;
 }
 
-reig::Color reig::transparent {};
-reig::Color reig::red         {239,  41,  41};
-reig::Color reig::orange      {252, 175,  62};
-reig::Color reig::yellow      {252, 233,  79};
-reig::Color reig::green       {138, 226,  52};
-reig::Color reig::blue        {114, 159, 207};
-reig::Color reig::violet      {173, 127, 168};
-reig::Color reig::brown       {143,  89,   2};
-reig::Color reig::white       {255, 255, 255};
-reig::Color reig::lightGrey   {186, 189, 182};
-reig::Color reig::mediumGrey  {136, 138, 133};
-reig::Color reig::darkGrey    { 46,  52,  54};
-reig::Color reig::black       {  0,   0,   0};
+reig::Color const reig::transparent {};
+reig::Color const reig::red         {239,  41,  41};
+reig::Color const reig::orange      {252, 175,  62};
+reig::Color const reig::yellow      {252, 233,  79};
+reig::Color const reig::green       {138, 226,  52};
+reig::Color const reig::blue        {114, 159, 207};
+reig::Color const reig::violet      {173, 127, 168};
+reig::Color const reig::brown       {143,  89,   2};
+reig::Color const reig::white       {255, 255, 255};
+reig::Color const reig::lightGrey   {186, 189, 182};
+reig::Color const reig::mediumGrey  {136, 138, 133};
+reig::Color const reig::darkGrey    { 46,  52,  54};
+reig::Color const reig::black       {  0,   0,   0};
 
 void reig::Context::set_render_handler(CallbackType renderHandler) {
     _renderHandler = renderHandler;
@@ -259,8 +259,8 @@ void reig::Context::end_window() {
         *_window.x + 3.f + _window.headerSize / 2.f, *_window.y + _window.headerSize - 3.f
     };
     Rectangle titleBox {
-        *_window.x + _window.headerSize, *_window.y, 
-        _window.w - _window.headerSize, _window.headerSize
+        *_window.x + _window.headerSize + 4, *_window.y + 4, 
+        _window.w - _window.headerSize - 4, _window.headerSize - 4
     };
     Rectangle bodyBox {
         *_window.x, *_window.y + _window.headerSize,
@@ -323,14 +323,18 @@ bool reig::Context::button(char const* aTitle, Rectangle aBox, Color aColor) {
     if(detail::in_box(mouse._cursorPos, aBox)) {
         aColor = detail::lighten_color_by(aColor, 50);
     }
-    aBox = detail::decrease(aBox, 4);
     
+    // see, if clicked the inner part of button
+    aBox = detail::decrease(aBox, 4);
     bool clickedButton = detail::in_box(mouse.left._clickedPos, aBox);
     
+    // highlight even more, if clicked
     if(mouse.left._pressed && clickedButton) {
         aColor = detail::lighten_color_by(aColor, 50);
     }
+    // render the inner part of button
     render_rectangle(aBox, aColor);
+    // render button's title
     render_text(aTitle, aBox);
     
     return mouse.left._clicked && clickedButton;
@@ -378,6 +382,7 @@ bool reig::Context::slider(
     // Render the cursor
     auto cursorBox = detail::decrease(aBox, 4);
     cursorBox.w /= valuesNum;
+    if(cursorBox.w < 1) cursorBox.w = 1;
     cursorBox.x += offset * cursorBox.w;
     if(detail::in_box(mouse._cursorPos, cursorBox)) {
         cursorColor = detail::lighten_color_by(cursorColor, 50);
