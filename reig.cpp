@@ -249,42 +249,29 @@ void reig::Context::end_window() {
     _window.w += 4;
     _window.h += 4;
     
-    vector<Vertex> headerVertices {
-        {{*_window.x,             *_window.y                     }, {}, darkGrey.alpha(200)},
-        {{*_window.x + _window.w, *_window.y                     }, {}, darkGrey.alpha(200)},
-        {{*_window.x + _window.w, *_window.y + _window.headerSize}, {}, darkGrey.alpha(200)},
-        {{*_window.x,             *_window.y + _window.headerSize}, {}, darkGrey.alpha(200)}
+    Rectangle headerBox {
+        *_window.x, *_window.y, 
+        _window.w, _window.headerSize
     };
-    vector<uint_t> headerIndices {0, 1, 2, 2, 3, 0};
-    Figure header;
-    header.form(headerVertices, headerIndices);
-    
-    vector<Vertex> bodyVertices {
-        {{*_window.x,             *_window.y + _window.headerSize}, {}, mediumGrey.alpha(100)},
-        {{*_window.x + _window.w, *_window.y + _window.headerSize}, {}, mediumGrey.alpha(100)},
-        {{*_window.x + _window.w, *_window.y + _window.h         }, {}, mediumGrey.alpha(100)},
-        {{*_window.x,             *_window.y + _window.h         }, {}, mediumGrey.alpha(100)},
-        
-    };
-    vector<uint_t> bodyIndices {0, 1, 2, 2, 3, 0};
-    Figure body;
-    body.form(bodyVertices, bodyIndices);
-    
-    Triangle arrowDown {
-        *_window.x + 3.f,                            *_window.y + 3.f,
-        *_window.x + 3.f + _window.headerSize,       *_window.y + 3.f,
+    Triangle  headerTriangle {
+        *_window.x + 3.f, *_window.y + 3.f,
+        *_window.x + 3.f + _window.headerSize, *_window.y + 3.f,
         *_window.x + 3.f + _window.headerSize / 2.f, *_window.y + _window.headerSize - 3.f
     };
-    
-    _window.drawData.push_back(header);
-    render_text(_window.title, {
+    Rectangle titleBox {
         *_window.x + _window.headerSize, *_window.y, 
         _window.w - _window.headerSize, _window.headerSize
-    });
-    render_triangle(arrowDown, lightGrey);
-    _window.drawData.push_back(body);
+    };
+    Rectangle bodyBox {
+        *_window.x, *_window.y + _window.headerSize,
+        _window.w, _window.h - _window.headerSize
+    };
     
-    Rectangle headerBox {*_window.x, *_window.y, _window.w, _window.headerSize};
+    render_rectangle(headerBox, mediumGrey.alpha(200));
+    render_triangle(headerTriangle, lightGrey);
+    render_text(_window.title, titleBox);
+    render_rectangle(bodyBox, mediumGrey.alpha(100));
+    
     if(mouse.left._pressed && detail::in_box(mouse.left._clickedPos, headerBox)) {
         Point moved  {
             mouse._cursorPos.x - mouse.left._clickedPos.x,
