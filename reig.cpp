@@ -530,6 +530,10 @@ void reig::Context::render_text(char const* ch, Rectangle aBox) {
     float x = aBox.x;
     float y = aBox.y + aBox.h;
     
+    vector<stbtt_aligned_quad> quads;
+    quads.reserve(20);
+    float textWidth = 0.f;
+    
     for(; *ch; ++ch) {
         stbtt_aligned_quad q;
         stbtt_GetBakedQuad(
@@ -546,11 +550,19 @@ void reig::Context::render_text(char const* ch, Rectangle aBox) {
             q.y0 = aBox.y;
         }
         
+        textWidth += _font.bakedChars[*ch - ' '].xadvance;
+        
+        quads.push_back(q);
+    }
+    
+    auto deltax = (aBox.w - textWidth) / 2.f;
+    
+    for(auto& q : quads) {
         vector<Vertex> vertices {
-            {{q.x0, q.y0}, {q.s0, q.t0}, {}},
-            {{q.x1, q.y0}, {q.s1, q.t0}, {}},
-            {{q.x1, q.y1}, {q.s1, q.t1}, {}},
-            {{q.x0, q.y1}, {q.s0, q.t1}, {}}
+            {{q.x0 + deltax, q.y0}, {q.s0, q.t0}, {}},
+            {{q.x1 + deltax, q.y0}, {q.s1, q.t0}, {}},
+            {{q.x1 + deltax, q.y1}, {q.s1, q.t1}, {}},
+            {{q.x0 + deltax, q.y1}, {q.s0, q.t1}, {}}
         };
         vector<uint_t> indices {0, 1, 2, 2, 3, 0};
 
