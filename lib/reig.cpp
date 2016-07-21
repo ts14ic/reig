@@ -534,11 +534,18 @@ void reig::Context::render_text(char const* ch, Rectangle aBox) {
     quads.reserve(20);
     float textWidth = 0.f;
     
+    char from = ' ';
+    char to   = ' ' + 95;
+    char c;
+    
     for(; *ch; ++ch) {
+        c = *ch;
+        if(c < from || c > to) c = to;
+        
         stbtt_aligned_quad q;
         stbtt_GetBakedQuad(
             _font.bakedChars,
-            _font.width, _font.height, *ch - ' ', &x, &y, &q, 1
+            _font.width, _font.height, c - ' ', &x, &y, &q, 1
         );
         if(q.x0 > aBox.x + aBox.w) {
             break;
@@ -550,7 +557,7 @@ void reig::Context::render_text(char const* ch, Rectangle aBox) {
             q.y0 = aBox.y;
         }
         
-        textWidth += _font.bakedChars[*ch - ' '].xadvance;
+        textWidth += _font.bakedChars[c - ' '].xadvance;
         
         quads.push_back(q);
     }
