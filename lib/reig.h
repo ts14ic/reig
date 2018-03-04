@@ -11,7 +11,6 @@ namespace reig {
         using int_t   = std::int32_t;
         using uint_t  = std::uint32_t;
         using size_t  = std::size_t;
-        using float_t = float;
         
         static_assert(sizeof(uint_t) >= 4 * sizeof(ubyte_t), "uint_t is too small");
     }
@@ -19,59 +18,59 @@ namespace reig {
     inline namespace graphic_base_types {
         struct Point {
             Point() = default;
-            Point(float_t x, float_t y)
+            Point(float x, float y)
                 : x{x}, y{y} {}
             
-            float_t x {};
-            float_t y {};
+            float x {};
+            float y {};
         };
         
         struct Size {
             Size() = default;
-            Size(float_t w, float_t h)
+            Size(float w, float h)
                 : w{w}, h{h} {}
             
-            float_t w {};
-            float_t h {};
+            float w {};
+            float h {};
         };
         
         struct Rectangle {
             Rectangle() = default;
-            Rectangle(float_t x, float_t y, float_t w, float_t h)
+            Rectangle(float x, float y, float w, float h)
                 : x{x}, y{y}, w{w}, h{h} {}
-            Rectangle(float_t x, float_t y, Size size)
+            Rectangle(float x, float y, Size size)
                 : x{x}, y{y}, size{size} {}
             Rectangle(Point pos, Size size) 
                 : pos{pos}, size{size} {}
             
             union {
                 Point pos {};
-                struct { float_t x; float_t y; };
+                struct { float x; float y; };
             };
             union {
                 Size size {};
-                struct { float_t w; float_t h; };
+                struct { float w; float h; };
             };
         };
         
         struct Triangle {
             Triangle() = default;
-            Triangle(float_t x0, float_t y0, float_t x1, float_t y1, float_t x2, float_t y2)
+            Triangle(float x0, float y0, float x1, float y1, float x2, float y2)
                 : pos0{x0, y0}, pos1{x1, y1}, pos2{x2, y2} {}
             Triangle(Point const& pos0, Point const& pos1, Point const& pos2)
                 : pos0{pos0}, pos1{pos1}, pos2{pos2} {}
                 
             union {
                 Point pos0 {};
-                struct { float_t x0; float_t y0; };
+                struct { float x0; float y0; };
             };
             union {
                 Point pos1 {};
-                struct { float_t x1; float_t y1; };
+                struct { float x1; float y1; };
             };
             union {
                 Point pos2 {};
-                struct { float_t x2; float_t y2; };
+                struct { float x2; float y2; };
             };
         };
         
@@ -132,7 +131,7 @@ namespace reig {
          * @param x X coordinate
          * @param y Y coordinate
          */
-        void press(float_t x, float_t y);
+        void press(float x, float y);
         
         /**
          * @brief Unsets mouse pressed state
@@ -168,14 +167,14 @@ namespace reig {
          * @param difx Delta x coordinate
          * @param dify Delta y coordinate
          */
-        void move(float_t difx, float_t dify);
+        void move(float difx, float dify);
         
         /**
          * @brief Places the cursors in abosulute coordinates
          * @param x X coordinate
          * @param y Y coordiante
          */
-        void place(float_t x, float_t y);
+        void place(float x, float y);
         
         /**
          * @brief Scrolls the virtual mouse wheel
@@ -327,7 +326,7 @@ namespace reig {
          * @param step The discrete portion by which the value can change
          * @return True if value changed
          */
-        bool slider(Rectangle box, Color color, float_t& value, float_t min, float_t max, float_t step);
+        bool slider(Rectangle box, Color color, float& value, float min, float max, float step);
         
         /**
          * @brief 
@@ -341,7 +340,7 @@ namespace reig {
          * @param step The discrete portion by which the value can change
          * @return True if value changed
          */
-        bool slider(Rectangle box, int baseTexture, int cursorTexture, float& value, float_t min, float_t max, float_t step);
+        bool slider(Rectangle box, int baseTexture, int cursorTexture, float& value, float min, float max, float step);
         
         /**
          * @brief Renders a checkbox
@@ -372,7 +371,7 @@ namespace reig {
          * @param logicalHeight Max logical value 
          * @return 
          */
-        bool scrollbar(Rectangle box, Color color, float_t& value, float_t min, float_t max, float_t logicalHeight);
+        bool scrollbar(Rectangle box, Color color, float& value, float min, float max, float logicalHeight);
          
         // Primitive renders
         /**
@@ -408,7 +407,7 @@ namespace reig {
         
         struct Font {
             stbtt_bakedchar* bakedChars = nullptr;
-            float_t size   = 0.f;
+            float size   = 0.f;
             uint_t texture = 0;
             uint_t width   = 0;
             uint_t height  = 0;
