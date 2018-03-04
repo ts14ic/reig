@@ -1,7 +1,7 @@
 #ifndef REIG_H_INCLUDED
 #define REIG_H_INCLUDED
 
-#include <stb_truetype.h>
+#include "stb_truetype.h"
 #include <vector>
 
 namespace reig {
