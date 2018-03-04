@@ -3,13 +3,14 @@
 
 #include "stb_truetype.h"
 #include <vector>
+#include <cstdint>
 
 namespace reig {
     inline namespace value_types {
-        using ubyte_t = unsigned char;
-        using int_t   = signed;
-        using uint_t  = unsigned;
-        using size_t  = unsigned long long;        
+        using ubyte_t = std::uint8_t;
+        using int_t   = std::int32_t;
+        using uint_t  = std::uint32_t;
+        using size_t  = std::size_t;
         using float_t = float;
         
         static_assert(sizeof(uint_t) >= 4 * sizeof(ubyte_t), "uint_t is too small");
