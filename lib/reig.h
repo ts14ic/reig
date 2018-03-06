@@ -49,6 +49,8 @@ namespace reig {
 
         Color with_alpha(Color const &from, ubyte_t alpha);
 
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "OCUnusedGlobalDeclarationInspection"
         extern Color const transparent;
         extern Color const red;
         extern Color const orange;
@@ -62,6 +64,7 @@ namespace reig {
         extern Color const mediumGrey;
         extern Color const darkGrey;
         extern Color const black;
+        #pragma clang diagnostic pop
     }
 
     struct Vertex {
