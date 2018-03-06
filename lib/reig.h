@@ -71,7 +71,9 @@ namespace reig {
     };
 
     /*forward*/ class Context;
+
     /*forward*/ class Mouse;
+
     class MouseButton {
     public:
         /**
@@ -85,19 +87,25 @@ namespace reig {
          * @brief Unsets mouse pressed state
          */
         void release();
-    private:
-        friend class ::reig::Context;
-        friend class ::reig::Mouse;
 
         MouseButton() = default;
+
         MouseButton(MouseButton const&) = delete;
+
         MouseButton(MouseButton&&) = delete;
+
         MouseButton& operator=(MouseButton const&) = delete;
+
         MouseButton& operator=(MouseButton&&) = delete;
 
+    private:
+        friend class ::reig::Context;
+
+        friend class ::reig::Mouse;
+
         Point _clickedPos;
-        bool  _pressed = false;
-        bool  _clicked = false;
+        bool _pressed = false;
+        bool _clicked = false;
     };
 
     class Mouse {
