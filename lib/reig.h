@@ -65,11 +65,9 @@ namespace reig {
     }
 
     struct Vertex {
-        Vertex() = default;
-
-        Point position {};
-        Point texCoord {};
-        Color color    {};
+        Point position;
+        Point texCoord;
+        Color color;
     };
 
     /*forward*/ class Context;
