@@ -32,29 +32,25 @@ namespace reig {
     };
 
     struct Color {
-        Color()
-                : asUint{0u} { a = 0xFF; }
-        Color(ubyte_t r, ubyte_t g, ubyte_t b, ubyte_t a = 0xFFu)
-                : r{r}, g{g}, b{b}, a{a} {}
+        Color() = default;
+        Color(ubyte_t red, ubyte_t green, ubyte_t blue, ubyte_t alpha = 0xFFu)
+                : red{red}, green{green}, blue{blue}, alpha{alpha} {}
 
-
-        Color red  (ubyte_t val) const;
-        Color green(ubyte_t val) const;
-        Color blue (ubyte_t val) const;
-        Color alpha(ubyte_t val) const;
-
-        union {
-            struct {
-                ubyte_t r;
-                ubyte_t g;
-                ubyte_t b;
-                ubyte_t a;
-            };
-            uint_t asUint;
-        };
+        ubyte_t red   = 0u;
+        ubyte_t green = 0u;
+        ubyte_t blue  = 0u;
+        ubyte_t alpha = 0xFFu;
     };
 
     using Colour = Color;
+
+    namespace Colors {
+        uint_t to_uint(Color const& from);
+
+        Color from_uint(uint_t rgba);
+
+        Color with_alpha(Color const &from, ubyte_t alpha);
+    }
 
     struct Vertex {
         Vertex() = default;

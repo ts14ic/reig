@@ -49,15 +49,15 @@ namespace reig::detail {
     }
 
     Color get_yiq_contrast(Color color) {
-        uint_t y = (299 * color.r + 587 * color.g + 114 * color.b) / 1000;
+        uint_t y = (299 * color.red + 587 * color.green + 114 * color.blue) / 1000;
         return y >= 128 ? Color{0u, 0u, 0u} : Color{255u, 255u, 255u};
     }
 
     Color lighten_color_by(Color color, ubyte_t delta) {
         ubyte_t max = 255u;
-        color.r < max - delta ? color.r += delta : color.r = max;
-        color.g < max - delta ? color.g += delta : color.g = max;
-        color.b < max - delta ? color.b += delta : color.b = max;
+        color.red < max - delta ? color.red += delta : color.red = max;
+        color.green < max - delta ? color.green += delta : color.green = max;
+        color.blue < max - delta ? color.blue += delta : color.blue = max;
         return color;
     }
 
@@ -71,27 +71,25 @@ namespace reig::detail {
     }
 }
 
-reig::Color reig::Color::red(ubyte_t val) const {
-    Color ret = *this;
-    ret.r = val;
-    return ret;
+auto reig::Colors::to_uint(Color const& color) -> uint_t {
+    return (color.alpha << 24)
+           + (color.blue << 16)
+           + (color.green << 8)
+           + color.red;
 }
 
-reig::Color reig::Color::green(ubyte_t val) const {
-    Color ret = *this;
-    ret.g = val;
-    return ret;
+auto reig::Colors::from_uint(uint_t rgba) -> Color {
+    return Color {
+            static_cast<ubyte_t>((rgba >> 24) & 0xFF),
+            static_cast<ubyte_t>((rgba >> 16) & 0xFF),
+            static_cast<ubyte_t>((rgba >> 8) & 0xFF),
+            static_cast<ubyte_t>(rgba & 0xFF),
+    };
 }
 
-reig::Color reig::Color::blue(ubyte_t val) const {
-    Color ret = *this;
-    ret.b = val;
-    return ret;
-}
-
-reig::Color reig::Color::alpha(ubyte_t val) const {
-    Color ret = *this;
-    ret.a = val;
+auto reig::Colors::with_alpha(Color const &from, ubyte_t alpha) -> Color {
+    Color ret = from;
+    ret.alpha = alpha;
     return ret;
 }
 
@@ -289,10 +287,10 @@ void reig::Context::end_window() {
             _window.w, _window.h - _window.headerSize
     };
 
-    render_rectangle(headerBox, mediumGrey.alpha(200));
+    render_rectangle(headerBox, Colors::with_alpha(mediumGrey, 200));
     render_triangle(headerTriangle, lightGrey);
     render_text(_window.title, titleBox);
-    render_rectangle(bodyBox, mediumGrey.alpha(100));
+    render_rectangle(bodyBox, Colors::with_alpha(mediumGrey, 100));
 
     if(mouse.left._pressed && detail::in_box(mouse.left._clickedPos, headerBox)) {
         Point moved{

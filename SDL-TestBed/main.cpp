@@ -97,21 +97,21 @@ public:
             gui.ctx.start_window(fpsString.c_str(), winX, winY);
             for(int i = 0; i < 4; ++i) {
                 rect.x -= 10; rect.y = 40 * i;
-                color.r += 25; color.g += 25;
+                color.red += 25; color.green += 25;
                 std::string title = "some  " + std::to_string(i + 1);
                 if(gui.ctx.button(title.c_str(), rect, color)) {
                     std::cout << "Button " << (i + 1) << ": pressed" << std::endl;
                 }
             }
             
-            color.g += 50;
+            color.green += 50;
             rect.y += 40; rect.width += 50;
             static float sliderValue0 = 20;
             if(gui.ctx.slider(rect, color, sliderValue0, 20, 40, 5)) {
                 std::cout << "Slider 1: new value " << sliderValue0 << std::endl;
             }
             
-            color.g += 50;
+            color.green += 50;
             rect.y += 40;
             rect.width += 50;
             
@@ -131,21 +131,21 @@ public:
             }
             
             static bool checkBox1 = false;
-            color.r += 15; color.g -= 35; color.b -= 10;
+            color.red += 15; color.green -= 35; color.blue -= 10;
             rect.x += 270; rect.width = 40; rect.height = 20;
             if(gui.ctx.checkbox(rect, color, checkBox1)) {
                 std::cout << "Checkbox 1: new value " << checkBox1 << std::endl;
             }
             
             static bool checkBox2 = true;
-            color.r -= 100; color.g += 100; color.b += 100;
+            color.red -= 100; color.green += 100; color.blue += 100;
             rect.y -= 100; rect.width = rect.height = 50;
             if(gui.ctx.checkbox(rect, color, checkBox2)) {
                 std::cout << "Checkbox 2: new value " << checkBox2 << std::endl;
             }
             
             static bool checkBox3 = false;
-            color.asUint = 0xFFFFFFFF;
+            color = reig::Colors::from_uint(0xFFFFFFFFu);
             rect.y += 60; rect.width = rect.height = 25;
             if(gui.ctx.checkbox(rect, color, checkBox3)) {
                 std::cout << "Checkbox 3: new value " << checkBox3 << std::endl;
@@ -198,7 +198,7 @@ public:
                         vertices[indices[i+1]].position.y,
                         vertices[indices[i+2]].position.x,
                         vertices[indices[i+2]].position.y,
-                        vertices[i].color.asUint
+                        reig::Colors::to_uint(vertices[i].color)
                     );
                 }
             }
