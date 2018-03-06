@@ -107,16 +107,16 @@ reig::Color const reig::Colors::mediumGrey{136, 138, 133};
 reig::Color const reig::Colors::darkGrey{46, 52, 54};
 reig::Color const reig::Colors::black{0, 0, 0};
 
-void reig::Context::set_render_handler(CallbackType renderHandler) {
-    _renderHandler = renderHandler;
+void reig::Context::set_render_handler(RenderHandler renderHandler) {
+    mRenderHandler = renderHandler;
 }
 
 void reig::Context::set_user_ptr(void *ptr) {
-    _userPtr = ptr;
+    mUserPtr = ptr;
 }
 
 void const *reig::Context::get_user_ptr() const {
-    return _userPtr;
+    return mUserPtr;
 }
 
 void reig::FontData::allowFree() {
@@ -167,12 +167,12 @@ reig::FontData reig::Context::set_font(char const *aPath, uint_t aTextureId, flo
     }
 
     // If all successfull, replace current font data
-    if(_font.bakedChars) delete[] _font.bakedChars;
-    _font.bakedChars = bakedChars;
-    _font.texture = aTextureId;
-    _font.width = bmp.w;
-    _font.height = height;
-    _font.size = aSize;
+    if(mFont.bakedChars) delete[] mFont.bakedChars;
+    mFont.bakedChars = bakedChars;
+    mFont.texture = aTextureId;
+    mFont.width = bmp.w;
+    mFont.height = height;
+    mFont.size = aSize;
 
     // Return texture creation info
     FontData ret;
@@ -184,20 +184,20 @@ reig::FontData reig::Context::set_font(char const *aPath, uint_t aTextureId, flo
 }
 
 void reig::Context::render_all() {
-    if(!_renderHandler) return;
-    if(_window.started) end_window();
+    if(!mRenderHandler) return;
+    if(mCurrentWindow.started) end_window();
 
-    if(!_window.drawData.empty()) {
-        _renderHandler(_window.drawData, _userPtr);
+    if(!mCurrentWindow.drawData.empty()) {
+        mRenderHandler(mCurrentWindow.drawData, mUserPtr);
     }
-    if(!_drawData.empty()) {
-        _renderHandler(_drawData, _userPtr);
+    if(!mDrawData.empty()) {
+        mRenderHandler(mDrawData, mUserPtr);
     }
 }
 
 void reig::Context::start_new_frame() {
-    _window.drawData.clear();
-    _drawData.clear();
+    mCurrentWindow.drawData.clear();
+    mDrawData.clear();
 
     mouse.leftButton.mIsClicked = false;
     mouse.mScrolled = 0.f;
@@ -251,45 +251,45 @@ reig::Figure::texture() const {
 }
 
 void reig::Context::start_window(char const *aTitle, float &aX, float &aY) {
-    if(_window.started) end_window();
+    if(mCurrentWindow.started) end_window();
 
-    _window.started = true;
-    _window.title = aTitle;
-    _window.x = &aX;
-    _window.y = &aY;
-    _window.w = 0;
-    _window.h = 0;
-    _window.headerSize = 8 + _font.size;
+    mCurrentWindow.started = true;
+    mCurrentWindow.title = aTitle;
+    mCurrentWindow.x = &aX;
+    mCurrentWindow.y = &aY;
+    mCurrentWindow.w = 0;
+    mCurrentWindow.h = 0;
+    mCurrentWindow.headerSize = 8 + mFont.size;
 }
 
 void reig::Context::end_window() {
-    if(!_window.started) return;
-    _window.started = false;
+    if(!mCurrentWindow.started) return;
+    mCurrentWindow.started = false;
 
-    _window.w += 4;
-    _window.h += 4;
+    mCurrentWindow.w += 4;
+    mCurrentWindow.h += 4;
 
     Rectangle headerBox{
-            *_window.x, *_window.y,
-            _window.w, _window.headerSize
+            *mCurrentWindow.x, *mCurrentWindow.y,
+            mCurrentWindow.w, mCurrentWindow.headerSize
     };
     Triangle headerTriangle{
-            *_window.x + 3.f, *_window.y + 3.f,
-            *_window.x + 3.f + _window.headerSize, *_window.y + 3.f,
-            *_window.x + 3.f + _window.headerSize / 2.f, *_window.y + _window.headerSize - 3.f
+            *mCurrentWindow.x + 3.f, *mCurrentWindow.y + 3.f,
+            *mCurrentWindow.x + 3.f + mCurrentWindow.headerSize, *mCurrentWindow.y + 3.f,
+            *mCurrentWindow.x + 3.f + mCurrentWindow.headerSize / 2.f, *mCurrentWindow.y + mCurrentWindow.headerSize - 3.f
     };
     Rectangle titleBox{
-            *_window.x + _window.headerSize + 4, *_window.y + 4,
-            _window.w - _window.headerSize - 4, _window.headerSize - 4
+            *mCurrentWindow.x + mCurrentWindow.headerSize + 4, *mCurrentWindow.y + 4,
+            mCurrentWindow.w - mCurrentWindow.headerSize - 4, mCurrentWindow.headerSize - 4
     };
     Rectangle bodyBox{
-            *_window.x, *_window.y + _window.headerSize,
-            _window.w, _window.h - _window.headerSize
+            *mCurrentWindow.x, *mCurrentWindow.y + mCurrentWindow.headerSize,
+            mCurrentWindow.w, mCurrentWindow.h - mCurrentWindow.headerSize
     };
 
     render_rectangle(headerBox, Colors::with_alpha(Colors::mediumGrey, 200));
     render_triangle(headerTriangle, Colors::lightGrey);
-    render_text(_window.title, titleBox);
+    render_text(mCurrentWindow.title, titleBox);
     render_rectangle(bodyBox, Colors::with_alpha(Colors::mediumGrey, 100));
 
     if(mouse.leftButton.mIsPressed && detail::in_box(mouse.leftButton.mClickedPos, headerBox)) {
@@ -298,14 +298,14 @@ void reig::Context::end_window() {
                 mouse.mCursorPos.y - mouse.leftButton.mClickedPos.y
         };
 
-        *_window.x += moved.x;
-        *_window.y += moved.y;
+        *mCurrentWindow.x += moved.x;
+        *mCurrentWindow.y += moved.y;
         mouse.leftButton.mClickedPos.x += moved.x;
         mouse.leftButton.mClickedPos.y += moved.y;
     }
 }
 
-void reig::Context::Window::expand(Rectangle &aBox) {
+void reig::detail::Window::expand(Rectangle &aBox) {
     if(started) {
         aBox.x += *x + 4;
         aBox.y += *y + headerSize + 4;
@@ -328,12 +328,12 @@ void reig::Context::Window::expand(Rectangle &aBox) {
 }
 
 void reig::Context::label(char const *ch, Rectangle aBox) {
-    _window.expand(aBox);
+    mCurrentWindow.expand(aBox);
     render_text(ch, aBox);
 }
 
 bool reig::Context::button(char const *aTitle, Rectangle aBox, Color aColor) {
-    _window.expand(aBox);
+    mCurrentWindow.expand(aBox);
 
     // Render button outline first
     Color outlineCol = detail::get_yiq_contrast(aColor);
@@ -361,7 +361,7 @@ bool reig::Context::button(char const *aTitle, Rectangle aBox, Color aColor) {
 }
 
 bool reig::Context::button(char const *aTitle, Rectangle aBox, int aBaseTexture, int aHoverTexture) {
-    _window.expand(aBox);
+    mCurrentWindow.expand(aBox);
 
     bool clickedButton = detail::in_box(mouse.leftButton.mClickedPos, aBox);
     bool hoveredButton = detail::in_box(mouse.mCursorPos, aBox);
@@ -383,7 +383,7 @@ bool reig::Context::slider(
         Rectangle aBox, Color aColor,
         float_t &aValue, float_t aMin, float_t aMax, float_t aStep
 ) {
-    _window.expand(aBox);
+    mCurrentWindow.expand(aBox);
 
     // Render slider's base
     Color cursorColor = detail::get_yiq_contrast(aColor);
@@ -433,7 +433,7 @@ bool reig::Context::slider(
         Rectangle aBox, int aBaseTexture, int aCursorTexture,
         float &aValue, float_t aMin, float_t aMax, float_t aStep
 ) {
-    _window.expand(aBox);
+    mCurrentWindow.expand(aBox);
 
     // Render slider's base
     render_rectangle(aBox, aBaseTexture);
@@ -473,7 +473,7 @@ bool reig::Context::slider(
 }
 
 bool reig::Context::checkbox(Rectangle aBox, Color aColor, bool &aValue) {
-    _window.expand(aBox);
+    mCurrentWindow.expand(aBox);
 
     // Render checkbox's base
     Color contrastColor = detail::get_yiq_contrast(aColor);
@@ -497,7 +497,7 @@ bool reig::Context::checkbox(Rectangle aBox, Color aColor, bool &aValue) {
 }
 
 bool reig::Context::checkbox(Rectangle aBox, int aBaseTexture, int aTickTexture, bool &aValue) {
-    _window.expand(aBox);
+    mCurrentWindow.expand(aBox);
 
     // Render checkbox's base
     render_rectangle(aBox, aBaseTexture);
@@ -518,7 +518,7 @@ bool reig::Context::checkbox(Rectangle aBox, int aBaseTexture, int aTickTexture,
 }
 
 void reig::Context::render_text(char const *ch, Rectangle aBox) {
-    if(!_font.bakedChars || !ch) return;
+    if(!mFont.bakedChars || !ch) return;
 
     aBox = detail::decrease(aBox, 8);
     float x = aBox.x;
@@ -538,8 +538,8 @@ void reig::Context::render_text(char const *ch, Rectangle aBox) {
 
         stbtt_aligned_quad q;
         stbtt_GetBakedQuad(
-                _font.bakedChars,
-                _font.width, _font.height, c - ' ', &x, &y, &q, 1
+                mFont.bakedChars,
+                mFont.width, mFont.height, c - ' ', &x, &y, &q, 1
         );
         if(q.x0 > aBox.x + aBox.width) {
             break;
@@ -551,7 +551,7 @@ void reig::Context::render_text(char const *ch, Rectangle aBox) {
             q.y0 = aBox.y;
         }
 
-        textWidth += _font.bakedChars[c - ' '].xadvance;
+        textWidth += mFont.bakedChars[c - ' '].xadvance;
 
         quads.push_back(q);
     }
@@ -568,8 +568,8 @@ void reig::Context::render_text(char const *ch, Rectangle aBox) {
         vector<uint_t> indices{0, 1, 2, 2, 3, 0};
 
         Figure fig;
-        fig.form(vertices, indices, _font.texture);
-        _drawData.push_back(fig);
+        fig.form(vertices, indices, mFont.texture);
+        mDrawData.push_back(fig);
     }
 }
 
@@ -583,7 +583,7 @@ void reig::Context::render_triangle(Triangle const &aTri, Color const &aColor) {
 
     Figure fig;
     fig.form(vertices, indices);
-    _drawData.push_back(fig);
+    mDrawData.push_back(fig);
 }
 
 void reig::Context::render_rectangle(Rectangle const &aBox, int aTexture) {
@@ -597,7 +597,7 @@ void reig::Context::render_rectangle(Rectangle const &aBox, int aTexture) {
 
     Figure fig;
     fig.form(vertices, indices, aTexture);
-    _drawData.push_back(fig);
+    mDrawData.push_back(fig);
 }
 
 void reig::Context::render_rectangle(Rectangle const &aRect, Color const &aColor) {
@@ -611,5 +611,5 @@ void reig::Context::render_rectangle(Rectangle const &aRect, Color const &aColor
 
     Figure fig;
     fig.form(vertices, indices);
-    _drawData.push_back(fig);
+    mDrawData.push_back(fig);
 }

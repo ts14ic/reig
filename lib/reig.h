@@ -203,8 +203,31 @@ namespace reig {
         bool mCanFree = false;
     };
 
+    namespace detail {
+        struct Font {
+            stbtt_bakedchar* bakedChars = nullptr;
+            float size   = 0.f;
+            uint_t texture = 0;
+            uint_t width   = 0;
+            uint_t height  = 0;
+        };
+
+        struct Window {
+            std::vector<Figure> drawData;
+            char const* title = nullptr;
+            float* x = nullptr;
+            float* y = nullptr;
+            float w = 0.f;
+            float h = 0.f;
+            float headerSize = 0.f;
+            bool started = false;
+
+            void expand(Rectangle& box);
+        };
+    }
+
     using DrawData = std::vector<Figure>;
-    using CallbackType = void (*)(DrawData const&, void*);
+    using RenderHandler = void (*)(DrawData const&, void*);
 
     /**
      * @class Context
@@ -219,7 +242,7 @@ namespace reig {
          * @param handler A C function pointer to a rendering callback
          * The handler should return void and take in DrawData const& and void*
          */
-        void set_render_handler(CallbackType handler);
+        void set_render_handler(RenderHandler handler);
 
         /**
          * @brief Set a user pointer to store in the context.
@@ -370,32 +393,12 @@ namespace reig {
          */
         void render_triangle(Triangle const& triangle, Color const& color);
     private:
-        std::vector<Figure> _drawData;
-        CallbackType        _renderHandler = nullptr;
-        void*               _userPtr = nullptr;
+        std::vector<Figure> mDrawData;
+        detail::Font mFont;
+        detail::Window mCurrentWindow;
 
-        struct Font {
-            stbtt_bakedchar* bakedChars = nullptr;
-            float size   = 0.f;
-            uint_t texture = 0;
-            uint_t width   = 0;
-            uint_t height  = 0;
-        }
-        _font;
-
-        struct Window {
-            std::vector<Figure> drawData;
-            char const* title = nullptr;
-            float* x = nullptr;
-            float* y = nullptr;
-            float w = 0.f;
-            float h = 0.f;
-            float headerSize = 0.f;
-            bool started = false;
-
-            void expand(Rectangle& box);
-        }
-        _window;
+        RenderHandler mRenderHandler = nullptr;
+        void* mUserPtr = nullptr;
     };
 }
 
