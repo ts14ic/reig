@@ -42,8 +42,6 @@ namespace reig {
         ubyte_t alpha = 0xFFu;
     };
 
-    using Colour = Color;
-
     namespace Colors {
         uint_t to_uint(Color const& from);
 
