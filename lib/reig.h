@@ -114,12 +114,17 @@ namespace reig {
     class Mouse {
     public:
         Mouse() = default;
+
         Mouse(Mouse const&) = delete;
+
         Mouse(Mouse&&) = delete;
+
         Mouse& operator=(Mouse const&) = delete;
+
         Mouse& operator=(Mouse&&) = delete;
 
-        MouseButton left, right;
+        MouseButton leftButton;
+        MouseButton rightButton;
 
         /**
          * @brief Moves cursor against previous position
@@ -140,11 +145,12 @@ namespace reig {
          * @param dy Amount of scrolling
          */
         void scroll(float dy);
+
     private:
         friend class ::reig::Context;
 
-        Point _cursorPos;
-        float _scroll;
+        Point mCursorPos;
+        float mScrolled = 0.0f;
     };
 
     /**
@@ -162,35 +168,39 @@ namespace reig {
         /**
          * @brief Returns figure's read-only indices
          */
-        std::vector<uint_t> const&  indices() const;
+        std::vector<uint_t> const& indices() const;
 
         /**
          * @brief Return figure's texture index
          */
         uint_t texture() const;
+
     private:
         Figure() = default;
+
         friend class ::reig::Context;
 
         void form(std::vector<Vertex>& vertices, std::vector<uint_t>& indices, uint_t id = 0);
 
-        std::vector<Vertex> _vertices;
-        std::vector<uint_t> _indices;
-        uint_t              _texture = 0;
+        std::vector<Vertex> mVertices;
+        std::vector<uint_t> mIndices;
+        uint_t mTextureId = 0;
     };
 
     struct FontData {
         ubyte_t* bitmap = nullptr;
-        uint_t width    = 0;
-        uint_t height   = 0;
+        uint_t width = 0;
+        uint_t height = 0;
 
         /**
          * @brief Enable RAII memory freeing for this object
          */
-        void free();
+        void allowFree();
+
         ~FontData();
+
     private:
-        bool _free = false;
+        bool mCanFree = false;
     };
 
     using DrawData = std::vector<Figure>;

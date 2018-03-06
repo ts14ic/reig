@@ -72,14 +72,14 @@ public:
                     
                     case SDL_MOUSEBUTTONDOWN: {
                         if(evt.button.button == SDL_BUTTON_LEFT) {
-                            gui.ctx.mouse.left.press(evt.button.x, evt.button.y);
+                            gui.ctx.mouse.leftButton.press(evt.button.x, evt.button.y);
                         }
                     }
                     break;
                     
                     case SDL_MOUSEBUTTONUP: {
                         if(evt.button.button == SDL_BUTTON_LEFT) {
-                            gui.ctx.mouse.left.release();
+                            gui.ctx.mouse.leftButton.release();
                         }
                     }
                     
