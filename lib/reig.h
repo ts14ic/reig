@@ -50,7 +50,7 @@ namespace reig {
         Color with_alpha(Color const &from, ubyte_t alpha);
 
         #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "OCUnusedGlobalDeclarationInspection"
+        #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
         extern Color const transparent;
         extern Color const red;
         extern Color const orange;
@@ -106,9 +106,9 @@ namespace reig {
 
         friend class ::reig::Mouse;
 
-        Point _clickedPos;
-        bool _pressed = false;
-        bool _clicked = false;
+        Point mClickedPos;
+        bool mIsPressed = false;
+        bool mIsClicked = false;
     };
 
     class Mouse {

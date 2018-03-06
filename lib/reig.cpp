@@ -199,7 +199,7 @@ void reig::Context::start_new_frame() {
     _window.drawData.clear();
     _drawData.clear();
 
-    mouse.left._clicked = false;
+    mouse.left.mIsClicked = false;
     mouse._scroll = 0.f;
 }
 
@@ -218,15 +218,15 @@ void reig::Mouse::scroll(float dy) {
 }
 
 void reig::MouseButton::press(float_t x, float_t y) {
-    if(!_pressed) {
-        _pressed = true;
-        _clicked = true;
-        _clickedPos = {x, y};
+    if(!mIsPressed) {
+        mIsPressed = true;
+        mIsClicked = true;
+        mClickedPos = {x, y};
     }
 }
 
 void reig::MouseButton::release() {
-    _pressed = false;
+    mIsPressed = false;
 }
 
 void reig::Figure::form(vector<Vertex> &vertices, vector<uint_t> &indices, uint_t id) {
@@ -292,16 +292,16 @@ void reig::Context::end_window() {
     render_text(_window.title, titleBox);
     render_rectangle(bodyBox, Colors::with_alpha(Colors::mediumGrey, 100));
 
-    if(mouse.left._pressed && detail::in_box(mouse.left._clickedPos, headerBox)) {
+    if(mouse.left.mIsPressed && detail::in_box(mouse.left.mClickedPos, headerBox)) {
         Point moved{
-                mouse._cursorPos.x - mouse.left._clickedPos.x,
-                mouse._cursorPos.y - mouse.left._clickedPos.y
+                mouse._cursorPos.x - mouse.left.mClickedPos.x,
+                mouse._cursorPos.y - mouse.left.mClickedPos.y
         };
 
         *_window.x += moved.x;
         *_window.y += moved.y;
-        mouse.left._clickedPos.x += moved.x;
-        mouse.left._clickedPos.y += moved.y;
+        mouse.left.mClickedPos.x += moved.x;
+        mouse.left.mClickedPos.y += moved.y;
     }
 }
 
@@ -346,10 +346,10 @@ bool reig::Context::button(char const *aTitle, Rectangle aBox, Color aColor) {
 
     // see, if clicked the inner part of button
     aBox = detail::decrease(aBox, 4);
-    bool clickedButton = detail::in_box(mouse.left._clickedPos, aBox);
+    bool clickedButton = detail::in_box(mouse.left.mClickedPos, aBox);
 
     // highlight even more, if clicked
-    if(mouse.left._pressed && clickedButton) {
+    if(mouse.left.mIsPressed && clickedButton) {
         aColor = detail::lighten_color_by(aColor, 50);
     }
     // render the inner part of button
@@ -357,16 +357,16 @@ bool reig::Context::button(char const *aTitle, Rectangle aBox, Color aColor) {
     // render button's title
     render_text(aTitle, aBox);
 
-    return mouse.left._clicked && clickedButton;
+    return mouse.left.mIsClicked && clickedButton;
 }
 
 bool reig::Context::button(char const *aTitle, Rectangle aBox, int aBaseTexture, int aHoverTexture) {
     _window.expand(aBox);
 
-    bool clickedButton = detail::in_box(mouse.left._clickedPos, aBox);
+    bool clickedButton = detail::in_box(mouse.left.mClickedPos, aBox);
     bool hoveredButton = detail::in_box(mouse._cursorPos, aBox);
 
-    if((mouse.left._pressed && clickedButton) || hoveredButton) {
+    if((mouse.left.mIsPressed && clickedButton) || hoveredButton) {
         render_rectangle(aBox, aBaseTexture);
     } else {
         render_rectangle(aBox, aHoverTexture);
@@ -376,7 +376,7 @@ bool reig::Context::button(char const *aTitle, Rectangle aBox, int aBaseTexture,
 
     render_text(aTitle, aBox);
 
-    return mouse.left._clicked && clickedButton;
+    return mouse.left.mIsClicked && clickedButton;
 }
 
 bool reig::Context::slider(
@@ -408,7 +408,7 @@ bool reig::Context::slider(
     }
     render_rectangle(cursorBox, cursorColor);
 
-    if(mouse.left._pressed && detail::in_box(mouse.left._clickedPos, aBox)) {
+    if(mouse.left.mIsPressed && detail::in_box(mouse.left.mClickedPos, aBox)) {
         auto halfCursorW = cursorBox.width / 2;
         auto distance = mouse._cursorPos.x - cursorBox.x - halfCursorW;
 
@@ -451,7 +451,7 @@ bool reig::Context::slider(
     cursorBox.x += offset * cursorBox.width;
     render_rectangle(cursorBox, aCursorTexture);
 
-    if(mouse.left._pressed && detail::in_box(mouse.left._clickedPos, aBox)) {
+    if(mouse.left.mIsPressed && detail::in_box(mouse.left.mClickedPos, aBox)) {
         auto halfCursorW = cursorBox.width / 2;
         auto distance = mouse._cursorPos.x - cursorBox.x - halfCursorW;
 
@@ -488,7 +488,7 @@ bool reig::Context::checkbox(Rectangle aBox, Color aColor, bool &aValue) {
     }
 
     // True if state changed
-    if(mouse.left._clicked && detail::in_box(mouse.left._clickedPos, aBox)) {
+    if(mouse.left.mIsClicked && detail::in_box(mouse.left.mClickedPos, aBox)) {
         aValue = !aValue;
         return true;
     } else {
@@ -509,7 +509,7 @@ bool reig::Context::checkbox(Rectangle aBox, int aBaseTexture, int aTickTexture,
     }
 
     // True if state changed
-    if(mouse.left._clicked && detail::in_box(mouse.left._clickedPos, aBox)) {
+    if(mouse.left.mIsClicked && detail::in_box(mouse.left.mClickedPos, aBox)) {
         aValue = !aValue;
         return true;
     } else {
