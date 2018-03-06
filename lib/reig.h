@@ -26,24 +26,9 @@ namespace reig {
     };
 
     struct Triangle {
-        Triangle() = default;
-        Triangle(float x0, float y0, float x1, float y1, float x2, float y2)
-                : pos0{x0, y0}, pos1{x1, y1}, pos2{x2, y2} {}
-        Triangle(Point const& pos0, Point const& pos1, Point const& pos2)
-                : pos0{pos0}, pos1{pos1}, pos2{pos2} {}
-
-        union {
-            Point pos0 {};
-            struct { float x0; float y0; };
-        };
-        union {
-            Point pos1 {};
-            struct { float x1; float y1; };
-        };
-        union {
-            Point pos2 {};
-            struct { float x2; float y2; };
-        };
+        Point pos0;
+        Point pos1;
+        Point pos2;
     };
 
     struct Color {
