@@ -93,19 +93,19 @@ auto reig::Colors::with_alpha(Color const &from, ubyte_t alpha) -> Color {
     return ret;
 }
 
-reig::Color const reig::transparent{};
-reig::Color const reig::red{239, 41, 41};
-reig::Color const reig::orange{252, 175, 62};
-reig::Color const reig::yellow{252, 233, 79};
-reig::Color const reig::green{138, 226, 52};
-reig::Color const reig::blue{114, 159, 207};
-reig::Color const reig::violet{173, 127, 168};
-reig::Color const reig::brown{143, 89, 2};
-reig::Color const reig::white{255, 255, 255};
-reig::Color const reig::lightGrey{186, 189, 182};
-reig::Color const reig::mediumGrey{136, 138, 133};
-reig::Color const reig::darkGrey{46, 52, 54};
-reig::Color const reig::black{0, 0, 0};
+reig::Color const reig::Colors::transparent{};
+reig::Color const reig::Colors::red{239, 41, 41};
+reig::Color const reig::Colors::orange{252, 175, 62};
+reig::Color const reig::Colors::yellow{252, 233, 79};
+reig::Color const reig::Colors::green{138, 226, 52};
+reig::Color const reig::Colors::blue{114, 159, 207};
+reig::Color const reig::Colors::violet{173, 127, 168};
+reig::Color const reig::Colors::brown{143, 89, 2};
+reig::Color const reig::Colors::white{255, 255, 255};
+reig::Color const reig::Colors::lightGrey{186, 189, 182};
+reig::Color const reig::Colors::mediumGrey{136, 138, 133};
+reig::Color const reig::Colors::darkGrey{46, 52, 54};
+reig::Color const reig::Colors::black{0, 0, 0};
 
 void reig::Context::set_render_handler(CallbackType renderHandler) {
     _renderHandler = renderHandler;
@@ -287,10 +287,10 @@ void reig::Context::end_window() {
             _window.w, _window.h - _window.headerSize
     };
 
-    render_rectangle(headerBox, Colors::with_alpha(mediumGrey, 200));
-    render_triangle(headerTriangle, lightGrey);
+    render_rectangle(headerBox, Colors::with_alpha(Colors::mediumGrey, 200));
+    render_triangle(headerTriangle, Colors::lightGrey);
     render_text(_window.title, titleBox);
-    render_rectangle(bodyBox, Colors::with_alpha(mediumGrey, 100));
+    render_rectangle(bodyBox, Colors::with_alpha(Colors::mediumGrey, 100));
 
     if(mouse.left._pressed && detail::in_box(mouse.left._clickedPos, headerBox)) {
         Point moved{

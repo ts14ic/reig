@@ -48,6 +48,20 @@ namespace reig {
         Color from_uint(uint_t rgba);
 
         Color with_alpha(Color const &from, ubyte_t alpha);
+
+        extern Color const transparent;
+        extern Color const red;
+        extern Color const orange;
+        extern Color const yellow;
+        extern Color const green;
+        extern Color const blue;
+        extern Color const violet;
+        extern Color const brown;
+        extern Color const white;
+        extern Color const lightGrey;
+        extern Color const mediumGrey;
+        extern Color const darkGrey;
+        extern Color const black;
     }
 
     struct Vertex {
@@ -57,20 +71,6 @@ namespace reig {
         Point texCoord {};
         Color color    {};
     };
-
-    extern Color const transparent;
-    extern Color const red;
-    extern Color const orange;
-    extern Color const yellow;
-    extern Color const green;
-    extern Color const blue;
-    extern Color const violet;
-    extern Color const brown;
-    extern Color const white;
-    extern Color const lightGrey;
-    extern Color const mediumGrey;
-    extern Color const darkGrey;
-    extern Color const black;
 
     /*forward*/ class Context;
     /*forward*/ class Mouse;
