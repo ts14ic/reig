@@ -52,7 +52,7 @@ namespace reig {
         struct Color {
             Color() 
                 : asUint{0u} { a = 0xFF; }
-            Color(ubyte_t r, ubyte_t g, ubyte_t b, ubyte_t a = {0xFFu})
+            Color(ubyte_t r, ubyte_t g, ubyte_t b, ubyte_t a = 0xFFu)
                 : r{r}, g{g}, b{b}, a{a} {}
             
             
