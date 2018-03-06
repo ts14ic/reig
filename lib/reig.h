@@ -17,40 +17,15 @@ namespace reig {
     
     inline namespace graphic_base_types {
         struct Point {
-            Point() = default;
-            Point(float x, float y)
-                : x{x}, y{y} {}
-            
-            float x {};
-            float y {};
-        };
-        
-        struct Size {
-            Size() = default;
-            Size(float w, float h)
-                : w{w}, h{h} {}
-            
-            float w {};
-            float h {};
+            float x = 0.0f;
+            float y = 0.0f;
         };
         
         struct Rectangle {
-            Rectangle() = default;
-            Rectangle(float x, float y, float w, float h)
-                : x{x}, y{y}, w{w}, h{h} {}
-            Rectangle(float x, float y, Size size)
-                : x{x}, y{y}, size{size} {}
-            Rectangle(Point pos, Size size) 
-                : pos{pos}, size{size} {}
-            
-            union {
-                Point pos {};
-                struct { float x; float y; };
-            };
-            union {
-                Size size {};
-                struct { float w; float h; };
-            };
+            float x = 0.0f;
+            float y = 0.0f;
+            float width = 0.0f;
+            float height = 0.0f;
         };
         
         struct Triangle {

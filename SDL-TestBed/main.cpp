@@ -105,7 +105,7 @@ public:
             }
             
             color.g += 50;
-            rect.y += 40; rect.w += 50;
+            rect.y += 40; rect.width += 50;
             static float sliderValue0 = 20;
             if(gui.ctx.slider(rect, color, sliderValue0, 20, 40, 5)) {
                 std::cout << "Slider 1: new value " << sliderValue0 << std::endl;
@@ -113,7 +113,7 @@ public:
             
             color.g += 50;
             rect.y += 40;
-            rect.w += 50;
+            rect.width += 50;
             
             static float sliderValue1 = 5.4f;
             if(gui.ctx.slider(rect, color, sliderValue1, 3, 7, 0.1f)) {
@@ -121,7 +121,7 @@ public:
             }
             
             static float sliderValue2 = 0.3f;
-            rect.y += 40; rect.w += 50; rect.h += 10;
+            rect.y += 40; rect.width += 50; rect.height += 10;
             if(gui.ctx.slider(
                 rect, 
                 reig::Color(220, 200, 150),
@@ -132,21 +132,21 @@ public:
             
             static bool checkBox1 = false;
             color.r += 15; color.g -= 35; color.b -= 10;
-            rect.x += 270; rect.w = 40; rect.h = 20;
+            rect.x += 270; rect.width = 40; rect.height = 20;
             if(gui.ctx.checkbox(rect, color, checkBox1)) {
                 std::cout << "Checkbox 1: new value " << checkBox1 << std::endl;
             }
             
             static bool checkBox2 = true;
             color.r -= 100; color.g += 100; color.b += 100;
-            rect.y -= 100; rect.w = rect.h = 50;
+            rect.y -= 100; rect.width = rect.height = 50;
             if(gui.ctx.checkbox(rect, color, checkBox2)) {
                 std::cout << "Checkbox 2: new value " << checkBox2 << std::endl;
             }
             
             static bool checkBox3 = false;
             color.asUint = 0xFFFFFFFF;
-            rect.y += 60; rect.w = rect.h = 25;
+            rect.y += 60; rect.width = rect.height = 25;
             if(gui.ctx.checkbox(rect, color, checkBox3)) {
                 std::cout << "Checkbox 3: new value " << checkBox3 << std::endl;
             }
