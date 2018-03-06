@@ -49,7 +49,7 @@ namespace reig::detail {
     }
 
     Color get_yiq_contrast(Color color) {
-        uint_t y = (299 * color.red + 587 * color.green + 114 * color.blue) / 1000;
+        uint_t y = (299u * color.red + 587 * color.green + 114 * color.blue) / 1000;
         return y >= 128 ? Color{0u, 0u, 0u} : Color{255u, 255u, 255u};
     }
 
