@@ -10,7 +10,9 @@ add_library(reig_lib
         lib/reig.h
         lib/reig.cpp)
 add_library(my::reig_lib ALIAS reig_lib)
-set_property(TARGET reig_lib PROPERTY CXX_STANDARD 17)
+target_compile_features(reig_lib
+        PUBLIC
+            cxx_std_17)
 
 # SDL 2 test bed
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/SDL-TestBed/cmake)
@@ -30,7 +32,6 @@ target_include_directories(sdl_bed
         ${PROJECT_SOURCE_DIR}/lib
         ${SDL2_INCLUDE_DIR}
         ${SDL2_IMAGE_INCLUDE_DIRS})
-set_property(TARGET sdl_bed PROPERTY CXX_STANDARD 17)
 
 # Open GL 3 test bed
 # TODO: Link opengl
@@ -41,4 +42,3 @@ add_executable(gl3_bed
         GL3-TestBed/Shader.cpp
         GL3-TestBed/Shader.hpp)
 target_link_libraries(gl3_bed my::reig_lib)
-set_property(TARGET gl3_bed PROPERTY CXX_STANDARD 17)
