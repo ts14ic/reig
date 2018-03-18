@@ -363,7 +363,7 @@ namespace reig {
          * @param logicalHeight Max logical value 
          * @return 
          */
-        bool scrollbar(Rectangle box, Color color, float& value, float min, float max, float logicalHeight);
+        //bool scrollbar(Rectangle box, Color color, float& value, float min, float max, float logicalHeight);
 
         // Primitive renders
         /**
