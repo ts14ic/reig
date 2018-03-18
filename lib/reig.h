@@ -32,8 +32,8 @@ namespace reig {
     };
 
     struct Color {
-        Color() = default;
-        Color(ubyte_t red, ubyte_t green, ubyte_t blue, ubyte_t alpha = 0xFFu)
+        constexpr Color() = default;
+        constexpr Color(ubyte_t red, ubyte_t green, ubyte_t blue, ubyte_t alpha = 0xFFu) noexcept
                 : red{red}, green{green}, blue{blue}, alpha{alpha} {}
 
         ubyte_t red   = 0u;
@@ -51,19 +51,19 @@ namespace reig {
 
         #pragma clang diagnostic push
         #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
-        extern Color const transparent;
-        extern Color const red;
-        extern Color const orange;
-        extern Color const yellow;
-        extern Color const green;
-        extern Color const blue;
-        extern Color const violet;
-        extern Color const brown;
-        extern Color const white;
-        extern Color const lightGrey;
-        extern Color const mediumGrey;
-        extern Color const darkGrey;
-        extern Color const black;
+        Color constexpr transparent{};
+        Color constexpr red{239, 41, 41};
+        Color constexpr orange{252, 175, 62};
+        Color constexpr yellow{252, 233, 79};
+        Color constexpr green{138, 226, 52};
+        Color constexpr blue{114, 159, 207};
+        Color constexpr violet{173, 127, 168};
+        Color constexpr brown{143, 89, 2};
+        Color constexpr white{255, 255, 255};
+        Color constexpr lightGrey{186, 189, 182};
+        Color constexpr mediumGrey{136, 138, 133};
+        Color constexpr darkGrey{46, 52, 54};
+        Color constexpr black{0, 0, 0};
         #pragma clang diagnostic pop
     }
 

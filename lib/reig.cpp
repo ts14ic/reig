@@ -93,20 +93,6 @@ auto reig::Colors::with_alpha(Color const &from, ubyte_t alpha) -> Color {
     return ret;
 }
 
-reig::Color const reig::Colors::transparent{};
-reig::Color const reig::Colors::red{239, 41, 41};
-reig::Color const reig::Colors::orange{252, 175, 62};
-reig::Color const reig::Colors::yellow{252, 233, 79};
-reig::Color const reig::Colors::green{138, 226, 52};
-reig::Color const reig::Colors::blue{114, 159, 207};
-reig::Color const reig::Colors::violet{173, 127, 168};
-reig::Color const reig::Colors::brown{143, 89, 2};
-reig::Color const reig::Colors::white{255, 255, 255};
-reig::Color const reig::Colors::lightGrey{186, 189, 182};
-reig::Color const reig::Colors::mediumGrey{136, 138, 133};
-reig::Color const reig::Colors::darkGrey{46, 52, 54};
-reig::Color const reig::Colors::black{0, 0, 0};
-
 void reig::Context::set_render_handler(RenderHandler renderHandler) {
     mRenderHandler = renderHandler;
 }
