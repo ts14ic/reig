@@ -51,7 +51,7 @@ namespace reig {
 
         #pragma clang diagnostic push
         #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
-        Color constexpr transparent{};
+        Color constexpr transparent{0, 0, 0, 0};
         Color constexpr red{239, 41, 41};
         Color constexpr orange{252, 175, 62};
         Color constexpr yellow{252, 233, 79};
