@@ -59,9 +59,6 @@ namespace reig {
     public:
         constexpr Color() = default;
 
-        constexpr Color(ubyte_t red, ubyte_t green, ubyte_t blue, ubyte_t alpha = 0xFFu) noexcept
-                : Color{Red{red}, Green{green}, Blue{blue}, Alpha{alpha}} {}
-
         constexpr Color(Red const& red, Green const& green, Blue const& blue, Alpha const& alpha = Alpha{0xFFu}) noexcept
                 : mRed{red}, mGreen{green}, mBlue{blue}, mAlpha{alpha} {}
 
@@ -90,6 +87,9 @@ namespace reig {
         Color from_uint(uint_t rgba);
 
         namespace literals {
+            Red operator""_r(unsigned long long alpha);
+            Green operator""_g(unsigned long long alpha);
+            Blue operator""_b(unsigned long long alpha);
             Alpha operator""_a(unsigned long long alpha);
         }
 

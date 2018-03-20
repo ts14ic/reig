@@ -90,8 +90,10 @@ public:
             if(quit) break;
             
             // ================== GUI setup =================
+            using namespace reig::Colors::literals;
+
             reig::Rectangle rect {40, 0, 100, 30};
-            reig::Color color {120, 100, 150};
+            reig::Color color {120_r, 100_g, 150_b};
             
             static float winX = 10, winY = 10;
             gui.ctx.start_window(fpsString.c_str(), winX, winY);
@@ -124,7 +126,7 @@ public:
             rect.y += 40; rect.width += 50; rect.height += 10;
             if(gui.ctx.slider(
                 rect, 
-                reig::Color(220, 200, 150),
+                reig::Color(220_r, 200_g, 150_b),
                 sliderValue2, 0.1f, 0.5f, 0.05f
             )) {
                 std::cout << "Slider 2: new value " << sliderValue2 << std::endl;

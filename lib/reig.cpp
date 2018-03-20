@@ -49,8 +49,10 @@ namespace reig::detail {
     }
 
     Color get_yiq_contrast(Color color) {
+        using namespace Colors::literals;
+
         uint_t y = (299u * color.red() + 587 * color.green() + 114 * color.blue()) / 1000;
-        return y >= 128 ? Color{0, 0, 0} : Color{255u, 255u, 255u};
+        return y >= 128 ? Color{0_r, 0_g, 0_b} : Color{255_r, 255_g, 255_b};
     }
 
     Color lighten_color_by(Color color, ubyte_t delta) {
@@ -71,8 +73,20 @@ namespace reig::detail {
     }
 }
 
-auto reig::Colors::literals::operator ""_a(unsigned long long alpha) -> Alpha {
-    return Alpha{static_cast<ubyte_t>(alpha)};
+auto reig::Colors::literals::operator ""_r(unsigned long long val) -> Red {
+    return Red{static_cast<ubyte_t>(val)};
+}
+
+auto reig::Colors::literals::operator ""_g(unsigned long long val) -> Green {
+    return Green{static_cast<ubyte_t>(val)};
+}
+
+auto reig::Colors::literals::operator ""_b(unsigned long long val) -> Blue {
+    return Blue{static_cast<ubyte_t>(val)};
+}
+
+auto reig::Colors::literals::operator ""_a(unsigned long long val) -> Alpha {
+    return Alpha{static_cast<ubyte_t>(val)};
 }
 
 auto reig::Colors::mixing::operator|(Color const& left, Alpha const& right) -> Color {
@@ -90,10 +104,10 @@ auto reig::Colors::to_uint(Color const& color) -> uint_t {
 
 auto reig::Colors::from_uint(uint_t rgba) -> Color {
     return Color {
-            static_cast<ubyte_t>((rgba >> 24) & 0xFF),
-            static_cast<ubyte_t>((rgba >> 16) & 0xFF),
-            static_cast<ubyte_t>((rgba >> 8) & 0xFF),
-            static_cast<ubyte_t>(rgba & 0xFF)
+            Red{static_cast<ubyte_t>((rgba >> 24) & 0xFF)},
+            Green{static_cast<ubyte_t>((rgba >> 16) & 0xFF)},
+            Blue{static_cast<ubyte_t>((rgba >> 8) & 0xFF)},
+            Alpha{static_cast<ubyte_t>(rgba & 0xFF)}
     };
 }
 
