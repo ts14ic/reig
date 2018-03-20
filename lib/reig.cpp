@@ -277,7 +277,7 @@ void reig::Context::end_window() {
     render_text(mCurrentWindow.title, titleBox);
     render_rectangle(bodyBox, Colors::mediumGrey | 100_a);
 
-    if(mouse.leftButton.mIsPressed && detail::in_box(mouse.leftButton.mClickedPos, headerBox)) {
+    if(mouse.leftButton.mIsPressed && ::reig::detail::in_box(mouse.leftButton.mClickedPos, headerBox)) {
         Point moved{
                 mouse.mCursorPos.x - mouse.leftButton.mClickedPos.x,
                 mouse.mCursorPos.y - mouse.leftButton.mClickedPos.y
