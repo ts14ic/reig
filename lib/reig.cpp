@@ -73,19 +73,19 @@ namespace reig::detail {
     }
 }
 
-auto reig::Colors::literals::operator ""_r(unsigned long long val) -> Red {
+auto reig::Colors::literals::operator ""_r(unsigned long long val) noexcept -> Red {
     return Red{static_cast<ubyte_t>(val)};
 }
 
-auto reig::Colors::literals::operator ""_g(unsigned long long val) -> Green {
+auto reig::Colors::literals::operator ""_g(unsigned long long val) noexcept -> Green {
     return Green{static_cast<ubyte_t>(val)};
 }
 
-auto reig::Colors::literals::operator ""_b(unsigned long long val) -> Blue {
+auto reig::Colors::literals::operator ""_b(unsigned long long val) noexcept -> Blue {
     return Blue{static_cast<ubyte_t>(val)};
 }
 
-auto reig::Colors::literals::operator ""_a(unsigned long long val) -> Alpha {
+auto reig::Colors::literals::operator ""_a(unsigned long long val) noexcept -> Alpha {
     return Alpha{static_cast<ubyte_t>(val)};
 }
 

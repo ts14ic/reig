@@ -34,25 +34,25 @@ namespace reig {
     struct Red {
         ubyte_t val = 0u;
 
-        constexpr explicit Red(ubyte_t val = 0u) : val{val} {}
+        constexpr explicit Red(ubyte_t val = 0u) noexcept : val{val} {}
     };
 
     struct Green {
         ubyte_t val = 0u;
 
-        constexpr explicit Green(ubyte_t val = 0u) : val{val} {}
+        constexpr explicit Green(ubyte_t val = 0u) noexcept : val{val} {}
     };
 
     struct Blue {
         ubyte_t val = 0u;
 
-        constexpr explicit Blue(ubyte_t val = 0u) : val{val} {}
+        constexpr explicit Blue(ubyte_t val = 0u) noexcept : val{val} {}
     };
 
     struct Alpha {
         ubyte_t val = 0xFFu;
 
-        constexpr explicit Alpha(ubyte_t val = 0xFFu) : val{val} {}
+        constexpr explicit Alpha(ubyte_t val = 0xFFu) noexcept : val{val} {}
     };
 
     struct Color {
