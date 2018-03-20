@@ -89,6 +89,24 @@ auto reig::Colors::literals::operator ""_a(unsigned long long val) -> Alpha {
     return Alpha{static_cast<ubyte_t>(val)};
 }
 
+auto reig::Colors::mixing::operator|(Color const& left, Red const& right) -> Color {
+    Color ret = left;
+    ret.red = right;
+    return ret;
+}
+
+auto reig::Colors::mixing::operator|(Color const& left, Green const& right) -> Color {
+    Color ret = left;
+    ret.green = right;
+    return ret;
+}
+
+auto reig::Colors::mixing::operator|(Color const& left, Blue const& right) -> Color {
+    Color ret = left;
+    ret.blue = right;
+    return ret;
+}
+
 auto reig::Colors::mixing::operator|(Color const& left, Alpha const& right) -> Color {
     Color ret = left;
     ret.alpha = right;
