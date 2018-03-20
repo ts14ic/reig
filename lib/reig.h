@@ -31,15 +31,57 @@ namespace reig {
         Point pos2;
     };
 
-    struct Color {
-        constexpr Color() = default;
-        constexpr Color(ubyte_t red, ubyte_t green, ubyte_t blue, ubyte_t alpha = 0xFFu) noexcept
-                : red{red}, green{green}, blue{blue}, alpha{alpha} {}
+    struct Red {
+        ubyte_t val = 0u;
 
-        ubyte_t red   = 0u;
-        ubyte_t green = 0u;
-        ubyte_t blue  = 0u;
-        ubyte_t alpha = 0xFFu;
+        constexpr explicit Red(ubyte_t val = 0u) : val{val} {}
+    };
+
+    struct Green {
+        ubyte_t val = 0u;
+
+        constexpr explicit Green(ubyte_t val = 0u) : val{val} {}
+    };
+
+    struct Blue {
+        ubyte_t val = 0u;
+
+        constexpr explicit Blue(ubyte_t val = 0u) : val{val} {}
+    };
+
+    struct Alpha {
+        ubyte_t val = 0xFFu;
+
+        constexpr explicit Alpha(ubyte_t val = 0xFFu) : val{val} {}
+    };
+
+    class Color {
+    public:
+        constexpr Color() = default;
+
+        constexpr Color(ubyte_t red, ubyte_t green, ubyte_t blue, ubyte_t alpha = 0xFFu) noexcept
+                : Color{Red{red}, Green{green}, Blue{blue}, Alpha{alpha}} {}
+
+        constexpr Color(Red const& red, Green const& green, Blue const& blue, Alpha const& alpha = Alpha{0xFFu}) noexcept
+                : mRed{red}, mGreen{green}, mBlue{blue}, mAlpha{alpha} {}
+
+        ubyte_t& red() { return mRed.val; }
+        ubyte_t const& red() const { return mRed.val; }
+
+        ubyte_t& green() { return mGreen.val; }
+        ubyte_t const& green() const { return mGreen.val; }
+
+        ubyte_t& blue() { return mBlue.val; }
+        ubyte_t const& blue() const { return mBlue.val; }
+
+        ubyte_t& alpha() { return mAlpha.val; }
+        ubyte_t const& alpha() const { return mAlpha.val; }
+
+    private:
+        Red mRed;
+        Green mGreen;
+        Blue mBlue;
+        Alpha mAlpha;
     };
 
     namespace Colors {
@@ -47,23 +89,23 @@ namespace reig {
 
         Color from_uint(uint_t rgba);
 
-        Color with_alpha(Color const &from, ubyte_t alpha);
+        Color with_alpha(Color const& from, ubyte_t alpha);
 
         #pragma clang diagnostic push
         #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
-        Color constexpr transparent{0, 0, 0, 0};
-        Color constexpr red{239, 41, 41};
-        Color constexpr orange{252, 175, 62};
-        Color constexpr yellow{252, 233, 79};
-        Color constexpr green{138, 226, 52};
-        Color constexpr blue{114, 159, 207};
-        Color constexpr violet{173, 127, 168};
-        Color constexpr brown{143, 89, 2};
-        Color constexpr white{255, 255, 255};
-        Color constexpr lightGrey{186, 189, 182};
-        Color constexpr mediumGrey{136, 138, 133};
-        Color constexpr darkGrey{46, 52, 54};
-        Color constexpr black{0, 0, 0};
+        Color constexpr transparent{Red{}, Green{}, Blue{}, Alpha{}};
+        Color constexpr red{Red{239}, Green{41}, Blue{41}};;
+        Color constexpr orange{Red{252}, Green{175}, Blue{62}};;
+        Color constexpr yellow{Red{252}, Green{233}, Blue{79}};;
+        Color constexpr green{Red{138}, Green{226}, Blue{52}};;
+        Color constexpr blue{Red{114}, Green{159}, Blue{207}};;
+        Color constexpr violet{Red{173}, Green{127}, Blue{168}};;
+        Color constexpr brown{Red{143}, Green{89}, Blue{2}};;
+        Color constexpr white{Red{255}, Green{255}, Blue{255}};;
+        Color constexpr lightGrey{Red{186}, Green{189}, Blue{182}};;
+        Color constexpr mediumGrey{Red{136}, Green{138}, Blue{133}};;
+        Color constexpr darkGrey{Red{46}, Green{52}, Blue{54}};;
+        Color constexpr black{Red{0}, Green{0}, Blue{0}};;
         #pragma clang diagnostic pop
     }
 
@@ -206,10 +248,10 @@ namespace reig {
     namespace detail {
         struct Font {
             stbtt_bakedchar* bakedChars = nullptr;
-            float size   = 0.f;
+            float size = 0.f;
             uint_t texture = 0;
-            uint_t width   = 0;
-            uint_t height  = 0;
+            uint_t width = 0;
+            uint_t height = 0;
         };
 
         struct Window {
@@ -281,6 +323,7 @@ namespace reig {
 
         // Widget renders
         void start_window(char const* title, float& x, float& y);
+
         void end_window();
 
         /**
@@ -372,6 +415,7 @@ namespace reig {
          * @param box Text's bounding box
          */
         void render_text(char const* text, Rectangle box);
+
         /**
          * @brief Schedules a rectangle drawing
          * @param rect Position and size
@@ -392,6 +436,7 @@ namespace reig {
          * @param color Color
          */
         void render_triangle(Triangle const& triangle, Color const& color);
+
     private:
         std::vector<Figure> mDrawData;
         detail::Font mFont;

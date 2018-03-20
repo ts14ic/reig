@@ -49,15 +49,15 @@ namespace reig::detail {
     }
 
     Color get_yiq_contrast(Color color) {
-        uint_t y = (299u * color.red + 587 * color.green + 114 * color.blue) / 1000;
-        return y >= 128 ? Color{0u, 0u, 0u} : Color{255u, 255u, 255u};
+        uint_t y = (299u * color.red() + 587 * color.green() + 114 * color.blue()) / 1000;
+        return y >= 128 ? Color{0, 0, 0} : Color{255u, 255u, 255u};
     }
 
     Color lighten_color_by(Color color, ubyte_t delta) {
         ubyte_t max = 255u;
-        color.red < max - delta ? color.red += delta : color.red = max;
-        color.green < max - delta ? color.green += delta : color.green = max;
-        color.blue < max - delta ? color.blue += delta : color.blue = max;
+        color.red() < max - delta ? color.red() += delta : color.red() = max;
+        color.green() < max - delta ? color.green()+= delta : color.green() = max;
+        color.blue() < max - delta ? color.blue() += delta : color.blue() = max;
         return color;
     }
 
@@ -72,10 +72,10 @@ namespace reig::detail {
 }
 
 auto reig::Colors::to_uint(Color const& color) -> uint_t {
-    return (color.alpha << 24)
-           + (color.blue << 16)
-           + (color.green << 8)
-           + color.red;
+    return (color.alpha() << 24)
+           + (color.blue() << 16)
+           + (color.green() << 8)
+           + color.red();
 }
 
 auto reig::Colors::from_uint(uint_t rgba) -> Color {
@@ -83,13 +83,13 @@ auto reig::Colors::from_uint(uint_t rgba) -> Color {
             static_cast<ubyte_t>((rgba >> 24) & 0xFF),
             static_cast<ubyte_t>((rgba >> 16) & 0xFF),
             static_cast<ubyte_t>((rgba >> 8) & 0xFF),
-            static_cast<ubyte_t>(rgba & 0xFF),
+            static_cast<ubyte_t>(rgba & 0xFF)
     };
 }
 
 auto reig::Colors::with_alpha(Color const &from, ubyte_t alpha) -> Color {
     Color ret = from;
-    ret.alpha = alpha;
+    ret.alpha() = alpha;
     return ret;
 }
 
