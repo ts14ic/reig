@@ -73,29 +73,15 @@ namespace reig::detail {
     }
 }
 
-auto reig::Colors::mixing::operator|(Color const& left, Red const& right) -> Color {
-    Color ret = left;
-    ret.red = right;
-    return ret;
-}
+template <> auto reig::Colors::mixing::detail::get_comp(Color const& color) -> Red const& { return color.red; }
+template <> auto reig::Colors::mixing::detail::get_comp(Color const& color) -> Green const& { return color.green; }
+template <> auto reig::Colors::mixing::detail::get_comp(Color const& color) -> Blue const& { return color.blue; }
+template <> auto reig::Colors::mixing::detail::get_comp(Color const& color) -> Alpha const& { return color.alpha; }
 
-auto reig::Colors::mixing::operator|(Color const& left, Green const& right) -> Color {
-    Color ret = left;
-    ret.green = right;
-    return ret;
-}
-
-auto reig::Colors::mixing::operator|(Color const& left, Blue const& right) -> Color {
-    Color ret = left;
-    ret.blue = right;
-    return ret;
-}
-
-auto reig::Colors::mixing::operator|(Color const& left, Alpha const& right) -> Color {
-    Color ret = left;
-    ret.alpha = right;
-    return ret;
-}
+template <> auto reig::Colors::mixing::detail::get_comp(Color& color) -> Red& { return color.red; }
+template <> auto reig::Colors::mixing::detail::get_comp(Color& color) -> Green& { return color.green; }
+template <> auto reig::Colors::mixing::detail::get_comp(Color& color) -> Blue& { return color.blue; }
+template <> auto reig::Colors::mixing::detail::get_comp(Color& color) -> Alpha& { return color.alpha; }
 
 auto reig::Colors::mixing::operator+(Color const& left, Red const& right) -> Color {
     Color ret = left;

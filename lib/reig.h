@@ -80,10 +80,39 @@ namespace reig {
         }
 
         namespace mixing {
-            Color operator|(Color const& left, Red const& right);
-            Color operator|(Color const& left, Green const& right);
-            Color operator|(Color const& left, Blue const& right);
-            Color operator|(Color const& left, Alpha const& right);
+            namespace detail {
+                template <typename Comp> Comp const& get_comp(Color const& color);
+
+                template <> Red const& get_comp(Color const& color);
+                template <> Green const& get_comp(Color const& color);
+                template <> Blue const& get_comp(Color const& color);
+                template <> Alpha const& get_comp(Color const& color);
+
+                template <typename Comp> Comp& get_comp(Color& color);
+
+                template <> Red& get_comp(Color& color);
+                template <> Green& get_comp(Color& color);
+                template <> Blue& get_comp(Color& color);
+                template <> Alpha& get_comp(Color& color);
+
+                template<typename Comp>
+                struct is_color_component {
+                    static constexpr bool value = std::is_same_v<Comp, Red> ||
+                                                  std::is_same_v<Comp, Green> ||
+                                                  std::is_same_v<Comp, Blue> ||
+                                                  std::is_same_v<Comp, Alpha>;
+                };
+
+                template <typename Comp>
+                static constexpr bool is_color_component_v = is_color_component<Comp>::value;
+            }
+
+            template <typename Comp, typename = std::enable_if_t<detail::is_color_component_v<Comp>>>
+            Color operator|(Color const& left, Comp const& right) {
+                Color ret = left;
+                detail::get_comp<Comp>(ret) = right;
+                return ret;
+            };
 
             Color operator+(Color const& left, Red const& right);
             Color operator+(Color const& left, Green const& right);
