@@ -114,15 +114,19 @@ namespace reig {
                 return ret;
             };
 
-            Color operator+(Color const& left, Red const& right);
-            Color operator+(Color const& left, Green const& right);
-            Color operator+(Color const& left, Blue const& right);
-            Color operator+(Color const& left, Alpha const& right);
+            template <typename Comp, typename = std::enable_if_t<detail::is_color_component_v<Comp>>>
+            Color operator+(Color const& left, Comp const& right) {
+                Color ret = left;
+                detail::get_comp<Comp>(ret).val += right.val;
+                return ret;
+            };
 
-            Color operator-(Color const& left, Red const& right);
-            Color operator-(Color const& left, Green const& right);
-            Color operator-(Color const& left, Blue const& right);
-            Color operator-(Color const& left, Alpha const& right);
+            template <typename Comp, typename = std::enable_if_t<detail::is_color_component_v<Comp>>>
+            Color operator-(Color const& left, Comp const& right) {
+                Color ret = left;
+                detail::get_comp<Comp>(ret).val -= right.val;
+                return ret;
+            };
         }
 
         #pragma clang diagnostic push
