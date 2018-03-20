@@ -51,15 +51,15 @@ namespace reig::detail {
     Color get_yiq_contrast(Color color) {
         using namespace Colors::literals;
 
-        uint_t y = (299u * color.red() + 587 * color.green() + 114 * color.blue()) / 1000;
+        uint_t y = (299u * color.red.val + 587 * color.green.val + 114 * color.blue.val) / 1000;
         return y >= 128 ? Color{0_r, 0_g, 0_b} : Color{255_r, 255_g, 255_b};
     }
 
     Color lighten_color_by(Color color, ubyte_t delta) {
         ubyte_t max = 255u;
-        color.red() < max - delta ? color.red() += delta : color.red() = max;
-        color.green() < max - delta ? color.green()+= delta : color.green() = max;
-        color.blue() < max - delta ? color.blue() += delta : color.blue() = max;
+        color.red.val < max - delta ? color.red.val += delta : color.red.val = max;
+        color.green.val < max - delta ? color.green.val += delta : color.green.val = max;
+        color.blue.val < max - delta ? color.blue.val += delta : color.blue.val = max;
         return color;
     }
 
@@ -91,15 +91,15 @@ auto reig::Colors::literals::operator ""_a(unsigned long long val) -> Alpha {
 
 auto reig::Colors::mixing::operator|(Color const& left, Alpha const& right) -> Color {
     Color ret = left;
-    ret.alpha() = right.val;
+    ret.alpha = right;
     return ret;
 }
 
 auto reig::Colors::to_uint(Color const& color) -> uint_t {
-    return (color.alpha() << 24)
-           + (color.blue() << 16)
-           + (color.green() << 8)
-           + color.red();
+    return (color.alpha.val << 24)
+           + (color.blue.val << 16)
+           + (color.green.val << 8)
+           + color.red.val;
 }
 
 auto reig::Colors::from_uint(uint_t rgba) -> Color {

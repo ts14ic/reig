@@ -55,30 +55,16 @@ namespace reig {
         constexpr explicit Alpha(ubyte_t val = 0xFFu) : val{val} {}
     };
 
-    class Color {
-    public:
+    struct Color {
         constexpr Color() = default;
 
         constexpr Color(Red const& red, Green const& green, Blue const& blue, Alpha const& alpha = Alpha{0xFFu}) noexcept
-                : mRed{red}, mGreen{green}, mBlue{blue}, mAlpha{alpha} {}
+                : red{red}, green{green}, blue{blue}, alpha{alpha} {}
 
-        ubyte_t& red() { return mRed.val; }
-        ubyte_t const& red() const { return mRed.val; }
-
-        ubyte_t& green() { return mGreen.val; }
-        ubyte_t const& green() const { return mGreen.val; }
-
-        ubyte_t& blue() { return mBlue.val; }
-        ubyte_t const& blue() const { return mBlue.val; }
-
-        ubyte_t& alpha() { return mAlpha.val; }
-        ubyte_t const& alpha() const { return mAlpha.val; }
-
-    private:
-        Red mRed;
-        Green mGreen;
-        Blue mBlue;
-        Alpha mAlpha;
+        Red red;
+        Green green;
+        Blue blue;
+        Alpha alpha;
     };
 
     namespace Colors {
