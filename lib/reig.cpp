@@ -49,15 +49,17 @@ namespace reig::detail {
     }
 
     Color get_yiq_contrast(Color color) {
-        uint_t y = (299u * color.red + 587 * color.green + 114 * color.blue) / 1000;
-        return y >= 128 ? Color{0u, 0u, 0u} : Color{255u, 255u, 255u};
+        using namespace Colors::literals;
+
+        uint_t y = (299u * color.red.val + 587 * color.green.val + 114 * color.blue.val) / 1000;
+        return y >= 128 ? Color{0_r, 0_g, 0_b} : Color{255_r, 255_g, 255_b};
     }
 
     Color lighten_color_by(Color color, ubyte_t delta) {
         ubyte_t max = 255u;
-        color.red < max - delta ? color.red += delta : color.red = max;
-        color.green < max - delta ? color.green += delta : color.green = max;
-        color.blue < max - delta ? color.blue += delta : color.blue = max;
+        color.red.val < max - delta ? color.red.val += delta : color.red.val = max;
+        color.green.val < max - delta ? color.green.val += delta : color.green.val = max;
+        color.blue.val < max - delta ? color.blue.val += delta : color.blue.val = max;
         return color;
     }
 
@@ -71,26 +73,108 @@ namespace reig::detail {
     }
 }
 
+auto reig::Colors::literals::operator ""_r(unsigned long long val) -> Red {
+    return Red{static_cast<ubyte_t>(val)};
+}
+
+auto reig::Colors::literals::operator ""_g(unsigned long long val) -> Green {
+    return Green{static_cast<ubyte_t>(val)};
+}
+
+auto reig::Colors::literals::operator ""_b(unsigned long long val) -> Blue {
+    return Blue{static_cast<ubyte_t>(val)};
+}
+
+auto reig::Colors::literals::operator ""_a(unsigned long long val) -> Alpha {
+    return Alpha{static_cast<ubyte_t>(val)};
+}
+
+auto reig::Colors::mixing::operator|(Color const& left, Red const& right) -> Color {
+    Color ret = left;
+    ret.red = right;
+    return ret;
+}
+
+auto reig::Colors::mixing::operator|(Color const& left, Green const& right) -> Color {
+    Color ret = left;
+    ret.green = right;
+    return ret;
+}
+
+auto reig::Colors::mixing::operator|(Color const& left, Blue const& right) -> Color {
+    Color ret = left;
+    ret.blue = right;
+    return ret;
+}
+
+auto reig::Colors::mixing::operator|(Color const& left, Alpha const& right) -> Color {
+    Color ret = left;
+    ret.alpha = right;
+    return ret;
+}
+
+auto reig::Colors::mixing::operator+(Color const& left, Red const& right) -> Color {
+    Color ret = left;
+    ret.red.val += right.val;
+    return ret;
+}
+
+auto reig::Colors::mixing::operator+(Color const& left, Green const& right) -> Color {
+    Color ret = left;
+    ret.green.val += right.val;
+    return ret;
+}
+
+auto reig::Colors::mixing::operator+(Color const& left, Blue const& right) -> Color {
+    Color ret = left;
+    ret.blue.val += right.val;
+    return ret;
+}
+
+auto reig::Colors::mixing::operator+(Color const& left, Alpha const& right) -> Color {
+    Color ret = left;
+    ret.alpha.val += right.val;
+    return ret;
+}
+
+auto reig::Colors::mixing::operator-(Color const& left, Red const& right) -> Color {
+    Color ret = left;
+    ret.red.val -= right.val;
+    return ret;
+}
+
+auto reig::Colors::mixing::operator-(Color const& left, Green const& right) -> Color {
+    Color ret = left;
+    ret.green.val -= right.val;
+    return ret;
+}
+
+auto reig::Colors::mixing::operator-(Color const& left, Blue const& right) -> Color {
+    Color ret = left;
+    ret.blue.val -= right.val;
+    return ret;
+}
+
+auto reig::Colors::mixing::operator-(Color const& left, Alpha const& right) -> Color {
+    Color ret = left;
+    ret.alpha.val -= right.val;
+    return ret;
+}
+
 auto reig::Colors::to_uint(Color const& color) -> uint_t {
-    return (color.alpha << 24)
-           + (color.blue << 16)
-           + (color.green << 8)
-           + color.red;
+    return (color.alpha.val << 24)
+           + (color.blue.val << 16)
+           + (color.green.val << 8)
+           + color.red.val;
 }
 
 auto reig::Colors::from_uint(uint_t rgba) -> Color {
     return Color {
-            static_cast<ubyte_t>((rgba >> 24) & 0xFF),
-            static_cast<ubyte_t>((rgba >> 16) & 0xFF),
-            static_cast<ubyte_t>((rgba >> 8) & 0xFF),
-            static_cast<ubyte_t>(rgba & 0xFF),
+            Red{static_cast<ubyte_t>((rgba >> 24) & 0xFF)},
+            Green{static_cast<ubyte_t>((rgba >> 16) & 0xFF)},
+            Blue{static_cast<ubyte_t>((rgba >> 8) & 0xFF)},
+            Alpha{static_cast<ubyte_t>(rgba & 0xFF)}
     };
-}
-
-auto reig::Colors::with_alpha(Color const &from, ubyte_t alpha) -> Color {
-    Color ret = from;
-    ret.alpha = alpha;
-    return ret;
 }
 
 void reig::Context::set_render_handler(RenderHandler renderHandler) {
@@ -273,10 +357,13 @@ void reig::Context::end_window() {
             mCurrentWindow.w, mCurrentWindow.h - mCurrentWindow.headerSize
     };
 
-    render_rectangle(headerBox, Colors::with_alpha(Colors::mediumGrey, 200));
+    using namespace Colors::literals;
+    using namespace Colors::mixing;
+
+    render_rectangle(headerBox, Colors::mediumGrey | 200_a);
     render_triangle(headerTriangle, Colors::lightGrey);
     render_text(mCurrentWindow.title, titleBox);
-    render_rectangle(bodyBox, Colors::with_alpha(Colors::mediumGrey, 100));
+    render_rectangle(bodyBox, Colors::mediumGrey | 100_a);
 
     if(mouse.leftButton.mIsPressed && detail::in_box(mouse.leftButton.mClickedPos, headerBox)) {
         Point moved{
