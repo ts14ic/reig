@@ -73,16 +73,6 @@ namespace reig::detail {
     }
 }
 
-template <> auto reig::Colors::mixing::detail::get_comp(Color const& color) -> Red const& { return color.red; }
-template <> auto reig::Colors::mixing::detail::get_comp(Color const& color) -> Green const& { return color.green; }
-template <> auto reig::Colors::mixing::detail::get_comp(Color const& color) -> Blue const& { return color.blue; }
-template <> auto reig::Colors::mixing::detail::get_comp(Color const& color) -> Alpha const& { return color.alpha; }
-
-template <> auto reig::Colors::mixing::detail::get_comp(Color& color) -> Red& { return color.red; }
-template <> auto reig::Colors::mixing::detail::get_comp(Color& color) -> Green& { return color.green; }
-template <> auto reig::Colors::mixing::detail::get_comp(Color& color) -> Blue& { return color.blue; }
-template <> auto reig::Colors::mixing::detail::get_comp(Color& color) -> Alpha& { return color.alpha; }
-
 auto reig::Colors::mixing::operator+(Color const& left, Red const& right) -> Color {
     Color ret = left;
     ret.red.val += right.val;
