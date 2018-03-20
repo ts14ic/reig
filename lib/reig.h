@@ -73,10 +73,10 @@ namespace reig {
         Color from_uint(uint_t rgba);
 
         namespace literals {
-            Red operator""_r(unsigned long long alpha);
-            Green operator""_g(unsigned long long alpha);
-            Blue operator""_b(unsigned long long alpha);
-            Alpha operator""_a(unsigned long long alpha);
+            constexpr Red operator""_r(unsigned long long val) noexcept { return Red{static_cast<ubyte_t>(val)}; }
+            constexpr Green operator""_g(unsigned long long val) noexcept { return Green{static_cast<ubyte_t>(val)}; }
+            constexpr Blue operator""_b(unsigned long long val) noexcept { return Blue{static_cast<ubyte_t>(val)}; }
+            constexpr Alpha operator""_a(unsigned long long val) noexcept { return Alpha{static_cast<ubyte_t>(val)}; }
         }
 
         namespace mixing {
