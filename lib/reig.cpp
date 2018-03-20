@@ -113,6 +113,54 @@ auto reig::Colors::mixing::operator|(Color const& left, Alpha const& right) -> C
     return ret;
 }
 
+auto reig::Colors::mixing::operator+(Color const& left, Red const& right) -> Color {
+    Color ret = left;
+    ret.red.val += right.val;
+    return ret;
+}
+
+auto reig::Colors::mixing::operator+(Color const& left, Green const& right) -> Color {
+    Color ret = left;
+    ret.green.val += right.val;
+    return ret;
+}
+
+auto reig::Colors::mixing::operator+(Color const& left, Blue const& right) -> Color {
+    Color ret = left;
+    ret.blue.val += right.val;
+    return ret;
+}
+
+auto reig::Colors::mixing::operator+(Color const& left, Alpha const& right) -> Color {
+    Color ret = left;
+    ret.alpha.val += right.val;
+    return ret;
+}
+
+auto reig::Colors::mixing::operator-(Color const& left, Red const& right) -> Color {
+    Color ret = left;
+    ret.red.val -= right.val;
+    return ret;
+}
+
+auto reig::Colors::mixing::operator-(Color const& left, Green const& right) -> Color {
+    Color ret = left;
+    ret.green.val -= right.val;
+    return ret;
+}
+
+auto reig::Colors::mixing::operator-(Color const& left, Blue const& right) -> Color {
+    Color ret = left;
+    ret.blue.val -= right.val;
+    return ret;
+}
+
+auto reig::Colors::mixing::operator-(Color const& left, Alpha const& right) -> Color {
+    Color ret = left;
+    ret.alpha.val -= right.val;
+    return ret;
+}
+
 auto reig::Colors::to_uint(Color const& color) -> uint_t {
     return (color.alpha.val << 24)
            + (color.blue.val << 16)

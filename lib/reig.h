@@ -84,6 +84,16 @@ namespace reig {
             Color operator|(Color const& left, Green const& right);
             Color operator|(Color const& left, Blue const& right);
             Color operator|(Color const& left, Alpha const& right);
+
+            Color operator+(Color const& left, Red const& right);
+            Color operator+(Color const& left, Green const& right);
+            Color operator+(Color const& left, Blue const& right);
+            Color operator+(Color const& left, Alpha const& right);
+
+            Color operator-(Color const& left, Red const& right);
+            Color operator-(Color const& left, Green const& right);
+            Color operator-(Color const& left, Blue const& right);
+            Color operator-(Color const& left, Alpha const& right);
         }
 
         #pragma clang diagnostic push
