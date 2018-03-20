@@ -89,7 +89,9 @@ namespace reig {
 
         Color from_uint(uint_t rgba);
 
-        Color with_alpha(Color const& from, ubyte_t alpha);
+        namespace mixing {
+            Color operator|(Color const& left, Alpha const& right);
+        }
 
         #pragma clang diagnostic push
         #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"

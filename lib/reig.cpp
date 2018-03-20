@@ -71,6 +71,12 @@ namespace reig::detail {
     }
 }
 
+auto reig::Colors::mixing::operator|(Color const& left, Alpha const& right) -> Color {
+    Color ret = left;
+    ret.alpha() = right.val;
+    return ret;
+}
+
 auto reig::Colors::to_uint(Color const& color) -> uint_t {
     return (color.alpha() << 24)
            + (color.blue() << 16)
@@ -85,12 +91,6 @@ auto reig::Colors::from_uint(uint_t rgba) -> Color {
             static_cast<ubyte_t>((rgba >> 8) & 0xFF),
             static_cast<ubyte_t>(rgba & 0xFF)
     };
-}
-
-auto reig::Colors::with_alpha(Color const &from, ubyte_t alpha) -> Color {
-    Color ret = from;
-    ret.alpha() = alpha;
-    return ret;
 }
 
 void reig::Context::set_render_handler(RenderHandler renderHandler) {
@@ -273,10 +273,12 @@ void reig::Context::end_window() {
             mCurrentWindow.w, mCurrentWindow.h - mCurrentWindow.headerSize
     };
 
-    render_rectangle(headerBox, Colors::with_alpha(Colors::mediumGrey, 200));
+    using namespace Colors::mixing;
+
+    render_rectangle(headerBox, Colors::mediumGrey | Alpha{200});
     render_triangle(headerTriangle, Colors::lightGrey);
     render_text(mCurrentWindow.title, titleBox);
-    render_rectangle(bodyBox, Colors::with_alpha(Colors::mediumGrey, 100));
+    render_rectangle(bodyBox, Colors::mediumGrey | Alpha{100});
 
     if(mouse.leftButton.mIsPressed && detail::in_box(mouse.leftButton.mClickedPos, headerBox)) {
         Point moved{
