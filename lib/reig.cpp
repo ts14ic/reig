@@ -71,6 +71,10 @@ namespace reig::detail {
     }
 }
 
+auto reig::Colors::literals::operator ""_a(unsigned long long alpha) -> Alpha {
+    return Alpha{static_cast<ubyte_t>(alpha)};
+}
+
 auto reig::Colors::mixing::operator|(Color const& left, Alpha const& right) -> Color {
     Color ret = left;
     ret.alpha() = right.val;
@@ -273,12 +277,13 @@ void reig::Context::end_window() {
             mCurrentWindow.w, mCurrentWindow.h - mCurrentWindow.headerSize
     };
 
+    using namespace Colors::literals;
     using namespace Colors::mixing;
 
-    render_rectangle(headerBox, Colors::mediumGrey | Alpha{200});
+    render_rectangle(headerBox, Colors::mediumGrey | 200_a);
     render_triangle(headerTriangle, Colors::lightGrey);
     render_text(mCurrentWindow.title, titleBox);
-    render_rectangle(bodyBox, Colors::mediumGrey | Alpha{100});
+    render_rectangle(bodyBox, Colors::mediumGrey | 100_a);
 
     if(mouse.leftButton.mIsPressed && detail::in_box(mouse.leftButton.mClickedPos, headerBox)) {
         Point moved{

@@ -89,6 +89,10 @@ namespace reig {
 
         Color from_uint(uint_t rgba);
 
+        namespace literals {
+            Alpha operator""_a(unsigned long long alpha);
+        }
+
         namespace mixing {
             Color operator|(Color const& left, Alpha const& right);
         }
