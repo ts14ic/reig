@@ -82,6 +82,12 @@ namespace reig {
         namespace mixing {
             namespace detail {
                 template<typename Comp>
+                static constexpr bool is_color_component_v = std::is_same_v<Comp, Red> ||
+                                                             std::is_same_v<Comp, Green> ||
+                                                             std::is_same_v<Comp, Blue> ||
+                                                             std::is_same_v<Comp, Alpha>;
+
+                template<typename Comp, typename = std::enable_if_t<is_color_component_v<Comp>>>
                 Comp const& get_comp(Color const& color) {
                     if constexpr (std::is_same_v<Comp, Red>) return color.red;
                     else if constexpr (std::is_same_v<Comp, Green>) return color.green;
@@ -89,19 +95,13 @@ namespace reig {
                     else return color.alpha;
                 }
 
-                template<typename Comp>
+                template<typename Comp, typename = std::enable_if_t<is_color_component_v<Comp>>>
                 Comp& get_comp(Color& color) {
                     if constexpr (std::is_same_v<Comp, Red>) return color.red;
                     else if constexpr (std::is_same_v<Comp, Green>) return color.green;
                     else if constexpr (std::is_same_v<Comp, Blue>) return color.blue;
                     else return color.alpha;
                 }
-
-                template<typename Comp>
-                static constexpr bool is_color_component_v = std::is_same_v<Comp, Red> ||
-                                                             std::is_same_v<Comp, Green> ||
-                                                             std::is_same_v<Comp, Blue> ||
-                                                             std::is_same_v<Comp, Alpha>;
             }
 
             template <typename Comp, typename = std::enable_if_t<detail::is_color_component_v<Comp>>>
