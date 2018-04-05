@@ -30,7 +30,7 @@ public:
         
         gui.font.data = gui.ctx.set_font("/usr/share/fonts/TTF/impact.ttf", gui.font.id, 20.f);
         auto surf = SDL_CreateRGBSurfaceFrom(
-            gui.font.data.bitmap, gui.font.data.width, gui.font.data.height, 8, gui.font.data.width, 
+            gui.font.data.bitmap.data(), gui.font.data.width, gui.font.data.height, 8, gui.font.data.width,
             0, 0, 0, 0xFF
         );
         SDL_Color colors[256];

@@ -101,16 +101,6 @@ auto reig::Context::get_user_ptr() const -> void const* {
     return mUserPtr;
 }
 
-auto reig::FontData::allowFree() -> void {
-    mCanFree = true;
-}
-
-reig::FontData::~FontData() {
-    if (mCanFree && bitmap) {
-        delete[] bitmap;
-    }
-}
-
 auto reig::Context::set_font(char const* aPath, uint_t aTextureId, float aSize) -> FontData {
     // 0 is used as no texture
     if (aTextureId == 0) return {};
@@ -131,20 +121,19 @@ auto reig::Context::set_font(char const* aPath, uint_t aTextureId, float aSize) 
     // We want all ASCII chars from space to square
     int const charsNum = 96;
     struct {
-        int w = 512, h = 512;
-    } const bmp;
+        int w, h;
+    } constexpr bmp {512, 512};
 
     auto bakedChars = new stbtt_bakedchar[charsNum];
-    auto bitmap = new ubyte_t[bmp.w * bmp.h];
+    auto bitmap = vector<ubyte_t>(bmp.w * bmp.h);
     auto height = stbtt_BakeFontBitmap(
-            fileContents, 0, aSize, bitmap, bmp.w, bmp.h, ' ', charsNum, bakedChars
+            fileContents, 0, aSize, bitmap.data(), bmp.w, bmp.h, ' ', charsNum, bakedChars
     );
     // No longer need the file, after creating the bitmap
     delete[] fileContents;
 
     // If the bitmap was not large enough, free memory
     if (height < 0 || height > bmp.h) {
-        delete[] bitmap;
         return {};
     }
 
