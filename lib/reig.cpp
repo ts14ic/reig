@@ -42,7 +42,7 @@ namespace reig::detail {
     }
 
     template<typename T>
-    int_t sign(T a) {
+    int32_t sign(T a) {
         if(a > 0) return 1;
         if(a < 0) return -1;
         return 0;
@@ -51,20 +51,20 @@ namespace reig::detail {
     Color get_yiq_contrast(Color color) {
         using namespace Colors::literals;
 
-        uint_t y = (299u * color.red.val + 587 * color.green.val + 114 * color.blue.val) / 1000;
+        uint32_t y = (299u * color.red.val + 587 * color.green.val + 114 * color.blue.val) / 1000;
         return y >= 128 ? Color{0_r, 0_g, 0_b} : Color{255_r, 255_g, 255_b};
     }
 
-    Color lighten_color_by(Color color, ubyte_t delta) {
-        ubyte_t max = 255u;
+    Color lighten_color_by(Color color, uint8_t delta) {
+        uint8_t max = 255u;
         color.red.val < max - delta ? color.red.val += delta : color.red.val = max;
         color.green.val < max - delta ? color.green.val += delta : color.green.val = max;
         color.blue.val < max - delta ? color.blue.val += delta : color.blue.val = max;
         return color;
     }
 
-    Rectangle decrease(Rectangle aRect, int_t by) {
-        int_t moveBy = by / 2;
+    Rectangle decrease(Rectangle aRect, int32_t by) {
+        int32_t moveBy = by / 2;
         aRect.x += moveBy;
         aRect.y += moveBy;
         aRect.width -= by;
@@ -73,19 +73,19 @@ namespace reig::detail {
     }
 }
 
-auto reig::Colors::to_uint(Color const& color) -> uint_t {
+auto reig::Colors::to_uint(Color const& color) -> uint32_t {
     return (color.alpha.val << 24)
            + (color.blue.val << 16)
            + (color.green.val << 8)
            + color.red.val;
 }
 
-auto reig::Colors::from_uint(uint_t rgba) -> Color {
+auto reig::Colors::from_uint(uint32_t rgba) -> Color {
     return Color {
-            Red{static_cast<ubyte_t>((rgba >> 24) & 0xFF)},
-            Green{static_cast<ubyte_t>((rgba >> 16) & 0xFF)},
-            Blue{static_cast<ubyte_t>((rgba >> 8) & 0xFF)},
-            Alpha{static_cast<ubyte_t>(rgba & 0xFF)}
+            Red{static_cast<uint8_t>((rgba >> 24) & 0xFF)},
+            Green{static_cast<uint8_t>((rgba >> 16) & 0xFF)},
+            Blue{static_cast<uint8_t>((rgba >> 8) & 0xFF)},
+            Alpha{static_cast<uint8_t>(rgba & 0xFF)}
     };
 }
 
@@ -111,7 +111,7 @@ reig::FontData::~FontData() {
     }
 }
 
-reig::FontData reig::Context::set_font(char const *aPath, uint_t aTextureId, float aSize) {
+reig::FontData reig::Context::set_font(char const *aPath, uint32_t aTextureId, float aSize) {
     // 0 is used as no texture
     if(aTextureId == 0) return {};
     if(aSize <= 0) return {};
@@ -135,7 +135,7 @@ reig::FontData reig::Context::set_font(char const *aPath, uint_t aTextureId, flo
     } const bmp;
 
     auto bakedChars = new stbtt_bakedchar[charsNum];
-    auto bitmap = new ubyte_t[bmp.w * bmp.h];
+    auto bitmap = new uint8_t[bmp.w * bmp.h];
     auto height = stbtt_BakeFontBitmap(
             fileContents, 0, aSize, bitmap, bmp.w, bmp.h, ' ', charsNum, bakedChars
     );
@@ -211,7 +211,7 @@ void reig::MouseButton::release() {
     mIsPressed = false;
 }
 
-void reig::Figure::form(vector<Vertex> &vertices, vector<uint_t> &indices, uint_t id) {
+void reig::Figure::form(vector<Vertex> &vertices, vector<uint32_t> &indices, uint32_t id) {
     vertices.swap(mVertices);
     indices.swap(mIndices);
     mTextureId = id;
@@ -222,12 +222,12 @@ reig::Figure::vertices() const {
     return mVertices;
 }
 
-vector<reig::uint_t> const &
+vector<reig::uint32_t> const &
 reig::Figure::indices() const {
     return mIndices;
 }
 
-reig::uint_t
+reig::uint32_t
 reig::Figure::texture() const {
     return mTextureId;
 }
@@ -380,8 +380,8 @@ bool reig::Context::slider(
     float_t min = detail::min(aMin, aMax);
     float_t max = detail::max(aMin, aMax);
     float_t value = detail::clamp(aValue, min, max);
-    int_t offset = static_cast<int_t>((value - min) / aStep);
-    int_t valuesNum = (max - min) / aStep + 1;
+    int32_t offset = static_cast<int32_t>((value - min) / aStep);
+    int32_t valuesNum = (max - min) / aStep + 1;
 
     // Render the cursor
     auto cursorBox = detail::decrease(aBox, 4);
@@ -398,11 +398,11 @@ bool reig::Context::slider(
         auto distance = mouse.mCursorPos.x - cursorBox.x - halfCursorW;
 
         if(detail::abs(distance) > halfCursorW) {
-            value += static_cast<int_t>(distance / cursorBox.width) * aStep;
+            value += static_cast<int32_t>(distance / cursorBox.width) * aStep;
             value = detail::clamp(value, min, max);
         }
     } else if(mouse.mScrolled != 0 && detail::in_box(mouse.mCursorPos, aBox)) {
-        value += static_cast<int_t>(mouse.mScrolled) * aStep;
+        value += static_cast<int32_t>(mouse.mScrolled) * aStep;
         value = detail::clamp(value, min, max);
     }
 
@@ -427,8 +427,8 @@ bool reig::Context::slider(
     float_t min = detail::min(aMin, aMax);
     float_t max = detail::max(aMin, aMax);
     float_t value = detail::clamp(aValue, min, max);
-    int_t offset = static_cast<int_t>((value - min) / aStep);
-    int_t valuesNum = (max - min) / aStep + 1;
+    int32_t offset = static_cast<int32_t>((value - min) / aStep);
+    int32_t valuesNum = (max - min) / aStep + 1;
 
     // Render the cursor
     auto cursorBox = detail::decrease(aBox, 8);
@@ -441,11 +441,11 @@ bool reig::Context::slider(
         auto distance = mouse.mCursorPos.x - cursorBox.x - halfCursorW;
 
         if(detail::abs(distance) > halfCursorW) {
-            value += static_cast<int_t>(distance / cursorBox.width) * aStep;
+            value += static_cast<int32_t>(distance / cursorBox.width) * aStep;
             value = detail::clamp(value, min, max);
         }
     } else if(mouse.mScrolled != 0 && detail::in_box(mouse.mCursorPos, aBox)) {
-        value += static_cast<int_t>(mouse.mScrolled) * aStep;
+        value += static_cast<int32_t>(mouse.mScrolled) * aStep;
         value = detail::clamp(value, min, max);
     }
 
@@ -550,7 +550,7 @@ void reig::Context::render_text(char const *ch, Rectangle aBox) {
                 {{q.x1 + deltax, q.y1}, {q.s1, q.t1}, {}},
                 {{q.x0 + deltax, q.y1}, {q.s0, q.t1}, {}}
         };
-        vector<uint_t> indices{0, 1, 2, 2, 3, 0};
+        vector<uint32_t> indices{0, 1, 2, 2, 3, 0};
 
         Figure fig;
         fig.form(vertices, indices, mFont.texture);
@@ -564,7 +564,7 @@ void reig::Context::render_triangle(Triangle const &aTri, Color const &aColor) {
             {{aTri.pos1}, {}, aColor},
             {{aTri.pos2}, {}, aColor}
     };
-    vector<uint_t> indices = {0, 1, 2};
+    vector<uint32_t> indices = {0, 1, 2};
 
     Figure fig;
     fig.form(vertices, indices);
@@ -578,7 +578,7 @@ void reig::Context::render_rectangle(Rectangle const &aBox, int aTexture) {
             {{aBox.x + aBox.width, aBox.y + aBox.height}, {1.f, 1.f}, {}},
             {{aBox.x,              aBox.y + aBox.height}, {0.f, 1.f}, {}}
     };
-    vector<uint_t> indices{0, 1, 2, 2, 3, 0};
+    vector<uint32_t> indices{0, 1, 2, 2, 3, 0};
 
     Figure fig;
     fig.form(vertices, indices, aTexture);
@@ -592,7 +592,7 @@ void reig::Context::render_rectangle(Rectangle const &aRect, Color const &aColor
             {{aRect.x + aRect.width, aRect.y + aRect.height}, {}, aColor},
             {{aRect.x,               aRect.y + aRect.height}, {}, aColor}
     };
-    vector<uint_t> indices{0, 1, 2, 2, 3, 0};
+    vector<uint32_t> indices{0, 1, 2, 2, 3, 0};
 
     Figure fig;
     fig.form(vertices, indices);
