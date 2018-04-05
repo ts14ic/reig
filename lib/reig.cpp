@@ -10,52 +10,52 @@ using std::vector;
 
 namespace reig::detail {
     template<typename T>
-    bool between(T val, T min, T max) {
+    auto between(T val, T min, T max) -> bool {
         return val > min && val < max;
     }
 
-    bool in_box(Point const &pt, Rectangle const &box) {
+    auto in_box(Point const& pt, Rectangle const& box) -> bool {
         return between(pt.x, box.x, box.x + box.width) && between(pt.y, box.y, box.y + box.height);
     }
 
     template<typename T>
-    T clamp(T val, T min, T max) {
-        if(val < min) val = min;
-        else if(val > max) val = max;
+    auto clamp(T val, T min, T max) -> T {
+        if (val < min) val = min;
+        else if (val > max) val = max;
         return val;
     }
 
     template<typename T>
-    T min(T a, T b) {
+    auto min(T a, T b) -> T {
         return a < b ? a : b;
     }
 
     template<typename T>
-    T max(T a, T b) {
+    auto max(T a, T b) -> T {
         return a > b ? a : b;
     }
 
     template<typename T>
-    T abs(T a) {
-        if(a < 0) return -a;
+    auto abs(T a) -> T {
+        if (a < 0) return -a;
         return a;
     }
 
     template<typename T>
-    int_t sign(T a) {
-        if(a > 0) return 1;
-        if(a < 0) return -1;
+    auto sign(T a) -> int_t {
+        if (a > 0) return 1;
+        if (a < 0) return -1;
         return 0;
     }
 
-    Color get_yiq_contrast(Color color) {
+    auto get_yiq_contrast(Color color) -> Color {
         using namespace Colors::literals;
 
         uint_t y = (299u * color.red.val + 587 * color.green.val + 114 * color.blue.val) / 1000;
         return y >= 128 ? Color{0_r, 0_g, 0_b} : Color{255_r, 255_g, 255_b};
     }
 
-    Color lighten_color_by(Color color, ubyte_t delta) {
+    auto lighten_color_by(Color color, ubyte_t delta) -> Color {
         ubyte_t max = 255u;
         color.red.val < max - delta ? color.red.val += delta : color.red.val = max;
         color.green.val < max - delta ? color.green.val += delta : color.green.val = max;
@@ -63,7 +63,7 @@ namespace reig::detail {
         return color;
     }
 
-    Rectangle decrease(Rectangle aRect, int_t by) {
+    auto decrease(Rectangle aRect, int_t by) -> Rectangle {
         int_t moveBy = by / 2;
         aRect.x += moveBy;
         aRect.y += moveBy;
@@ -89,37 +89,37 @@ auto reig::Colors::from_uint(uint_t rgba) -> Color {
     };
 }
 
-void reig::Context::set_render_handler(RenderHandler renderHandler) {
+auto reig::Context::set_render_handler(RenderHandler renderHandler) -> void {
     mRenderHandler = renderHandler;
 }
 
-void reig::Context::set_user_ptr(void *ptr) {
+auto reig::Context::set_user_ptr(void* ptr) -> void {
     mUserPtr = ptr;
 }
 
-void const *reig::Context::get_user_ptr() const {
+auto reig::Context::get_user_ptr() const -> void const* {
     return mUserPtr;
 }
 
-void reig::FontData::allowFree() {
+auto reig::FontData::allowFree() -> void {
     mCanFree = true;
 }
 
 reig::FontData::~FontData() {
-    if(mCanFree && bitmap) {
+    if (mCanFree && bitmap) {
         delete[] bitmap;
     }
 }
 
-reig::FontData reig::Context::set_font(char const *aPath, uint_t aTextureId, float aSize) {
+auto reig::Context::set_font(char const* aPath, uint_t aTextureId, float aSize) -> FontData {
     // 0 is used as no texture
-    if(aTextureId == 0) return {};
-    if(aSize <= 0) return {};
+    if (aTextureId == 0) return {};
+    if (aSize <= 0) return {};
 
     // C io plays nicely with bytes
     auto file = std::fopen(aPath, "rb");
     // If file can't be accessed
-    if(!file) return {};
+    if (!file) return {};
     // Find the amount of memory to allocate for filebuffer
     std::fseek(file, 0, SEEK_END);
     auto fileSize = ftell(file);
@@ -143,13 +143,13 @@ reig::FontData reig::Context::set_font(char const *aPath, uint_t aTextureId, flo
     delete[] fileContents;
 
     // If the bitmap was not large enough, free memory
-    if(height < 0 || height > bmp.h) {
+    if (height < 0 || height > bmp.h) {
         delete[] bitmap;
         return {};
     }
 
     // If all successfull, replace current font data
-    if(mFont.bakedChars) delete[] mFont.bakedChars;
+    if (mFont.bakedChars) delete[] mFont.bakedChars;
     mFont.bakedChars = bakedChars;
     mFont.texture = aTextureId;
     mFont.width = bmp.w;
@@ -165,19 +165,19 @@ reig::FontData reig::Context::set_font(char const *aPath, uint_t aTextureId, flo
     return ret;
 }
 
-void reig::Context::render_all() {
-    if(!mRenderHandler) return;
-    if(mCurrentWindow.started) end_window();
+auto reig::Context::render_all() -> void {
+    if (!mRenderHandler) return;
+    if (mCurrentWindow.started) end_window();
 
-    if(!mCurrentWindow.drawData.empty()) {
+    if (!mCurrentWindow.drawData.empty()) {
         mRenderHandler(mCurrentWindow.drawData, mUserPtr);
     }
-    if(!mDrawData.empty()) {
+    if (!mDrawData.empty()) {
         mRenderHandler(mDrawData, mUserPtr);
     }
 }
 
-void reig::Context::start_new_frame() {
+auto reig::Context::start_new_frame() -> void {
     mCurrentWindow.drawData.clear();
     mDrawData.clear();
 
@@ -185,55 +185,52 @@ void reig::Context::start_new_frame() {
     mouse.mScrolled = 0.f;
 }
 
-void reig::Mouse::move(float_t difx, float_t dify) {
+auto reig::Mouse::move(float_t difx, float_t dify) -> void {
     mCursorPos.x += difx;
     mCursorPos.y += dify;
 }
 
-void reig::Mouse::place(float_t x, float_t y) {
+auto reig::Mouse::place(float_t x, float_t y) -> void {
     mCursorPos.x = x;
     mCursorPos.y = y;
 }
 
-void reig::Mouse::scroll(float dy) {
+auto reig::Mouse::scroll(float dy) -> void {
     mScrolled = dy;
 }
 
-void reig::MouseButton::press(float_t x, float_t y) {
-    if(!mIsPressed) {
+auto reig::MouseButton::press(float_t x, float_t y) -> void {
+    if (!mIsPressed) {
         mIsPressed = true;
         mIsClicked = true;
         mClickedPos = {x, y};
     }
 }
 
-void reig::MouseButton::release() {
+auto reig::MouseButton::release() -> void {
     mIsPressed = false;
 }
 
-void reig::Figure::form(vector<Vertex> &vertices, vector<uint_t> &indices, uint_t id) {
+auto reig::Figure::form(vector<Vertex>& vertices, vector<uint_t>& indices, uint_t id) -> void {
     vertices.swap(mVertices);
     indices.swap(mIndices);
     mTextureId = id;
 }
 
-vector<reig::Vertex> const &
-reig::Figure::vertices() const {
+auto reig::Figure::vertices() const -> vector<Vertex> const& {
     return mVertices;
 }
 
-vector<reig::uint_t> const &
-reig::Figure::indices() const {
+auto reig::Figure::indices() const -> vector<uint_t> const& {
     return mIndices;
 }
 
-reig::uint_t
-reig::Figure::texture() const {
+auto reig::Figure::texture() const -> uint_t {
     return mTextureId;
 }
 
-void reig::Context::start_window(char const *aTitle, float &aX, float &aY) {
-    if(mCurrentWindow.started) end_window();
+void reig::Context::start_window(char const* aTitle, float& aX, float& aY) {
+    if (mCurrentWindow.started) end_window();
 
     mCurrentWindow.started = true;
     mCurrentWindow.title = aTitle;
@@ -245,7 +242,7 @@ void reig::Context::start_window(char const *aTitle, float &aX, float &aY) {
 }
 
 void reig::Context::end_window() {
-    if(!mCurrentWindow.started) return;
+    if (!mCurrentWindow.started) return;
     mCurrentWindow.started = false;
 
     mCurrentWindow.w += 4;
@@ -258,7 +255,8 @@ void reig::Context::end_window() {
     Triangle headerTriangle{
             *mCurrentWindow.x + 3.f, *mCurrentWindow.y + 3.f,
             *mCurrentWindow.x + 3.f + mCurrentWindow.headerSize, *mCurrentWindow.y + 3.f,
-            *mCurrentWindow.x + 3.f + mCurrentWindow.headerSize / 2.f, *mCurrentWindow.y + mCurrentWindow.headerSize - 3.f
+            *mCurrentWindow.x + 3.f + mCurrentWindow.headerSize / 2.f,
+            *mCurrentWindow.y + mCurrentWindow.headerSize - 3.f
     };
     Rectangle titleBox{
             *mCurrentWindow.x + mCurrentWindow.headerSize + 4, *mCurrentWindow.y + 4,
@@ -277,7 +275,7 @@ void reig::Context::end_window() {
     render_text(mCurrentWindow.title, titleBox);
     render_rectangle(bodyBox, Colors::mediumGrey | 100_a);
 
-    if(mouse.leftButton.mIsPressed && ::reig::detail::in_box(mouse.leftButton.mClickedPos, headerBox)) {
+    if (mouse.leftButton.mIsPressed && ::reig::detail::in_box(mouse.leftButton.mClickedPos, headerBox)) {
         Point moved{
                 mouse.mCursorPos.x - mouse.leftButton.mClickedPos.x,
                 mouse.mCursorPos.y - mouse.leftButton.mClickedPos.y
@@ -290,34 +288,34 @@ void reig::Context::end_window() {
     }
 }
 
-void reig::detail::Window::expand(Rectangle &aBox) {
-    if(started) {
+void reig::detail::Window::expand(Rectangle& aBox) {
+    if (started) {
         aBox.x += *x + 4;
         aBox.y += *y + headerSize + 4;
 
-        if(*x + w < aBox.x + aBox.width) {
+        if (*x + w < aBox.x + aBox.width) {
             w = aBox.x + aBox.width - *x;
         }
-        if(*y + h < aBox.y + aBox.height) {
+        if (*y + h < aBox.y + aBox.height) {
             h = aBox.y + aBox.height - *y;
         }
-        if(aBox.x < *x) {
+        if (aBox.x < *x) {
             auto d = *x - aBox.x;
             aBox.x += d + 4;
         }
-        if(aBox.y < *y) {
+        if (aBox.y < *y) {
             auto d = *y - aBox.y;
             aBox.y += d + 4;
         }
     }
 }
 
-void reig::Context::label(char const *ch, Rectangle aBox) {
+void reig::Context::label(char const* ch, Rectangle aBox) {
     mCurrentWindow.expand(aBox);
     render_text(ch, aBox);
 }
 
-bool reig::Context::button(char const *aTitle, Rectangle aBox, Color aColor) {
+auto reig::Context::button(char const* aTitle, Rectangle aBox, Color aColor) -> bool {
     mCurrentWindow.expand(aBox);
 
     // Render button outline first
@@ -325,7 +323,7 @@ bool reig::Context::button(char const *aTitle, Rectangle aBox, Color aColor) {
     render_rectangle(aBox, outlineCol);
 
     // if cursor is over the button, highlight it
-    if(detail::in_box(mouse.mCursorPos, aBox)) {
+    if (detail::in_box(mouse.mCursorPos, aBox)) {
         aColor = detail::lighten_color_by(aColor, 50);
     }
 
@@ -334,7 +332,7 @@ bool reig::Context::button(char const *aTitle, Rectangle aBox, Color aColor) {
     bool clickedButton = detail::in_box(mouse.leftButton.mClickedPos, aBox);
 
     // highlight even more, if clicked
-    if(mouse.leftButton.mIsPressed && clickedButton) {
+    if (mouse.leftButton.mIsPressed && clickedButton) {
         aColor = detail::lighten_color_by(aColor, 50);
     }
     // render the inner part of button
@@ -345,13 +343,13 @@ bool reig::Context::button(char const *aTitle, Rectangle aBox, Color aColor) {
     return mouse.leftButton.mIsClicked && clickedButton;
 }
 
-bool reig::Context::button(char const *aTitle, Rectangle aBox, int aBaseTexture, int aHoverTexture) {
+auto reig::Context::button(char const* aTitle, Rectangle aBox, int aBaseTexture, int aHoverTexture) -> bool {
     mCurrentWindow.expand(aBox);
 
     bool clickedButton = detail::in_box(mouse.leftButton.mClickedPos, aBox);
     bool hoveredButton = detail::in_box(mouse.mCursorPos, aBox);
 
-    if((mouse.leftButton.mIsPressed && clickedButton) || hoveredButton) {
+    if ((mouse.leftButton.mIsPressed && clickedButton) || hoveredButton) {
         render_rectangle(aBox, aBaseTexture);
     } else {
         render_rectangle(aBox, aHoverTexture);
@@ -364,10 +362,12 @@ bool reig::Context::button(char const *aTitle, Rectangle aBox, int aBaseTexture,
     return mouse.leftButton.mIsClicked && clickedButton;
 }
 
-bool reig::Context::slider(
-        Rectangle aBox, Color aColor,
-        float_t &aValue, float_t aMin, float_t aMax, float_t aStep
-) {
+auto reig::Context::slider(Rectangle aBox,
+                           Color aColor,
+                           float_t& aValue,
+                           float_t aMin,
+                           float_t aMax,
+                           float_t aStep) -> bool {
     mCurrentWindow.expand(aBox);
 
     // Render slider's base
@@ -386,27 +386,27 @@ bool reig::Context::slider(
     // Render the cursor
     auto cursorBox = detail::decrease(aBox, 4);
     cursorBox.width /= valuesNum;
-    if(cursorBox.width < 1) cursorBox.width = 1;
+    if (cursorBox.width < 1) cursorBox.width = 1;
     cursorBox.x += offset * cursorBox.width;
-    if(detail::in_box(mouse.mCursorPos, cursorBox)) {
+    if (detail::in_box(mouse.mCursorPos, cursorBox)) {
         cursorColor = detail::lighten_color_by(cursorColor, 50);
     }
     render_rectangle(cursorBox, cursorColor);
 
-    if(mouse.leftButton.mIsPressed && detail::in_box(mouse.leftButton.mClickedPos, aBox)) {
+    if (mouse.leftButton.mIsPressed && detail::in_box(mouse.leftButton.mClickedPos, aBox)) {
         auto halfCursorW = cursorBox.width / 2;
         auto distance = mouse.mCursorPos.x - cursorBox.x - halfCursorW;
 
-        if(detail::abs(distance) > halfCursorW) {
+        if (detail::abs(distance) > halfCursorW) {
             value += static_cast<int_t>(distance / cursorBox.width) * aStep;
             value = detail::clamp(value, min, max);
         }
-    } else if(mouse.mScrolled != 0 && detail::in_box(mouse.mCursorPos, aBox)) {
+    } else if (mouse.mScrolled != 0 && detail::in_box(mouse.mCursorPos, aBox)) {
         value += static_cast<int_t>(mouse.mScrolled) * aStep;
         value = detail::clamp(value, min, max);
     }
 
-    if(aValue != value) {
+    if (aValue != value) {
         aValue = value;
         return true;
     } else {
@@ -414,10 +414,14 @@ bool reig::Context::slider(
     }
 }
 
-bool reig::Context::slider(
-        Rectangle aBox, int aBaseTexture, int aCursorTexture,
-        float &aValue, float_t aMin, float_t aMax, float_t aStep
-) {
+auto reig::Context::slider(
+        Rectangle aBox,
+        int aBaseTexture,
+        int aCursorTexture,
+        float_t& aValue,
+        float_t aMin,
+        float_t aMax,
+        float_t aStep) -> bool {
     mCurrentWindow.expand(aBox);
 
     // Render slider's base
@@ -436,20 +440,20 @@ bool reig::Context::slider(
     cursorBox.x += offset * cursorBox.width;
     render_rectangle(cursorBox, aCursorTexture);
 
-    if(mouse.leftButton.mIsPressed && detail::in_box(mouse.leftButton.mClickedPos, aBox)) {
+    if (mouse.leftButton.mIsPressed && detail::in_box(mouse.leftButton.mClickedPos, aBox)) {
         auto halfCursorW = cursorBox.width / 2;
         auto distance = mouse.mCursorPos.x - cursorBox.x - halfCursorW;
 
-        if(detail::abs(distance) > halfCursorW) {
+        if (detail::abs(distance) > halfCursorW) {
             value += static_cast<int_t>(distance / cursorBox.width) * aStep;
             value = detail::clamp(value, min, max);
         }
-    } else if(mouse.mScrolled != 0 && detail::in_box(mouse.mCursorPos, aBox)) {
+    } else if (mouse.mScrolled != 0 && detail::in_box(mouse.mCursorPos, aBox)) {
         value += static_cast<int_t>(mouse.mScrolled) * aStep;
         value = detail::clamp(value, min, max);
     }
 
-    if(aValue != value) {
+    if (aValue != value) {
         aValue = value;
         return true;
     } else {
@@ -457,7 +461,7 @@ bool reig::Context::slider(
     }
 }
 
-bool reig::Context::checkbox(Rectangle aBox, Color aColor, bool &aValue) {
+auto reig::Context::checkbox(Rectangle aBox, Color aColor, bool& aValue) -> bool {
     mCurrentWindow.expand(aBox);
 
     // Render checkbox's base
@@ -467,13 +471,13 @@ bool reig::Context::checkbox(Rectangle aBox, Color aColor, bool &aValue) {
     render_rectangle(aBox, aColor);
 
     // Render check
-    if(aValue) {
+    if (aValue) {
         aBox = detail::decrease(aBox, 4);
         render_rectangle(aBox, contrastColor);
     }
 
     // True if state changed
-    if(mouse.leftButton.mIsClicked && detail::in_box(mouse.leftButton.mClickedPos, aBox)) {
+    if (mouse.leftButton.mIsClicked && detail::in_box(mouse.leftButton.mClickedPos, aBox)) {
         aValue = !aValue;
         return true;
     } else {
@@ -481,20 +485,20 @@ bool reig::Context::checkbox(Rectangle aBox, Color aColor, bool &aValue) {
     }
 }
 
-bool reig::Context::checkbox(Rectangle aBox, int aBaseTexture, int aTickTexture, bool &aValue) {
+auto reig::Context::checkbox(Rectangle aBox, int aBaseTexture, int aTickTexture, bool& aValue) -> bool {
     mCurrentWindow.expand(aBox);
 
     // Render checkbox's base
     render_rectangle(aBox, aBaseTexture);
 
     // Render check
-    if(aValue) {
+    if (aValue) {
         aBox = detail::decrease(aBox, 8);
         render_rectangle(aBox, aTickTexture);
     }
 
     // True if state changed
-    if(mouse.leftButton.mIsClicked && detail::in_box(mouse.leftButton.mClickedPos, aBox)) {
+    if (mouse.leftButton.mIsClicked && detail::in_box(mouse.leftButton.mClickedPos, aBox)) {
         aValue = !aValue;
         return true;
     } else {
@@ -502,8 +506,8 @@ bool reig::Context::checkbox(Rectangle aBox, int aBaseTexture, int aTickTexture,
     }
 }
 
-void reig::Context::render_text(char const *ch, Rectangle aBox) {
-    if(!mFont.bakedChars || !ch) return;
+auto reig::Context::render_text(char const* ch, Rectangle aBox) -> void {
+    if (!mFont.bakedChars || !ch) return;
 
     aBox = detail::decrease(aBox, 8);
     float x = aBox.x;
@@ -517,22 +521,22 @@ void reig::Context::render_text(char const *ch, Rectangle aBox) {
     char to = ' ' + 95;
     char c;
 
-    for(; *ch; ++ch) {
+    for (; *ch; ++ch) {
         c = *ch;
-        if(c < from || c > to) c = to;
+        if (c < from || c > to) c = to;
 
         stbtt_aligned_quad q;
         stbtt_GetBakedQuad(
                 mFont.bakedChars,
                 mFont.width, mFont.height, c - ' ', &x, &y, &q, 1
         );
-        if(q.x0 > aBox.x + aBox.width) {
+        if (q.x0 > aBox.x + aBox.width) {
             break;
         }
-        if(q.x1 > aBox.x + aBox.width) {
+        if (q.x1 > aBox.x + aBox.width) {
             q.x1 = aBox.x + aBox.width;
         }
-        if(q.y0 < aBox.y) {
+        if (q.y0 < aBox.y) {
             q.y0 = aBox.y;
         }
 
@@ -543,7 +547,7 @@ void reig::Context::render_text(char const *ch, Rectangle aBox) {
 
     auto deltax = (aBox.width - textWidth) / 2.f;
 
-    for(auto &q : quads) {
+    for (auto& q : quads) {
         vector<Vertex> vertices{
                 {{q.x0 + deltax, q.y0}, {q.s0, q.t0}, {}},
                 {{q.x1 + deltax, q.y0}, {q.s1, q.t0}, {}},
@@ -558,7 +562,7 @@ void reig::Context::render_text(char const *ch, Rectangle aBox) {
     }
 }
 
-void reig::Context::render_triangle(Triangle const &aTri, Color const &aColor) {
+auto reig::Context::render_triangle(Triangle const& aTri, Color const& aColor) -> void {
     vector<Vertex> vertices{
             {{aTri.pos0}, {}, aColor},
             {{aTri.pos1}, {}, aColor},
@@ -571,7 +575,7 @@ void reig::Context::render_triangle(Triangle const &aTri, Color const &aColor) {
     mDrawData.push_back(fig);
 }
 
-void reig::Context::render_rectangle(Rectangle const &aBox, int aTexture) {
+auto reig::Context::render_rectangle(Rectangle const& aBox, int aTexture) -> void {
     vector<Vertex> vertices{
             {{aBox.x,              aBox.y},               {0.f, 0.f}, {}},
             {{aBox.x + aBox.width, aBox.y},               {1.f, 0.f}, {}},
@@ -585,7 +589,7 @@ void reig::Context::render_rectangle(Rectangle const &aBox, int aTexture) {
     mDrawData.push_back(fig);
 }
 
-void reig::Context::render_rectangle(Rectangle const &aRect, Color const &aColor) {
+auto reig::Context::render_rectangle(Rectangle const& aRect, Color const& aColor) -> void {
     vector<Vertex> vertices{
             {{aRect.x,               aRect.y},                {}, aColor},
             {{aRect.x + aRect.width, aRect.y},                {}, aColor},
