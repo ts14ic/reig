@@ -8,7 +8,8 @@ set(CMAKE_CXX_COMPILER clang++)
 # reig library
 add_library(reig_lib
         lib/reig.h
-        lib/reig.cpp)
+        lib/reig.cpp
+        lib/stb_truetype.h)
 add_library(my::reig_lib ALIAS reig_lib)
 target_compile_features(reig_lib
         PUBLIC
