@@ -284,7 +284,7 @@ namespace reig {
 
     namespace detail {
         struct Font {
-            stbtt_bakedchar* bakedChars = nullptr;
+            std::vector<stbtt_bakedchar> bakedChars;
             float size = 0.f;
             uint_t texture = 0;
             uint_t width = 0;

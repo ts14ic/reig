@@ -124,10 +124,10 @@ auto reig::Context::set_font(char const* aPath, uint_t aTextureId, float aSize) 
         int w, h;
     } constexpr bmp {512, 512};
 
-    auto bakedChars = new stbtt_bakedchar[charsNum];
+    auto bakedChars = std::vector<stbtt_bakedchar>(charsNum);
     auto bitmap = vector<ubyte_t>(bmp.w * bmp.h);
     auto height = stbtt_BakeFontBitmap(
-            fileContents, 0, aSize, bitmap.data(), bmp.w, bmp.h, ' ', charsNum, bakedChars
+            fileContents, 0, aSize, bitmap.data(), bmp.w, bmp.h, ' ', charsNum, std::data(bakedChars)
     );
     // No longer need the file, after creating the bitmap
     delete[] fileContents;
@@ -138,8 +138,7 @@ auto reig::Context::set_font(char const* aPath, uint_t aTextureId, float aSize) 
     }
 
     // If all successfull, replace current font data
-    if (mFont.bakedChars) delete[] mFont.bakedChars;
-    mFont.bakedChars = bakedChars;
+    mFont.bakedChars = std::move(bakedChars);
     mFont.texture = aTextureId;
     mFont.width = bmp.w;
     mFont.height = height;
@@ -496,7 +495,7 @@ auto reig::Context::checkbox(Rectangle aBox, int aBaseTexture, int aTickTexture,
 }
 
 auto reig::Context::render_text(char const* ch, Rectangle aBox) -> void {
-    if (!mFont.bakedChars || !ch) return;
+    if (mFont.bakedChars.empty() || !ch) return;
 
     aBox = detail::decrease(aBox, 8);
     float x = aBox.x;
@@ -516,7 +515,7 @@ auto reig::Context::render_text(char const* ch, Rectangle aBox) -> void {
 
         stbtt_aligned_quad q;
         stbtt_GetBakedQuad(
-                mFont.bakedChars,
+                mFont.bakedChars.data(),
                 mFont.width, mFont.height, c - ' ', &x, &y, &q, 1
         );
         if (q.x0 > aBox.x + aBox.width) {
