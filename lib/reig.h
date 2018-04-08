@@ -192,6 +192,12 @@ namespace reig {
 
         MouseButton& operator=(MouseButton&&) = delete;
 
+        const Point& get_clicked_pos();
+
+        bool is_pressed();
+
+        bool is_clicked();
+
     private:
         friend class ::reig::Context;
 
@@ -236,6 +242,8 @@ namespace reig {
          * @param dy Amount of scrolling
          */
         void scroll(float dy);
+
+        const Point& get_pos();
 
     private:
         friend class ::reig::Context;
@@ -325,6 +333,23 @@ namespace reig {
         const char* what() const noexcept override;
     };
 
+    struct colored_button {
+        char const* title;
+        Rectangle rect;
+        Color color;
+
+        /**
+         * @brief Render a titled button
+         *
+         * @param title Text to be displayed on button
+         * @param box Button's bounding box
+         * @param color Button's base color
+         *
+         * @return True if the button was clicked, false otherwise
+         */
+        bool draw(Context& ctx) const;
+    };
+
     using DrawData = std::vector<Figure>;
     using RenderHandler = void (*)(DrawData const&, std::any&);
 
@@ -383,21 +408,19 @@ namespace reig {
 
         void end_window();
 
+        template <typename T>
+        auto widget(T&& t) -> decltype(t.draw(*this)) {
+            return t.draw(*this);
+        }
+
+        void fit_rect_in_window(Rectangle& rect);
+
         /**
          * @brief Render a label, which get's enclose in current window, if any
          * @param text Text to be displayed
          * @param box Text's bounding box
          */
         void label(char const* text, Rectangle box);
-
-        /**
-         * @brief Render a titled button
-         * @param title Text to be displayed on button
-         * @param box Button's bounding box
-         * @param color Button's base color
-         * @return True if the button was clicked, false otherwise
-         */
-        bool button(char const* title, Rectangle box, Color color);
 
         /**
          * @brief Render a titled textured button
