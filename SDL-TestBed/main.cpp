@@ -118,7 +118,7 @@ public:
             color = color + 50_g;
             rect.y += 40; rect.width += 50;
             static float sliderValue0 = 20;
-            if(gui.ctx.slider(rect, color, sliderValue0, 20, 40, 5)) {
+            if (gui.ctx.widget(reig::slider{rect, color, sliderValue0, 20, 40, 5})) {
                 std::cout << "Slider 1: new value " << sliderValue0 << std::endl;
             }
 
@@ -127,17 +127,13 @@ public:
             rect.width += 50;
             
             static float sliderValue1 = 5.4f;
-            if(gui.ctx.slider(rect, color, sliderValue1, 3, 7, 0.1f)) {
+            if (gui.ctx.widget(reig::slider{rect, color, sliderValue1, 3, 7, 0.1f})) {
                 std::cout << "Slider 2: new value " << sliderValue1 << std::endl;
             }
             
             static float sliderValue2 = 0.3f;
             rect.y += 40; rect.width += 50; rect.height += 10;
-            if(gui.ctx.slider(
-                rect, 
-                reig::Color(220_r, 200_g, 150_b),
-                sliderValue2, 0.1f, 0.5f, 0.05f
-            )) {
+            if (gui.ctx.widget(reig::slider{rect, reig::Color(220_r, 200_g, 150_b), sliderValue2, 0.1f, 0.5f, 0.05f})) {
                 std::cout << "Slider 2: new value " << sliderValue2 << std::endl;
             }
             

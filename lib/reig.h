@@ -243,7 +243,9 @@ namespace reig {
          */
         void scroll(float dy);
 
-        const Point& get_pos();
+        const Point& get_cursor_pos();
+
+        float get_scrolled();
 
     private:
         friend class ::reig::Context;
@@ -334,9 +336,9 @@ namespace reig {
     };
 
     struct colored_button {
-        char const* title;
-        Rectangle boundingBox;
-        Color baseColor;
+        char const* mTitle;
+        Rectangle mBoundingBox;
+        Color mBaseColor;
 
         /**
          * @brief Render a titled button
@@ -351,9 +353,9 @@ namespace reig {
     };
 
     struct textured_button {
-        char const* title;
-        Rectangle boundingBox;
-        uint_t baseTexture, hoverTexture;
+        char const* mTitle;
+        Rectangle mBoundingBox;
+        uint_t mBaseTexture, mHoverTexture;
 
         /**
          * @brief Render a titled textured button
@@ -366,14 +368,33 @@ namespace reig {
     };
 
     struct label {
-        char const* title;
-        Rectangle boundingBox;
+        char const* mTitle;
+        Rectangle mBoundingBox;
         /**
          * @brief Render a label, which get's enclose in current window, if any
          * @param text Text to be displayed
          * @param box Text's bounding box
          */
         void draw(Context& ctx) const;
+    };
+
+    struct slider {
+        Rectangle mBoundingBox;
+        Color mBaseColor;
+        float& mValueRef;
+        float mMin, mMax, mStep;
+
+        /**
+         * @brief Renders a slider.
+         * @param box Slider's bounding box
+         * @param color Slider's base color
+         * @param value A reference to the value to be represented and changed
+         * @param min The lowest represantable value
+         * @param max The highest represantable value
+         * @param step The discrete portion by which the value can change
+         * @return True if value changed
+         */
+        bool draw(Context& ctx);
     };
 
     using DrawData = std::vector<Figure>;
@@ -440,18 +461,6 @@ namespace reig {
         }
 
         void fit_rect_in_window(Rectangle& rect);
-
-        /**
-         * @brief Renders a slider.
-         * @param box Slider's bounding box
-         * @param color Slider's base color
-         * @param value A reference to the value to be represented and changed
-         * @param min The lowest represantable value
-         * @param max The highest represantable value
-         * @param step The discrete portion by which the value can change
-         * @return True if value changed
-         */
-        bool slider(Rectangle box, Color color, float& value, float min, float max, float step);
 
         /**
          * @brief 
