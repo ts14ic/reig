@@ -314,6 +314,7 @@ namespace reig {
         static FailedToLoadFontException noTextureId(const char* filePath);
         static FailedToLoadFontException invalidSize(const char* filePath, float fontSize);
         static FailedToLoadFontException couldNotOpenFile(const char* filePath);
+        static FailedToLoadFontException invalidFile(const char* filePath);
         static FailedToLoadFontException couldNotFitCharacters(const char* filePath, float fontSize, uint_t width, uint_t height);
     private:
         explicit FailedToLoadFontException(std::string message);
