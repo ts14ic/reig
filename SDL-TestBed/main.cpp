@@ -34,17 +34,22 @@ public:
             0, 0, 0, 0xFF
         );
         SDL_Color colors[256];
-        for(auto i = 0u; i < 256; ++i) {
-            colors[i].r = i;
-            colors[i].g = i;
-            colors[i].b = i;
-            colors[i].a = i;
+        {
+            unsigned char v = 0;
+            for(SDL_Color& color: colors) {
+                color.r = color.g = color.b = 0xFF;
+                color.a = v++;
+            }
         }
         if(SDL_SetPaletteColors(surf->format->palette, colors, 0, 256) < 0) {
             std::cerr << "Failed to set palette\n";
             exit(1);
         }
         gui.font.tex = SDL_CreateTextureFromSurface(sdl.renderer, surf);
+        if(SDL_SetTextureBlendMode(gui.font.tex, SDL_BLENDMODE_BLEND) < 0) {
+            std::cerr << "Failed to set texture blend mode: ["<< SDL_GetError() << "]\n";
+            exit(0);
+        }
     }
     
     int run() {
