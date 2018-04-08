@@ -12,44 +12,44 @@ using std::vector;
 
 namespace reig::detail {
     template<typename T>
-    auto is_between(T val, T min, T max) -> bool {
+    bool is_between(T val, T min, T max) {
         return val > min && val < max;
     }
 
-    auto is_boxed_in(Point const& pt, Rectangle const& box) -> bool {
+    bool is_boxed_in(Point const& pt, Rectangle const& box) {
         return is_between(pt.x, box.x, box.x + box.width) && is_between(pt.y, box.y, box.y + box.height);
     }
 
     template<typename T>
-    auto clamp(T val, T min, T max) -> T {
+    T clamp(T val, T min, T max) {
         return val < min ? min :
                val > max ? max :
                val;
     }
 
     template<typename T>
-    auto min(T a, T b) -> T {
+    T min(T a, T b) {
         return a < b ? a : b;
     }
 
     template<typename T>
-    auto max(T a, T b) -> T {
+    T max(T a, T b) {
         return a > b ? a : b;
     }
 
     template<typename T>
-    auto abs(T a) -> T {
+    T abs(T a) {
         return a < 0 ? -a : a;
     }
 
     template<typename T>
-    auto sign(T a) -> int_t {
+    int_t sign(T a) {
         return a < 0 ? -1 :
                a > 0 ? 1 :
                0;
     }
 
-    auto get_yiq_contrast(Color color) -> Color {
+    Color get_yiq_contrast(Color color) {
         using namespace Colors::literals;
 
         uint_t y = (299u * color.red.val + 587 * color.green.val + 114 * color.blue.val) / 1000;
@@ -58,7 +58,7 @@ namespace reig::detail {
                : Color{255_r, 255_g, 255_b};
     }
 
-    auto lighten_color_by(Color color, ubyte_t delta) -> Color {
+    Color lighten_color_by(Color color, ubyte_t delta) {
         ubyte_t max = 255u;
         color.red.val < max - delta ? color.red.val += delta : color.red.val = max;
         color.green.val < max - delta ? color.green.val += delta : color.green.val = max;
@@ -66,7 +66,7 @@ namespace reig::detail {
         return color;
     }
 
-    auto decrease_box(Rectangle aRect, int_t by) -> Rectangle {
+    Rectangle decrease_box(Rectangle aRect, int_t by) {
         int_t moveBy = by / 2;
         aRect.x += moveBy;
         aRect.y += moveBy;
@@ -87,14 +87,14 @@ namespace reig::detail {
     };
 }
 
-auto reig::Colors::to_uint(Color const& color) -> uint_t {
+reig::uint_t reig::Colors::to_uint(Color const& color) {
     return (color.alpha.val << 24)
            + (color.blue.val << 16)
            + (color.green.val << 8)
            + color.red.val;
 }
 
-auto reig::Colors::from_uint(uint_t rgba) -> Color {
+reig::Color reig::Colors::from_uint(uint_t rgba) {
     return Color {
             Red{static_cast<ubyte_t>((rgba >> 24) & 0xFF)},
             Green{static_cast<ubyte_t>((rgba >> 16) & 0xFF)},
@@ -103,15 +103,15 @@ auto reig::Colors::from_uint(uint_t rgba) -> Color {
     };
 }
 
-auto reig::Context::set_render_handler(RenderHandler renderHandler) -> void {
+void reig::Context::set_render_handler(RenderHandler renderHandler) {
     mRenderHandler = renderHandler;
 }
 
-auto reig::Context::set_user_ptr(std::any ptr) -> void {
+void reig::Context::set_user_ptr(std::any ptr) {
     mUserPtr = std::move(ptr);
 }
 
-auto reig::Context::get_user_ptr() const -> std::any const& {
+std::any const& reig::Context::get_user_ptr() const {
     return mUserPtr;
 }
 
@@ -140,8 +140,8 @@ reig::FailedToLoadFontException reig::FailedToLoadFontException::couldNotOpenFil
     return FailedToLoadFontException(ss.str());
 }
 
-auto reig::FailedToLoadFontException::couldNotFitCharacters(const char* filePath, float fontSize, reig::uint_t width,
-                                                            reig::uint_t height) -> FailedToLoadFontException {
+reig::FailedToLoadFontException reig::FailedToLoadFontException::couldNotFitCharacters(const char* filePath, float fontSize, reig::uint_t width,
+                                                            reig::uint_t height) {
     std::ostringstream ss;
     ss << "Could not fit characters for font: ["
        << filePath << "], size: [" << fontSize << "], atlas size: ["
@@ -171,7 +171,7 @@ vector<reig::ubyte_t> read_font_into_buffer(char const* fontFilePath) {
     return ttfBuffer;
 }
 
-auto reig::Context::set_font(char const* fontFilePath, uint_t textureId, float fontHeightPx) -> FontData {
+reig::FontData reig::Context::set_font(char const* fontFilePath, uint_t textureId, float fontHeightPx) {
     if (textureId == 0) throw FailedToLoadFontException::noTextureId(fontFilePath);
     if (fontHeightPx <= 0) throw FailedToLoadFontException::invalidSize(fontFilePath, fontHeightPx);
 
@@ -213,7 +213,7 @@ const char* reig::NoRenderHandlerException::what() const noexcept {
     return "No render handler specified";
 }
 
-auto reig::Context::render_all() -> void {
+void reig::Context::render_all() {
     if (!mRenderHandler) {
         throw NoRenderHandlerException{};
     }
@@ -227,7 +227,7 @@ auto reig::Context::render_all() -> void {
     }
 }
 
-auto reig::Context::start_new_frame() -> void {
+void reig::Context::start_new_frame() {
     mCurrentWindow.drawData.clear();
     mDrawData.clear();
 
@@ -235,21 +235,21 @@ auto reig::Context::start_new_frame() -> void {
     mouse.mScrolled = 0.f;
 }
 
-auto reig::Mouse::move(float_t difx, float_t dify) -> void {
+void reig::Mouse::move(float_t difx, float_t dify) {
     mCursorPos.x += difx;
     mCursorPos.y += dify;
 }
 
-auto reig::Mouse::place(float_t x, float_t y) -> void {
+void reig::Mouse::place(float_t x, float_t y) {
     mCursorPos.x = x;
     mCursorPos.y = y;
 }
 
-auto reig::Mouse::scroll(float dy) -> void {
+void reig::Mouse::scroll(float dy) {
     mScrolled = dy;
 }
 
-auto reig::MouseButton::press(float_t x, float_t y) -> void {
+void reig::MouseButton::press(float_t x, float_t y) {
     if (!mIsPressed) {
         mIsPressed = true;
         mIsClicked = true;
@@ -257,25 +257,25 @@ auto reig::MouseButton::press(float_t x, float_t y) -> void {
     }
 }
 
-auto reig::MouseButton::release() -> void {
+void reig::MouseButton::release() {
     mIsPressed = false;
 }
 
-auto reig::Figure::form(vector<Vertex>& vertices, vector<uint_t>& indices, uint_t id) -> void {
+void reig::Figure::form(vector<Vertex>& vertices, vector<uint_t>& indices, uint_t id) {
     vertices.swap(mVertices);
     indices.swap(mIndices);
     mTextureId = id;
 }
 
-auto reig::Figure::vertices() const -> vector<Vertex> const& {
+vector<reig::Vertex> const& reig::Figure::vertices() const {
     return mVertices;
 }
 
-auto reig::Figure::indices() const -> vector<uint_t> const& {
+vector<reig::uint_t> const& reig::Figure::indices() const {
     return mIndices;
 }
 
-auto reig::Figure::texture() const -> uint_t {
+reig::uint_t reig::Figure::texture() const {
     return mTextureId;
 }
 
@@ -365,7 +365,7 @@ void reig::Context::label(char const* ch, Rectangle aBox) {
     render_text(ch, aBox);
 }
 
-auto reig::Context::button(char const* aTitle, Rectangle aBox, Color aColor) -> bool {
+bool reig::Context::button(char const* aTitle, Rectangle aBox, Color aColor) {
     mCurrentWindow.expand(aBox);
 
     // Render button outline first
@@ -393,7 +393,7 @@ auto reig::Context::button(char const* aTitle, Rectangle aBox, Color aColor) -> 
     return mouse.leftButton.mIsClicked && clickedButton;
 }
 
-auto reig::Context::button(char const* aTitle, Rectangle aBox, int aBaseTexture, int aHoverTexture) -> bool {
+bool reig::Context::button(char const* aTitle, Rectangle aBox, int aBaseTexture, int aHoverTexture) {
     mCurrentWindow.expand(aBox);
 
     bool clickedButton = detail::is_boxed_in(mouse.leftButton.mClickedPos, aBox);
@@ -412,12 +412,12 @@ auto reig::Context::button(char const* aTitle, Rectangle aBox, int aBaseTexture,
     return mouse.leftButton.mIsClicked && clickedButton;
 }
 
-auto reig::Context::slider(Rectangle aBox,
+bool reig::Context::slider(Rectangle aBox,
                            Color aColor,
                            float_t& aValue,
                            float_t aMin,
                            float_t aMax,
-                           float_t aStep) -> bool {
+                           float_t aStep) {
     mCurrentWindow.expand(aBox);
 
     // Render slider's base
@@ -464,14 +464,14 @@ auto reig::Context::slider(Rectangle aBox,
     }
 }
 
-auto reig::Context::slider(
+bool reig::Context::slider(
         Rectangle aBox,
         int aBaseTexture,
         int aCursorTexture,
         float_t& aValue,
         float_t aMin,
         float_t aMax,
-        float_t aStep) -> bool {
+        float_t aStep) {
     mCurrentWindow.expand(aBox);
 
     // Render slider's base
@@ -511,7 +511,7 @@ auto reig::Context::slider(
     }
 }
 
-auto reig::Context::checkbox(Rectangle aBox, Color aColor, bool& aValue) -> bool {
+bool reig::Context::checkbox(Rectangle aBox, Color aColor, bool& aValue) {
     mCurrentWindow.expand(aBox);
 
     // Render checkbox's base
@@ -535,7 +535,7 @@ auto reig::Context::checkbox(Rectangle aBox, Color aColor, bool& aValue) -> bool
     }
 }
 
-auto reig::Context::checkbox(Rectangle aBox, int aBaseTexture, int aTickTexture, bool& aValue) -> bool {
+bool reig::Context::checkbox(Rectangle aBox, int aBaseTexture, int aTickTexture, bool& aValue) {
     mCurrentWindow.expand(aBox);
 
     // Render checkbox's base
@@ -556,7 +556,7 @@ auto reig::Context::checkbox(Rectangle aBox, int aBaseTexture, int aTickTexture,
     }
 }
 
-auto reig::Context::render_text(char const* ch, Rectangle aBox) -> void {
+void reig::Context::render_text(char const* ch, Rectangle aBox) {
     if (mFont.bakedChars.empty() || !ch) return;
 
     aBox = detail::decrease_box(aBox, 8);
@@ -612,7 +612,7 @@ auto reig::Context::render_text(char const* ch, Rectangle aBox) -> void {
     }
 }
 
-auto reig::Context::render_triangle(Triangle const& aTri, Color const& aColor) -> void {
+void reig::Context::render_triangle(Triangle const& aTri, Color const& aColor) {
     vector<Vertex> vertices{
             {{aTri.pos0}, {}, aColor},
             {{aTri.pos1}, {}, aColor},
@@ -625,7 +625,7 @@ auto reig::Context::render_triangle(Triangle const& aTri, Color const& aColor) -
     mDrawData.push_back(fig);
 }
 
-auto reig::Context::render_rectangle(Rectangle const& aBox, int aTexture) -> void {
+void reig::Context::render_rectangle(Rectangle const& aBox, int aTexture) {
     vector<Vertex> vertices{
             {{aBox.x,              aBox.y},               {0.f, 0.f}, {}},
             {{aBox.x + aBox.width, aBox.y},               {1.f, 0.f}, {}},
@@ -639,7 +639,7 @@ auto reig::Context::render_rectangle(Rectangle const& aBox, int aTexture) -> voi
     mDrawData.push_back(fig);
 }
 
-auto reig::Context::render_rectangle(Rectangle const& aRect, Color const& aColor) -> void {
+void reig::Context::render_rectangle(Rectangle const& aRect, Color const& aColor) {
     vector<Vertex> vertices{
             {{aRect.x,               aRect.y},                {}, aColor},
             {{aRect.x + aRect.width, aRect.y},                {}, aColor},
