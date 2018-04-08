@@ -114,8 +114,8 @@ auto reig::Context::set_font(char const* aPath, uint_t aTextureId, float aSize) 
     std::fseek(file, 0, SEEK_END);
     auto fileSize = ftell(file);
     std::rewind(file);
-    auto fileContents = new unsigned char[fileSize];
-    std::fread(fileContents, 1, fileSize, file);
+    auto fileContents = std::vector<unsigned char>(fileSize);
+    std::fread(fileContents.data(), 1, fileSize, file);
     std::fclose(file);
 
     // We want all ASCII chars from space to square
@@ -127,12 +127,9 @@ auto reig::Context::set_font(char const* aPath, uint_t aTextureId, float aSize) 
     auto bakedChars = std::vector<stbtt_bakedchar>(charsNum);
     auto bitmap = vector<ubyte_t>(bmp.w * bmp.h);
     auto height = stbtt_BakeFontBitmap(
-            fileContents, 0, aSize, bitmap.data(), bmp.w, bmp.h, ' ', charsNum, std::data(bakedChars)
+            fileContents.data(), 0, aSize, bitmap.data(), bmp.w, bmp.h, ' ', charsNum, std::data(bakedChars)
     );
-    // No longer need the file, after creating the bitmap
-    delete[] fileContents;
 
-    // If the bitmap was not large enough, free memory
     if (height < 0 || height > bmp.h) {
         return {};
     }
