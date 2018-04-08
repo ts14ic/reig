@@ -4,25 +4,25 @@
 #define STBTT_STATIC
 
 #include "stb_truetype.h"
-#include <cstdio>
+#include <sstream>
 
 using std::vector;
 
 namespace reig::detail {
     template<typename T>
-    auto between(T val, T min, T max) -> bool {
+    auto is_between(T val, T min, T max) -> bool {
         return val > min && val < max;
     }
 
-    auto in_box(Point const& pt, Rectangle const& box) -> bool {
-        return between(pt.x, box.x, box.x + box.width) && between(pt.y, box.y, box.y + box.height);
+    auto is_boxed_in(Point const& pt, Rectangle const& box) -> bool {
+        return is_between(pt.x, box.x, box.x + box.width) && is_between(pt.y, box.y, box.y + box.height);
     }
 
     template<typename T>
     auto clamp(T val, T min, T max) -> T {
-        if (val < min) val = min;
-        else if (val > max) val = max;
-        return val;
+        return val < min ? min :
+               val > max ? max :
+               val;
     }
 
     template<typename T>
@@ -37,22 +37,23 @@ namespace reig::detail {
 
     template<typename T>
     auto abs(T a) -> T {
-        if (a < 0) return -a;
-        return a;
+        return a < 0 ? -a : a;
     }
 
     template<typename T>
     auto sign(T a) -> int_t {
-        if (a > 0) return 1;
-        if (a < 0) return -1;
-        return 0;
+        return a < 0 ? -1 :
+               a > 0 ? 1 :
+               0;
     }
 
     auto get_yiq_contrast(Color color) -> Color {
         using namespace Colors::literals;
 
         uint_t y = (299u * color.red.val + 587 * color.green.val + 114 * color.blue.val) / 1000;
-        return y >= 128 ? Color{0_r, 0_g, 0_b} : Color{255_r, 255_g, 255_b};
+        return y >= 128
+               ? Color{0_r, 0_g, 0_b, 255_a}
+               : Color{255_r, 255_g, 255_b};
     }
 
     auto lighten_color_by(Color color, ubyte_t delta) -> Color {
@@ -63,7 +64,7 @@ namespace reig::detail {
         return color;
     }
 
-    auto decrease(Rectangle aRect, int_t by) -> Rectangle {
+    auto decrease_box(Rectangle aRect, int_t by) -> Rectangle {
         int_t moveBy = by / 2;
         aRect.x += moveBy;
         aRect.y += moveBy;
@@ -101,15 +102,48 @@ auto reig::Context::get_user_ptr() const -> std::any const& {
     return mUserPtr;
 }
 
-auto reig::Context::set_font(char const* aPath, uint_t aTextureId, float aSize) -> FontData {
-    // 0 is used as no texture
-    if (aTextureId == 0) return {};
-    if (aSize <= 0) return {};
+reig::FailedToLoadFontException::FailedToLoadFontException(std::string message)
+        : message{std::move(message)} {}
+
+const char* reig::FailedToLoadFontException::what() const noexcept {
+    return message.c_str();
+}
+
+reig::FailedToLoadFontException reig::FailedToLoadFontException::noTextureId(const char* filePath) {
+    std::ostringstream ss;
+    ss << "No texture id was specified for font: [" << filePath << "]";
+    return FailedToLoadFontException(ss.str());
+}
+
+reig::FailedToLoadFontException reig::FailedToLoadFontException::invalidSize(const char* filePath, float fontSize) {
+    std::ostringstream ss;
+    ss << "Invalid size specified for font: [" << filePath << "], size: [" << fontSize << "]";
+    return FailedToLoadFontException(ss.str());
+}
+
+reig::FailedToLoadFontException reig::FailedToLoadFontException::couldNotOpenFile(const char* filePath) {
+    std::ostringstream ss;
+    ss << "Could not open font file: [" << filePath << "]";
+    return FailedToLoadFontException(ss.str());
+}
+
+auto reig::FailedToLoadFontException::couldNotFitCharacters(const char* filePath, float fontSize, reig::uint_t width,
+                                                            reig::uint_t height) -> FailedToLoadFontException {
+    std::ostringstream ss;
+    ss << "Could not fit characters for font: ["
+       << filePath << "], size: [" << fontSize << "], atlas size: ["
+       << width << "x" << height << "]";
+    return FailedToLoadFontException(ss.str());
+}
+
+auto reig::Context::set_font(char const* fontFilePath, uint_t textureId, float fontHeightPx) -> FontData {
+    if (textureId == 0) throw FailedToLoadFontException::noTextureId(fontFilePath);
+    if (fontHeightPx <= 0) throw FailedToLoadFontException::invalidSize(fontFilePath, fontHeightPx);
 
     // C io plays nicely with bytes
-    auto file = std::fopen(aPath, "rb");
+    auto file = std::fopen(fontFilePath, "rb");
     // If file can't be accessed
-    if (!file) return {};
+    if (!file) throw FailedToLoadFontException::couldNotOpenFile(fontFilePath);
     // Find the amount of memory to allocate for filebuffer
     std::fseek(file, 0, SEEK_END);
     auto fileSize = ftell(file);
@@ -121,25 +155,25 @@ auto reig::Context::set_font(char const* aPath, uint_t aTextureId, float aSize) 
     // We want all ASCII chars from space to square
     int const charsNum = 96;
     struct {
-        int w, h;
+        uint_t w, h;
     } constexpr bmp {512, 512};
 
     auto bakedChars = std::vector<stbtt_bakedchar>(charsNum);
     auto bitmap = vector<ubyte_t>(bmp.w * bmp.h);
     auto height = stbtt_BakeFontBitmap(
-            fileContents.data(), 0, aSize, bitmap.data(), bmp.w, bmp.h, ' ', charsNum, std::data(bakedChars)
+            fileContents.data(), 0, fontHeightPx, bitmap.data(), bmp.w, bmp.h, ' ', charsNum, std::data(bakedChars)
     );
 
     if (height < 0 || height > bmp.h) {
-        return {};
+        throw FailedToLoadFontException::couldNotFitCharacters(fontFilePath, fontHeightPx, bmp.w, bmp.h);
     }
 
     // If all successfull, replace current font data
     mFont.bakedChars = std::move(bakedChars);
-    mFont.texture = aTextureId;
+    mFont.texture = textureId;
     mFont.width = bmp.w;
     mFont.height = height;
-    mFont.size = aSize;
+    mFont.size = fontHeightPx;
 
     // Return texture creation info
     FontData ret;
@@ -150,8 +184,14 @@ auto reig::Context::set_font(char const* aPath, uint_t aTextureId, float aSize) 
     return ret;
 }
 
+const char* reig::NoRenderHandlerException::what() const noexcept {
+    return "No render handler specified";
+}
+
 auto reig::Context::render_all() -> void {
-    if (!mRenderHandler) return;
+    if (!mRenderHandler) {
+        throw NoRenderHandlerException{};
+    }
     if (mCurrentWindow.started) end_window();
 
     if (!mCurrentWindow.drawData.empty()) {
@@ -260,7 +300,7 @@ void reig::Context::end_window() {
     render_text(mCurrentWindow.title, titleBox);
     render_rectangle(bodyBox, Colors::mediumGrey | 100_a);
 
-    if (mouse.leftButton.mIsPressed && ::reig::detail::in_box(mouse.leftButton.mClickedPos, headerBox)) {
+    if (mouse.leftButton.mIsPressed && ::reig::detail::is_boxed_in(mouse.leftButton.mClickedPos, headerBox)) {
         Point moved{
                 mouse.mCursorPos.x - mouse.leftButton.mClickedPos.x,
                 mouse.mCursorPos.y - mouse.leftButton.mClickedPos.y
@@ -308,13 +348,13 @@ auto reig::Context::button(char const* aTitle, Rectangle aBox, Color aColor) -> 
     render_rectangle(aBox, outlineCol);
 
     // if cursor is over the button, highlight it
-    if (detail::in_box(mouse.mCursorPos, aBox)) {
+    if (detail::is_boxed_in(mouse.mCursorPos, aBox)) {
         aColor = detail::lighten_color_by(aColor, 50);
     }
 
     // see, if clicked the inner part of button
-    aBox = detail::decrease(aBox, 4);
-    bool clickedButton = detail::in_box(mouse.leftButton.mClickedPos, aBox);
+    aBox = detail::decrease_box(aBox, 4);
+    bool clickedButton = detail::is_boxed_in(mouse.leftButton.mClickedPos, aBox);
 
     // highlight even more, if clicked
     if (mouse.leftButton.mIsPressed && clickedButton) {
@@ -331,8 +371,8 @@ auto reig::Context::button(char const* aTitle, Rectangle aBox, Color aColor) -> 
 auto reig::Context::button(char const* aTitle, Rectangle aBox, int aBaseTexture, int aHoverTexture) -> bool {
     mCurrentWindow.expand(aBox);
 
-    bool clickedButton = detail::in_box(mouse.leftButton.mClickedPos, aBox);
-    bool hoveredButton = detail::in_box(mouse.mCursorPos, aBox);
+    bool clickedButton = detail::is_boxed_in(mouse.leftButton.mClickedPos, aBox);
+    bool hoveredButton = detail::is_boxed_in(mouse.mCursorPos, aBox);
 
     if ((mouse.leftButton.mIsPressed && clickedButton) || hoveredButton) {
         render_rectangle(aBox, aBaseTexture);
@@ -340,7 +380,7 @@ auto reig::Context::button(char const* aTitle, Rectangle aBox, int aBaseTexture,
         render_rectangle(aBox, aHoverTexture);
     }
 
-    aBox = detail::decrease(aBox, 8);
+    aBox = detail::decrease_box(aBox, 8);
 
     render_text(aTitle, aBox);
 
@@ -358,7 +398,7 @@ auto reig::Context::slider(Rectangle aBox,
     // Render slider's base
     Color cursorColor = detail::get_yiq_contrast(aColor);
     render_rectangle(aBox, cursorColor);
-    aBox = detail::decrease(aBox, 4);
+    aBox = detail::decrease_box(aBox, 4);
     render_rectangle(aBox, aColor);
 
     // Prepare the values
@@ -369,16 +409,16 @@ auto reig::Context::slider(Rectangle aBox,
     int_t valuesNum = (max - min) / aStep + 1;
 
     // Render the cursor
-    auto cursorBox = detail::decrease(aBox, 4);
+    auto cursorBox = detail::decrease_box(aBox, 4);
     cursorBox.width /= valuesNum;
     if (cursorBox.width < 1) cursorBox.width = 1;
     cursorBox.x += offset * cursorBox.width;
-    if (detail::in_box(mouse.mCursorPos, cursorBox)) {
+    if (detail::is_boxed_in(mouse.mCursorPos, cursorBox)) {
         cursorColor = detail::lighten_color_by(cursorColor, 50);
     }
     render_rectangle(cursorBox, cursorColor);
 
-    if (mouse.leftButton.mIsPressed && detail::in_box(mouse.leftButton.mClickedPos, aBox)) {
+    if (mouse.leftButton.mIsPressed && detail::is_boxed_in(mouse.leftButton.mClickedPos, aBox)) {
         auto halfCursorW = cursorBox.width / 2;
         auto distance = mouse.mCursorPos.x - cursorBox.x - halfCursorW;
 
@@ -386,7 +426,7 @@ auto reig::Context::slider(Rectangle aBox,
             value += static_cast<int_t>(distance / cursorBox.width) * aStep;
             value = detail::clamp(value, min, max);
         }
-    } else if (mouse.mScrolled != 0 && detail::in_box(mouse.mCursorPos, aBox)) {
+    } else if (mouse.mScrolled != 0 && detail::is_boxed_in(mouse.mCursorPos, aBox)) {
         value += static_cast<int_t>(mouse.mScrolled) * aStep;
         value = detail::clamp(value, min, max);
     }
@@ -420,12 +460,12 @@ auto reig::Context::slider(
     int_t valuesNum = (max - min) / aStep + 1;
 
     // Render the cursor
-    auto cursorBox = detail::decrease(aBox, 8);
+    auto cursorBox = detail::decrease_box(aBox, 8);
     cursorBox.width /= valuesNum;
     cursorBox.x += offset * cursorBox.width;
     render_rectangle(cursorBox, aCursorTexture);
 
-    if (mouse.leftButton.mIsPressed && detail::in_box(mouse.leftButton.mClickedPos, aBox)) {
+    if (mouse.leftButton.mIsPressed && detail::is_boxed_in(mouse.leftButton.mClickedPos, aBox)) {
         auto halfCursorW = cursorBox.width / 2;
         auto distance = mouse.mCursorPos.x - cursorBox.x - halfCursorW;
 
@@ -433,7 +473,7 @@ auto reig::Context::slider(
             value += static_cast<int_t>(distance / cursorBox.width) * aStep;
             value = detail::clamp(value, min, max);
         }
-    } else if (mouse.mScrolled != 0 && detail::in_box(mouse.mCursorPos, aBox)) {
+    } else if (mouse.mScrolled != 0 && detail::is_boxed_in(mouse.mCursorPos, aBox)) {
         value += static_cast<int_t>(mouse.mScrolled) * aStep;
         value = detail::clamp(value, min, max);
     }
@@ -452,17 +492,17 @@ auto reig::Context::checkbox(Rectangle aBox, Color aColor, bool& aValue) -> bool
     // Render checkbox's base
     Color contrastColor = detail::get_yiq_contrast(aColor);
     render_rectangle(aBox, contrastColor);
-    aBox = detail::decrease(aBox, 4);
+    aBox = detail::decrease_box(aBox, 4);
     render_rectangle(aBox, aColor);
 
     // Render check
     if (aValue) {
-        aBox = detail::decrease(aBox, 4);
+        aBox = detail::decrease_box(aBox, 4);
         render_rectangle(aBox, contrastColor);
     }
 
     // True if state changed
-    if (mouse.leftButton.mIsClicked && detail::in_box(mouse.leftButton.mClickedPos, aBox)) {
+    if (mouse.leftButton.mIsClicked && detail::is_boxed_in(mouse.leftButton.mClickedPos, aBox)) {
         aValue = !aValue;
         return true;
     } else {
@@ -478,12 +518,12 @@ auto reig::Context::checkbox(Rectangle aBox, int aBaseTexture, int aTickTexture,
 
     // Render check
     if (aValue) {
-        aBox = detail::decrease(aBox, 8);
+        aBox = detail::decrease_box(aBox, 8);
         render_rectangle(aBox, aTickTexture);
     }
 
     // True if state changed
-    if (mouse.leftButton.mIsClicked && detail::in_box(mouse.leftButton.mClickedPos, aBox)) {
+    if (mouse.leftButton.mIsClicked && detail::is_boxed_in(mouse.leftButton.mClickedPos, aBox)) {
         aValue = !aValue;
         return true;
     } else {
@@ -494,7 +534,7 @@ auto reig::Context::checkbox(Rectangle aBox, int aBaseTexture, int aTickTexture,
 auto reig::Context::render_text(char const* ch, Rectangle aBox) -> void {
     if (mFont.bakedChars.empty() || !ch) return;
 
-    aBox = detail::decrease(aBox, 8);
+    aBox = detail::decrease_box(aBox, 8);
     float x = aBox.x;
     float y = aBox.y + aBox.height;
 
