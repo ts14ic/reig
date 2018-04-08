@@ -277,19 +277,9 @@ namespace reig {
     };
 
     struct FontData {
-        ubyte_t* bitmap = nullptr;
+        std::vector<ubyte_t> bitmap;
         uint_t width = 0;
         uint_t height = 0;
-
-        /**
-         * @brief Enable RAII memory freeing for this object
-         */
-        auto allowFree() -> void;
-
-        ~FontData();
-
-    private:
-        bool mCanFree = false;
     };
 
     namespace detail {
