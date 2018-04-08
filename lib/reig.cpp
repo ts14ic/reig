@@ -5,7 +5,9 @@
 
 #include "stb_truetype.h"
 #include <sstream>
+#include <memory>
 
+using std::unique_ptr;
 using std::vector;
 
 namespace reig::detail {
@@ -72,6 +74,17 @@ namespace reig::detail {
         aRect.height -= by;
         return aRect;
     }
+
+    template <typename R, typename T, typename = std::enable_if_t<std::is_integral_v<R> && std::is_integral_v<R>>>
+    R integral_cast(T t) {
+        auto r = static_cast<R>(t);
+        if (r != t || (std::is_signed_v<T> != std::is_signed_v<R> && ((t < T{}) != r < R{}))) {
+            std::stringstream ss;
+            ss << "Bad narrow cast from " << typeid(T).name() << "(" << t << ") to type " << typeid(R).name();
+            throw std::range_error(ss.str());
+        }
+        return r;
+    };
 }
 
 auto reig::Colors::to_uint(Color const& color) -> uint_t {
@@ -136,21 +149,33 @@ auto reig::FailedToLoadFontException::couldNotFitCharacters(const char* filePath
     return FailedToLoadFontException(ss.str());
 }
 
+reig::FailedToLoadFontException reig::FailedToLoadFontException::invalidFile(const char* filePath) {
+    std::ostringstream ss;
+    ss << "Invalid file for font: [" << filePath << "]";
+    return FailedToLoadFontException(ss.str());
+}
+
+vector<reig::ubyte_t> read_font_into_buffer(char const* fontFilePath) {
+    auto file = std::unique_ptr<FILE, decltype(&std::fclose)>(std::fopen(fontFilePath, "rb"), &std::fclose);
+    if (!file) throw reig::FailedToLoadFontException::couldNotOpenFile(fontFilePath);
+
+    std::fseek(file.get(), 0, SEEK_END);
+    long filePos = ftell(file.get());
+    if (filePos < 0) throw reig::FailedToLoadFontException::invalidFile(fontFilePath);
+
+    auto fileSize = reig::detail::integral_cast<reig::size_t>(filePos);
+    std::rewind(file.get());
+
+    auto ttfBuffer = std::vector<unsigned char>(fileSize);
+    std::fread(ttfBuffer.data(), 1, fileSize, file.get());
+    return ttfBuffer;
+}
+
 auto reig::Context::set_font(char const* fontFilePath, uint_t textureId, float fontHeightPx) -> FontData {
     if (textureId == 0) throw FailedToLoadFontException::noTextureId(fontFilePath);
     if (fontHeightPx <= 0) throw FailedToLoadFontException::invalidSize(fontFilePath, fontHeightPx);
 
-    // C io plays nicely with bytes
-    auto file = std::fopen(fontFilePath, "rb");
-    // If file can't be accessed
-    if (!file) throw FailedToLoadFontException::couldNotOpenFile(fontFilePath);
-    // Find the amount of memory to allocate for filebuffer
-    std::fseek(file, 0, SEEK_END);
-    auto fileSize = ftell(file);
-    std::rewind(file);
-    auto fileContents = std::vector<unsigned char>(fileSize);
-    std::fread(fileContents.data(), 1, fileSize, file);
-    std::fclose(file);
+    auto ttfBuffer = read_font_into_buffer(fontFilePath);
 
     // We want all ASCII chars from space to square
     int const charsNum = 96;
@@ -161,7 +186,7 @@ auto reig::Context::set_font(char const* fontFilePath, uint_t textureId, float f
     auto bakedChars = std::vector<stbtt_bakedchar>(charsNum);
     auto bitmap = vector<ubyte_t>(bmp.w * bmp.h);
     auto height = stbtt_BakeFontBitmap(
-            fileContents.data(), 0, fontHeightPx, bitmap.data(), bmp.w, bmp.h, ' ', charsNum, std::data(bakedChars)
+            ttfBuffer.data(), 0, fontHeightPx, bitmap.data(), bmp.w, bmp.h, ' ', charsNum, std::data(bakedChars)
     );
 
     if (height < 0 || height > bmp.h) {
