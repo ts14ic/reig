@@ -249,6 +249,14 @@ void reig::Mouse::scroll(float dy) {
     mScrolled = dy;
 }
 
+const reig::Point& reig::Mouse::get_cursor_pos() {
+    return mCursorPos;
+}
+
+float reig::Mouse::get_scrolled() {
+    return mScrolled;
+}
+
 void reig::MouseButton::press(float_t x, float_t y) {
     if (!mIsPressed) {
         mIsPressed = true;
@@ -259,6 +267,18 @@ void reig::MouseButton::press(float_t x, float_t y) {
 
 void reig::MouseButton::release() {
     mIsPressed = false;
+}
+
+const reig::Point& reig::MouseButton::get_clicked_pos() {
+    return mClickedPos;
+}
+
+bool reig::MouseButton::is_pressed() {
+    return mIsPressed;
+}
+
+bool reig::MouseButton::is_clicked() {
+    return mIsClicked;
 }
 
 void reig::Figure::form(vector<Vertex>& vertices, vector<uint_t>& indices, uint_t id) {
@@ -360,196 +380,197 @@ void reig::detail::Window::expand(Rectangle& aBox) {
     }
 }
 
-void reig::Context::label(char const* ch, Rectangle aBox) {
-    mCurrentWindow.expand(aBox);
-    render_text(ch, aBox);
+void reig::Context::fit_rect_in_window(Rectangle& rect) {
+    mCurrentWindow.expand(rect);
 }
 
-bool reig::Context::button(char const* aTitle, Rectangle aBox, Color aColor) {
-    mCurrentWindow.expand(aBox);
+bool reig::button::draw(reig::Context& ctx) const {
+    Rectangle box = this->mBoundingBox;
+    ctx.fit_rect_in_window(box);
 
     // Render button outline first
-    Color outlineCol = detail::get_yiq_contrast(aColor);
-    render_rectangle(aBox, outlineCol);
+    Color outlineCol = detail::get_yiq_contrast(mBaseColor);
+    ctx.render_rectangle(box, outlineCol);
 
+    Color color = this->mBaseColor;
     // if cursor is over the button, highlight it
-    if (detail::is_boxed_in(mouse.mCursorPos, aBox)) {
-        aColor = detail::lighten_color_by(aColor, 50);
+    if (detail::is_boxed_in(ctx.mouse.get_cursor_pos(), box)) {
+        color = detail::lighten_color_by(color, 50);
     }
 
     // see, if clicked the inner part of button
-    aBox = detail::decrease_box(aBox, 4);
-    bool clickedButton = detail::is_boxed_in(mouse.leftButton.mClickedPos, aBox);
+    box = detail::decrease_box(box, 4);
+    bool clickedInBox = detail::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), box);
 
     // highlight even more, if clicked
-    if (mouse.leftButton.mIsPressed && clickedButton) {
-        aColor = detail::lighten_color_by(aColor, 50);
+    if (ctx.mouse.leftButton.is_pressed() && clickedInBox) {
+        color = detail::lighten_color_by(color, 50);
     }
+
     // render the inner part of button
-    render_rectangle(aBox, aColor);
+    ctx.render_rectangle(box, color);
     // render button's title
-    render_text(aTitle, aBox);
+    ctx.render_text(mTitle, box);
 
-    return mouse.leftButton.mIsClicked && clickedButton;
+    return ctx.mouse.leftButton.is_clicked() && clickedInBox;
 }
 
-bool reig::Context::button(char const* aTitle, Rectangle aBox, int aBaseTexture, int aHoverTexture) {
-    mCurrentWindow.expand(aBox);
 
-    bool clickedButton = detail::is_boxed_in(mouse.leftButton.mClickedPos, aBox);
-    bool hoveredButton = detail::is_boxed_in(mouse.mCursorPos, aBox);
+bool reig::textured_button::draw(reig::Context& ctx) const {
+    Rectangle box = this->mBoundingBox;
+    ctx.fit_rect_in_window(box);
 
-    if ((mouse.leftButton.mIsPressed && clickedButton) || hoveredButton) {
-        render_rectangle(aBox, aBaseTexture);
+    bool clickedInBox = detail::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), box);
+    bool hoveredOnBox = detail::is_boxed_in(ctx.mouse.get_cursor_pos(), box);
+
+    if((ctx.mouse.leftButton.is_pressed() && clickedInBox) || hoveredOnBox) {
+        ctx.render_rectangle(box, mBaseTexture);
     } else {
-        render_rectangle(aBox, aHoverTexture);
+        ctx.render_rectangle(box, mHoverTexture);
     }
 
-    aBox = detail::decrease_box(aBox, 8);
+    box = detail::decrease_box(box, 8);
+    ctx.render_text(mTitle, box);
 
-    render_text(aTitle, aBox);
-
-    return mouse.leftButton.mIsClicked && clickedButton;
+    return ctx.mouse.leftButton.is_clicked() && clickedInBox;
 }
 
-bool reig::Context::slider(Rectangle aBox,
-                           Color aColor,
-                           float_t& aValue,
-                           float_t aMin,
-                           float_t aMax,
-                           float_t aStep) {
-    mCurrentWindow.expand(aBox);
+void reig::label::draw(reig::Context& ctx) const {
+    Rectangle boundingBox = this->mBoundingBox;
+    ctx.fit_rect_in_window(boundingBox);
+    ctx.render_text(mTitle, boundingBox);
+}
+
+bool reig::slider::draw(reig::Context& ctx) {
+    Rectangle boundingBox = this->mBoundingBox;
+    ctx.fit_rect_in_window(boundingBox);
 
     // Render slider's base
-    Color cursorColor = detail::get_yiq_contrast(aColor);
-    render_rectangle(aBox, cursorColor);
-    aBox = detail::decrease_box(aBox, 4);
-    render_rectangle(aBox, aColor);
+    Color cursorColor = detail::get_yiq_contrast(mBaseColor);
+    ctx.render_rectangle(boundingBox, cursorColor);
+    boundingBox = detail::decrease_box(boundingBox, 4);
+    ctx.render_rectangle(boundingBox, mBaseColor);
 
     // Prepare the values
-    float_t min = detail::min(aMin, aMax);
-    float_t max = detail::max(aMin, aMax);
-    float_t value = detail::clamp(aValue, min, max);
-    int_t offset = static_cast<int_t>((value - min) / aStep);
-    int_t valuesNum = (max - min) / aStep + 1;
+    float_t min = detail::min(mMin, mMax);
+    float_t max = detail::max(mMin, mMax);
+    float_t value = detail::clamp(mValueRef, min, max);
+    int_t offset = static_cast<int_t>((value - min) / mStep);
+    int_t valuesNum = (max - min) / mStep + 1;
 
     // Render the cursor
-    auto cursorBox = detail::decrease_box(aBox, 4);
+    auto cursorBox = detail::decrease_box(boundingBox, 4);
     cursorBox.width /= valuesNum;
     if (cursorBox.width < 1) cursorBox.width = 1;
     cursorBox.x += offset * cursorBox.width;
-    if (detail::is_boxed_in(mouse.mCursorPos, cursorBox)) {
+    if (detail::is_boxed_in(ctx.mouse.get_cursor_pos(), cursorBox)) {
         cursorColor = detail::lighten_color_by(cursorColor, 50);
     }
-    render_rectangle(cursorBox, cursorColor);
+    ctx.render_rectangle(cursorBox, cursorColor);
 
-    if (mouse.leftButton.mIsPressed && detail::is_boxed_in(mouse.leftButton.mClickedPos, aBox)) {
+    if (ctx.mouse.leftButton.is_pressed() && detail::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox)) {
         auto halfCursorW = cursorBox.width / 2;
-        auto distance = mouse.mCursorPos.x - cursorBox.x - halfCursorW;
+        auto distance = ctx.mouse.get_cursor_pos().x - cursorBox.x - halfCursorW;
 
         if (detail::abs(distance) > halfCursorW) {
-            value += static_cast<int_t>(distance / cursorBox.width) * aStep;
+            value += static_cast<int_t>(distance / cursorBox.width) * mStep;
             value = detail::clamp(value, min, max);
         }
-    } else if (mouse.mScrolled != 0 && detail::is_boxed_in(mouse.mCursorPos, aBox)) {
-        value += static_cast<int_t>(mouse.mScrolled) * aStep;
+    } else if (ctx.mouse.get_scrolled() != 0 && detail::is_boxed_in(ctx.mouse.get_cursor_pos(), boundingBox)) {
+        value += static_cast<int_t>(ctx.mouse.get_scrolled()) * mStep;
         value = detail::clamp(value, min, max);
     }
 
-    if (aValue != value) {
-        aValue = value;
+    if (mValueRef != value) {
+        mValueRef = value;
         return true;
     } else {
         return false;
     }
 }
 
-bool reig::Context::slider(
-        Rectangle aBox,
-        int aBaseTexture,
-        int aCursorTexture,
-        float_t& aValue,
-        float_t aMin,
-        float_t aMax,
-        float_t aStep) {
-    mCurrentWindow.expand(aBox);
+bool reig::slider_textured::draw(reig::Context& ctx) {
+    Rectangle boundingBox = this->mBoundingBox;
+    ctx.fit_rect_in_window(boundingBox);
 
     // Render slider's base
-    render_rectangle(aBox, aBaseTexture);
+    ctx.render_rectangle(boundingBox, mBaseTexture);
 
     // Prepare the values
-    float_t min = detail::min(aMin, aMax);
-    float_t max = detail::max(aMin, aMax);
-    float_t value = detail::clamp(aValue, min, max);
-    int_t offset = static_cast<int_t>((value - min) / aStep);
-    int_t valuesNum = (max - min) / aStep + 1;
+    float_t min = detail::min(mMin, mMax);
+    float_t max = detail::max(mMin, mMax);
+    float_t value = detail::clamp(mValueRef, min, max);
+    int_t offset = static_cast<int_t>((value - min) / mStep);
+    int_t valuesNum = (max - min) / mStep + 1;
 
     // Render the cursor
-    auto cursorBox = detail::decrease_box(aBox, 8);
+    auto cursorBox = detail::decrease_box(boundingBox, 8);
     cursorBox.width /= valuesNum;
     cursorBox.x += offset * cursorBox.width;
-    render_rectangle(cursorBox, aCursorTexture);
+    ctx.render_rectangle(cursorBox, mCursorTexture);
 
-    if (mouse.leftButton.mIsPressed && detail::is_boxed_in(mouse.leftButton.mClickedPos, aBox)) {
+    if (ctx.mouse.leftButton.is_pressed() && detail::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox)) {
         auto halfCursorW = cursorBox.width / 2;
-        auto distance = mouse.mCursorPos.x - cursorBox.x - halfCursorW;
+        auto distance = ctx.mouse.get_cursor_pos().x - cursorBox.x - halfCursorW;
 
         if (detail::abs(distance) > halfCursorW) {
-            value += static_cast<int_t>(distance / cursorBox.width) * aStep;
+            value += static_cast<int_t>(distance / cursorBox.width) * mStep;
             value = detail::clamp(value, min, max);
         }
-    } else if (mouse.mScrolled != 0 && detail::is_boxed_in(mouse.mCursorPos, aBox)) {
-        value += static_cast<int_t>(mouse.mScrolled) * aStep;
+    } else if (ctx.mouse.get_scrolled() != 0 && detail::is_boxed_in(ctx.mouse.get_cursor_pos(), boundingBox)) {
+        value += static_cast<int_t>(ctx.mouse.get_scrolled()) * mStep;
         value = detail::clamp(value, min, max);
     }
 
-    if (aValue != value) {
-        aValue = value;
+    if (mValueRef != value) {
+        mValueRef = value;
         return true;
     } else {
         return false;
     }
 }
 
-bool reig::Context::checkbox(Rectangle aBox, Color aColor, bool& aValue) {
-    mCurrentWindow.expand(aBox);
+bool reig::checkbox::draw(reig::Context& ctx) {
+    Rectangle boundingBox = this->mBoundingBox;
+    ctx.fit_rect_in_window(boundingBox);
 
     // Render checkbox's base
-    Color contrastColor = detail::get_yiq_contrast(aColor);
-    render_rectangle(aBox, contrastColor);
-    aBox = detail::decrease_box(aBox, 4);
-    render_rectangle(aBox, aColor);
+    Color contrastColor = detail::get_yiq_contrast(mBaseColor);
+    ctx.render_rectangle(boundingBox, contrastColor);
+    boundingBox = detail::decrease_box(boundingBox, 4);
+    ctx.render_rectangle(boundingBox, mBaseColor);
 
     // Render check
-    if (aValue) {
-        aBox = detail::decrease_box(aBox, 4);
-        render_rectangle(aBox, contrastColor);
+    if (mValueRef) {
+        boundingBox = detail::decrease_box(boundingBox, 4);
+        ctx.render_rectangle(boundingBox, contrastColor);
     }
 
     // True if state changed
-    if (mouse.leftButton.mIsClicked && detail::is_boxed_in(mouse.leftButton.mClickedPos, aBox)) {
-        aValue = !aValue;
+    if (ctx.mouse.leftButton.is_clicked() && detail::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox)) {
+        mValueRef = !mValueRef;
         return true;
     } else {
         return false;
     }
 }
 
-bool reig::Context::checkbox(Rectangle aBox, int aBaseTexture, int aTickTexture, bool& aValue) {
-    mCurrentWindow.expand(aBox);
+bool reig::textured_checkbox::draw(reig::Context& ctx) {
+    Rectangle boundingBox = this->mBoundingBox;
+    ctx.fit_rect_in_window(boundingBox);
 
     // Render checkbox's base
-    render_rectangle(aBox, aBaseTexture);
+    ctx.render_rectangle(boundingBox, mBaseTexture);
 
     // Render check
-    if (aValue) {
-        aBox = detail::decrease_box(aBox, 8);
-        render_rectangle(aBox, aTickTexture);
+    if (mValueRef) {
+        boundingBox = detail::decrease_box(boundingBox, 8);
+        ctx.render_rectangle(boundingBox, mCheckTexture);
     }
 
     // True if state changed
-    if (mouse.leftButton.mIsClicked && detail::is_boxed_in(mouse.leftButton.mClickedPos, aBox)) {
-        aValue = !aValue;
+    if (ctx.mouse.leftButton.is_clicked() && detail::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox)) {
+        mValueRef = !mValueRef;
         return true;
     } else {
         return false;

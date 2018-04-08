@@ -192,6 +192,12 @@ namespace reig {
 
         MouseButton& operator=(MouseButton&&) = delete;
 
+        const Point& get_clicked_pos();
+
+        bool is_pressed();
+
+        bool is_clicked();
+
     private:
         friend class ::reig::Context;
 
@@ -236,6 +242,10 @@ namespace reig {
          * @param dy Amount of scrolling
          */
         void scroll(float dy);
+
+        const Point& get_cursor_pos();
+
+        float get_scrolled();
 
     private:
         friend class ::reig::Context;
@@ -325,6 +335,119 @@ namespace reig {
         const char* what() const noexcept override;
     };
 
+    struct button {
+        char const* mTitle;
+        Rectangle mBoundingBox;
+        Color mBaseColor;
+
+        /**
+         * @brief Render a titled button
+         *
+         * @param title Text to be displayed on button
+         * @param box Button's bounding box
+         * @param color Button's base color
+         *
+         * @return True if the button was clicked, false otherwise
+         */
+        bool draw(Context& ctx) const;
+    };
+
+    struct textured_button {
+        char const* mTitle;
+        Rectangle mBoundingBox;
+        uint_t mBaseTexture, mHoverTexture;
+
+        /**
+         * @brief Render a titled textured button
+         * @param box Button's bouding box
+         * @param baseTexture Button's texture index, when idle
+         * @param hoverTexture Button's texture index, when button is hoverred
+         * @return True if the button was clicked, false otherwise
+         */
+         bool draw(Context& ctx) const;
+    };
+
+    struct label {
+        char const* mTitle;
+        Rectangle mBoundingBox;
+        /**
+         * @brief Render a label, which get's enclose in current window, if any
+         * @param text Text to be displayed
+         * @param box Text's bounding box
+         */
+        void draw(Context& ctx) const;
+    };
+
+    struct slider {
+        Rectangle mBoundingBox;
+        Color mBaseColor;
+        float& mValueRef;
+        float mMin, mMax, mStep;
+
+        /**
+         * @brief Renders a slider.
+         * @param box Slider's bounding box
+         * @param color Slider's base color
+         * @param value A reference to the value to be represented and changed
+         * @param min The lowest represantable value
+         * @param max The highest represantable value
+         * @param step The discrete portion by which the value can change
+         * @return True if value changed
+         */
+        bool draw(Context& ctx);
+    };
+
+    struct slider_textured {
+        Rectangle mBoundingBox;
+        int mBaseTexture, mCursorTexture;
+        float& mValueRef;
+        float mMin, mMax, mStep;
+
+        /**
+         * @brief
+         * @brief Renders a slider.
+         * @param box Slider's bounding box
+         * @param baseTexture Slider's base texture index
+         * @param cursorTexture Slider's cursor texture index
+         * @param value A reference to the value to be represented and changed
+         * @param min The lowest represantable value
+         * @param max The highest represantable value
+         * @param step The discrete portion by which the value can change
+         * @return True if value changed
+         */
+        bool draw(Context& ctx);
+    };
+
+    struct checkbox {
+        Rectangle mBoundingBox;
+        Color mBaseColor;
+        bool& mValueRef;
+        /**
+         * @brief Renders a checkbox
+         * @param box Checkbox's position and size
+         * @param color Checkbox's base color
+         * @param value A reference to the bool to be changed
+         * @return True if value changed
+         */
+        bool draw(Context& ctx);
+    };
+
+    struct textured_checkbox {
+        Rectangle mBoundingBox;
+        int mBaseTexture, mCheckTexture;
+        bool& mValueRef;
+
+        /**
+         * @brief Renders a textured checkbox
+         * @param box Checkbox's position and size
+         * @param baseTexture Checkbox's base texture
+         * @param tickTexture Checkbox's tick texture
+         * @param value A reference to the bool to be changed
+         * @return True if value changed
+         */
+        bool draw(Context& ctx);
+    };
+
     using DrawData = std::vector<Figure>;
     using RenderHandler = void (*)(DrawData const&, std::any&);
 
@@ -383,75 +506,12 @@ namespace reig {
 
         void end_window();
 
-        /**
-         * @brief Render a label, which get's enclose in current window, if any
-         * @param text Text to be displayed
-         * @param box Text's bounding box
-         */
-        void label(char const* text, Rectangle box);
+        template <typename T>
+        auto widget(T&& t) -> decltype(t.draw(*this)) {
+            return t.draw(*this);
+        }
 
-        /**
-         * @brief Render a titled button
-         * @param title Text to be displayed on button
-         * @param box Button's bounding box
-         * @param color Button's base color
-         * @return True if the button was clicked, false otherwise
-         */
-        bool button(char const* title, Rectangle box, Color color);
-
-        /**
-         * @brief Render a titled textured button
-         * @param box Button's bouding box
-         * @param baseTexture Button's texture index, when idle
-         * @param hoverTexture Button's texture index, when button is hoverred
-         * @return True if the button was clicked, false otherwise
-         */
-        bool button(char const* title, Rectangle box, int baseTexture, int hoverTexture);
-
-        /**
-         * @brief Renders a slider.
-         * @param box Slider's bounding box
-         * @param color Slider's base color
-         * @param value A reference to the value to be represented and changed
-         * @param min The lowest represantable value
-         * @param max The highest represantable value
-         * @param step The discrete portion by which the value can change
-         * @return True if value changed
-         */
-        bool slider(Rectangle box, Color color, float& value, float min, float max, float step);
-
-        /**
-         * @brief 
-         * @brief Renders a slider.
-         * @param box Slider's bounding box
-         * @param baseTexture Slider's base texture index
-         * @param cursorTexture Slider's cursor texture index
-         * @param value A reference to the value to be represented and changed
-         * @param min The lowest represantable value
-         * @param max The highest represantable value
-         * @param step The discrete portion by which the value can change
-         * @return True if value changed
-         */
-        bool slider(Rectangle box, int baseTexture, int cursorTexture, float& value, float min, float max, float step);
-
-        /**
-         * @brief Renders a checkbox
-         * @param box Checkbox's position and size
-         * @param color Checkbox's base color
-         * @param value A reference to the bool to be changed
-         * @return True if value changed
-         */
-        bool checkbox(Rectangle box, Color color, bool& value);
-
-        /**
-         * @brief Renders a textured checkbox
-         * @param box Checkbox's position and size
-         * @param baseTexture Checkbox's base texture
-         * @param tickTexture Checkbox's tick texture
-         * @param value A reference to the bool to be changed
-         * @return True if value changed
-         */
-        bool checkbox(Rectangle box, int baseTexture, int tickTexture, bool& value);
+        void fit_rect_in_window(Rectangle& rect);
 
         /**
          * @brief Renders a vertical scrollbar
