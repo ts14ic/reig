@@ -71,9 +71,9 @@ namespace reig {
     };
 
     namespace Colors {
-        auto to_uint(Color const& from) -> uint_t;
+        uint_t to_uint(Color const& from);
 
-        auto from_uint(uint_t rgba) -> Color;
+        Color from_uint(uint_t rgba);
 
         namespace literals {
             constexpr Red operator ""_r(unsigned long long val) noexcept {
@@ -175,12 +175,12 @@ namespace reig {
          * @param x X coordinate
          * @param y Y coordinate
          */
-        auto press(float x, float y) -> void;
+        void press(float x, float y);
 
         /**
          * @brief Unsets mouse pressed state
          */
-        auto release() -> void;
+        void release();
 
         MouseButton() = default;
 
@@ -303,7 +303,7 @@ namespace reig {
             float headerSize = 0.f;
             bool started = false;
 
-            auto expand(Rectangle& box) -> void;
+            void expand(Rectangle& box);
         };
     }
 
@@ -463,7 +463,7 @@ namespace reig {
          * @param logicalHeight Max logical value 
          * @return 
          */
-        //auto scrollbar(Rectangle box, Color color, float& value, float min, float max, float logicalHeight) -> bool;
+        //bool scrollbar(Rectangle box, Color color, float& value, float min, float max, float logicalHeight);
 
         // Primitive renders
         /**
