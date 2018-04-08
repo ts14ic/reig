@@ -94,7 +94,7 @@ namespace reig {
         }
 
         namespace operators {
-            namespace detail {
+            namespace meta {
                 template<typename Comp>
                 static constexpr bool is_color_component_v = std::is_same_v<Comp, Red> ||
                                                              std::is_same_v<Comp, Green> ||
@@ -118,24 +118,24 @@ namespace reig {
                 }
             }
 
-            template<typename Comp, typename = std::enable_if_t<detail::is_color_component_v<Comp>>>
+            template<typename Comp, typename = std::enable_if_t<meta::is_color_component_v<Comp>>>
             Color operator|(Color const& left, Comp const& right) {
                 Color ret = left;
-                detail::get_comp<Comp>(ret) = right;
+                meta::get_comp<Comp>(ret) = right;
                 return ret;
             };
 
-            template<typename Comp, typename = std::enable_if_t<detail::is_color_component_v<Comp>>>
+            template<typename Comp, typename = std::enable_if_t<meta::is_color_component_v<Comp>>>
             Color operator+(Color const& left, Comp const& right) {
                 Color ret = left;
-                detail::get_comp<Comp>(ret).val += right.val;
+                meta::get_comp<Comp>(ret).val += right.val;
                 return ret;
             };
 
-            template<typename Comp, typename = std::enable_if_t<detail::is_color_component_v<Comp>>>
+            template<typename Comp, typename = std::enable_if_t<meta::is_color_component_v<Comp>>>
             Color operator-(Color const& left, Comp const& right) {
                 Color ret = left;
-                detail::get_comp<Comp>(ret).val -= right.val;
+                meta::get_comp<Comp>(ret).val -= right.val;
                 return ret;
             };
         }
