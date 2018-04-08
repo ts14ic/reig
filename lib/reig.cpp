@@ -74,6 +74,12 @@ namespace reig::detail {
     }
 }
 
+reig::FailedToLoadFontException::FailedToLoadFontException(std::string message) : message{std::move(message)} {}
+
+const char* reig::FailedToLoadFontException::what() const noexcept {
+    return message.c_str();
+}
+
 auto reig::Colors::to_uint(Color const& color) -> uint_t {
     return (color.alpha.val << 24)
            + (color.blue.val << 16)

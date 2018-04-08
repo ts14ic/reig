@@ -5,6 +5,7 @@
 #include <vector>
 #include <cstdint>
 #include <any>
+#include <string>
 
 namespace reig {
     using ubyte_t = std::uint8_t;
@@ -305,6 +306,14 @@ namespace reig {
             auto expand(Rectangle& box) -> void;
         };
     }
+
+    struct FailedToLoadFontException : std::exception {
+        const std::string message;
+
+        explicit FailedToLoadFontException(std::string message);
+
+        const char* what() const noexcept override;
+    };
 
     using DrawData = std::vector<Figure>;
     using RenderHandler = void (*)(DrawData const&, std::any&);
