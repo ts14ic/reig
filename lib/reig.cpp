@@ -184,8 +184,14 @@ auto reig::Context::set_font(char const* fontFilePath, uint_t textureId, float f
     return ret;
 }
 
+const char* reig::NoRenderHandlerException::what() const noexcept {
+    return "No render handler specified";
+}
+
 auto reig::Context::render_all() -> void {
-    if (!mRenderHandler) return;
+    if (!mRenderHandler) {
+        throw NoRenderHandlerException{};
+    }
     if (mCurrentWindow.started) end_window();
 
     if (!mCurrentWindow.drawData.empty()) {

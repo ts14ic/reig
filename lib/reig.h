@@ -320,6 +320,10 @@ namespace reig {
         const std::string message;
     };
 
+    struct NoRenderHandlerException : std::exception {
+        const char* what() const noexcept override;
+    };
+
     using DrawData = std::vector<Figure>;
     using RenderHandler = void (*)(DrawData const&, std::any&);
 
