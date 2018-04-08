@@ -386,22 +386,22 @@ void reig::Context::label(char const* ch, Rectangle aBox) {
 }
 
 bool reig::colored_button::draw(reig::Context& ctx) const {
-    Rectangle rect = this->rect;
-    ctx.fit_rect_in_window(rect);
+    Rectangle box = this->boundingBox;
+    ctx.fit_rect_in_window(box);
 
     // Render button outline first
-    Color outlineCol = detail::get_yiq_contrast(color);
-    ctx.render_rectangle(rect, outlineCol);
+    Color outlineCol = detail::get_yiq_contrast(baseColor);
+    ctx.render_rectangle(box, outlineCol);
 
-    Color color = this->color;
+    Color color = this->baseColor;
     // if cursor is over the button, highlight it
-    if (detail::is_boxed_in(ctx.mouse.get_pos(), rect)) {
+    if (detail::is_boxed_in(ctx.mouse.get_pos(), box)) {
         color = detail::lighten_color_by(color, 50);
     }
 
     // see, if clicked the inner part of button
-    rect = detail::decrease_box(rect, 4);
-    bool clickedInBox = detail::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), rect);
+    box = detail::decrease_box(box, 4);
+    bool clickedInBox = detail::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), box);
 
     // highlight even more, if clicked
     if (ctx.mouse.leftButton.is_pressed() && clickedInBox) {
@@ -409,30 +409,31 @@ bool reig::colored_button::draw(reig::Context& ctx) const {
     }
 
     // render the inner part of button
-    ctx.render_rectangle(rect, color);
+    ctx.render_rectangle(box, color);
     // render button's title
-    ctx.render_text(title, rect);
+    ctx.render_text(title, box);
 
     return ctx.mouse.leftButton.is_clicked() && clickedInBox;
 }
 
-bool reig::Context::button(char const* aTitle, Rectangle aBox, int aBaseTexture, int aHoverTexture) {
-    mCurrentWindow.expand(aBox);
 
-    bool clickedButton = detail::is_boxed_in(mouse.leftButton.mClickedPos, aBox);
-    bool hoveredButton = detail::is_boxed_in(mouse.mCursorPos, aBox);
+bool reig::textured_button::draw(reig::Context& ctx) const {
+    Rectangle box = this->boundingBox;
+    ctx.fit_rect_in_window(box);
 
-    if ((mouse.leftButton.mIsPressed && clickedButton) || hoveredButton) {
-        render_rectangle(aBox, aBaseTexture);
+    bool clickedInBox = detail::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), box);
+    bool hoveredOnBox = detail::is_boxed_in(ctx.mouse.get_pos(), box);
+
+    if((ctx.mouse.leftButton.is_pressed() && clickedInBox) || hoveredOnBox) {
+        ctx.render_rectangle(box, baseTexture);
     } else {
-        render_rectangle(aBox, aHoverTexture);
+        ctx.render_rectangle(box, hoverTexture);
     }
 
-    aBox = detail::decrease_box(aBox, 8);
+    box = detail::decrease_box(box, 8);
+    ctx.render_text(title, box);
 
-    render_text(aTitle, aBox);
-
-    return mouse.leftButton.mIsClicked && clickedButton;
+    return ctx.mouse.leftButton.is_clicked() && clickedInBox;
 }
 
 bool reig::Context::slider(Rectangle aBox,

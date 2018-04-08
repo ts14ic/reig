@@ -335,8 +335,8 @@ namespace reig {
 
     struct colored_button {
         char const* title;
-        Rectangle rect;
-        Color color;
+        Rectangle boundingBox;
+        Color baseColor;
 
         /**
          * @brief Render a titled button
@@ -348,6 +348,21 @@ namespace reig {
          * @return True if the button was clicked, false otherwise
          */
         bool draw(Context& ctx) const;
+    };
+
+    struct textured_button {
+        char const* title;
+        Rectangle boundingBox;
+        uint_t baseTexture, hoverTexture;
+
+        /**
+         * @brief Render a titled textured button
+         * @param box Button's bouding box
+         * @param baseTexture Button's texture index, when idle
+         * @param hoverTexture Button's texture index, when button is hoverred
+         * @return True if the button was clicked, false otherwise
+         */
+         bool draw(Context& ctx) const;
     };
 
     using DrawData = std::vector<Figure>;
@@ -421,15 +436,6 @@ namespace reig {
          * @param box Text's bounding box
          */
         void label(char const* text, Rectangle box);
-
-        /**
-         * @brief Render a titled textured button
-         * @param box Button's bouding box
-         * @param baseTexture Button's texture index, when idle
-         * @param hoverTexture Button's texture index, when button is hoverred
-         * @return True if the button was clicked, false otherwise
-         */
-        bool button(char const* title, Rectangle box, int baseTexture, int hoverTexture);
 
         /**
          * @brief Renders a slider.
