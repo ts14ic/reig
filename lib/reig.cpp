@@ -489,47 +489,41 @@ bool reig::slider::draw(reig::Context& ctx) {
     }
 }
 
-bool reig::Context::slider(
-        Rectangle aBox,
-        int aBaseTexture,
-        int aCursorTexture,
-        float_t& aValue,
-        float_t aMin,
-        float_t aMax,
-        float_t aStep) {
-    mCurrentWindow.expand(aBox);
+bool reig::slider_textured::draw(reig::Context& ctx) {
+    Rectangle boundingBox = this->mBoundingBox;
+    ctx.fit_rect_in_window(boundingBox);
 
     // Render slider's base
-    render_rectangle(aBox, aBaseTexture);
+    ctx.render_rectangle(boundingBox, mBaseTexture);
 
     // Prepare the values
-    float_t min = detail::min(aMin, aMax);
-    float_t max = detail::max(aMin, aMax);
-    float_t value = detail::clamp(aValue, min, max);
-    int_t offset = static_cast<int_t>((value - min) / aStep);
-    int_t valuesNum = (max - min) / aStep + 1;
+    float_t min = detail::min(mMin, mMax);
+    float_t max = detail::max(mMin, mMax);
+    float_t value = detail::clamp(mValueRef, min, max);
+    int_t offset = static_cast<int_t>((value - min) / mStep);
+    int_t valuesNum = (max - min) / mStep + 1;
 
     // Render the cursor
-    auto cursorBox = detail::decrease_box(aBox, 8);
+    auto cursorBox = detail::decrease_box(boundingBox, 8);
     cursorBox.width /= valuesNum;
     cursorBox.x += offset * cursorBox.width;
-    render_rectangle(cursorBox, aCursorTexture);
+    ctx.render_rectangle(cursorBox, mCursorTexture);
 
-    if (mouse.leftButton.mIsPressed && detail::is_boxed_in(mouse.leftButton.mClickedPos, aBox)) {
+    if (ctx.mouse.leftButton.is_pressed() && detail::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox)) {
         auto halfCursorW = cursorBox.width / 2;
-        auto distance = mouse.mCursorPos.x - cursorBox.x - halfCursorW;
+        auto distance = ctx.mouse.get_cursor_pos().x - cursorBox.x - halfCursorW;
 
         if (detail::abs(distance) > halfCursorW) {
-            value += static_cast<int_t>(distance / cursorBox.width) * aStep;
+            value += static_cast<int_t>(distance / cursorBox.width) * mStep;
             value = detail::clamp(value, min, max);
         }
-    } else if (mouse.mScrolled != 0 && detail::is_boxed_in(mouse.mCursorPos, aBox)) {
-        value += static_cast<int_t>(mouse.mScrolled) * aStep;
+    } else if (ctx.mouse.get_scrolled() != 0 && detail::is_boxed_in(ctx.mouse.get_cursor_pos(), boundingBox)) {
+        value += static_cast<int_t>(ctx.mouse.get_scrolled()) * mStep;
         value = detail::clamp(value, min, max);
     }
 
-    if (aValue != value) {
-        aValue = value;
+    if (mValueRef != value) {
+        mValueRef = value;
         return true;
     } else {
         return false;

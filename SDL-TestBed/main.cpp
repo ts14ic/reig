@@ -133,7 +133,7 @@ public:
             
             static float sliderValue2 = 0.3f;
             rect.y += 40; rect.width += 50; rect.height += 10;
-            if (gui.ctx.widget(reig::slider{rect, reig::Color(220_r, 200_g, 150_b), sliderValue2, 0.1f, 0.5f, 0.05f})) {
+            if (gui.ctx.widget(reig::slider{rect, {220_r, 200_g, 150_b}, sliderValue2, 0.1f, 0.5f, 0.05f})) {
                 std::cout << "Slider 2: new value " << sliderValue2 << std::endl;
             }
             

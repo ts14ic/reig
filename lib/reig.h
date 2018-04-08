@@ -397,6 +397,27 @@ namespace reig {
         bool draw(Context& ctx);
     };
 
+    struct slider_textured {
+        Rectangle mBoundingBox;
+        int mBaseTexture, mCursorTexture;
+        float& mValueRef;
+        float mMin, mMax, mStep;
+
+        /**
+         * @brief
+         * @brief Renders a slider.
+         * @param box Slider's bounding box
+         * @param baseTexture Slider's base texture index
+         * @param cursorTexture Slider's cursor texture index
+         * @param value A reference to the value to be represented and changed
+         * @param min The lowest represantable value
+         * @param max The highest represantable value
+         * @param step The discrete portion by which the value can change
+         * @return True if value changed
+         */
+        bool draw(Context& ctx);
+    };
+
     using DrawData = std::vector<Figure>;
     using RenderHandler = void (*)(DrawData const&, std::any&);
 
@@ -461,20 +482,6 @@ namespace reig {
         }
 
         void fit_rect_in_window(Rectangle& rect);
-
-        /**
-         * @brief 
-         * @brief Renders a slider.
-         * @param box Slider's bounding box
-         * @param baseTexture Slider's base texture index
-         * @param cursorTexture Slider's cursor texture index
-         * @param value A reference to the value to be represented and changed
-         * @param min The lowest represantable value
-         * @param max The highest represantable value
-         * @param step The discrete portion by which the value can change
-         * @return True if value changed
-         */
-        bool slider(Rectangle box, int baseTexture, int cursorTexture, float& value, float min, float max, float step);
 
         /**
          * @brief Renders a checkbox
