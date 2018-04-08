@@ -76,19 +76,19 @@ namespace reig {
         auto from_uint(uint_t rgba) -> Color;
 
         namespace literals {
-            constexpr auto operator ""_r(unsigned long long val) noexcept -> Red {
+            constexpr Red operator ""_r(unsigned long long val) noexcept {
                 return Red{static_cast<ubyte_t>(val)};
             }
 
-            constexpr auto operator ""_g(unsigned long long val) noexcept -> Green {
+            constexpr Green operator ""_g(unsigned long long val) noexcept {
                 return Green{static_cast<ubyte_t>(val)};
             }
 
-            constexpr auto operator ""_b(unsigned long long val) noexcept -> Blue {
+            constexpr Blue operator ""_b(unsigned long long val) noexcept {
                 return Blue{static_cast<ubyte_t>(val)};
             }
 
-            constexpr auto operator ""_a(unsigned long long val) noexcept -> Alpha {
+            constexpr Alpha operator ""_a(unsigned long long val) noexcept {
                 return Alpha{static_cast<ubyte_t>(val)};
             }
         }
@@ -102,7 +102,7 @@ namespace reig {
                                                              std::is_same_v<Comp, Alpha>;
 
                 template<typename Comp, typename = std::enable_if_t<is_color_component_v<Comp>>>
-                auto get_comp(Color const& color) -> Comp const& {
+                Comp const& get_comp(Color const& color) {
                     if constexpr (std::is_same_v<Comp, Red>) return color.red;
                     else if constexpr (std::is_same_v<Comp, Green>) return color.green;
                     else if constexpr (std::is_same_v<Comp, Blue>) return color.blue;
@@ -110,7 +110,7 @@ namespace reig {
                 }
 
                 template<typename Comp, typename = std::enable_if_t<is_color_component_v<Comp>>>
-                auto get_comp(Color& color) -> Comp& {
+                Comp& get_comp(Color& color) {
                     if constexpr (std::is_same_v<Comp, Red>) return color.red;
                     else if constexpr (std::is_same_v<Comp, Green>) return color.green;
                     else if constexpr (std::is_same_v<Comp, Blue>) return color.blue;
@@ -119,21 +119,21 @@ namespace reig {
             }
 
             template<typename Comp, typename = std::enable_if_t<detail::is_color_component_v<Comp>>>
-            auto operator|(Color const& left, Comp const& right) -> Color {
+            Color operator|(Color const& left, Comp const& right) {
                 Color ret = left;
                 detail::get_comp<Comp>(ret) = right;
                 return ret;
             };
 
             template<typename Comp, typename = std::enable_if_t<detail::is_color_component_v<Comp>>>
-            auto operator+(Color const& left, Comp const& right) -> Color {
+            Color operator+(Color const& left, Comp const& right) {
                 Color ret = left;
                 detail::get_comp<Comp>(ret).val += right.val;
                 return ret;
             };
 
             template<typename Comp, typename = std::enable_if_t<detail::is_color_component_v<Comp>>>
-            auto operator-(Color const& left, Comp const& right) -> Color {
+            Color operator-(Color const& left, Comp const& right) {
                 Color ret = left;
                 detail::get_comp<Comp>(ret).val -= right.val;
                 return ret;
@@ -222,20 +222,20 @@ namespace reig {
          * @param difx Delta x coordinate
          * @param dify Delta y coordinate
          */
-        auto move(float difx, float dify) -> void;
+        void move(float difx, float dify);
 
         /**
          * @brief Places the cursors in abosulute coordinates
          * @param x X coordinate
          * @param y Y coordiante
          */
-        auto place(float x, float y) -> void;
+        void place(float x, float y);
 
         /**
          * @brief Scrolls the virtual mouse wheel
          * @param dy Amount of scrolling
          */
-        auto scroll(float dy) -> void;
+        void scroll(float dy);
 
     private:
         friend class ::reig::Context;
@@ -254,24 +254,24 @@ namespace reig {
         /**
          * @brief Returns figure's read-only vertices
          */
-        auto vertices() const -> std::vector<Vertex> const&;
+        std::vector<Vertex> const& vertices() const;
 
         /**
          * @brief Returns figure's read-only indices
          */
-        auto indices() const -> std::vector<uint_t> const&;
+        std::vector<uint_t> const& indices() const;
 
         /**
          * @brief Return figure's texture index
          */
-        auto texture() const -> uint_t;
+        uint_t texture() const;
 
     private:
         Figure() = default;
 
         friend class ::reig::Context;
 
-        auto form(std::vector<Vertex>& vertices, std::vector<uint_t>& indices, uint_t id = 0) -> void;
+        void form(std::vector<Vertex>& vertices, std::vector<uint_t>& indices, uint_t id = 0);
 
         std::vector<Vertex> mVertices;
         std::vector<uint_t> mIndices;
@@ -341,19 +341,19 @@ namespace reig {
          * @param handler A C function pointer to a rendering callback
          * The handler should return void and take in DrawData const& and void*
          */
-        auto set_render_handler(RenderHandler handler) -> void;
+        void set_render_handler(RenderHandler handler);
 
         /**
          * @brief Set a user pointer to store in the context.
          * @param ptr A user data pointer.
          * The pointer is then automatically passed to callbacks.
          */
-        auto set_user_ptr(std::any ptr) -> void;
+        void set_user_ptr(std::any ptr);
 
         /**
          * @brief Gets the stored user pointer
          */
-        auto get_user_ptr() const -> std::any const&;
+        std::any const& get_user_ptr() const;
 
         /**
          * @brief Sets reig's font to be used for labels
@@ -363,32 +363,32 @@ namespace reig {
          * @return Returns the bitmap, which is used to create a texture by user.
          * Set returned bitmap field to nullptr, to avoid deletion
          */
-        auto set_font(char const* fontFilePath, uint_t textureId, float fontHeightPx) -> FontData;
+        FontData set_font(char const* fontFilePath, uint_t textureId, float fontHeightPx);
 
         /**
          * @brief Resets draw data and inputs
          */
-        auto start_new_frame() -> void;
+        void start_new_frame();
 
         /**
          * @brief Uses stored drawData and draws everything using the user handler
          */
-        auto render_all() -> void;
+        void render_all();
 
         // Inputs
         Mouse mouse;
 
         // Widget renders
-        auto start_window(char const* title, float& x, float& y) -> void;
+        void start_window(char const* title, float& x, float& y);
 
-        auto end_window() -> void;
+        void end_window();
 
         /**
          * @brief Render a label, which get's enclose in current window, if any
          * @param text Text to be displayed
          * @param box Text's bounding box
          */
-        auto label(char const* text, Rectangle box) -> void;
+        void label(char const* text, Rectangle box);
 
         /**
          * @brief Render a titled button
@@ -397,7 +397,7 @@ namespace reig {
          * @param color Button's base color
          * @return True if the button was clicked, false otherwise
          */
-        auto button(char const* title, Rectangle box, Color color) -> bool;
+        bool button(char const* title, Rectangle box, Color color);
 
         /**
          * @brief Render a titled textured button
@@ -406,7 +406,7 @@ namespace reig {
          * @param hoverTexture Button's texture index, when button is hoverred
          * @return True if the button was clicked, false otherwise
          */
-        auto button(char const* title, Rectangle box, int baseTexture, int hoverTexture) -> bool;
+        bool button(char const* title, Rectangle box, int baseTexture, int hoverTexture);
 
         /**
          * @brief Renders a slider.
@@ -418,7 +418,7 @@ namespace reig {
          * @param step The discrete portion by which the value can change
          * @return True if value changed
          */
-        auto slider(Rectangle box, Color color, float& value, float min, float max, float step) -> bool;
+        bool slider(Rectangle box, Color color, float& value, float min, float max, float step);
 
         /**
          * @brief 
@@ -432,7 +432,7 @@ namespace reig {
          * @param step The discrete portion by which the value can change
          * @return True if value changed
          */
-        auto slider(Rectangle box, int baseTexture, int cursorTexture, float& value, float min, float max, float step) -> bool;
+        bool slider(Rectangle box, int baseTexture, int cursorTexture, float& value, float min, float max, float step);
 
         /**
          * @brief Renders a checkbox
@@ -441,7 +441,7 @@ namespace reig {
          * @param value A reference to the bool to be changed
          * @return True if value changed
          */
-        auto checkbox(Rectangle box, Color color, bool& value) -> bool;
+        bool checkbox(Rectangle box, Color color, bool& value);
 
         /**
          * @brief Renders a textured checkbox
@@ -451,7 +451,7 @@ namespace reig {
          * @param value A reference to the bool to be changed
          * @return True if value changed
          */
-        auto checkbox(Rectangle box, int baseTexture, int tickTexture, bool& value) -> bool;
+        bool checkbox(Rectangle box, int baseTexture, int tickTexture, bool& value);
 
         /**
          * @brief Renders a vertical scrollbar
@@ -471,28 +471,28 @@ namespace reig {
          * @param text Text to be displayed
          * @param box Text's bounding box
          */
-        auto render_text(char const* text, Rectangle box) -> void;
+        void render_text(char const* text, Rectangle box);
 
         /**
          * @brief Schedules a rectangle drawing
          * @param rect Position and size
          * @param color Color
          */
-        auto render_rectangle(Rectangle const& rect, Color const& color) -> void;
+        void render_rectangle(Rectangle const& rect, Color const& color);
 
         /**
          * @brief Schedules a textured rectangle drawing (the texture is stretched)
          * @param rect Position and size
          * @param texture Index to the texture
          */
-        auto render_rectangle(Rectangle const& rect, int texture) -> void;
+        void render_rectangle(Rectangle const& rect, int texture);
 
         /**
          * @brief Schedules a triangle drawing
          * @param triangle Position and size
          * @param color Color
          */
-        auto render_triangle(Triangle const& triangle, Color const& color) -> void;
+        void render_triangle(Triangle const& triangle, Color const& color);
 
     private:
         std::vector<Figure> mDrawData;
