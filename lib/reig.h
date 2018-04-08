@@ -432,6 +432,22 @@ namespace reig {
         bool draw(Context& ctx);
     };
 
+    struct textured_checkbox {
+        Rectangle mBoundingBox;
+        int mBaseTexture, mCheckTexture;
+        bool& mValueRef;
+
+        /**
+         * @brief Renders a textured checkbox
+         * @param box Checkbox's position and size
+         * @param baseTexture Checkbox's base texture
+         * @param tickTexture Checkbox's tick texture
+         * @param value A reference to the bool to be changed
+         * @return True if value changed
+         */
+        bool draw(Context& ctx);
+    };
+
     using DrawData = std::vector<Figure>;
     using RenderHandler = void (*)(DrawData const&, std::any&);
 
@@ -496,16 +512,6 @@ namespace reig {
         }
 
         void fit_rect_in_window(Rectangle& rect);
-
-        /**
-         * @brief Renders a textured checkbox
-         * @param box Checkbox's position and size
-         * @param baseTexture Checkbox's base texture
-         * @param tickTexture Checkbox's tick texture
-         * @param value A reference to the bool to be changed
-         * @return True if value changed
-         */
-        bool checkbox(Rectangle box, int baseTexture, int tickTexture, bool& value);
 
         /**
          * @brief Renders a vertical scrollbar

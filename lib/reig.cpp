@@ -555,21 +555,22 @@ bool reig::checkbox::draw(reig::Context& ctx) {
     }
 }
 
-bool reig::Context::checkbox(Rectangle aBox, int aBaseTexture, int aTickTexture, bool& aValue) {
-    mCurrentWindow.expand(aBox);
+bool reig::textured_checkbox::draw(reig::Context& ctx) {
+    Rectangle boundingBox = this->mBoundingBox;
+    ctx.fit_rect_in_window(boundingBox);
 
     // Render checkbox's base
-    render_rectangle(aBox, aBaseTexture);
+    ctx.render_rectangle(boundingBox, mBaseTexture);
 
     // Render check
-    if (aValue) {
-        aBox = detail::decrease_box(aBox, 8);
-        render_rectangle(aBox, aTickTexture);
+    if (mValueRef) {
+        boundingBox = detail::decrease_box(boundingBox, 8);
+        ctx.render_rectangle(boundingBox, mCheckTexture);
     }
 
     // True if state changed
-    if (mouse.leftButton.mIsClicked && detail::is_boxed_in(mouse.leftButton.mClickedPos, aBox)) {
-        aValue = !aValue;
+    if (ctx.mouse.leftButton.is_clicked() && detail::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox)) {
+        mValueRef = !mValueRef;
         return true;
     } else {
         return false;
