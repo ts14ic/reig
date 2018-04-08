@@ -338,7 +338,7 @@ void reig::Context::end_window() {
     };
 
     using namespace Colors::literals;
-    using namespace Colors::mixing;
+    using namespace Colors::operators;
 
     render_rectangle(headerBox, Colors::mediumGrey | 200_a);
     render_triangle(headerTriangle, Colors::lightGrey);
