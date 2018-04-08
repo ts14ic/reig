@@ -308,11 +308,16 @@ namespace reig {
     }
 
     struct FailedToLoadFontException : std::exception {
-        const std::string message;
-
-        explicit FailedToLoadFontException(std::string message);
-
+    public:
         const char* what() const noexcept override;
+
+        static FailedToLoadFontException noTextureId(const char* filePath);
+        static FailedToLoadFontException invalidSize(const char* filePath, float fontSize);
+        static FailedToLoadFontException couldNotOpenFile(const char* filePath);
+        static FailedToLoadFontException couldNotFitCharacters(const char* filePath, float fontSize, uint_t width, uint_t height);
+    private:
+        explicit FailedToLoadFontException(std::string message);
+        const std::string message;
     };
 
     using DrawData = std::vector<Figure>;
@@ -347,13 +352,13 @@ namespace reig {
 
         /**
          * @brief Sets reig's font to be used for labels
-         * @param path The path to fonts .ttf file.
+         * @param fontFilePath The path to fonts .ttf file.
          * @param textureId This id will be passed by reig to render_handler with text vertices
-         * @param size Font's pixel size
+         * @param fontHeightPx Font's pixel size
          * @return Returns the bitmap, which is used to create a texture by user.
          * Set returned bitmap field to nullptr, to avoid deletion
          */
-        auto set_font(char const* path, uint_t textureId, float size) -> FontData;
+        auto set_font(char const* fontFilePath, uint_t textureId, float fontHeightPx) -> FontData;
 
         /**
          * @brief Resets draw data and inputs

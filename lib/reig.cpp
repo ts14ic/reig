@@ -4,7 +4,7 @@
 #define STBTT_STATIC
 
 #include "stb_truetype.h"
-#include <cstdio>
+#include <sstream>
 
 using std::vector;
 
@@ -74,12 +74,6 @@ namespace reig::detail {
     }
 }
 
-reig::FailedToLoadFontException::FailedToLoadFontException(std::string message) : message{std::move(message)} {}
-
-const char* reig::FailedToLoadFontException::what() const noexcept {
-    return message.c_str();
-}
-
 auto reig::Colors::to_uint(Color const& color) -> uint_t {
     return (color.alpha.val << 24)
            + (color.blue.val << 16)
@@ -108,15 +102,48 @@ auto reig::Context::get_user_ptr() const -> std::any const& {
     return mUserPtr;
 }
 
-auto reig::Context::set_font(char const* aPath, uint_t aTextureId, float aSize) -> FontData {
-    // 0 is used as no texture
-    if (aTextureId == 0) return {};
-    if (aSize <= 0) return {};
+reig::FailedToLoadFontException::FailedToLoadFontException(std::string message)
+        : message{std::move(message)} {}
+
+const char* reig::FailedToLoadFontException::what() const noexcept {
+    return message.c_str();
+}
+
+reig::FailedToLoadFontException reig::FailedToLoadFontException::noTextureId(const char* filePath) {
+    std::ostringstream ss;
+    ss << "No texture id was specified for font: [" << filePath << "]";
+    return FailedToLoadFontException(ss.str());
+}
+
+reig::FailedToLoadFontException reig::FailedToLoadFontException::invalidSize(const char* filePath, float fontSize) {
+    std::ostringstream ss;
+    ss << "Invalid size specified for font: [" << filePath << "], size: [" << fontSize << "]";
+    return FailedToLoadFontException(ss.str());
+}
+
+reig::FailedToLoadFontException reig::FailedToLoadFontException::couldNotOpenFile(const char* filePath) {
+    std::ostringstream ss;
+    ss << "Could not open font file: [" << filePath << "]";
+    return FailedToLoadFontException(ss.str());
+}
+
+auto reig::FailedToLoadFontException::couldNotFitCharacters(const char* filePath, float fontSize, reig::uint_t width,
+                                                            reig::uint_t height) -> FailedToLoadFontException {
+    std::ostringstream ss;
+    ss << "Could not fit characters for font: ["
+       << filePath << "], size: [" << fontSize << "], atlas size: ["
+       << width << "x" << height << "]";
+    return FailedToLoadFontException(ss.str());
+}
+
+auto reig::Context::set_font(char const* fontFilePath, uint_t textureId, float fontHeightPx) -> FontData {
+    if (textureId == 0) throw FailedToLoadFontException::noTextureId(fontFilePath);
+    if (fontHeightPx <= 0) throw FailedToLoadFontException::invalidSize(fontFilePath, fontHeightPx);
 
     // C io plays nicely with bytes
-    auto file = std::fopen(aPath, "rb");
+    auto file = std::fopen(fontFilePath, "rb");
     // If file can't be accessed
-    if (!file) return {};
+    if (!file) throw FailedToLoadFontException::couldNotOpenFile(fontFilePath);
     // Find the amount of memory to allocate for filebuffer
     std::fseek(file, 0, SEEK_END);
     auto fileSize = ftell(file);
@@ -128,25 +155,25 @@ auto reig::Context::set_font(char const* aPath, uint_t aTextureId, float aSize) 
     // We want all ASCII chars from space to square
     int const charsNum = 96;
     struct {
-        int w, h;
+        uint_t w, h;
     } constexpr bmp {512, 512};
 
     auto bakedChars = std::vector<stbtt_bakedchar>(charsNum);
     auto bitmap = vector<ubyte_t>(bmp.w * bmp.h);
     auto height = stbtt_BakeFontBitmap(
-            fileContents.data(), 0, aSize, bitmap.data(), bmp.w, bmp.h, ' ', charsNum, std::data(bakedChars)
+            fileContents.data(), 0, fontHeightPx, bitmap.data(), bmp.w, bmp.h, ' ', charsNum, std::data(bakedChars)
     );
 
     if (height < 0 || height > bmp.h) {
-        return {};
+        throw FailedToLoadFontException::couldNotFitCharacters(fontFilePath, fontHeightPx, bmp.w, bmp.h);
     }
 
     // If all successfull, replace current font data
     mFont.bakedChars = std::move(bakedChars);
-    mFont.texture = aTextureId;
+    mFont.texture = textureId;
     mFont.width = bmp.w;
     mFont.height = height;
-    mFont.size = aSize;
+    mFont.size = fontHeightPx;
 
     // Return texture creation info
     FontData ret;
