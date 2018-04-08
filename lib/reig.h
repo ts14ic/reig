@@ -365,6 +365,17 @@ namespace reig {
          bool draw(Context& ctx) const;
     };
 
+    struct label {
+        char const* title;
+        Rectangle boundingBox;
+        /**
+         * @brief Render a label, which get's enclose in current window, if any
+         * @param text Text to be displayed
+         * @param box Text's bounding box
+         */
+        void draw(Context& ctx) const;
+    };
+
     using DrawData = std::vector<Figure>;
     using RenderHandler = void (*)(DrawData const&, std::any&);
 
@@ -429,13 +440,6 @@ namespace reig {
         }
 
         void fit_rect_in_window(Rectangle& rect);
-
-        /**
-         * @brief Render a label, which get's enclose in current window, if any
-         * @param text Text to be displayed
-         * @param box Text's bounding box
-         */
-        void label(char const* text, Rectangle box);
 
         /**
          * @brief Renders a slider.

@@ -380,11 +380,6 @@ void reig::Context::fit_rect_in_window(Rectangle& rect) {
     mCurrentWindow.expand(rect);
 }
 
-void reig::Context::label(char const* ch, Rectangle aBox) {
-    mCurrentWindow.expand(aBox);
-    render_text(ch, aBox);
-}
-
 bool reig::colored_button::draw(reig::Context& ctx) const {
     Rectangle box = this->boundingBox;
     ctx.fit_rect_in_window(box);
@@ -434,6 +429,12 @@ bool reig::textured_button::draw(reig::Context& ctx) const {
     ctx.render_text(title, box);
 
     return ctx.mouse.leftButton.is_clicked() && clickedInBox;
+}
+
+void reig::label::draw(reig::Context& ctx) const {
+    Rectangle boundingBox = this->boundingBox;
+    ctx.fit_rect_in_window(boundingBox);
+    ctx.render_text(title, boundingBox);
 }
 
 bool reig::Context::slider(Rectangle aBox,
