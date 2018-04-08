@@ -93,11 +93,11 @@ auto reig::Context::set_render_handler(RenderHandler renderHandler) -> void {
     mRenderHandler = renderHandler;
 }
 
-auto reig::Context::set_user_ptr(void* ptr) -> void {
-    mUserPtr = ptr;
+auto reig::Context::set_user_ptr(std::any ptr) -> void {
+    mUserPtr = std::move(ptr);
 }
 
-auto reig::Context::get_user_ptr() const -> void const* {
+auto reig::Context::get_user_ptr() const -> std::any const& {
     return mUserPtr;
 }
 
