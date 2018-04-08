@@ -335,7 +335,7 @@ namespace reig {
         const char* what() const noexcept override;
     };
 
-    struct colored_button {
+    struct button {
         char const* mTitle;
         Rectangle mBoundingBox;
         Color mBaseColor;

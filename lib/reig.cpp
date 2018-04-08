@@ -384,7 +384,7 @@ void reig::Context::fit_rect_in_window(Rectangle& rect) {
     mCurrentWindow.expand(rect);
 }
 
-bool reig::colored_button::draw(reig::Context& ctx) const {
+bool reig::button::draw(reig::Context& ctx) const {
     Rectangle box = this->mBoundingBox;
     ctx.fit_rect_in_window(box);
 
