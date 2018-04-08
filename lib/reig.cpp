@@ -358,7 +358,7 @@ void reig::Context::end_window() {
     }
 }
 
-void reig::detail::Window::expand(Rectangle& aBox) {
+void reig::context::Window::expand(Rectangle& aBox) {
     if (started) {
         aBox.x += *x + 4;
         aBox.y += *y + headerSize + 4;
