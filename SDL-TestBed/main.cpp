@@ -27,15 +27,15 @@ public:
         
         gui.ctx.set_render_handler(&gui_handler);
         gui.ctx.set_user_ptr(this);
-        
+
         gui.font.data = gui.ctx.set_font("/usr/share/fonts/TTF/impact.ttf", gui.font.id, 32.f);
-        auto surf = SDL_CreateRGBSurfaceFrom(
+        auto* surf = SDL_CreateRGBSurfaceFrom(
             gui.font.data.bitmap.data(), gui.font.data.width, gui.font.data.height, 8, gui.font.data.width,
-            0, 0, 0, 0xFF
+            0, 0, 0, 0
         );
         SDL_Color colors[256];
         {
-            unsigned char v = 0;
+            Uint8 v = 0;
             for(SDL_Color& color: colors) {
                 color.r = color.g = color.b = 0xFF;
                 color.a = v++;
@@ -187,8 +187,8 @@ public:
         return 0;
     }
 
-    static void gui_handler(reig::DrawData const& drawData, void* vSelf) {
-        Main* self = static_cast<Main*>(vSelf);
+    static void gui_handler(reig::DrawData const& drawData, std::any& userPtr) {
+        Main* self = std::any_cast<Main*>(userPtr);
         
         for(auto const& fig : drawData) {
             auto const& vertices = fig.vertices();

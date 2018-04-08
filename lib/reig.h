@@ -4,6 +4,7 @@
 #include "stb_truetype.h"
 #include <vector>
 #include <cstdint>
+#include <any>
 
 namespace reig {
     using ubyte_t = std::uint8_t;
@@ -284,7 +285,7 @@ namespace reig {
 
     namespace detail {
         struct Font {
-            stbtt_bakedchar* bakedChars = nullptr;
+            std::vector<stbtt_bakedchar> bakedChars;
             float size = 0.f;
             uint_t texture = 0;
             uint_t width = 0;
@@ -306,7 +307,7 @@ namespace reig {
     }
 
     using DrawData = std::vector<Figure>;
-    using RenderHandler = void (*)(DrawData const&, void*);
+    using RenderHandler = void (*)(DrawData const&, std::any&);
 
     /**
      * @class Context
@@ -328,12 +329,12 @@ namespace reig {
          * @param ptr A user data pointer.
          * The pointer is then automatically passed to callbacks.
          */
-        auto set_user_ptr(void* ptr) -> void;
+        auto set_user_ptr(std::any ptr) -> void;
 
         /**
          * @brief Gets the stored user pointer
          */
-        auto get_user_ptr() const -> void const*;
+        auto get_user_ptr() const -> std::any const&;
 
         /**
          * @brief Sets reig's font to be used for labels
@@ -480,7 +481,7 @@ namespace reig {
         detail::Window mCurrentWindow;
 
         RenderHandler mRenderHandler = nullptr;
-        void* mUserPtr = nullptr;
+        std::any mUserPtr;
     };
 }
 

@@ -93,11 +93,11 @@ auto reig::Context::set_render_handler(RenderHandler renderHandler) -> void {
     mRenderHandler = renderHandler;
 }
 
-auto reig::Context::set_user_ptr(void* ptr) -> void {
-    mUserPtr = ptr;
+auto reig::Context::set_user_ptr(std::any ptr) -> void {
+    mUserPtr = std::move(ptr);
 }
 
-auto reig::Context::get_user_ptr() const -> void const* {
+auto reig::Context::get_user_ptr() const -> std::any const& {
     return mUserPtr;
 }
 
@@ -114,8 +114,8 @@ auto reig::Context::set_font(char const* aPath, uint_t aTextureId, float aSize) 
     std::fseek(file, 0, SEEK_END);
     auto fileSize = ftell(file);
     std::rewind(file);
-    auto fileContents = new unsigned char[fileSize];
-    std::fread(fileContents, 1, fileSize, file);
+    auto fileContents = std::vector<unsigned char>(fileSize);
+    std::fread(fileContents.data(), 1, fileSize, file);
     std::fclose(file);
 
     // We want all ASCII chars from space to square
@@ -124,22 +124,18 @@ auto reig::Context::set_font(char const* aPath, uint_t aTextureId, float aSize) 
         int w, h;
     } constexpr bmp {512, 512};
 
-    auto bakedChars = new stbtt_bakedchar[charsNum];
+    auto bakedChars = std::vector<stbtt_bakedchar>(charsNum);
     auto bitmap = vector<ubyte_t>(bmp.w * bmp.h);
     auto height = stbtt_BakeFontBitmap(
-            fileContents, 0, aSize, bitmap.data(), bmp.w, bmp.h, ' ', charsNum, bakedChars
+            fileContents.data(), 0, aSize, bitmap.data(), bmp.w, bmp.h, ' ', charsNum, std::data(bakedChars)
     );
-    // No longer need the file, after creating the bitmap
-    delete[] fileContents;
 
-    // If the bitmap was not large enough, free memory
     if (height < 0 || height > bmp.h) {
         return {};
     }
 
     // If all successfull, replace current font data
-    if (mFont.bakedChars) delete[] mFont.bakedChars;
-    mFont.bakedChars = bakedChars;
+    mFont.bakedChars = std::move(bakedChars);
     mFont.texture = aTextureId;
     mFont.width = bmp.w;
     mFont.height = height;
@@ -496,7 +492,7 @@ auto reig::Context::checkbox(Rectangle aBox, int aBaseTexture, int aTickTexture,
 }
 
 auto reig::Context::render_text(char const* ch, Rectangle aBox) -> void {
-    if (!mFont.bakedChars || !ch) return;
+    if (mFont.bakedChars.empty() || !ch) return;
 
     aBox = detail::decrease(aBox, 8);
     float x = aBox.x;
@@ -516,7 +512,7 @@ auto reig::Context::render_text(char const* ch, Rectangle aBox) -> void {
 
         stbtt_aligned_quad q;
         stbtt_GetBakedQuad(
-                mFont.bakedChars,
+                mFont.bakedChars.data(),
                 mFont.width, mFont.height, c - ' ', &x, &y, &q, 1
         );
         if (q.x0 > aBox.x + aBox.width) {
