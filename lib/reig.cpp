@@ -530,24 +530,25 @@ bool reig::slider_textured::draw(reig::Context& ctx) {
     }
 }
 
-bool reig::Context::checkbox(Rectangle aBox, Color aColor, bool& aValue) {
-    mCurrentWindow.expand(aBox);
+bool reig::checkbox::draw(reig::Context& ctx) {
+    Rectangle boundingBox = this->mBoundingBox;
+    ctx.fit_rect_in_window(boundingBox);
 
     // Render checkbox's base
-    Color contrastColor = detail::get_yiq_contrast(aColor);
-    render_rectangle(aBox, contrastColor);
-    aBox = detail::decrease_box(aBox, 4);
-    render_rectangle(aBox, aColor);
+    Color contrastColor = detail::get_yiq_contrast(mBaseColor);
+    ctx.render_rectangle(boundingBox, contrastColor);
+    boundingBox = detail::decrease_box(boundingBox, 4);
+    ctx.render_rectangle(boundingBox, mBaseColor);
 
     // Render check
-    if (aValue) {
-        aBox = detail::decrease_box(aBox, 4);
-        render_rectangle(aBox, contrastColor);
+    if (mValueRef) {
+        boundingBox = detail::decrease_box(boundingBox, 4);
+        ctx.render_rectangle(boundingBox, contrastColor);
     }
 
     // True if state changed
-    if (mouse.leftButton.mIsClicked && detail::is_boxed_in(mouse.leftButton.mClickedPos, aBox)) {
-        aValue = !aValue;
+    if (ctx.mouse.leftButton.is_clicked() && detail::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox)) {
+        mValueRef = !mValueRef;
         return true;
     } else {
         return false;

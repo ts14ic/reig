@@ -140,21 +140,21 @@ public:
             static bool checkBox1 = false;
             color = color + 15_r - 35_r - 10_b;
             rect.x += 270; rect.width = 40; rect.height = 20;
-            if(gui.ctx.checkbox(rect, color, checkBox1)) {
+            if(gui.ctx.widget(reig::checkbox{rect, color, checkBox1})) {
                 std::cout << "Checkbox 1: new value " << checkBox1 << std::endl;
             }
             
             static bool checkBox2 = true;
             color = color - 100_r + 100_g + 100_b;
             rect.y -= 100; rect.width = rect.height = 50;
-            if(gui.ctx.checkbox(rect, color, checkBox2)) {
+            if(gui.ctx.widget(reig::checkbox{rect, color, checkBox2})) {
                 std::cout << "Checkbox 2: new value " << checkBox2 << std::endl;
             }
             
             static bool checkBox3 = false;
             color = reig::Colors::from_uint(0xFFFFFFFFu);
             rect.y += 60; rect.width = rect.height = 25;
-            if(gui.ctx.checkbox(rect, color, checkBox3)) {
+            if(gui.ctx.widget(reig::checkbox{rect, color, checkBox3})) {
                 std::cout << "Checkbox 3: new value " << checkBox3 << std::endl;
             }
             

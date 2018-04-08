@@ -418,6 +418,20 @@ namespace reig {
         bool draw(Context& ctx);
     };
 
+    struct checkbox {
+        Rectangle mBoundingBox;
+        Color mBaseColor;
+        bool& mValueRef;
+        /**
+         * @brief Renders a checkbox
+         * @param box Checkbox's position and size
+         * @param color Checkbox's base color
+         * @param value A reference to the bool to be changed
+         * @return True if value changed
+         */
+        bool draw(Context& ctx);
+    };
+
     using DrawData = std::vector<Figure>;
     using RenderHandler = void (*)(DrawData const&, std::any&);
 
@@ -482,15 +496,6 @@ namespace reig {
         }
 
         void fit_rect_in_window(Rectangle& rect);
-
-        /**
-         * @brief Renders a checkbox
-         * @param box Checkbox's position and size
-         * @param color Checkbox's base color
-         * @param value A reference to the bool to be changed
-         * @return True if value changed
-         */
-        bool checkbox(Rectangle box, Color color, bool& value);
 
         /**
          * @brief Renders a textured checkbox
