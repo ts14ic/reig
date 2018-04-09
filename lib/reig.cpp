@@ -243,12 +243,12 @@ void reig::Context::start_new_frame() {
     mouse.mScrolled = 0.f;
 }
 
-void reig::detail::Mouse::move(float_t difx, float_t dify) {
+void reig::detail::Mouse::move(float difx, float dify) {
     mCursorPos.x += difx;
     mCursorPos.y += dify;
 }
 
-void reig::detail::Mouse::place(float_t x, float_t y) {
+void reig::detail::Mouse::place(float x, float y) {
     mCursorPos.x = x;
     mCursorPos.y = y;
 }
@@ -265,7 +265,7 @@ float reig::detail::Mouse::get_scrolled() const {
     return mScrolled;
 }
 
-void reig::detail::MouseButton::press(float_t x, float_t y) {
+void reig::detail::MouseButton::press(float x, float y) {
     if (!mIsPressed) {
         mIsPressed = true;
         mIsClicked = true;
@@ -471,9 +471,9 @@ bool base_slider_draw(reig::Context& ctx,
     render_widget_frame(ctx, boundingBox, baseColor);
 
     // Prepare the values
-    float_t min = internal::min(aMin, aMax);
-    float_t max = internal::max(aMin, aMax);
-    float_t value = internal::clamp(valueRef, min, max);
+    float min = internal::min(aMin, aMax);
+    float max = internal::max(aMin, aMax);
+    float value = internal::clamp(valueRef, min, max);
     auto offset = static_cast<int>((value - min) / step);
     auto valuesNum = static_cast<int>((max - min) / step + 1);
 
@@ -548,9 +548,9 @@ bool reig::reference_widget::slider_textured::draw(reig::Context& ctx) const {
     ctx.render_rectangle(boundingBox, mBaseTexture);
 
     // Prepare the values
-    float_t min = internal::min(mMin, mMax);
-    float_t max = internal::max(mMin, mMax);
-    float_t value = internal::clamp(mValueRef, min, max);
+    float min = internal::min(mMin, mMax);
+    float max = internal::max(mMin, mMax);
+    float value = internal::clamp(mValueRef, min, max);
     int offset = static_cast<int>((value - min) / mStep);
     int valuesNum = static_cast<int>((max - min) / mStep + 1);
 
