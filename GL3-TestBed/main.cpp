@@ -145,42 +145,44 @@ public:
             static float scaling = 1.0f;
             static float cubeColor[3] {255.f, 255.f, 255.f};
             static float rotation[3] { 0.f, 0.f, 0.f };
-            
+
+            namespace widget = reig::reference_widgets;
+
             float yline = 0; float step = 28;
             ctx.start_window("Cube manipulation", winX, winY);
-            ctx.widget(reig::checkbox{{0, yline, 25, 25}, reig::Colors::darkGrey, check});
+            ctx.widget(widget::checkbox{{0, yline, 25, 25}, reig::Colors::darkGrey, check});
             
             if(check) {
-                if(ctx.widget(reig::button{"S", {31, yline, 60, 25}, reig::Colors::mediumGrey})) {
+                if(ctx.widget(widget::button{"S", {31, yline, 60, 25}, reig::Colors::mediumGrey})) {
                     scaling = 1.f;
                 }
-                if(ctx.widget(reig::button{"R", {97, yline, 60, 25}, reig::Colors::mediumGrey})) {
+                if(ctx.widget(widget::button{"R", {97, yline, 60, 25}, reig::Colors::mediumGrey})) {
                     rotation[0] = rotation[1] = rotation[2] = 0.f;
                 }
-                if(ctx.widget(reig::button{"C", {163, yline, 60, 25}, reig::Colors::mediumGrey})) {
+                if(ctx.widget(widget::button{"C", {163, yline, 60, 25}, reig::Colors::mediumGrey})) {
                     cubeColor[0] = cubeColor[1] = cubeColor[2] = 255.f;
                 }
                 
                 yline += step;
-                ctx.widget(reig::label{"Scale:", {0, yline, 230, 25}});
+                ctx.widget(widget::label{"Scale:", {0, yline, 230, 25}});
                 yline += step;
-                ctx.widget(reig::slider{{0, yline, 230, 25}, reig::Colors::lightGrey, scaling, 0.1f, 2.5f, 0.1f});
+                ctx.widget(widget::slider{{0, yline, 230, 25}, reig::Colors::lightGrey, scaling, 0.1f, 2.5f, 0.1f});
                 
                 yline += step;
-                ctx.widget(reig::label{"Rotation:", {0, yline, 230, 25}});
+                ctx.widget(widget::label{"Rotation:", {0, yline, 230, 25}});
                 yline += step;
                 for(int i = 0; i < 3; ++i) {
-                    ctx.widget(reig::slider{{0, yline, 230, 25}, reig::Colors::darkGrey, rotation[i], 0.f, 360.f, 5.f});
+                    ctx.widget(widget::slider{{0, yline, 230, 25}, reig::Colors::darkGrey, rotation[i], 0.f, 360.f, 5.f});
                     yline += step;
                 }
                 
-                ctx.widget(reig::label{"Color:", {0, yline, 230, 25}});
+                ctx.widget(widget::label{"Color:", {0, yline, 230, 25}});
                 yline += step;
-                ctx.widget(reig::slider{{0, yline, 230, 25}, reig::Colors::red, cubeColor[0], 0.f, 255.f, 10.f});
+                ctx.widget(widget::slider{{0, yline, 230, 25}, reig::Colors::red, cubeColor[0], 0.f, 255.f, 10.f});
                 yline += step;
-                ctx.widget(reig::slider{{0, yline, 230, 25}, reig::Colors::green, cubeColor[1], 0.f, 255.f, 10.f});
+                ctx.widget(widget::slider{{0, yline, 230, 25}, reig::Colors::green, cubeColor[1], 0.f, 255.f, 10.f});
                 yline += step;
-                ctx.widget(reig::slider{{0, yline, 230, 25}, reig::Colors::blue, cubeColor[2], 0.f, 255.f, 10.f});
+                ctx.widget(widget::slider{{0, yline, 230, 25}, reig::Colors::blue, cubeColor[2], 0.f, 255.f, 10.f});
             }
             
             shader.use();
