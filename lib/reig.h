@@ -392,7 +392,7 @@ namespace reig {
          * @param step The discrete portion by which the value can change
          * @return True if value changed
          */
-        bool draw(Context& ctx);
+        bool draw(Context& ctx) const;
     };
 
     struct slider_textured {
@@ -413,7 +413,7 @@ namespace reig {
          * @param step The discrete portion by which the value can change
          * @return True if value changed
          */
-        bool draw(Context& ctx);
+        bool draw(Context& ctx) const;
     };
 
     struct checkbox {
@@ -427,7 +427,7 @@ namespace reig {
          * @param value A reference to the bool to be changed
          * @return True if value changed
          */
-        bool draw(Context& ctx);
+        bool draw(Context& ctx) const;
     };
 
     struct textured_checkbox {
@@ -443,7 +443,7 @@ namespace reig {
          * @param value A reference to the bool to be changed
          * @return True if value changed
          */
-        bool draw(Context& ctx);
+        bool draw(Context& ctx) const;
     };
 
     using DrawData = std::vector<Figure>;

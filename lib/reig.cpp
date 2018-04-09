@@ -441,7 +441,7 @@ void reig::label::draw(reig::Context& ctx) const {
     ctx.render_text(mTitle, boundingBox);
 }
 
-bool reig::slider::draw(reig::Context& ctx) {
+bool reig::slider::draw(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
 
@@ -489,7 +489,7 @@ bool reig::slider::draw(reig::Context& ctx) {
     }
 }
 
-bool reig::slider_textured::draw(reig::Context& ctx) {
+bool reig::slider_textured::draw(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
 
@@ -530,7 +530,7 @@ bool reig::slider_textured::draw(reig::Context& ctx) {
     }
 }
 
-bool reig::checkbox::draw(reig::Context& ctx) {
+bool reig::checkbox::draw(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
 
@@ -555,7 +555,7 @@ bool reig::checkbox::draw(reig::Context& ctx) {
     }
 }
 
-bool reig::textured_checkbox::draw(reig::Context& ctx) {
+bool reig::textured_checkbox::draw(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
 
