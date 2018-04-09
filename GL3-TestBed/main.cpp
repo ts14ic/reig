@@ -148,39 +148,39 @@ public:
             
             float yline = 0; float step = 28;
             ctx.start_window("Cube manipulation", winX, winY);
-            ctx.checkbox({0, yline, 25, 25}, reig::darkGrey, check); 
+            ctx.widget(reig::checkbox{{0, yline, 25, 25}, reig::Colors::darkGrey, check});
             
             if(check) {
-                if(ctx.button("S", {31, yline, 60, 25}, reig::mediumGrey)) {
+                if(ctx.widget(reig::button{"S", {31, yline, 60, 25}, reig::Colors::mediumGrey})) {
                     scaling = 1.f;
                 }
-                if(ctx.button("R", {97, yline, 60, 25}, reig::mediumGrey)) {
+                if(ctx.widget(reig::button{"R", {97, yline, 60, 25}, reig::Colors::mediumGrey})) {
                     rotation[0] = rotation[1] = rotation[2] = 0.f;
                 }
-                if(ctx.button("C", {163, yline, 60, 25}, reig::mediumGrey)) {
+                if(ctx.widget(reig::button{"C", {163, yline, 60, 25}, reig::Colors::mediumGrey})) {
                     cubeColor[0] = cubeColor[1] = cubeColor[2] = 255.f;
                 }
                 
                 yline += step;
-                ctx.label("Scale:", {0, yline, 230, 25});
+                ctx.widget(reig::label{"Scale:", {0, yline, 230, 25}});
                 yline += step;
-                ctx.slider({0, yline, 230, 25}, reig::lightGrey, scaling, 0.1f, 2.5f, 0.1f);
+                ctx.widget(reig::slider{{0, yline, 230, 25}, reig::Colors::lightGrey, scaling, 0.1f, 2.5f, 0.1f});
                 
                 yline += step;
-                ctx.label("Rotation:", {0, yline, 230, 25});
+                ctx.widget(reig::label{"Rotation:", {0, yline, 230, 25}});
                 yline += step;
                 for(int i = 0; i < 3; ++i) {
-                    ctx.slider({0, yline, 230, 25}, reig::darkGrey, rotation[i], 0.f, 360.f, 5.f);
+                    ctx.widget(reig::slider{{0, yline, 230, 25}, reig::Colors::darkGrey, rotation[i], 0.f, 360.f, 5.f});
                     yline += step;
                 }
                 
-                ctx.label("Color:", {0, yline, 230, 25});
+                ctx.widget(reig::label{"Color:", {0, yline, 230, 25}});
                 yline += step;
-                ctx.slider({0, yline, 230, 25}, reig::red, cubeColor[0], 0.f, 255.f, 10.f);
+                ctx.widget(reig::slider{{0, yline, 230, 25}, reig::Colors::red, cubeColor[0], 0.f, 255.f, 10.f});
                 yline += step;
-                ctx.slider({0, yline, 230, 25}, reig::green, cubeColor[1], 0.f, 255.f, 10.f);
+                ctx.widget(reig::slider{{0, yline, 230, 25}, reig::Colors::green, cubeColor[1], 0.f, 255.f, 10.f});
                 yline += step;
-                ctx.slider({0, yline, 230, 25}, reig::blue, cubeColor[2], 0.f, 255.f, 10.f);
+                ctx.widget(reig::slider{{0, yline, 230, 25}, reig::Colors::blue, cubeColor[2], 0.f, 255.f, 10.f});
             }
             
             shader.use();
@@ -240,10 +240,10 @@ public:
         
         if(self->mouse.free && button == GLFW_MOUSE_BUTTON_LEFT) {
             if(action == GLFW_PRESS) {
-                self->ctx.mouse.left.press(self->mouse.lastX, self->mouse.lastY);
+                self->ctx.mouse.leftButton.press(self->mouse.lastX, self->mouse.lastY);
             }
             else if(action == GLFW_RELEASE) {
-                self->ctx.mouse.left.release();
+                self->ctx.mouse.leftButton.release();
             }
         }
     }
@@ -303,8 +303,8 @@ public:
         }
     }
     
-    static void render_handler(reig::DrawData const& drawData, void* userPtr) {
-        Test* self = static_cast<Test*>(userPtr);
+    static void render_handler(reig::DrawData const& drawData, std::any& userPtr) {
+        Test* self = std::any_cast<Test*>(userPtr);
         
         struct {
             GLint shader, vao, vbo, ebo, texture, blendsrc, blenddst;
@@ -370,7 +370,7 @@ public:
         glGenTextures(1, &font.tex);
         auto f = ctx.set_font("/usr/share/fonts/TTF/impact.ttf", font.tex, 20.f);
         glBindTexture(GL_TEXTURE_2D, font.tex);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, f.width, f.height, 0, GL_RED, GL_UNSIGNED_BYTE, f.bitmap);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, f.width, f.height, 0, GL_RED, GL_UNSIGNED_BYTE, f.bitmap.data());
         glGenerateMipmap(GL_TEXTURE_2D);
         GLint swizzle[] {GL_ONE, GL_ONE, GL_ONE, GL_RED};
         glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzle);
