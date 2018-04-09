@@ -460,6 +460,24 @@ void render_widget_frame(reig::Context& ctx, Rectangle& boundingBox, Color const
     ctx.render_rectangle(boundingBox, baseColor);
 }
 
+struct SliderValues {
+    float min = 0.0f;
+    float max = 0.0f;
+    float value = 0.0f;
+    int offset = 0;
+    int valuesNum = 0;
+};
+
+SliderValues prepare_slider_values(float aMin, float aMax, float aValue, float aStep) {
+    float min = internal::min(aMin, aMax);
+    float max = internal::max(aMin, aMax);
+    return SliderValues{
+            min, max, internal::clamp(aValue, min, max),
+            static_cast<int>((aValue - min) / aStep),
+            static_cast<int>((max - min) / aStep + 1)
+    };
+};
+
 bool base_slider_draw(reig::Context& ctx,
                       Rectangle boundingBox,
                       SliderOrientation orientation,
@@ -470,12 +488,7 @@ bool base_slider_draw(reig::Context& ctx,
 
     render_widget_frame(ctx, boundingBox, baseColor);
 
-    // Prepare the values
-    float min = internal::min(aMin, aMax);
-    float max = internal::max(aMin, aMax);
-    float value = internal::clamp(valueRef, min, max);
-    auto offset = static_cast<int>((value - min) / step);
-    auto valuesNum = static_cast<int>((max - min) / step + 1);
+    auto [min, max, value, offset, valuesNum] = prepare_slider_values(aMin, aMax, valueRef, step);
 
     // Render the cursor
     auto cursorBox = internal::decrease_box(boundingBox, 4);
@@ -547,12 +560,7 @@ bool reig::reference_widget::slider_textured::draw(reig::Context& ctx) const {
     // Render slider's base
     ctx.render_rectangle(boundingBox, mBaseTexture);
 
-    // Prepare the values
-    float min = internal::min(mMin, mMax);
-    float max = internal::max(mMin, mMax);
-    float value = internal::clamp(mValueRef, min, max);
-    auto offset = static_cast<int>((value - min) / mStep);
-    auto valuesNum = static_cast<int>((max - min) / mStep + 1);
+    auto [min, max, value, offset, valuesNum] = prepare_slider_values(mMin, mMax, mValueRef, mStep);
 
     // Render the cursor
     auto cursorBox = internal::decrease_box(boundingBox, 8);
