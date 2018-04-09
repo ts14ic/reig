@@ -160,9 +160,7 @@ namespace reig {
         Color color;
     };
 
-    /*forward*/ class Context;
-
-    /*forward*/ class Mouse;
+    /* forward */ class Context;
 
     namespace detail {
         class MouseButton {
