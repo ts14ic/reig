@@ -347,8 +347,8 @@ public:
             glUniform1ui(self->gui.shader.uniform("fragTexId"), figure.texture());
             glBindTexture(GL_TEXTURE_2D, figure.texture());
             
-            glBufferData(GL_ARRAY_BUFFER, sizeof(reig::Vertex) * vnumber, vertices, GL_STATIC_DRAW);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(reig::uint32_t) * inumber, indices, GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(vertices[0]) * vnumber, vertices, GL_STATIC_DRAW);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices[0]) * inumber, indices, GL_STATIC_DRAW);
             glDrawElements(GL_TRIANGLES, inumber, GL_UNSIGNED_INT, nullptr);
         }
         
