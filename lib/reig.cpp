@@ -171,7 +171,7 @@ vector<reig::ubyte_t> read_font_into_buffer(char const* fontFilePath) {
     return ttfBuffer;
 }
 
-reig::FontData reig::Context::set_font(char const* fontFilePath, uint_t textureId, float fontHeightPx) {
+reig::FontData reig::Context::set_font(char const* fontFilePath, int_t textureId, float fontHeightPx) {
     if (textureId == 0) throw FailedToLoadFontException::noTextureId(fontFilePath);
     if (fontHeightPx <= 0) throw FailedToLoadFontException::invalidSize(fontFilePath, fontHeightPx);
 
@@ -281,7 +281,7 @@ bool reig::MouseButton::is_clicked() const {
     return mIsClicked;
 }
 
-void reig::Figure::form(vector<Vertex>& vertices, vector<int_t>& indices, uint_t id) {
+void reig::Figure::form(vector<Vertex>& vertices, vector<int_t>& indices, int_t id) {
     vertices.swap(mVertices);
     indices.swap(mIndices);
     mTextureId = id;
@@ -295,7 +295,7 @@ vector<reig::int_t> const& reig::Figure::indices() const {
     return mIndices;
 }
 
-reig::uint_t reig::Figure::texture() const {
+reig::int_t reig::Figure::texture() const {
     return mTextureId;
 }
 

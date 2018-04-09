@@ -272,18 +272,18 @@ namespace reig {
         /**
          * @brief Return figure's texture index
          */
-        uint_t texture() const;
+        int_t texture() const;
 
     private:
         Figure() = default;
 
         friend class ::reig::Context;
 
-        void form(std::vector<Vertex>& vertices, std::vector<int_t>& indices, uint_t id = 0);
+        void form(std::vector<Vertex>& vertices, std::vector<int_t>& indices, int_t id = 0);
 
         std::vector<Vertex> mVertices;
         std::vector<int_t> mIndices;
-        uint_t mTextureId = 0;
+        int_t mTextureId = 0;
     };
 
     struct FontData {
@@ -296,7 +296,7 @@ namespace reig {
         struct Font {
             std::vector<stbtt_bakedchar> bakedChars;
             float size = 0.f;
-            uint_t texture = 0;
+            int_t texture = 0;
             uint_t width = 0;
             uint_t height = 0;
         };
@@ -353,7 +353,7 @@ namespace reig {
     struct textured_button {
         char const* mTitle;
         Rectangle mBoundingBox;
-        uint_t mBaseTexture, mHoverTexture;
+        int_t mBaseTexture, mHoverTexture;
 
         /**
          * @brief Render a titled textured button
@@ -484,7 +484,7 @@ namespace reig {
          * @return Returns the bitmap, which is used to create a texture by user.
          * Set returned bitmap field to nullptr, to avoid deletion
          */
-        FontData set_font(char const* fontFilePath, uint_t textureId, float fontHeightPx);
+        FontData set_font(char const* fontFilePath, int_t textureId, float fontHeightPx);
 
         /**
          * @brief Resets draw data and inputs
