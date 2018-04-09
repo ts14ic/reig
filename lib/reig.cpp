@@ -117,32 +117,32 @@ std::any const& reig::Context::get_user_ptr() const {
     return mUserPtr;
 }
 
-reig::FailedToLoadFontException::FailedToLoadFontException(std::string message)
+reig::except::FailedToLoadFontException::FailedToLoadFontException(std::string message)
         : message{std::move(message)} {}
 
-const char* reig::FailedToLoadFontException::what() const noexcept {
+const char* reig::except::FailedToLoadFontException::what() const noexcept {
     return message.c_str();
 }
 
-reig::FailedToLoadFontException reig::FailedToLoadFontException::noTextureId(const char* filePath) {
+reig::except::FailedToLoadFontException reig::except::FailedToLoadFontException::noTextureId(const char* filePath) {
     std::ostringstream ss;
     ss << "No texture id was specified for font: [" << filePath << "]";
     return FailedToLoadFontException(ss.str());
 }
 
-reig::FailedToLoadFontException reig::FailedToLoadFontException::invalidSize(const char* filePath, float fontSize) {
+reig::except::FailedToLoadFontException reig::except::FailedToLoadFontException::invalidSize(const char* filePath, float fontSize) {
     std::ostringstream ss;
     ss << "Invalid size specified for font: [" << filePath << "], size: [" << fontSize << "]";
     return FailedToLoadFontException(ss.str());
 }
 
-reig::FailedToLoadFontException reig::FailedToLoadFontException::couldNotOpenFile(const char* filePath) {
+reig::except::FailedToLoadFontException reig::except::FailedToLoadFontException::couldNotOpenFile(const char* filePath) {
     std::ostringstream ss;
     ss << "Could not open font file: [" << filePath << "]";
     return FailedToLoadFontException(ss.str());
 }
 
-reig::FailedToLoadFontException reig::FailedToLoadFontException::couldNotFitCharacters(
+reig::except::FailedToLoadFontException reig::except::FailedToLoadFontException::couldNotFitCharacters(
         const char* filePath, float fontSize, int width, int height) {
     std::ostringstream ss;
     ss << "Could not fit characters for font: ["
@@ -151,7 +151,7 @@ reig::FailedToLoadFontException reig::FailedToLoadFontException::couldNotFitChar
     return FailedToLoadFontException(ss.str());
 }
 
-reig::FailedToLoadFontException reig::FailedToLoadFontException::invalidFile(const char* filePath) {
+reig::except::FailedToLoadFontException reig::except::FailedToLoadFontException::invalidFile(const char* filePath) {
     std::ostringstream ss;
     ss << "Invalid file for font: [" << filePath << "]";
     return FailedToLoadFontException(ss.str());
@@ -159,11 +159,11 @@ reig::FailedToLoadFontException reig::FailedToLoadFontException::invalidFile(con
 
 vector<reig::uint8_t> read_font_into_buffer(char const* fontFilePath) {
     auto file = std::unique_ptr<FILE, decltype(&std::fclose)>(std::fopen(fontFilePath, "rb"), &std::fclose);
-    if (!file) throw reig::FailedToLoadFontException::couldNotOpenFile(fontFilePath);
+    if (!file) throw reig::except::FailedToLoadFontException::couldNotOpenFile(fontFilePath);
 
     std::fseek(file.get(), 0, SEEK_END);
     long filePos = ftell(file.get());
-    if (filePos < 0) throw reig::FailedToLoadFontException::invalidFile(fontFilePath);
+    if (filePos < 0) throw reig::except::FailedToLoadFontException::invalidFile(fontFilePath);
 
     auto fileSize = internal::integral_cast<size_t>(filePos);
     std::rewind(file.get());
@@ -174,8 +174,8 @@ vector<reig::uint8_t> read_font_into_buffer(char const* fontFilePath) {
 }
 
 reig::FontData reig::Context::set_font(char const* fontFilePath, int textureId, float fontHeightPx) {
-    if (textureId == 0) throw FailedToLoadFontException::noTextureId(fontFilePath);
-    if (fontHeightPx <= 0) throw FailedToLoadFontException::invalidSize(fontFilePath, fontHeightPx);
+    if (textureId == 0) throw except::FailedToLoadFontException::noTextureId(fontFilePath);
+    if (fontHeightPx <= 0) throw except::FailedToLoadFontException::invalidSize(fontFilePath, fontHeightPx);
 
     auto ttfBuffer = read_font_into_buffer(fontFilePath);
 
@@ -192,7 +192,7 @@ reig::FontData reig::Context::set_font(char const* fontFilePath, int textureId, 
     );
 
     if (height < 0 || height > bmp.h) {
-        throw FailedToLoadFontException::couldNotFitCharacters(fontFilePath, fontHeightPx, bmp.w, bmp.h);
+        throw except::FailedToLoadFontException::couldNotFitCharacters(fontFilePath, fontHeightPx, bmp.w, bmp.h);
     }
 
     // If all successfull, replace current font data
@@ -211,13 +211,13 @@ reig::FontData reig::Context::set_font(char const* fontFilePath, int textureId, 
     return ret;
 }
 
-const char* reig::NoRenderHandlerException::what() const noexcept {
+const char* reig::except::NoRenderHandlerException::what() const noexcept {
     return "No render handler specified";
 }
 
 void reig::Context::render_all() {
     if (!mRenderHandler) {
-        throw NoRenderHandlerException{};
+        throw except::NoRenderHandlerException{};
     }
     if (mCurrentWindow.started) end_window();
 
