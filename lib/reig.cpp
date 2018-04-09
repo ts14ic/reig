@@ -551,8 +551,8 @@ bool reig::reference_widget::slider_textured::draw(reig::Context& ctx) const {
     float min = internal::min(mMin, mMax);
     float max = internal::max(mMin, mMax);
     float value = internal::clamp(mValueRef, min, max);
-    int offset = static_cast<int>((value - min) / mStep);
-    int valuesNum = static_cast<int>((max - min) / mStep + 1);
+    auto offset = static_cast<int>((value - min) / mStep);
+    auto valuesNum = static_cast<int>((max - min) / mStep + 1);
 
     // Render the cursor
     auto cursorBox = internal::decrease_box(boundingBox, 8);
