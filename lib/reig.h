@@ -267,7 +267,7 @@ namespace reig {
         /**
          * @brief Returns figure's read-only indices
          */
-        std::vector<uint_t> const& indices() const;
+        std::vector<int_t> const& indices() const;
 
         /**
          * @brief Return figure's texture index
@@ -279,10 +279,10 @@ namespace reig {
 
         friend class ::reig::Context;
 
-        void form(std::vector<Vertex>& vertices, std::vector<uint_t>& indices, uint_t id = 0);
+        void form(std::vector<Vertex>& vertices, std::vector<int_t>& indices, uint_t id = 0);
 
         std::vector<Vertex> mVertices;
-        std::vector<uint_t> mIndices;
+        std::vector<int_t> mIndices;
         uint_t mTextureId = 0;
     };
 

@@ -281,7 +281,7 @@ bool reig::MouseButton::is_clicked() const {
     return mIsClicked;
 }
 
-void reig::Figure::form(vector<Vertex>& vertices, vector<uint_t>& indices, uint_t id) {
+void reig::Figure::form(vector<Vertex>& vertices, vector<int_t>& indices, uint_t id) {
     vertices.swap(mVertices);
     indices.swap(mIndices);
     mTextureId = id;
@@ -291,7 +291,7 @@ vector<reig::Vertex> const& reig::Figure::vertices() const {
     return mVertices;
 }
 
-vector<reig::uint_t> const& reig::Figure::indices() const {
+vector<reig::int_t> const& reig::Figure::indices() const {
     return mIndices;
 }
 
@@ -625,7 +625,7 @@ void reig::Context::render_text(char const* ch, Rectangle aBox) {
                 {{q.x1 + deltax, q.y1}, {q.s1, q.t1}, {}},
                 {{q.x0 + deltax, q.y1}, {q.s0, q.t1}, {}}
         };
-        vector<uint_t> indices{0, 1, 2, 2, 3, 0};
+        vector<int_t> indices{0, 1, 2, 2, 3, 0};
 
         Figure fig;
         fig.form(vertices, indices, mFont.texture);
@@ -639,7 +639,7 @@ void reig::Context::render_triangle(Triangle const& aTri, Color const& aColor) {
             {{aTri.pos1}, {}, aColor},
             {{aTri.pos2}, {}, aColor}
     };
-    vector<uint_t> indices = {0, 1, 2};
+    vector<int_t> indices = {0, 1, 2};
 
     Figure fig;
     fig.form(vertices, indices);
@@ -653,7 +653,7 @@ void reig::Context::render_rectangle(Rectangle const& aBox, int aTexture) {
             {{aBox.x + aBox.width, aBox.y + aBox.height}, {1.f, 1.f}, {}},
             {{aBox.x,              aBox.y + aBox.height}, {0.f, 1.f}, {}}
     };
-    vector<uint_t> indices{0, 1, 2, 2, 3, 0};
+    vector<int_t> indices{0, 1, 2, 2, 3, 0};
 
     Figure fig;
     fig.form(vertices, indices, aTexture);
@@ -667,7 +667,7 @@ void reig::Context::render_rectangle(Rectangle const& aRect, Color const& aColor
             {{aRect.x + aRect.width, aRect.y + aRect.height}, {}, aColor},
             {{aRect.x,               aRect.y + aRect.height}, {}, aColor}
     };
-    vector<uint_t> indices{0, 1, 2, 2, 3, 0};
+    vector<int_t> indices{0, 1, 2, 2, 3, 0};
 
     Figure fig;
     fig.form(vertices, indices);
