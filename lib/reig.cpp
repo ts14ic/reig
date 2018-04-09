@@ -180,7 +180,7 @@ reig::FontData reig::Context::set_font(char const* fontFilePath, int_t textureId
     // We want all ASCII chars from space to square
     int const charsNum = 96;
     struct {
-        uint_t w, h;
+        int_t w, h;
     } constexpr bmp {512, 512};
 
     auto bakedChars = std::vector<stbtt_bakedchar>(charsNum);

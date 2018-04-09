@@ -288,8 +288,8 @@ namespace reig {
 
     struct FontData {
         std::vector<ubyte_t> bitmap;
-        uint_t width = 0;
-        uint_t height = 0;
+        int_t width = 0;
+        int_t height = 0;
     };
 
     namespace detail {
