@@ -80,7 +80,7 @@ namespace reig::internal {
         auto r = static_cast<R>(t);
         if (r != t || (std::is_signed_v<T> != std::is_signed_v<R> && ((t < T{}) != r < R{}))) {
             std::stringstream ss;
-            ss << "Bad narrow cast from " << typeid(T).name() << "(" << t << ") to type " << typeid(R).name();
+            ss << "Bad integral cast from " << typeid(T).name() << "(" << t << ") to type " << typeid(R).name();
             throw std::range_error(ss.str());
         }
         return r;
