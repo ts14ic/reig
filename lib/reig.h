@@ -369,7 +369,7 @@ namespace reig {
         char const* mTitle;
         Rectangle mBoundingBox;
         /**
-         * @brief Render a label, which get's enclose in current window, if any
+         * @brief Render a label, which will be enclosed in the current window, if any
          * @param text Text to be displayed
          * @param box Text's bounding box
          */
