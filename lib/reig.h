@@ -297,8 +297,8 @@ namespace reig {
             std::vector<stbtt_bakedchar> bakedChars;
             float size = 0.f;
             int_t texture = 0;
-            uint_t width = 0;
-            uint_t height = 0;
+            int_t width = 0;
+            int_t height = 0;
         };
 
         struct Window {
