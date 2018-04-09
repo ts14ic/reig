@@ -186,7 +186,7 @@ reig::FontData reig::Context::set_font(char const* fontFilePath, int textureId, 
     } constexpr bmp {512, 512};
 
     auto bakedChars = std::vector<stbtt_bakedchar>(charsNum);
-    auto bitmap = vector<uint8_t>(bmp.w * bmp.h);
+    auto bitmap = vector<uint8_t>(internal::integral_cast<size_t>(bmp.w * bmp.h));
     auto height = stbtt_BakeFontBitmap(
             ttfBuffer.data(), 0, fontHeightPx, bitmap.data(), bmp.w, bmp.h, ' ', charsNum, std::data(bakedChars)
     );
