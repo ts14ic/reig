@@ -36,10 +36,20 @@ target_include_directories(sdl_bed
 
 # Open GL 3 test bed
 # TODO: Link opengl
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/GL3-TestBed/cmake)
 add_executable(gl3_bed
         GL3-TestBed/Camera.cpp
         GL3-TestBed/Camera.h
         GL3-TestBed/main.cpp
         GL3-TestBed/Shader.cpp
         GL3-TestBed/Shader.hpp)
-target_link_libraries(gl3_bed my::reig_lib)
+target_link_libraries(gl3_bed
+        my::reig_lib
+        glfw
+        GLEW
+        GLU
+        GL
+        SOIL)
+target_include_directories(gl3_bed
+        PUBLIC
+        ${PROJECT_SOURCE_DIR}/lib)
