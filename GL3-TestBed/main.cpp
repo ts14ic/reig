@@ -146,7 +146,7 @@ public:
             static float cubeColor[3] {255.f, 255.f, 255.f};
             static float rotation[3] { 0.f, 0.f, 0.f };
 
-            namespace widget = reig::reference_widgets;
+            namespace widget = reig::reference_widget;
             namespace colors = reig::primitive::colors;
 
             float yline = 0; float step = 28;

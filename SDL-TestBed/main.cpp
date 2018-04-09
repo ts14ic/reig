@@ -100,7 +100,7 @@ public:
             // ================== GUI setup =================
             using namespace reig::primitive::colors::literals;
             using namespace reig::primitive::colors::operators;
-            namespace widget = reig::reference_widgets;
+            namespace widget = reig::reference_widget;
             namespace primitive = reig::primitive;
 
             primitive::Rectangle rect {40, 0, 100, 30};

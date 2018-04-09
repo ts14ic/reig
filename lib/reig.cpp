@@ -393,7 +393,7 @@ void reig::Context::fit_rect_in_window(Rectangle& rect) {
     mCurrentWindow.expand(rect);
 }
 
-bool reig::reference_widgets::button::draw(reig::Context& ctx) const {
+bool reig::reference_widget::button::draw(reig::Context& ctx) const {
     Rectangle box = this->mBoundingBox;
     ctx.fit_rect_in_window(box);
 
@@ -425,7 +425,7 @@ bool reig::reference_widgets::button::draw(reig::Context& ctx) const {
 }
 
 
-bool reig::reference_widgets::textured_button::draw(reig::Context& ctx) const {
+bool reig::reference_widget::textured_button::draw(reig::Context& ctx) const {
     Rectangle box = this->mBoundingBox;
     ctx.fit_rect_in_window(box);
 
@@ -444,13 +444,13 @@ bool reig::reference_widgets::textured_button::draw(reig::Context& ctx) const {
     return ctx.mouse.leftButton.is_clicked() && clickedInBox;
 }
 
-void reig::reference_widgets::label::draw(reig::Context& ctx) const {
+void reig::reference_widget::label::draw(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
     ctx.render_text(mTitle, boundingBox);
 }
 
-bool reig::reference_widgets::slider::draw(reig::Context& ctx) const {
+bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
 
@@ -498,7 +498,7 @@ bool reig::reference_widgets::slider::draw(reig::Context& ctx) const {
     }
 }
 
-bool reig::reference_widgets::slider_textured::draw(reig::Context& ctx) const {
+bool reig::reference_widget::slider_textured::draw(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
 
@@ -539,7 +539,7 @@ bool reig::reference_widgets::slider_textured::draw(reig::Context& ctx) const {
     }
 }
 
-bool reig::reference_widgets::checkbox::draw(reig::Context& ctx) const {
+bool reig::reference_widget::checkbox::draw(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
 
@@ -564,7 +564,7 @@ bool reig::reference_widgets::checkbox::draw(reig::Context& ctx) const {
     }
 }
 
-bool reig::reference_widgets::textured_checkbox::draw(reig::Context& ctx) const {
+bool reig::reference_widget::textured_checkbox::draw(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
 

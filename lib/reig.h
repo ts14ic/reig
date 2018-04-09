@@ -341,7 +341,7 @@ namespace reig {
         };
     }
 
-    namespace reference_widgets {
+    namespace reference_widget {
         struct button {
             char const* mTitle;
             primitive::Rectangle mBoundingBox;
