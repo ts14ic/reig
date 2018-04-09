@@ -321,7 +321,7 @@ namespace reig {
         };
     }
 
-    namespace except {
+    namespace exception {
         struct FailedToLoadFontException : std::exception {
         public:
             const char* what() const noexcept override;
