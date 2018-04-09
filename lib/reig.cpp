@@ -43,7 +43,7 @@ namespace reig::internal {
     }
 
     template<typename T>
-    int_t sign(T a) {
+    int sign(T a) {
         return a < 0 ? -1 :
                a > 0 ? 1 :
                0;
@@ -66,8 +66,8 @@ namespace reig::internal {
         return color;
     }
 
-    Rectangle decrease_box(Rectangle aRect, int_t by) {
-        int_t moveBy = by / 2;
+    Rectangle decrease_box(Rectangle aRect, int by) {
+        int moveBy = by / 2;
         aRect.x += moveBy;
         aRect.y += moveBy;
         aRect.width -= by;
@@ -141,7 +141,7 @@ reig::FailedToLoadFontException reig::FailedToLoadFontException::couldNotOpenFil
 }
 
 reig::FailedToLoadFontException reig::FailedToLoadFontException::couldNotFitCharacters(
-        const char* filePath, float fontSize, reig::int_t width, reig::int_t height) {
+        const char* filePath, float fontSize, int width, int height) {
     std::ostringstream ss;
     ss << "Could not fit characters for font: ["
        << filePath << "], size: [" << fontSize << "], atlas size: ["
@@ -171,7 +171,7 @@ vector<reig::ubyte_t> read_font_into_buffer(char const* fontFilePath) {
     return ttfBuffer;
 }
 
-reig::FontData reig::Context::set_font(char const* fontFilePath, int_t textureId, float fontHeightPx) {
+reig::FontData reig::Context::set_font(char const* fontFilePath, int textureId, float fontHeightPx) {
     if (textureId == 0) throw FailedToLoadFontException::noTextureId(fontFilePath);
     if (fontHeightPx <= 0) throw FailedToLoadFontException::invalidSize(fontFilePath, fontHeightPx);
 
@@ -180,7 +180,7 @@ reig::FontData reig::Context::set_font(char const* fontFilePath, int_t textureId
     // We want all ASCII chars from space to square
     int const charsNum = 96;
     struct {
-        int_t w, h;
+        int w, h;
     } constexpr bmp {512, 512};
 
     auto bakedChars = std::vector<stbtt_bakedchar>(charsNum);
@@ -281,7 +281,7 @@ bool reig::MouseButton::is_clicked() const {
     return mIsClicked;
 }
 
-void reig::Figure::form(vector<Vertex>& vertices, vector<int_t>& indices, int_t id) {
+void reig::Figure::form(vector<Vertex>& vertices, vector<int>& indices, int id) {
     vertices.swap(mVertices);
     indices.swap(mIndices);
     mTextureId = id;
@@ -291,11 +291,11 @@ vector<reig::Vertex> const& reig::Figure::vertices() const {
     return mVertices;
 }
 
-vector<reig::int_t> const& reig::Figure::indices() const {
+vector<int> const& reig::Figure::indices() const {
     return mIndices;
 }
 
-reig::int_t reig::Figure::texture() const {
+int reig::Figure::texture() const {
     return mTextureId;
 }
 
@@ -455,8 +455,8 @@ bool reig::slider::draw(reig::Context& ctx) const {
     float_t min = internal::min(mMin, mMax);
     float_t max = internal::max(mMin, mMax);
     float_t value = internal::clamp(mValueRef, min, max);
-    int_t offset = static_cast<int_t>((value - min) / mStep);
-    int_t valuesNum = (max - min) / mStep + 1;
+    int offset = static_cast<int>((value - min) / mStep);
+    int valuesNum = (max - min) / mStep + 1;
 
     // Render the cursor
     auto cursorBox = internal::decrease_box(boundingBox, 4);
@@ -473,11 +473,11 @@ bool reig::slider::draw(reig::Context& ctx) const {
         auto distance = ctx.mouse.get_cursor_pos().x - cursorBox.x - halfCursorW;
 
         if (internal::abs(distance) > halfCursorW) {
-            value += static_cast<int_t>(distance / cursorBox.width) * mStep;
+            value += static_cast<int>(distance / cursorBox.width) * mStep;
             value = internal::clamp(value, min, max);
         }
     } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), boundingBox)) {
-        value += static_cast<int_t>(ctx.mouse.get_scrolled()) * mStep;
+        value += static_cast<int>(ctx.mouse.get_scrolled()) * mStep;
         value = internal::clamp(value, min, max);
     }
 
@@ -500,8 +500,8 @@ bool reig::slider_textured::draw(reig::Context& ctx) const {
     float_t min = internal::min(mMin, mMax);
     float_t max = internal::max(mMin, mMax);
     float_t value = internal::clamp(mValueRef, min, max);
-    int_t offset = static_cast<int_t>((value - min) / mStep);
-    int_t valuesNum = (max - min) / mStep + 1;
+    int offset = static_cast<int>((value - min) / mStep);
+    int valuesNum = (max - min) / mStep + 1;
 
     // Render the cursor
     auto cursorBox = internal::decrease_box(boundingBox, 8);
@@ -514,11 +514,11 @@ bool reig::slider_textured::draw(reig::Context& ctx) const {
         auto distance = ctx.mouse.get_cursor_pos().x - cursorBox.x - halfCursorW;
 
         if (internal::abs(distance) > halfCursorW) {
-            value += static_cast<int_t>(distance / cursorBox.width) * mStep;
+            value += static_cast<int>(distance / cursorBox.width) * mStep;
             value = internal::clamp(value, min, max);
         }
     } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), boundingBox)) {
-        value += static_cast<int_t>(ctx.mouse.get_scrolled()) * mStep;
+        value += static_cast<int>(ctx.mouse.get_scrolled()) * mStep;
         value = internal::clamp(value, min, max);
     }
 
@@ -625,7 +625,7 @@ void reig::Context::render_text(char const* ch, Rectangle aBox) {
                 {{q.x1 + deltax, q.y1}, {q.s1, q.t1}, {}},
                 {{q.x0 + deltax, q.y1}, {q.s0, q.t1}, {}}
         };
-        vector<int_t> indices{0, 1, 2, 2, 3, 0};
+        vector<int> indices{0, 1, 2, 2, 3, 0};
 
         Figure fig;
         fig.form(vertices, indices, mFont.texture);
@@ -639,7 +639,7 @@ void reig::Context::render_triangle(Triangle const& aTri, Color const& aColor) {
             {{aTri.pos1}, {}, aColor},
             {{aTri.pos2}, {}, aColor}
     };
-    vector<int_t> indices = {0, 1, 2};
+    vector<int> indices = {0, 1, 2};
 
     Figure fig;
     fig.form(vertices, indices);
@@ -653,7 +653,7 @@ void reig::Context::render_rectangle(Rectangle const& aBox, int aTexture) {
             {{aBox.x + aBox.width, aBox.y + aBox.height}, {1.f, 1.f}, {}},
             {{aBox.x,              aBox.y + aBox.height}, {0.f, 1.f}, {}}
     };
-    vector<int_t> indices{0, 1, 2, 2, 3, 0};
+    vector<int> indices{0, 1, 2, 2, 3, 0};
 
     Figure fig;
     fig.form(vertices, indices, aTexture);
@@ -667,7 +667,7 @@ void reig::Context::render_rectangle(Rectangle const& aRect, Color const& aColor
             {{aRect.x + aRect.width, aRect.y + aRect.height}, {}, aColor},
             {{aRect.x,               aRect.y + aRect.height}, {}, aColor}
     };
-    vector<int_t> indices{0, 1, 2, 2, 3, 0};
+    vector<int> indices{0, 1, 2, 2, 3, 0};
 
     Figure fig;
     fig.form(vertices, indices);

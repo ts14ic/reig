@@ -9,7 +9,6 @@
 
 namespace reig {
     using ubyte_t = std::uint8_t;
-    using int_t   = std::int32_t;
     using std::uint32_t;
     using size_t  = std::size_t;
 
@@ -267,38 +266,38 @@ namespace reig {
         /**
          * @brief Returns figure's read-only indices
          */
-        std::vector<int_t> const& indices() const;
+        std::vector<int> const& indices() const;
 
         /**
          * @brief Return figure's texture index
          */
-        int_t texture() const;
+        int texture() const;
 
     private:
         Figure() = default;
 
         friend class ::reig::Context;
 
-        void form(std::vector<Vertex>& vertices, std::vector<int_t>& indices, int_t id = 0);
+        void form(std::vector<Vertex>& vertices, std::vector<int>& indices, int id = 0);
 
         std::vector<Vertex> mVertices;
-        std::vector<int_t> mIndices;
-        int_t mTextureId = 0;
+        std::vector<int> mIndices;
+        int mTextureId = 0;
     };
 
     struct FontData {
         std::vector<ubyte_t> bitmap;
-        int_t width = 0;
-        int_t height = 0;
+        int width = 0;
+        int height = 0;
     };
 
     namespace detail {
         struct Font {
             std::vector<stbtt_bakedchar> bakedChars;
             float size = 0.f;
-            int_t texture = 0;
-            int_t width = 0;
-            int_t height = 0;
+            int texture = 0;
+            int width = 0;
+            int height = 0;
         };
 
         struct Window {
@@ -323,7 +322,7 @@ namespace reig {
         static FailedToLoadFontException invalidSize(const char* filePath, float fontSize);
         static FailedToLoadFontException couldNotOpenFile(const char* filePath);
         static FailedToLoadFontException invalidFile(const char* filePath);
-        static FailedToLoadFontException couldNotFitCharacters(const char* filePath, float fontSize, int_t width, int_t height);
+        static FailedToLoadFontException couldNotFitCharacters(const char* filePath, float fontSize, int width, int height);
     private:
         explicit FailedToLoadFontException(std::string message);
         const std::string message;
@@ -353,7 +352,7 @@ namespace reig {
     struct textured_button {
         char const* mTitle;
         Rectangle mBoundingBox;
-        int_t mBaseTexture, mHoverTexture;
+        int mBaseTexture, mHoverTexture;
 
         /**
          * @brief Render a titled textured button
@@ -484,7 +483,7 @@ namespace reig {
          * @return Returns the bitmap, which is used to create a texture by user.
          * Set returned bitmap field to nullptr, to avoid deletion
          */
-        FontData set_font(char const* fontFilePath, int_t textureId, float fontHeightPx);
+        FontData set_font(char const* fontFilePath, int textureId, float fontHeightPx);
 
         /**
          * @brief Resets draw data and inputs
