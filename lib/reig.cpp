@@ -450,7 +450,7 @@ void reig::reference_widget::label::draw(reig::Context& ctx) const {
 }
 
 enum class SliderOrientation {
-    Horizontal, Vertical
+    HORIZONTAL, VERTICAL
 };
 
 bool base_slider_draw(reig::Context& ctx,
@@ -471,26 +471,42 @@ bool base_slider_draw(reig::Context& ctx,
     float_t min = internal::min(aMin, aMax);
     float_t max = internal::max(aMin, aMax);
     float_t value = internal::clamp(valueRef, min, max);
-    int offset = static_cast<int>((value - min) / step);
-    int valuesNum = static_cast<int>((max - min) / step + 1);
+    auto offset = static_cast<int>((value - min) / step);
+    auto valuesNum = static_cast<int>((max - min) / step + 1);
 
     // Render the cursor
     auto cursorBox = internal::decrease_box(boundingBox, 4);
-    cursorBox.width /= valuesNum;
-    if (cursorBox.width < 1) cursorBox.width = 1;
-    cursorBox.x += offset * cursorBox.width;
+    if(orientation == SliderOrientation::HORIZONTAL) {
+        cursorBox.width /= valuesNum;
+        if (cursorBox.width < 1) cursorBox.width = 1;
+        cursorBox.x += offset * cursorBox.width;
+    } else {
+        cursorBox.height /= valuesNum;
+        if (cursorBox.height < 1) cursorBox.height = 1;
+        cursorBox.y += offset * cursorBox.height;
+    }
     if (internal::is_boxed_in(ctx.mouse.get_cursor_pos(), cursorBox)) {
         cursorColor = internal::lighten_color_by(cursorColor, 50);
     }
     ctx.render_rectangle(cursorBox, cursorColor);
 
     if (ctx.mouse.leftButton.is_pressed() && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox)) {
-        auto halfCursorW = cursorBox.width / 2;
-        auto distance = ctx.mouse.get_cursor_pos().x - cursorBox.x - halfCursorW;
+        if(orientation == SliderOrientation::HORIZONTAL) {
+            auto halfCursorW = cursorBox.width / 2;
+            auto distance = ctx.mouse.get_cursor_pos().x - cursorBox.x - halfCursorW;
 
-        if (internal::abs(distance) > halfCursorW) {
-            value += static_cast<int>(distance / cursorBox.width) * step;
-            value = internal::clamp(value, min, max);
+            if (internal::abs(distance) > halfCursorW) {
+                value += static_cast<int>(distance / cursorBox.width) * step;
+                value = internal::clamp(value, min, max);
+            }
+        } else {
+            auto halfCursorH = cursorBox.height / 2;
+            auto distance = ctx.mouse.get_cursor_pos().y - cursorBox.y - halfCursorH;
+
+            if(internal::abs(distance) > halfCursorH) {
+                value += static_cast<int>(distance / cursorBox.height) * step;
+                value = internal::clamp(value, min, max);
+            }
         }
     } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), boundingBox)) {
         value += static_cast<int>(ctx.mouse.get_scrolled()) * step;
@@ -506,7 +522,7 @@ bool base_slider_draw(reig::Context& ctx,
 }
 
 bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
-    return base_slider_draw(ctx, {mBoundingBox}, SliderOrientation::Horizontal, mBaseColor, mValueRef, mMin, mMax, mStep);
+    return base_slider_draw(ctx, {mBoundingBox}, SliderOrientation::HORIZONTAL, mBaseColor, mValueRef, mMin, mMax, mStep);
 }
 
 bool reig::reference_widget::scrollbar::draw(reig::Context& ctx) const {
@@ -516,7 +532,7 @@ bool reig::reference_widget::scrollbar::draw(reig::Context& ctx) const {
     const float min = 0.0f;
     const float max = 100.0f;
     float step = sliderHeight / max;
-    return base_slider_draw(ctx, {mBoundingBox}, SliderOrientation::Vertical, mBaseColor, mValueRef, min, max, step);
+    return base_slider_draw(ctx, {mBoundingBox}, SliderOrientation::VERTICAL, mBaseColor, mValueRef, min, max, step);
 }
 
 bool reig::reference_widget::slider_textured::draw(reig::Context& ctx) const {
