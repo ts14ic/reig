@@ -348,7 +348,7 @@ public:
             glBindTexture(GL_TEXTURE_2D, figure.texture());
             
             glBufferData(GL_ARRAY_BUFFER, sizeof(reig::Vertex) * vnumber, vertices, GL_STATIC_DRAW);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(reig::uint_t) * inumber, indices, GL_STATIC_DRAW);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(reig::uint32_t) * inumber, indices, GL_STATIC_DRAW);
             glDrawElements(GL_TRIANGLES, inumber, GL_UNSIGNED_INT, nullptr);
         }
         

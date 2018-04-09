@@ -52,7 +52,7 @@ namespace reig::internal {
     Color get_yiq_contrast(Color color) {
         using namespace Colors::literals;
 
-        uint_t y = (299u * color.red.val + 587 * color.green.val + 114 * color.blue.val) / 1000;
+        uint32_t y = (299u * color.red.val + 587 * color.green.val + 114 * color.blue.val) / 1000;
         return y >= 128
                ? Color{0_r, 0_g, 0_b, 255_a}
                : Color{255_r, 255_g, 255_b};
@@ -87,14 +87,14 @@ namespace reig::internal {
     };
 }
 
-reig::uint_t reig::Colors::to_uint(Color const& color) {
+reig::uint32_t reig::Colors::to_uint(Color const& color) {
     return (color.alpha.val << 24)
            + (color.blue.val << 16)
            + (color.green.val << 8)
            + color.red.val;
 }
 
-reig::Color reig::Colors::from_uint(uint_t rgba) {
+reig::Color reig::Colors::from_uint(uint32_t rgba) {
     return Color {
             Red{static_cast<ubyte_t>((rgba >> 24) & 0xFF)},
             Green{static_cast<ubyte_t>((rgba >> 16) & 0xFF)},
@@ -163,7 +163,7 @@ vector<reig::ubyte_t> read_font_into_buffer(char const* fontFilePath) {
     long filePos = ftell(file.get());
     if (filePos < 0) throw reig::FailedToLoadFontException::invalidFile(fontFilePath);
 
-    auto fileSize = reig::internal::integral_cast<reig::size_t>(filePos);
+    auto fileSize = reig::internal::integral_cast<size_t>(filePos);
     std::rewind(file.get());
 
     auto ttfBuffer = std::vector<unsigned char>(fileSize);

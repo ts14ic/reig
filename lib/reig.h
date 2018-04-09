@@ -10,10 +10,10 @@
 namespace reig {
     using ubyte_t = std::uint8_t;
     using int_t   = std::int32_t;
-    using uint_t  = std::uint32_t;
+    using std::uint32_t;
     using size_t  = std::size_t;
 
-    static_assert(sizeof(uint_t) >= 4 * sizeof(ubyte_t), "uint_t is too small");
+    static_assert(sizeof(uint32_t) >= 4 * sizeof(ubyte_t), "uint32_t is too small");
 
     struct Point {
         float x = 0.0f;
@@ -71,9 +71,9 @@ namespace reig {
     };
 
     namespace Colors {
-        uint_t to_uint(Color const& from);
+        uint32_t to_uint(Color const& from);
 
-        Color from_uint(uint_t rgba);
+        Color from_uint(uint32_t rgba);
 
         namespace literals {
             constexpr Red operator ""_r(unsigned long long val) noexcept {
