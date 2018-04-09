@@ -323,7 +323,7 @@ namespace reig {
         static FailedToLoadFontException invalidSize(const char* filePath, float fontSize);
         static FailedToLoadFontException couldNotOpenFile(const char* filePath);
         static FailedToLoadFontException invalidFile(const char* filePath);
-        static FailedToLoadFontException couldNotFitCharacters(const char* filePath, float fontSize, uint_t width, uint_t height);
+        static FailedToLoadFontException couldNotFitCharacters(const char* filePath, float fontSize, int_t width, int_t height);
     private:
         explicit FailedToLoadFontException(std::string message);
         const std::string message;

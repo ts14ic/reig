@@ -140,8 +140,8 @@ reig::FailedToLoadFontException reig::FailedToLoadFontException::couldNotOpenFil
     return FailedToLoadFontException(ss.str());
 }
 
-reig::FailedToLoadFontException reig::FailedToLoadFontException::couldNotFitCharacters(const char* filePath, float fontSize, reig::uint_t width,
-                                                            reig::uint_t height) {
+reig::FailedToLoadFontException reig::FailedToLoadFontException::couldNotFitCharacters(
+        const char* filePath, float fontSize, reig::int_t width, reig::int_t height) {
     std::ostringstream ss;
     ss << "Could not fit characters for font: ["
        << filePath << "], size: [" << fontSize << "], atlas size: ["
