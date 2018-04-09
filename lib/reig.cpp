@@ -449,22 +449,25 @@ void reig::reference_widget::label::draw(reig::Context& ctx) const {
     ctx.render_text(mTitle, boundingBox);
 }
 
-bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
-    Rectangle boundingBox = this->mBoundingBox;
+bool base_slider_draw(reig::Context& ctx,
+                      Rectangle boundingBox,
+                      Color const& baseColor,
+                      float& valueRef,
+                      float aMin, float aMax, float step) {
     ctx.fit_rect_in_window(boundingBox);
 
     // Render slider's base
-    Color cursorColor = internal::get_yiq_contrast(mBaseColor);
+    Color cursorColor = internal::get_yiq_contrast(baseColor);
     ctx.render_rectangle(boundingBox, cursorColor);
     boundingBox = internal::decrease_box(boundingBox, 4);
-    ctx.render_rectangle(boundingBox, mBaseColor);
+    ctx.render_rectangle(boundingBox, baseColor);
 
     // Prepare the values
-    float_t min = internal::min(mMin, mMax);
-    float_t max = internal::max(mMin, mMax);
-    float_t value = internal::clamp(mValueRef, min, max);
-    int offset = static_cast<int>((value - min) / mStep);
-    int valuesNum = static_cast<int>((max - min) / mStep + 1);
+    float_t min = internal::min(aMin, aMax);
+    float_t max = internal::max(aMin, aMax);
+    float_t value = internal::clamp(valueRef, min, max);
+    int offset = static_cast<int>((value - min) / step);
+    int valuesNum = static_cast<int>((max - min) / step + 1);
 
     // Render the cursor
     auto cursorBox = internal::decrease_box(boundingBox, 4);
@@ -481,20 +484,28 @@ bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
         auto distance = ctx.mouse.get_cursor_pos().x - cursorBox.x - halfCursorW;
 
         if (internal::abs(distance) > halfCursorW) {
-            value += static_cast<int>(distance / cursorBox.width) * mStep;
+            value += static_cast<int>(distance / cursorBox.width) * step;
             value = internal::clamp(value, min, max);
         }
     } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), boundingBox)) {
-        value += static_cast<int>(ctx.mouse.get_scrolled()) * mStep;
+        value += static_cast<int>(ctx.mouse.get_scrolled()) * step;
         value = internal::clamp(value, min, max);
     }
 
-    if (mValueRef != value) {
-        mValueRef = value;
+    if (valueRef != value) {
+        valueRef = value;
         return true;
     } else {
         return false;
     }
+}
+
+bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
+    return base_slider_draw(ctx, {mBoundingBox}, mBaseColor, mValueRef, mMin, mMax, mStep);
+}
+
+bool reig::reference_widget::scrollbar::draw(reig::Context& ctx) const {
+    return false;
 }
 
 bool reig::reference_widget::slider_textured::draw(reig::Context& ctx) const {

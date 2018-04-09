@@ -425,6 +425,21 @@ namespace reig {
             bool draw(Context& ctx) const;
         };
 
+        struct scrollbar {
+            primitive::Rectangle mBoundingBox;
+            primitive::Color mBaseColor;
+            float& mValueRef;
+
+            /**
+             * @brief Renders a vertical scrollbar
+             * @param box Scrollbar's position and size
+             * @param color Checkbox's base color
+             * @param value A reference to the float to be changed
+             * @return True if value changed
+             */
+            bool draw(Context& ctx) const;
+        };
+
         struct checkbox {
             primitive::Rectangle mBoundingBox;
             primitive::Color mBaseColor;
@@ -520,18 +535,6 @@ namespace reig {
         }
 
         void fit_rect_in_window(primitive::Rectangle& rect);
-
-        /**
-         * @brief Renders a vertical scrollbar
-         * @param box Scrollbar's position and size
-         * @param color Checkbox's base color
-         * @param value A reference to the bool to be changed
-         * @param min Scrollbar's output min value
-         * @param max Scrollbar's output max value
-         * @param logicalHeight Max logical value 
-         * @return 
-         */
-        //bool scrollbar(Rectangle box, Color color, float& value, float min, float max, float logicalHeight);
 
         // Primitive renders
         /**
