@@ -8,11 +8,11 @@
 #include <string>
 
 namespace reig {
-    using ubyte_t = std::uint8_t;
+    using std::uint8_t;
     using std::uint32_t;
     using size_t  = std::size_t;
 
-    static_assert(sizeof(uint32_t) >= 4 * sizeof(ubyte_t), "uint32_t is too small");
+    static_assert(sizeof(uint32_t) >= 4 * sizeof(uint8_t), "uint32_t is too small");
 
     struct Point {
         float x = 0.0f;
@@ -33,27 +33,27 @@ namespace reig {
     };
 
     struct Red {
-        ubyte_t val = 0u;
+        uint8_t val = 0u;
 
-        constexpr explicit Red(ubyte_t val = 0u) noexcept : val{val} {}
+        constexpr explicit Red(uint8_t val = 0u) noexcept : val{val} {}
     };
 
     struct Green {
-        ubyte_t val = 0u;
+        uint8_t val = 0u;
 
-        constexpr explicit Green(ubyte_t val = 0u) noexcept : val{val} {}
+        constexpr explicit Green(uint8_t val = 0u) noexcept : val{val} {}
     };
 
     struct Blue {
-        ubyte_t val = 0u;
+        uint8_t val = 0u;
 
-        constexpr explicit Blue(ubyte_t val = 0u) noexcept : val{val} {}
+        constexpr explicit Blue(uint8_t val = 0u) noexcept : val{val} {}
     };
 
     struct Alpha {
-        ubyte_t val = 0xFFu;
+        uint8_t val = 0xFFu;
 
-        constexpr explicit Alpha(ubyte_t val = 0xFFu) noexcept : val{val} {}
+        constexpr explicit Alpha(uint8_t val = 0xFFu) noexcept : val{val} {}
     };
 
     struct Color {
@@ -76,19 +76,19 @@ namespace reig {
 
         namespace literals {
             constexpr Red operator ""_r(unsigned long long val) noexcept {
-                return Red{static_cast<ubyte_t>(val)};
+                return Red{static_cast<uint8_t>(val)};
             }
 
             constexpr Green operator ""_g(unsigned long long val) noexcept {
-                return Green{static_cast<ubyte_t>(val)};
+                return Green{static_cast<uint8_t>(val)};
             }
 
             constexpr Blue operator ""_b(unsigned long long val) noexcept {
-                return Blue{static_cast<ubyte_t>(val)};
+                return Blue{static_cast<uint8_t>(val)};
             }
 
             constexpr Alpha operator ""_a(unsigned long long val) noexcept {
-                return Alpha{static_cast<ubyte_t>(val)};
+                return Alpha{static_cast<uint8_t>(val)};
             }
         }
 
@@ -286,7 +286,7 @@ namespace reig {
     };
 
     struct FontData {
-        std::vector<ubyte_t> bitmap;
+        std::vector<uint8_t> bitmap;
         int width = 0;
         int height = 0;
     };

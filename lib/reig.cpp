@@ -58,8 +58,8 @@ namespace reig::internal {
                : Color{255_r, 255_g, 255_b};
     }
 
-    Color lighten_color_by(Color color, ubyte_t delta) {
-        ubyte_t max = 255u;
+    Color lighten_color_by(Color color, uint8_t delta) {
+        uint8_t max = 255u;
         color.red.val < max - delta ? color.red.val += delta : color.red.val = max;
         color.green.val < max - delta ? color.green.val += delta : color.green.val = max;
         color.blue.val < max - delta ? color.blue.val += delta : color.blue.val = max;
@@ -96,10 +96,10 @@ reig::uint32_t reig::Colors::to_uint(Color const& color) {
 
 reig::Color reig::Colors::from_uint(uint32_t rgba) {
     return Color {
-            Red{static_cast<ubyte_t>((rgba >> 24) & 0xFF)},
-            Green{static_cast<ubyte_t>((rgba >> 16) & 0xFF)},
-            Blue{static_cast<ubyte_t>((rgba >> 8) & 0xFF)},
-            Alpha{static_cast<ubyte_t>(rgba & 0xFF)}
+            Red{static_cast<uint8_t>((rgba >> 24) & 0xFF)},
+            Green{static_cast<uint8_t>((rgba >> 16) & 0xFF)},
+            Blue{static_cast<uint8_t>((rgba >> 8) & 0xFF)},
+            Alpha{static_cast<uint8_t>(rgba & 0xFF)}
     };
 }
 
@@ -155,7 +155,7 @@ reig::FailedToLoadFontException reig::FailedToLoadFontException::invalidFile(con
     return FailedToLoadFontException(ss.str());
 }
 
-vector<reig::ubyte_t> read_font_into_buffer(char const* fontFilePath) {
+vector<reig::uint8_t> read_font_into_buffer(char const* fontFilePath) {
     auto file = std::unique_ptr<FILE, decltype(&std::fclose)>(std::fopen(fontFilePath, "rb"), &std::fclose);
     if (!file) throw reig::FailedToLoadFontException::couldNotOpenFile(fontFilePath);
 
@@ -184,7 +184,7 @@ reig::FontData reig::Context::set_font(char const* fontFilePath, int textureId, 
     } constexpr bmp {512, 512};
 
     auto bakedChars = std::vector<stbtt_bakedchar>(charsNum);
-    auto bitmap = vector<ubyte_t>(bmp.w * bmp.h);
+    auto bitmap = vector<uint8_t>(bmp.w * bmp.h);
     auto height = stbtt_BakeFontBitmap(
             ttfBuffer.data(), 0, fontHeightPx, bitmap.data(), bmp.w, bmp.h, ' ', charsNum, std::data(bakedChars)
     );
