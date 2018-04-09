@@ -458,7 +458,7 @@ bool reig::slider::draw(reig::Context& ctx) const {
     float_t max = internal::max(mMin, mMax);
     float_t value = internal::clamp(mValueRef, min, max);
     int offset = static_cast<int>((value - min) / mStep);
-    int valuesNum = (max - min) / mStep + 1;
+    int valuesNum = static_cast<int>((max - min) / mStep + 1);
 
     // Render the cursor
     auto cursorBox = internal::decrease_box(boundingBox, 4);
@@ -503,7 +503,7 @@ bool reig::slider_textured::draw(reig::Context& ctx) const {
     float_t max = internal::max(mMin, mMax);
     float_t value = internal::clamp(mValueRef, min, max);
     int offset = static_cast<int>((value - min) / mStep);
-    int valuesNum = (max - min) / mStep + 1;
+    int valuesNum = static_cast<int>((max - min) / mStep + 1);
 
     // Render the cursor
     auto cursorBox = internal::decrease_box(boundingBox, 8);
