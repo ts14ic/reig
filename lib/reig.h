@@ -8,8 +8,8 @@
 #include <string>
 
 namespace reig {
-    using std::uint8_t;
-    using std::uint32_t;
+    using uint8_t = std::uint8_t;
+    using uint32_t = std::uint32_t;
 
     struct Point {
         float x = 0.0f;
