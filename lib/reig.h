@@ -294,7 +294,7 @@ namespace reig {
         uint_t height = 0;
     };
 
-    namespace context {
+    namespace detail {
         struct Font {
             std::vector<stbtt_bakedchar> bakedChars;
             float size = 0.f;
@@ -556,8 +556,8 @@ namespace reig {
 
     private:
         std::vector<Figure> mDrawData;
-        context::Font mFont;
-        context::Window mCurrentWindow;
+        detail::Font mFont;
+        detail::Window mCurrentWindow;
 
         RenderHandler mRenderHandler = nullptr;
         std::any mUserPtr;
