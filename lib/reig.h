@@ -8,12 +8,8 @@
 #include <string>
 
 namespace reig {
-    using ubyte_t = std::uint8_t;
-    using int_t   = std::int32_t;
-    using uint_t  = std::uint32_t;
-    using size_t  = std::size_t;
-
-    static_assert(sizeof(uint_t) >= 4 * sizeof(ubyte_t), "uint_t is too small");
+    using uint8_t = std::uint8_t;
+    using uint32_t = std::uint32_t;
 
     struct Point {
         float x = 0.0f;
@@ -34,27 +30,27 @@ namespace reig {
     };
 
     struct Red {
-        ubyte_t val = 0u;
+        uint8_t val = 0u;
 
-        constexpr explicit Red(ubyte_t val = 0u) noexcept : val{val} {}
+        constexpr explicit Red(uint8_t val = 0u) noexcept : val{val} {}
     };
 
     struct Green {
-        ubyte_t val = 0u;
+        uint8_t val = 0u;
 
-        constexpr explicit Green(ubyte_t val = 0u) noexcept : val{val} {}
+        constexpr explicit Green(uint8_t val = 0u) noexcept : val{val} {}
     };
 
     struct Blue {
-        ubyte_t val = 0u;
+        uint8_t val = 0u;
 
-        constexpr explicit Blue(ubyte_t val = 0u) noexcept : val{val} {}
+        constexpr explicit Blue(uint8_t val = 0u) noexcept : val{val} {}
     };
 
     struct Alpha {
-        ubyte_t val = 0xFFu;
+        uint8_t val = 0xFFu;
 
-        constexpr explicit Alpha(ubyte_t val = 0xFFu) noexcept : val{val} {}
+        constexpr explicit Alpha(uint8_t val = 0xFFu) noexcept : val{val} {}
     };
 
     struct Color {
@@ -71,25 +67,25 @@ namespace reig {
     };
 
     namespace Colors {
-        uint_t to_uint(Color const& from);
+        uint32_t to_uint(Color const& from);
 
-        Color from_uint(uint_t rgba);
+        Color from_uint(uint32_t rgba);
 
         namespace literals {
             constexpr Red operator ""_r(unsigned long long val) noexcept {
-                return Red{static_cast<ubyte_t>(val)};
+                return Red{static_cast<uint8_t>(val)};
             }
 
             constexpr Green operator ""_g(unsigned long long val) noexcept {
-                return Green{static_cast<ubyte_t>(val)};
+                return Green{static_cast<uint8_t>(val)};
             }
 
             constexpr Blue operator ""_b(unsigned long long val) noexcept {
-                return Blue{static_cast<ubyte_t>(val)};
+                return Blue{static_cast<uint8_t>(val)};
             }
 
             constexpr Alpha operator ""_a(unsigned long long val) noexcept {
-                return Alpha{static_cast<ubyte_t>(val)};
+                return Alpha{static_cast<uint8_t>(val)};
             }
         }
 
@@ -267,38 +263,38 @@ namespace reig {
         /**
          * @brief Returns figure's read-only indices
          */
-        std::vector<uint_t> const& indices() const;
+        std::vector<int> const& indices() const;
 
         /**
          * @brief Return figure's texture index
          */
-        uint_t texture() const;
+        int texture() const;
 
     private:
         Figure() = default;
 
         friend class ::reig::Context;
 
-        void form(std::vector<Vertex>& vertices, std::vector<uint_t>& indices, uint_t id = 0);
+        void form(std::vector<Vertex>& vertices, std::vector<int>& indices, int id = 0);
 
         std::vector<Vertex> mVertices;
-        std::vector<uint_t> mIndices;
-        uint_t mTextureId = 0;
+        std::vector<int> mIndices;
+        int mTextureId = 0;
     };
 
     struct FontData {
-        std::vector<ubyte_t> bitmap;
-        uint_t width = 0;
-        uint_t height = 0;
+        std::vector<uint8_t> bitmap;
+        int width = 0;
+        int height = 0;
     };
 
     namespace detail {
         struct Font {
             std::vector<stbtt_bakedchar> bakedChars;
             float size = 0.f;
-            uint_t texture = 0;
-            uint_t width = 0;
-            uint_t height = 0;
+            int texture = 0;
+            int width = 0;
+            int height = 0;
         };
 
         struct Window {
@@ -323,7 +319,7 @@ namespace reig {
         static FailedToLoadFontException invalidSize(const char* filePath, float fontSize);
         static FailedToLoadFontException couldNotOpenFile(const char* filePath);
         static FailedToLoadFontException invalidFile(const char* filePath);
-        static FailedToLoadFontException couldNotFitCharacters(const char* filePath, float fontSize, uint_t width, uint_t height);
+        static FailedToLoadFontException couldNotFitCharacters(const char* filePath, float fontSize, int width, int height);
     private:
         explicit FailedToLoadFontException(std::string message);
         const std::string message;
@@ -353,7 +349,7 @@ namespace reig {
     struct textured_button {
         char const* mTitle;
         Rectangle mBoundingBox;
-        uint_t mBaseTexture, mHoverTexture;
+        int mBaseTexture, mHoverTexture;
 
         /**
          * @brief Render a titled textured button
@@ -484,7 +480,7 @@ namespace reig {
          * @return Returns the bitmap, which is used to create a texture by user.
          * Set returned bitmap field to nullptr, to avoid deletion
          */
-        FontData set_font(char const* fontFilePath, uint_t textureId, float fontHeightPx);
+        FontData set_font(char const* fontFilePath, int textureId, float fontHeightPx);
 
         /**
          * @brief Resets draw data and inputs

@@ -240,7 +240,7 @@ private:
         struct font {
             reig::FontData data;
             SDL_Texture*   tex  = nullptr;
-            unsigned       id   = 100;
+            int            id   = 100;
         }
         font;
     }
