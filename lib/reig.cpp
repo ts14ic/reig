@@ -453,6 +453,13 @@ enum class SliderOrientation {
     HORIZONTAL, VERTICAL
 };
 
+void render_widget_frame(reig::Context& ctx, Rectangle& boundingBox, Color const& baseColor) {
+    Color frameColor = internal::get_yiq_contrast(baseColor);
+    ctx.render_rectangle(boundingBox, frameColor);
+    boundingBox = internal::decrease_box(boundingBox, 4);
+    ctx.render_rectangle(boundingBox, baseColor);
+}
+
 bool base_slider_draw(reig::Context& ctx,
                       Rectangle boundingBox,
                       SliderOrientation orientation,
@@ -461,11 +468,7 @@ bool base_slider_draw(reig::Context& ctx,
                       float aMin, float aMax, float step) {
     ctx.fit_rect_in_window(boundingBox);
 
-    // Render slider's base
-    Color cursorColor = internal::get_yiq_contrast(baseColor);
-    ctx.render_rectangle(boundingBox, cursorColor);
-    boundingBox = internal::decrease_box(boundingBox, 4);
-    ctx.render_rectangle(boundingBox, baseColor);
+    render_widget_frame(ctx, boundingBox, baseColor);
 
     // Prepare the values
     float_t min = internal::min(aMin, aMax);
@@ -485,6 +488,8 @@ bool base_slider_draw(reig::Context& ctx,
         if (cursorBox.height < 1) cursorBox.height = 1;
         cursorBox.y += offset * cursorBox.height;
     }
+
+    auto cursorColor = internal::get_yiq_contrast(baseColor);
     if (internal::is_boxed_in(ctx.mouse.get_cursor_pos(), cursorBox)) {
         cursorColor = internal::lighten_color_by(cursorColor, 50);
     }
