@@ -93,7 +93,7 @@ namespace reig {
             }
         }
 
-        namespace mixing {
+        namespace operators {
             namespace detail {
                 template<typename Comp>
                 static constexpr bool is_color_component_v = std::is_same_v<Comp, Red> ||

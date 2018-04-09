@@ -99,7 +99,7 @@ public:
             
             // ================== GUI setup =================
             using namespace reig::Colors::literals;
-            using namespace reig::Colors::mixing;
+            using namespace reig::Colors::operators;
 
             reig::Rectangle rect {40, 0, 100, 30};
             reig::Color color {120_r, 100_g, 150_b};
