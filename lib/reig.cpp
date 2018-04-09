@@ -12,6 +12,7 @@ using std::vector;
 
 namespace internal {
     using namespace reig;
+    using namespace primitive;
 
     template<typename T>
     bool is_between(T val, T min, T max) {
@@ -51,8 +52,8 @@ namespace internal {
                0;
     }
 
-    Color get_yiq_contrast(Color color) {
-        using namespace Colors::literals;
+    primitive::Color get_yiq_contrast(primitive::Color color) {
+        using namespace primitive::colors::literals;
 
         uint32_t y = (299u * color.red.val + 587 * color.green.val + 114 * color.blue.val) / 1000;
         return y >= 128
@@ -89,14 +90,16 @@ namespace internal {
     };
 }
 
-reig::uint32_t reig::Colors::to_uint(Color const& color) {
+using namespace reig::primitive;
+
+reig::uint32_t colors::to_uint(Color const& color) {
     return (color.alpha.val << 24)
            + (color.blue.val << 16)
            + (color.green.val << 8)
            + color.red.val;
 }
 
-reig::Color reig::Colors::from_uint(uint32_t rgba) {
+Color colors::from_uint(uint32_t rgba) {
     return Color {
             Color::Red{static_cast<uint8_t>((rgba >> 24) & 0xFF)},
             Color::Green{static_cast<uint8_t>((rgba >> 16) & 0xFF)},
@@ -251,7 +254,7 @@ void reig::detail::Mouse::scroll(float dy) {
     mScrolled = dy;
 }
 
-const reig::Point& reig::detail::Mouse::get_cursor_pos() const {
+const Point& reig::detail::Mouse::get_cursor_pos() const {
     return mCursorPos;
 }
 
@@ -271,7 +274,7 @@ void reig::detail::MouseButton::release() {
     mIsPressed = false;
 }
 
-const reig::Point& reig::detail::MouseButton::get_clicked_pos() const {
+const Point& reig::detail::MouseButton::get_clicked_pos() const {
     return mClickedPos;
 }
 
@@ -283,21 +286,21 @@ bool reig::detail::MouseButton::is_clicked() const {
     return mIsClicked;
 }
 
-void reig::Figure::form(vector<Vertex>& vertices, vector<int>& indices, int id) {
+void Figure::form(vector<Vertex>& vertices, vector<int>& indices, int id) {
     vertices.swap(mVertices);
     indices.swap(mIndices);
     mTextureId = id;
 }
 
-vector<reig::Vertex> const& reig::Figure::vertices() const {
+vector<Vertex> const& Figure::vertices() const {
     return mVertices;
 }
 
-vector<int> const& reig::Figure::indices() const {
+vector<int> const& Figure::indices() const {
     return mIndices;
 }
 
-int reig::Figure::texture() const {
+int Figure::texture() const {
     return mTextureId;
 }
 
@@ -339,13 +342,13 @@ void reig::Context::end_window() {
             mCurrentWindow.w, mCurrentWindow.h - mCurrentWindow.headerSize
     };
 
-    using namespace Colors::literals;
-    using namespace Colors::operators;
+    using namespace colors::literals;
+    using namespace colors::operators;
 
-    render_rectangle(headerBox, Colors::mediumGrey | 200_a);
-    render_triangle(headerTriangle, Colors::lightGrey);
+    render_rectangle(headerBox, colors::mediumGrey | 200_a);
+    render_triangle(headerTriangle, colors::lightGrey);
     render_text(mCurrentWindow.title, titleBox);
-    render_rectangle(bodyBox, Colors::mediumGrey | 100_a);
+    render_rectangle(bodyBox, colors::mediumGrey | 100_a);
 
     if (mouse.leftButton.is_pressed() && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), headerBox)) {
         Point moved{

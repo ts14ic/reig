@@ -98,12 +98,13 @@ public:
             if(quit) break;
             
             // ================== GUI setup =================
-            using namespace reig::Colors::literals;
-            using namespace reig::Colors::operators;
+            using namespace reig::primitive::colors::literals;
+            using namespace reig::primitive::colors::operators;
             namespace widget = reig::reference_widgets;
+            namespace primitive = reig::primitive;
 
-            reig::Rectangle rect {40, 0, 100, 30};
-            reig::Color color {120_r, 100_g, 150_b};
+            primitive::Rectangle rect {40, 0, 100, 30};
+            primitive::Color color {120_r, 100_g, 150_b};
             
             static float winX = 10, winY = 10;
             gui.ctx.start_window(fpsString.c_str(), winX, winY);
@@ -153,7 +154,7 @@ public:
             }
             
             static bool checkBox3 = false;
-            color = reig::Colors::from_uint(0xFFFFFFFFu);
+            color = primitive::colors::from_uint(0xFFFFFFFFu);
             rect.y += 60; rect.width = rect.height = 25;
             if(gui.ctx.widget(widget::checkbox{rect, color, checkBox3})) {
                 std::cout << "Checkbox 3: new value " << checkBox3 << std::endl;
@@ -185,6 +186,7 @@ public:
     }
 
     static void gui_handler(reig::Context::DrawData const& drawData, std::any& userPtr) {
+        namespace colors = reig::primitive::colors;
         Main* self = std::any_cast<Main*>(userPtr);
         
         for(auto const& fig : drawData) {
@@ -206,7 +208,7 @@ public:
                         vertices[indices[i+1]].position.y,
                         vertices[indices[i+2]].position.x,
                         vertices[indices[i+2]].position.y,
-                        reig::Colors::to_uint(vertices[i].color)
+                        colors::to_uint(vertices[i].color)
                     );
                 }
             }

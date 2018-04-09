@@ -147,42 +147,43 @@ public:
             static float rotation[3] { 0.f, 0.f, 0.f };
 
             namespace widget = reig::reference_widgets;
+            namespace colors = reig::primitive::colors;
 
             float yline = 0; float step = 28;
             ctx.start_window("Cube manipulation", winX, winY);
-            ctx.widget(widget::checkbox{{0, yline, 25, 25}, reig::Colors::darkGrey, check});
+            ctx.widget(widget::checkbox{{0, yline, 25, 25}, colors::darkGrey, check});
             
             if(check) {
-                if(ctx.widget(widget::button{"S", {31, yline, 60, 25}, reig::Colors::mediumGrey})) {
+                if(ctx.widget(widget::button{"S", {31, yline, 60, 25}, colors::mediumGrey})) {
                     scaling = 1.f;
                 }
-                if(ctx.widget(widget::button{"R", {97, yline, 60, 25}, reig::Colors::mediumGrey})) {
+                if(ctx.widget(widget::button{"R", {97, yline, 60, 25}, colors::mediumGrey})) {
                     rotation[0] = rotation[1] = rotation[2] = 0.f;
                 }
-                if(ctx.widget(widget::button{"C", {163, yline, 60, 25}, reig::Colors::mediumGrey})) {
+                if(ctx.widget(widget::button{"C", {163, yline, 60, 25}, colors::mediumGrey})) {
                     cubeColor[0] = cubeColor[1] = cubeColor[2] = 255.f;
                 }
                 
                 yline += step;
                 ctx.widget(widget::label{"Scale:", {0, yline, 230, 25}});
                 yline += step;
-                ctx.widget(widget::slider{{0, yline, 230, 25}, reig::Colors::lightGrey, scaling, 0.1f, 2.5f, 0.1f});
+                ctx.widget(widget::slider{{0, yline, 230, 25}, colors::lightGrey, scaling, 0.1f, 2.5f, 0.1f});
                 
                 yline += step;
                 ctx.widget(widget::label{"Rotation:", {0, yline, 230, 25}});
                 yline += step;
                 for(int i = 0; i < 3; ++i) {
-                    ctx.widget(widget::slider{{0, yline, 230, 25}, reig::Colors::darkGrey, rotation[i], 0.f, 360.f, 5.f});
+                    ctx.widget(widget::slider{{0, yline, 230, 25}, colors::darkGrey, rotation[i], 0.f, 360.f, 5.f});
                     yline += step;
                 }
                 
                 ctx.widget(widget::label{"Color:", {0, yline, 230, 25}});
                 yline += step;
-                ctx.widget(widget::slider{{0, yline, 230, 25}, reig::Colors::red, cubeColor[0], 0.f, 255.f, 10.f});
+                ctx.widget(widget::slider{{0, yline, 230, 25}, colors::red, cubeColor[0], 0.f, 255.f, 10.f});
                 yline += step;
-                ctx.widget(widget::slider{{0, yline, 230, 25}, reig::Colors::green, cubeColor[1], 0.f, 255.f, 10.f});
+                ctx.widget(widget::slider{{0, yline, 230, 25}, colors::green, cubeColor[1], 0.f, 255.f, 10.f});
                 yline += step;
-                ctx.widget(widget::slider{{0, yline, 230, 25}, reig::Colors::blue, cubeColor[2], 0.f, 255.f, 10.f});
+                ctx.widget(widget::slider{{0, yline, 230, 25}, colors::blue, cubeColor[2], 0.f, 255.f, 10.f});
             }
             
             shader.use();
@@ -327,11 +328,11 @@ public:
         glBindVertexArray(self->gui.vao);
         glBindBuffer(GL_ARRAY_BUFFER, self->gui.vbo);
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(reig::Vertex), nullptr);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(reig::primitive::Vertex), nullptr);
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(reig::Vertex), (void*)(offsetof(reig::Vertex, texCoord)));
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(reig::primitive::Vertex), (void*)(offsetof(reig::primitive::Vertex, texCoord)));
         glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(reig::Vertex), (void*)(offsetof(reig::Vertex, color)));
+        glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(reig::primitive::Vertex), (void*)(offsetof(reig::primitive::Vertex, color)));
         
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self->gui.ebo);
         
