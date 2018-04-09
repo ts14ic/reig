@@ -170,6 +170,16 @@ namespace reig {
 
     class MouseButton {
     public:
+        MouseButton() = default;
+
+        MouseButton(MouseButton const&) = delete;
+
+        MouseButton(MouseButton&&) = delete;
+
+        MouseButton& operator=(MouseButton const&) = delete;
+
+        MouseButton& operator=(MouseButton&&) = delete;
+
         /**
          * @brief Sets mouse pressed and clicked states
          * @param x X coordinate
@@ -182,21 +192,11 @@ namespace reig {
          */
         void release();
 
-        MouseButton() = default;
+        const Point& get_clicked_pos() const;
 
-        MouseButton(MouseButton const&) = delete;
+        bool is_pressed() const;
 
-        MouseButton(MouseButton&&) = delete;
-
-        MouseButton& operator=(MouseButton const&) = delete;
-
-        MouseButton& operator=(MouseButton&&) = delete;
-
-        const Point& get_clicked_pos();
-
-        bool is_pressed();
-
-        bool is_clicked();
+        bool is_clicked() const;
 
     private:
         friend class ::reig::Context;

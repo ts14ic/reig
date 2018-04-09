@@ -269,15 +269,15 @@ void reig::MouseButton::release() {
     mIsPressed = false;
 }
 
-const reig::Point& reig::MouseButton::get_clicked_pos() {
+const reig::Point& reig::MouseButton::get_clicked_pos() const {
     return mClickedPos;
 }
 
-bool reig::MouseButton::is_pressed() {
+bool reig::MouseButton::is_pressed() const {
     return mIsPressed;
 }
 
-bool reig::MouseButton::is_clicked() {
+bool reig::MouseButton::is_clicked() const {
     return mIsClicked;
 }
 
