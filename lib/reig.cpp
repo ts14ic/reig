@@ -98,10 +98,10 @@ reig::uint32_t reig::Colors::to_uint(Color const& color) {
 
 reig::Color reig::Colors::from_uint(uint32_t rgba) {
     return Color {
-            Red{static_cast<uint8_t>((rgba >> 24) & 0xFF)},
-            Green{static_cast<uint8_t>((rgba >> 16) & 0xFF)},
-            Blue{static_cast<uint8_t>((rgba >> 8) & 0xFF)},
-            Alpha{static_cast<uint8_t>(rgba & 0xFF)}
+            Color::Red{static_cast<uint8_t>((rgba >> 24) & 0xFF)},
+            Color::Green{static_cast<uint8_t>((rgba >> 16) & 0xFF)},
+            Color::Blue{static_cast<uint8_t>((rgba >> 8) & 0xFF)},
+            Color::Alpha{static_cast<uint8_t>(rgba & 0xFF)}
     };
 }
 

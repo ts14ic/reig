@@ -29,31 +29,35 @@ namespace reig {
         Point pos2;
     };
 
-    struct Red {
-        uint8_t val = 0u;
-
-        constexpr explicit Red(uint8_t val = 0u) noexcept : val{val} {}
-    };
-
-    struct Green {
-        uint8_t val = 0u;
-
-        constexpr explicit Green(uint8_t val = 0u) noexcept : val{val} {}
-    };
-
-    struct Blue {
-        uint8_t val = 0u;
-
-        constexpr explicit Blue(uint8_t val = 0u) noexcept : val{val} {}
-    };
-
-    struct Alpha {
-        uint8_t val = 0xFFu;
-
-        constexpr explicit Alpha(uint8_t val = 0xFFu) noexcept : val{val} {}
-    };
-
     struct Color {
+        struct Red {
+            uint8_t val = 0u;
+
+            constexpr explicit Red(uint8_t val = 0u) noexcept
+                    : val{val} {}
+        };
+
+        struct Green {
+            uint8_t val = 0u;
+
+            constexpr explicit Green(uint8_t val = 0u) noexcept
+                    : val{val} {}
+        };
+
+        struct Blue {
+            uint8_t val = 0u;
+
+            constexpr explicit Blue(uint8_t val = 0u) noexcept
+                    : val{val} {}
+        };
+
+        struct Alpha {
+            uint8_t val = 0xFFu;
+
+            constexpr explicit Alpha(uint8_t val = 0xFFu) noexcept
+                    : val{val} {}
+        };
+
         constexpr Color() = default;
 
         constexpr Color(Red const& red, Green const& green, Blue const& blue,
@@ -72,44 +76,44 @@ namespace reig {
         Color from_uint(uint32_t rgba);
 
         namespace literals {
-            constexpr Red operator ""_r(unsigned long long val) noexcept {
-                return Red{static_cast<uint8_t>(val)};
+            constexpr Color::Red operator "" _r(unsigned long long val) noexcept {
+                return Color::Red{static_cast<uint8_t>(val)};
             }
 
-            constexpr Green operator ""_g(unsigned long long val) noexcept {
-                return Green{static_cast<uint8_t>(val)};
+            constexpr Color::Green operator "" _g(unsigned long long val) noexcept {
+                return Color::Green{static_cast<uint8_t>(val)};
             }
 
-            constexpr Blue operator ""_b(unsigned long long val) noexcept {
-                return Blue{static_cast<uint8_t>(val)};
+            constexpr Color::Blue operator "" _b(unsigned long long val) noexcept {
+                return Color::Blue{static_cast<uint8_t>(val)};
             }
 
-            constexpr Alpha operator ""_a(unsigned long long val) noexcept {
-                return Alpha{static_cast<uint8_t>(val)};
+            constexpr Color::Alpha operator "" _a(unsigned long long val) noexcept {
+                return Color::Alpha{static_cast<uint8_t>(val)};
             }
         }
 
         namespace operators {
             namespace detail {
                 template<typename Comp>
-                static constexpr bool is_color_component_v = std::is_same_v<Comp, Red> ||
-                                                             std::is_same_v<Comp, Green> ||
-                                                             std::is_same_v<Comp, Blue> ||
-                                                             std::is_same_v<Comp, Alpha>;
+                static constexpr bool is_color_component_v = std::is_same_v<Comp, Color::Red> ||
+                                                             std::is_same_v<Comp, Color::Green> ||
+                                                             std::is_same_v<Comp, Color::Blue> ||
+                                                             std::is_same_v<Comp, Color::Alpha>;
 
                 template<typename Comp, typename = std::enable_if_t<is_color_component_v<Comp>>>
                 Comp const& get_comp(Color const& color) {
-                    if constexpr (std::is_same_v<Comp, Red>) return color.red;
-                    else if constexpr (std::is_same_v<Comp, Green>) return color.green;
-                    else if constexpr (std::is_same_v<Comp, Blue>) return color.blue;
+                    if constexpr (std::is_same_v<Comp, Color::Red>) return color.red;
+                    else if constexpr (std::is_same_v<Comp, Color::Green>) return color.green;
+                    else if constexpr (std::is_same_v<Comp, Color::Blue>) return color.blue;
                     else return color.alpha;
                 }
 
                 template<typename Comp, typename = std::enable_if_t<is_color_component_v<Comp>>>
                 Comp& get_comp(Color& color) {
-                    if constexpr (std::is_same_v<Comp, Red>) return color.red;
-                    else if constexpr (std::is_same_v<Comp, Green>) return color.green;
-                    else if constexpr (std::is_same_v<Comp, Blue>) return color.blue;
+                    if constexpr (std::is_same_v<Comp, Color::Red>) return color.red;
+                    else if constexpr (std::is_same_v<Comp, Color::Green>) return color.green;
+                    else if constexpr (std::is_same_v<Comp, Color::Blue>) return color.blue;
                     else return color.alpha;
                 }
             }
@@ -138,19 +142,21 @@ namespace reig {
 
         #pragma clang diagnostic push
         #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
-        Color constexpr transparent{Red{}, Green{}, Blue{}, Alpha{}};
-        Color constexpr red{Red{239}, Green{41}, Blue{41}};
-        Color constexpr orange{Red{252}, Green{175}, Blue{62}};
-        Color constexpr yellow{Red{252}, Green{233}, Blue{79}};
-        Color constexpr green{Red{138}, Green{226}, Blue{52}};
-        Color constexpr blue{Red{114}, Green{159}, Blue{207}};
-        Color constexpr violet{Red{173}, Green{127}, Blue{168}};
-        Color constexpr brown{Red{143}, Green{89}, Blue{2}};
-        Color constexpr white{Red{255}, Green{255}, Blue{255}};
-        Color constexpr lightGrey{Red{186}, Green{189}, Blue{182}};
-        Color constexpr mediumGrey{Red{136}, Green{138}, Blue{133}};
-        Color constexpr darkGrey{Red{46}, Green{52}, Blue{54}};
-        Color constexpr black{Red{0}, Green{0}, Blue{0}};
+        // @formatter:off
+        Color constexpr transparent{Color::Red{},    Color::Green{},    Color::Blue{},    Color::Alpha{}};
+        Color constexpr red        {Color::Red{239}, Color::Green{41},  Color::Blue{41}};
+        Color constexpr orange     {Color::Red{252}, Color::Green{175}, Color::Blue{62}};
+        Color constexpr yellow     {Color::Red{252}, Color::Green{233}, Color::Blue{79}};
+        Color constexpr green      {Color::Red{138}, Color::Green{226}, Color::Blue{52}};
+        Color constexpr blue       {Color::Red{114}, Color::Green{159}, Color::Blue{207}};
+        Color constexpr violet     {Color::Red{173}, Color::Green{127}, Color::Blue{168}};
+        Color constexpr brown      {Color::Red{143}, Color::Green{89},  Color::Blue{2}};
+        Color constexpr white      {Color::Red{255}, Color::Green{255}, Color::Blue{255}};
+        Color constexpr lightGrey  {Color::Red{186}, Color::Green{189}, Color::Blue{182}};
+        Color constexpr mediumGrey {Color::Red{136}, Color::Green{138}, Color::Blue{133}};
+        Color constexpr darkGrey   {Color::Red{46},  Color::Green{52},  Color::Blue{54}};
+        Color constexpr black      {Color::Red{0},   Color::Green{0},   Color::Blue{0}};
+        // @formatter:on
         #pragma clang diagnostic pop
     }
 
