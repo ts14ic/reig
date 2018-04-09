@@ -12,6 +12,7 @@ using std::vector;
 
 namespace internal {
     using namespace reig;
+    using namespace primitive;
 
     template<typename T>
     bool is_between(T val, T min, T max) {
@@ -51,8 +52,8 @@ namespace internal {
                0;
     }
 
-    Color get_yiq_contrast(Color color) {
-        using namespace Colors::literals;
+    primitive::Color get_yiq_contrast(primitive::Color color) {
+        using namespace primitive::colors::literals;
 
         uint32_t y = (299u * color.red.val + 587 * color.green.val + 114 * color.blue.val) / 1000;
         return y >= 128
@@ -89,19 +90,21 @@ namespace internal {
     };
 }
 
-reig::uint32_t reig::Colors::to_uint(Color const& color) {
+using namespace reig::primitive;
+
+reig::uint32_t colors::to_uint(Color const& color) {
     return (color.alpha.val << 24)
            + (color.blue.val << 16)
            + (color.green.val << 8)
            + color.red.val;
 }
 
-reig::Color reig::Colors::from_uint(uint32_t rgba) {
+Color colors::from_uint(uint32_t rgba) {
     return Color {
-            Red{static_cast<uint8_t>((rgba >> 24) & 0xFF)},
-            Green{static_cast<uint8_t>((rgba >> 16) & 0xFF)},
-            Blue{static_cast<uint8_t>((rgba >> 8) & 0xFF)},
-            Alpha{static_cast<uint8_t>(rgba & 0xFF)}
+            Color::Red{static_cast<uint8_t>((rgba >> 24) & 0xFF)},
+            Color::Green{static_cast<uint8_t>((rgba >> 16) & 0xFF)},
+            Color::Blue{static_cast<uint8_t>((rgba >> 8) & 0xFF)},
+            Color::Alpha{static_cast<uint8_t>(rgba & 0xFF)}
     };
 }
 
@@ -117,32 +120,32 @@ std::any const& reig::Context::get_user_ptr() const {
     return mUserPtr;
 }
 
-reig::FailedToLoadFontException::FailedToLoadFontException(std::string message)
+reig::exception::FailedToLoadFontException::FailedToLoadFontException(std::string message)
         : message{std::move(message)} {}
 
-const char* reig::FailedToLoadFontException::what() const noexcept {
+const char* reig::exception::FailedToLoadFontException::what() const noexcept {
     return message.c_str();
 }
 
-reig::FailedToLoadFontException reig::FailedToLoadFontException::noTextureId(const char* filePath) {
+reig::exception::FailedToLoadFontException reig::exception::FailedToLoadFontException::noTextureId(const char* filePath) {
     std::ostringstream ss;
     ss << "No texture id was specified for font: [" << filePath << "]";
     return FailedToLoadFontException(ss.str());
 }
 
-reig::FailedToLoadFontException reig::FailedToLoadFontException::invalidSize(const char* filePath, float fontSize) {
+reig::exception::FailedToLoadFontException reig::exception::FailedToLoadFontException::invalidSize(const char* filePath, float fontSize) {
     std::ostringstream ss;
     ss << "Invalid size specified for font: [" << filePath << "], size: [" << fontSize << "]";
     return FailedToLoadFontException(ss.str());
 }
 
-reig::FailedToLoadFontException reig::FailedToLoadFontException::couldNotOpenFile(const char* filePath) {
+reig::exception::FailedToLoadFontException reig::exception::FailedToLoadFontException::couldNotOpenFile(const char* filePath) {
     std::ostringstream ss;
     ss << "Could not open font file: [" << filePath << "]";
     return FailedToLoadFontException(ss.str());
 }
 
-reig::FailedToLoadFontException reig::FailedToLoadFontException::couldNotFitCharacters(
+reig::exception::FailedToLoadFontException reig::exception::FailedToLoadFontException::couldNotFitCharacters(
         const char* filePath, float fontSize, int width, int height) {
     std::ostringstream ss;
     ss << "Could not fit characters for font: ["
@@ -151,19 +154,21 @@ reig::FailedToLoadFontException reig::FailedToLoadFontException::couldNotFitChar
     return FailedToLoadFontException(ss.str());
 }
 
-reig::FailedToLoadFontException reig::FailedToLoadFontException::invalidFile(const char* filePath) {
+reig::exception::FailedToLoadFontException reig::exception::FailedToLoadFontException::invalidFile(const char* filePath) {
     std::ostringstream ss;
     ss << "Invalid file for font: [" << filePath << "]";
     return FailedToLoadFontException(ss.str());
 }
 
 vector<reig::uint8_t> read_font_into_buffer(char const* fontFilePath) {
+    using reig::exception::FailedToLoadFontException;
+
     auto file = std::unique_ptr<FILE, decltype(&std::fclose)>(std::fopen(fontFilePath, "rb"), &std::fclose);
-    if (!file) throw reig::FailedToLoadFontException::couldNotOpenFile(fontFilePath);
+    if (!file) throw FailedToLoadFontException::couldNotOpenFile(fontFilePath);
 
     std::fseek(file.get(), 0, SEEK_END);
     long filePos = ftell(file.get());
-    if (filePos < 0) throw reig::FailedToLoadFontException::invalidFile(fontFilePath);
+    if (filePos < 0) throw FailedToLoadFontException::invalidFile(fontFilePath);
 
     auto fileSize = internal::integral_cast<size_t>(filePos);
     std::rewind(file.get());
@@ -174,6 +179,8 @@ vector<reig::uint8_t> read_font_into_buffer(char const* fontFilePath) {
 }
 
 reig::FontData reig::Context::set_font(char const* fontFilePath, int textureId, float fontHeightPx) {
+    using exception::FailedToLoadFontException;
+
     if (textureId == 0) throw FailedToLoadFontException::noTextureId(fontFilePath);
     if (fontHeightPx <= 0) throw FailedToLoadFontException::invalidSize(fontFilePath, fontHeightPx);
 
@@ -211,13 +218,13 @@ reig::FontData reig::Context::set_font(char const* fontFilePath, int textureId, 
     return ret;
 }
 
-const char* reig::NoRenderHandlerException::what() const noexcept {
+const char* reig::exception::NoRenderHandlerException::what() const noexcept {
     return "No render handler specified";
 }
 
 void reig::Context::render_all() {
     if (!mRenderHandler) {
-        throw NoRenderHandlerException{};
+        throw exception::NoRenderHandlerException{};
     }
     if (mCurrentWindow.started) end_window();
 
@@ -237,29 +244,29 @@ void reig::Context::start_new_frame() {
     mouse.mScrolled = 0.f;
 }
 
-void reig::Mouse::move(float_t difx, float_t dify) {
+void reig::detail::Mouse::move(float_t difx, float_t dify) {
     mCursorPos.x += difx;
     mCursorPos.y += dify;
 }
 
-void reig::Mouse::place(float_t x, float_t y) {
+void reig::detail::Mouse::place(float_t x, float_t y) {
     mCursorPos.x = x;
     mCursorPos.y = y;
 }
 
-void reig::Mouse::scroll(float dy) {
+void reig::detail::Mouse::scroll(float dy) {
     mScrolled = dy;
 }
 
-const reig::Point& reig::Mouse::get_cursor_pos() const {
+const Point& reig::detail::Mouse::get_cursor_pos() const {
     return mCursorPos;
 }
 
-float reig::Mouse::get_scrolled() const {
+float reig::detail::Mouse::get_scrolled() const {
     return mScrolled;
 }
 
-void reig::MouseButton::press(float_t x, float_t y) {
+void reig::detail::MouseButton::press(float_t x, float_t y) {
     if (!mIsPressed) {
         mIsPressed = true;
         mIsClicked = true;
@@ -267,37 +274,37 @@ void reig::MouseButton::press(float_t x, float_t y) {
     }
 }
 
-void reig::MouseButton::release() {
+void reig::detail::MouseButton::release() {
     mIsPressed = false;
 }
 
-const reig::Point& reig::MouseButton::get_clicked_pos() const {
+const Point& reig::detail::MouseButton::get_clicked_pos() const {
     return mClickedPos;
 }
 
-bool reig::MouseButton::is_pressed() const {
+bool reig::detail::MouseButton::is_pressed() const {
     return mIsPressed;
 }
 
-bool reig::MouseButton::is_clicked() const {
+bool reig::detail::MouseButton::is_clicked() const {
     return mIsClicked;
 }
 
-void reig::Figure::form(vector<Vertex>& vertices, vector<int>& indices, int id) {
+void Figure::form(vector<Vertex>& vertices, vector<int>& indices, int id) {
     vertices.swap(mVertices);
     indices.swap(mIndices);
     mTextureId = id;
 }
 
-vector<reig::Vertex> const& reig::Figure::vertices() const {
+vector<Vertex> const& Figure::vertices() const {
     return mVertices;
 }
 
-vector<int> const& reig::Figure::indices() const {
+vector<int> const& Figure::indices() const {
     return mIndices;
 }
 
-int reig::Figure::texture() const {
+int Figure::texture() const {
     return mTextureId;
 }
 
@@ -339,13 +346,13 @@ void reig::Context::end_window() {
             mCurrentWindow.w, mCurrentWindow.h - mCurrentWindow.headerSize
     };
 
-    using namespace Colors::literals;
-    using namespace Colors::operators;
+    using namespace colors::literals;
+    using namespace colors::operators;
 
-    render_rectangle(headerBox, Colors::mediumGrey | 200_a);
-    render_triangle(headerTriangle, Colors::lightGrey);
+    render_rectangle(headerBox, colors::mediumGrey | 200_a);
+    render_triangle(headerTriangle, colors::lightGrey);
     render_text(mCurrentWindow.title, titleBox);
-    render_rectangle(bodyBox, Colors::mediumGrey | 100_a);
+    render_rectangle(bodyBox, colors::mediumGrey | 100_a);
 
     if (mouse.leftButton.is_pressed() && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), headerBox)) {
         Point moved{
@@ -386,7 +393,7 @@ void reig::Context::fit_rect_in_window(Rectangle& rect) {
     mCurrentWindow.expand(rect);
 }
 
-bool reig::button::draw(reig::Context& ctx) const {
+bool reig::reference_widget::button::draw(reig::Context& ctx) const {
     Rectangle box = this->mBoundingBox;
     ctx.fit_rect_in_window(box);
 
@@ -418,7 +425,7 @@ bool reig::button::draw(reig::Context& ctx) const {
 }
 
 
-bool reig::textured_button::draw(reig::Context& ctx) const {
+bool reig::reference_widget::textured_button::draw(reig::Context& ctx) const {
     Rectangle box = this->mBoundingBox;
     ctx.fit_rect_in_window(box);
 
@@ -437,13 +444,13 @@ bool reig::textured_button::draw(reig::Context& ctx) const {
     return ctx.mouse.leftButton.is_clicked() && clickedInBox;
 }
 
-void reig::label::draw(reig::Context& ctx) const {
+void reig::reference_widget::label::draw(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
     ctx.render_text(mTitle, boundingBox);
 }
 
-bool reig::slider::draw(reig::Context& ctx) const {
+bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
 
@@ -491,7 +498,7 @@ bool reig::slider::draw(reig::Context& ctx) const {
     }
 }
 
-bool reig::slider_textured::draw(reig::Context& ctx) const {
+bool reig::reference_widget::slider_textured::draw(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
 
@@ -532,7 +539,7 @@ bool reig::slider_textured::draw(reig::Context& ctx) const {
     }
 }
 
-bool reig::checkbox::draw(reig::Context& ctx) const {
+bool reig::reference_widget::checkbox::draw(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
 
@@ -557,7 +564,7 @@ bool reig::checkbox::draw(reig::Context& ctx) const {
     }
 }
 
-bool reig::textured_checkbox::draw(reig::Context& ctx) const {
+bool reig::reference_widget::textured_checkbox::draw(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
 

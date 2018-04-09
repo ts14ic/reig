@@ -11,276 +11,286 @@ namespace reig {
     using uint8_t = std::uint8_t;
     using uint32_t = std::uint32_t;
 
-    struct Point {
-        float x = 0.0f;
-        float y = 0.0f;
-    };
+    namespace primitive {
+        struct Point {
+            float x = 0.0f;
+            float y = 0.0f;
+        };
 
-    struct Rectangle {
-        float x = 0.0f;
-        float y = 0.0f;
-        float width = 0.0f;
-        float height = 0.0f;
-    };
+        struct Rectangle {
+            float x = 0.0f;
+            float y = 0.0f;
+            float width = 0.0f;
+            float height = 0.0f;
+        };
 
-    struct Triangle {
-        Point pos0;
-        Point pos1;
-        Point pos2;
-    };
+        struct Triangle {
+            Point pos0;
+            Point pos1;
+            Point pos2;
+        };
 
-    struct Red {
-        uint8_t val = 0u;
+        struct Color {
+            struct Red {
+                uint8_t val = 0u;
 
-        constexpr explicit Red(uint8_t val = 0u) noexcept : val{val} {}
-    };
+                constexpr explicit Red(uint8_t val = 0u) noexcept
+                        : val{val} {}
+            };
 
-    struct Green {
-        uint8_t val = 0u;
+            struct Green {
+                uint8_t val = 0u;
 
-        constexpr explicit Green(uint8_t val = 0u) noexcept : val{val} {}
-    };
+                constexpr explicit Green(uint8_t val = 0u) noexcept
+                        : val{val} {}
+            };
 
-    struct Blue {
-        uint8_t val = 0u;
+            struct Blue {
+                uint8_t val = 0u;
 
-        constexpr explicit Blue(uint8_t val = 0u) noexcept : val{val} {}
-    };
+                constexpr explicit Blue(uint8_t val = 0u) noexcept
+                        : val{val} {}
+            };
 
-    struct Alpha {
-        uint8_t val = 0xFFu;
+            struct Alpha {
+                uint8_t val = 0xFFu;
 
-        constexpr explicit Alpha(uint8_t val = 0xFFu) noexcept : val{val} {}
-    };
+                constexpr explicit Alpha(uint8_t val = 0xFFu) noexcept
+                        : val{val} {}
+            };
 
-    struct Color {
-        constexpr Color() = default;
+            constexpr Color() = default;
 
-        constexpr Color(Red const& red, Green const& green, Blue const& blue,
-                        Alpha const& alpha = Alpha{0xFFu}) noexcept
-                : red{red}, green{green}, blue{blue}, alpha{alpha} {}
+            constexpr Color(Red const& red, Green const& green, Blue const& blue,
+                            Alpha const& alpha = Alpha{0xFFu}) noexcept
+                    : red{red}, green{green}, blue{blue}, alpha{alpha} {}
 
-        Red red;
-        Green green;
-        Blue blue;
-        Alpha alpha;
-    };
+            Red red;
+            Green green;
+            Blue blue;
+            Alpha alpha;
+        };
 
-    namespace Colors {
-        uint32_t to_uint(Color const& from);
+        namespace colors {
+            uint32_t to_uint(Color const& from);
 
-        Color from_uint(uint32_t rgba);
+            Color from_uint(uint32_t rgba);
 
-        namespace literals {
-            constexpr Red operator ""_r(unsigned long long val) noexcept {
-                return Red{static_cast<uint8_t>(val)};
-            }
-
-            constexpr Green operator ""_g(unsigned long long val) noexcept {
-                return Green{static_cast<uint8_t>(val)};
-            }
-
-            constexpr Blue operator ""_b(unsigned long long val) noexcept {
-                return Blue{static_cast<uint8_t>(val)};
-            }
-
-            constexpr Alpha operator ""_a(unsigned long long val) noexcept {
-                return Alpha{static_cast<uint8_t>(val)};
-            }
-        }
-
-        namespace operators {
-            namespace detail {
-                template<typename Comp>
-                static constexpr bool is_color_component_v = std::is_same_v<Comp, Red> ||
-                                                             std::is_same_v<Comp, Green> ||
-                                                             std::is_same_v<Comp, Blue> ||
-                                                             std::is_same_v<Comp, Alpha>;
-
-                template<typename Comp, typename = std::enable_if_t<is_color_component_v<Comp>>>
-                Comp const& get_comp(Color const& color) {
-                    if constexpr (std::is_same_v<Comp, Red>) return color.red;
-                    else if constexpr (std::is_same_v<Comp, Green>) return color.green;
-                    else if constexpr (std::is_same_v<Comp, Blue>) return color.blue;
-                    else return color.alpha;
+            namespace literals {
+                constexpr Color::Red operator "" _r(unsigned long long val) noexcept {
+                    return Color::Red{static_cast<uint8_t>(val)};
                 }
 
-                template<typename Comp, typename = std::enable_if_t<is_color_component_v<Comp>>>
-                Comp& get_comp(Color& color) {
-                    if constexpr (std::is_same_v<Comp, Red>) return color.red;
-                    else if constexpr (std::is_same_v<Comp, Green>) return color.green;
-                    else if constexpr (std::is_same_v<Comp, Blue>) return color.blue;
-                    else return color.alpha;
+                constexpr Color::Green operator "" _g(unsigned long long val) noexcept {
+                    return Color::Green{static_cast<uint8_t>(val)};
+                }
+
+                constexpr Color::Blue operator "" _b(unsigned long long val) noexcept {
+                    return Color::Blue{static_cast<uint8_t>(val)};
+                }
+
+                constexpr Color::Alpha operator "" _a(unsigned long long val) noexcept {
+                    return Color::Alpha{static_cast<uint8_t>(val)};
                 }
             }
 
-            template<typename Comp, typename = std::enable_if_t<detail::is_color_component_v<Comp>>>
-            Color operator|(Color const& left, Comp const& right) {
-                Color ret = left;
-                detail::get_comp<Comp>(ret) = right;
-                return ret;
-            };
+            namespace operators {
+                namespace detail {
+                    template <typename Comp>
+                    static constexpr bool is_color_component_v = std::is_same_v<Comp, Color::Red> ||
+                                                                 std::is_same_v<Comp, Color::Green> ||
+                                                                 std::is_same_v<Comp, Color::Blue> ||
+                                                                 std::is_same_v<Comp, Color::Alpha>;
 
-            template<typename Comp, typename = std::enable_if_t<detail::is_color_component_v<Comp>>>
-            Color operator+(Color const& left, Comp const& right) {
-                Color ret = left;
-                detail::get_comp<Comp>(ret).val += right.val;
-                return ret;
-            };
+                    template <typename Comp, typename = std::enable_if_t<is_color_component_v<Comp>>>
+                    Comp const& get_comp(Color const& color) {
+                        if constexpr (std::is_same_v<Comp, Color::Red>) return color.red;
+                        else if constexpr (std::is_same_v<Comp, Color::Green>) return color.green;
+                        else if constexpr (std::is_same_v<Comp, Color::Blue>) return color.blue;
+                        else return color.alpha;
+                    }
 
-            template<typename Comp, typename = std::enable_if_t<detail::is_color_component_v<Comp>>>
-            Color operator-(Color const& left, Comp const& right) {
-                Color ret = left;
-                detail::get_comp<Comp>(ret).val -= right.val;
-                return ret;
-            };
+                    template <typename Comp, typename = std::enable_if_t<is_color_component_v<Comp>>>
+                    Comp& get_comp(Color& color) {
+                        if constexpr (std::is_same_v<Comp, Color::Red>) return color.red;
+                        else if constexpr (std::is_same_v<Comp, Color::Green>) return color.green;
+                        else if constexpr (std::is_same_v<Comp, Color::Blue>) return color.blue;
+                        else return color.alpha;
+                    }
+                }
+
+                template <typename Comp, typename = std::enable_if_t<detail::is_color_component_v<Comp>>>
+                Color operator|(Color const& left, Comp const& right) {
+                    Color ret = left;
+                    detail::get_comp<Comp>(ret) = right;
+                    return ret;
+                };
+
+                template <typename Comp, typename = std::enable_if_t<detail::is_color_component_v<Comp>>>
+                Color operator+(Color const& left, Comp const& right) {
+                    Color ret = left;
+                    detail::get_comp<Comp>(ret).val += right.val;
+                    return ret;
+                };
+
+                template <typename Comp, typename = std::enable_if_t<detail::is_color_component_v<Comp>>>
+                Color operator-(Color const& left, Comp const& right) {
+                    Color ret = left;
+                    detail::get_comp<Comp>(ret).val -= right.val;
+                    return ret;
+                };
+            }
+
+            // @formatter:off
+            #pragma clang diagnostic push
+            #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
+            Color constexpr transparent{Color::Red{},    Color::Green{},    Color::Blue{},    Color::Alpha{}};
+            Color constexpr red        {Color::Red{239}, Color::Green{41},  Color::Blue{41}};
+            Color constexpr orange     {Color::Red{252}, Color::Green{175}, Color::Blue{62}};
+            Color constexpr yellow     {Color::Red{252}, Color::Green{233}, Color::Blue{79}};
+            Color constexpr green      {Color::Red{138}, Color::Green{226}, Color::Blue{52}};
+            Color constexpr blue       {Color::Red{114}, Color::Green{159}, Color::Blue{207}};
+            Color constexpr violet     {Color::Red{173}, Color::Green{127}, Color::Blue{168}};
+            Color constexpr brown      {Color::Red{143}, Color::Green{89},  Color::Blue{2}};
+            Color constexpr white      {Color::Red{255}, Color::Green{255}, Color::Blue{255}};
+            Color constexpr lightGrey  {Color::Red{186}, Color::Green{189}, Color::Blue{182}};
+            Color constexpr mediumGrey {Color::Red{136}, Color::Green{138}, Color::Blue{133}};
+            Color constexpr darkGrey   {Color::Red{46},  Color::Green{52},  Color::Blue{54}};
+            Color constexpr black      {Color::Red{0},   Color::Green{0},   Color::Blue{0}};
+            #pragma clang diagnostic pop
+            // @formatter:on
         }
 
-        #pragma clang diagnostic push
-        #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
-        Color constexpr transparent{Red{}, Green{}, Blue{}, Alpha{}};
-        Color constexpr red{Red{239}, Green{41}, Blue{41}};
-        Color constexpr orange{Red{252}, Green{175}, Blue{62}};
-        Color constexpr yellow{Red{252}, Green{233}, Blue{79}};
-        Color constexpr green{Red{138}, Green{226}, Blue{52}};
-        Color constexpr blue{Red{114}, Green{159}, Blue{207}};
-        Color constexpr violet{Red{173}, Green{127}, Blue{168}};
-        Color constexpr brown{Red{143}, Green{89}, Blue{2}};
-        Color constexpr white{Red{255}, Green{255}, Blue{255}};
-        Color constexpr lightGrey{Red{186}, Green{189}, Blue{182}};
-        Color constexpr mediumGrey{Red{136}, Green{138}, Blue{133}};
-        Color constexpr darkGrey{Red{46}, Green{52}, Blue{54}};
-        Color constexpr black{Red{0}, Green{0}, Blue{0}};
-        #pragma clang diagnostic pop
+        struct Vertex {
+            Point position;
+            Point texCoord;
+            Color color;
+        };
     }
 
-    struct Vertex {
-        Point position;
-        Point texCoord;
-        Color color;
-    };
+    /* forward */ class Context;
 
-    /*forward*/ class Context;
-
-    /*forward*/ class Mouse;
-
-    class MouseButton {
-    public:
-        MouseButton() = default;
-
-        MouseButton(MouseButton const&) = delete;
-
-        MouseButton(MouseButton&&) = delete;
-
-        MouseButton& operator=(MouseButton const&) = delete;
-
-        MouseButton& operator=(MouseButton&&) = delete;
-
+    namespace primitive {
         /**
-         * @brief Sets mouse pressed and clicked states
-         * @param x X coordinate
-         * @param y Y coordinate
+         * @class Figure
+         * @brief A bunch of vertices and indices to render a figure
+         * Can be collected by the user, but formation is accessible only for the Context
          */
-        void press(float x, float y);
+        class Figure {
+        public:
+            /**
+             * @brief Returns figure's read-only vertices
+             */
+            std::vector<primitive::Vertex> const& vertices() const;
 
-        /**
-         * @brief Unsets mouse pressed state
-         */
-        void release();
+            /**
+             * @brief Returns figure's read-only indices
+             */
+            std::vector<int> const& indices() const;
 
-        const Point& get_clicked_pos() const;
+            /**
+             * @brief Return figure's texture index
+             */
+            int texture() const;
 
-        bool is_pressed() const;
+        private:
+            Figure() = default;
 
-        bool is_clicked() const;
+            friend class ::reig::Context;
 
-    private:
-        friend class ::reig::Context;
+            void form(std::vector<primitive::Vertex>& vertices, std::vector<int>& indices, int id = 0);
 
-        Point mClickedPos;
-        bool mIsPressed = false;
-        bool mIsClicked = false;
-    };
+            std::vector<primitive::Vertex> mVertices;
+            std::vector<int> mIndices;
+            int mTextureId = 0;
+        };
+    }
 
-    class Mouse {
-    public:
-        Mouse() = default;
+    namespace detail {
+        class MouseButton {
+        public:
+            MouseButton() = default;
 
-        Mouse(Mouse const&) = delete;
+            MouseButton(MouseButton const&) = delete;
 
-        Mouse(Mouse&&) = delete;
+            MouseButton(MouseButton&&) = delete;
 
-        Mouse& operator=(Mouse const&) = delete;
+            MouseButton& operator=(MouseButton const&) = delete;
 
-        Mouse& operator=(Mouse&&) = delete;
+            MouseButton& operator=(MouseButton&&) = delete;
 
-        MouseButton leftButton;
-        MouseButton rightButton;
+            /**
+             * @brief Sets mouse pressed and clicked states
+             * @param x X coordinate
+             * @param y Y coordinate
+             */
+            void press(float x, float y);
 
-        /**
-         * @brief Moves cursor against previous position
-         * @param difx Delta x coordinate
-         * @param dify Delta y coordinate
-         */
-        void move(float difx, float dify);
+            /**
+             * @brief Unsets mouse pressed state
+             */
+            void release();
 
-        /**
-         * @brief Places the cursors in abosulute coordinates
-         * @param x X coordinate
-         * @param y Y coordiante
-         */
-        void place(float x, float y);
+            const primitive::Point& get_clicked_pos() const;
 
-        /**
-         * @brief Scrolls the virtual mouse wheel
-         * @param dy Amount of scrolling
-         */
-        void scroll(float dy);
+            bool is_pressed() const;
 
-        const Point& get_cursor_pos() const;
+            bool is_clicked() const;
 
-        float get_scrolled() const;
+        private:
+            friend class ::reig::Context;
 
-    private:
-        friend class ::reig::Context;
+            primitive::Point mClickedPos;
+            bool mIsPressed = false;
+            bool mIsClicked = false;
+        };
 
-        Point mCursorPos;
-        float mScrolled = 0.0f;
-    };
+        class Mouse {
+        public:
+            Mouse() = default;
 
-    /**
-     * @class Figure
-     * @brief A bunch of vertices and indices to render a figure
-     * Can be collected by the user, but formation is accessible only for the Context
-     */
-    class Figure {
-    public:
-        /**
-         * @brief Returns figure's read-only vertices
-         */
-        std::vector<Vertex> const& vertices() const;
+            Mouse(Mouse const&) = delete;
 
-        /**
-         * @brief Returns figure's read-only indices
-         */
-        std::vector<int> const& indices() const;
+            Mouse(Mouse&&) = delete;
 
-        /**
-         * @brief Return figure's texture index
-         */
-        int texture() const;
+            Mouse& operator=(Mouse const&) = delete;
 
-    private:
-        Figure() = default;
+            Mouse& operator=(Mouse&&) = delete;
 
-        friend class ::reig::Context;
+            detail::MouseButton leftButton;
+            detail::MouseButton rightButton;
 
-        void form(std::vector<Vertex>& vertices, std::vector<int>& indices, int id = 0);
+            /**
+             * @brief Moves cursor against previous position
+             * @param difx Delta x coordinate
+             * @param dify Delta y coordinate
+             */
+            void move(float difx, float dify);
 
-        std::vector<Vertex> mVertices;
-        std::vector<int> mIndices;
-        int mTextureId = 0;
-    };
+            /**
+             * @brief Places the cursors in abosulute coordinates
+             * @param x X coordinate
+             * @param y Y coordiante
+             */
+            void place(float x, float y);
+
+            /**
+             * @brief Scrolls the virtual mouse wheel
+             * @param dy Amount of scrolling
+             */
+            void scroll(float dy);
+
+            const primitive::Point& get_cursor_pos() const;
+
+            float get_scrolled() const;
+
+        private:
+            friend class ::reig::Context;
+
+            primitive::Point mCursorPos;
+            float mScrolled = 0.0f;
+        };
+    }
 
     struct FontData {
         std::vector<uint8_t> bitmap;
@@ -298,7 +308,7 @@ namespace reig {
         };
 
         struct Window {
-            std::vector<Figure> drawData;
+            std::vector<primitive::Figure> drawData;
             char const* title = nullptr;
             float* x = nullptr;
             float* y = nullptr;
@@ -307,143 +317,144 @@ namespace reig {
             float headerSize = 0.f;
             bool started = false;
 
-            void expand(Rectangle& box);
+            void expand(primitive::Rectangle& box);
         };
     }
 
-    struct FailedToLoadFontException : std::exception {
-    public:
-        const char* what() const noexcept override;
+    namespace exception {
+        struct FailedToLoadFontException : std::exception {
+        public:
+            const char* what() const noexcept override;
 
-        static FailedToLoadFontException noTextureId(const char* filePath);
-        static FailedToLoadFontException invalidSize(const char* filePath, float fontSize);
-        static FailedToLoadFontException couldNotOpenFile(const char* filePath);
-        static FailedToLoadFontException invalidFile(const char* filePath);
-        static FailedToLoadFontException couldNotFitCharacters(const char* filePath, float fontSize, int width, int height);
-    private:
-        explicit FailedToLoadFontException(std::string message);
-        const std::string message;
-    };
+            static FailedToLoadFontException noTextureId(const char* filePath);
+            static FailedToLoadFontException invalidSize(const char* filePath, float fontSize);
+            static FailedToLoadFontException couldNotOpenFile(const char* filePath);
+            static FailedToLoadFontException invalidFile(const char* filePath);
+            static FailedToLoadFontException couldNotFitCharacters(const char* filePath, float fontSize, int width, int height);
+        private:
+            explicit FailedToLoadFontException(std::string message);
+            const std::string message;
+        };
 
-    struct NoRenderHandlerException : std::exception {
-        const char* what() const noexcept override;
-    };
+        struct NoRenderHandlerException : std::exception {
+            const char* what() const noexcept override;
+        };
+    }
 
-    struct button {
-        char const* mTitle;
-        Rectangle mBoundingBox;
-        Color mBaseColor;
+    namespace reference_widget {
+        struct button {
+            char const* mTitle;
+            primitive::Rectangle mBoundingBox;
+            primitive::Color mBaseColor;
 
-        /**
-         * @brief Render a titled button
-         *
-         * @param title Text to be displayed on button
-         * @param box Button's bounding box
-         * @param color Button's base color
-         *
-         * @return True if the button was clicked, false otherwise
-         */
-        bool draw(Context& ctx) const;
-    };
+            /**
+             * @brief Render a titled button
+             *
+             * @param title Text to be displayed on button
+             * @param box Button's bounding box
+             * @param color Button's base color
+             *
+             * @return True if the button was clicked, false otherwise
+             */
+            bool draw(Context& ctx) const;
+        };
 
-    struct textured_button {
-        char const* mTitle;
-        Rectangle mBoundingBox;
-        int mBaseTexture, mHoverTexture;
+        struct textured_button {
+            char const* mTitle;
+            primitive::Rectangle mBoundingBox;
+            int mBaseTexture, mHoverTexture;
 
-        /**
-         * @brief Render a titled textured button
-         * @param box Button's bouding box
-         * @param baseTexture Button's texture index, when idle
-         * @param hoverTexture Button's texture index, when button is hoverred
-         * @return True if the button was clicked, false otherwise
-         */
-         bool draw(Context& ctx) const;
-    };
+            /**
+             * @brief Render a titled textured button
+             * @param box Button's bouding box
+             * @param baseTexture Button's texture index, when idle
+             * @param hoverTexture Button's texture index, when button is hoverred
+             * @return True if the button was clicked, false otherwise
+             */
+            bool draw(Context& ctx) const;
+        };
 
-    struct label {
-        char const* mTitle;
-        Rectangle mBoundingBox;
-        /**
-         * @brief Render a label, which will be enclosed in the current window, if any
-         * @param text Text to be displayed
-         * @param box Text's bounding box
-         */
-        void draw(Context& ctx) const;
-    };
+        struct label {
+            char const* mTitle;
+            primitive::Rectangle mBoundingBox;
+            /**
+             * @brief Render a label, which will be enclosed in the current window, if any
+             * @param text Text to be displayed
+             * @param box Text's bounding box
+             */
+            void draw(Context& ctx) const;
+        };
 
-    struct slider {
-        Rectangle mBoundingBox;
-        Color mBaseColor;
-        float& mValueRef;
-        float mMin, mMax, mStep;
+        struct slider {
+            primitive::Rectangle mBoundingBox;
+            primitive::Color mBaseColor;
+            float& mValueRef;
+            float mMin, mMax, mStep;
 
-        /**
-         * @brief Renders a slider.
-         * @param box Slider's bounding box
-         * @param color Slider's base color
-         * @param value A reference to the value to be represented and changed
-         * @param min The lowest represantable value
-         * @param max The highest represantable value
-         * @param step The discrete portion by which the value can change
-         * @return True if value changed
-         */
-        bool draw(Context& ctx) const;
-    };
+            /**
+             * @brief Renders a slider.
+             * @param box Slider's bounding box
+             * @param color Slider's base color
+             * @param value A reference to the value to be represented and changed
+             * @param min The lowest represantable value
+             * @param max The highest represantable value
+             * @param step The discrete portion by which the value can change
+             * @return True if value changed
+             */
+            bool draw(Context& ctx) const;
+        };
 
-    struct slider_textured {
-        Rectangle mBoundingBox;
-        int mBaseTexture, mCursorTexture;
-        float& mValueRef;
-        float mMin, mMax, mStep;
+        struct slider_textured {
+            primitive::Rectangle mBoundingBox;
+            int mBaseTexture, mCursorTexture;
+            float& mValueRef;
+            float mMin, mMax, mStep;
 
-        /**
-         * @brief
-         * @brief Renders a slider.
-         * @param box Slider's bounding box
-         * @param baseTexture Slider's base texture index
-         * @param cursorTexture Slider's cursor texture index
-         * @param value A reference to the value to be represented and changed
-         * @param min The lowest represantable value
-         * @param max The highest represantable value
-         * @param step The discrete portion by which the value can change
-         * @return True if value changed
-         */
-        bool draw(Context& ctx) const;
-    };
+            /**
+             * @brief
+             * @brief Renders a slider.
+             * @param box Slider's bounding box
+             * @param baseTexture Slider's base texture index
+             * @param cursorTexture Slider's cursor texture index
+             * @param value A reference to the value to be represented and changed
+             * @param min The lowest represantable value
+             * @param max The highest represantable value
+             * @param step The discrete portion by which the value can change
+             * @return True if value changed
+             */
+            bool draw(Context& ctx) const;
+        };
 
-    struct checkbox {
-        Rectangle mBoundingBox;
-        Color mBaseColor;
-        bool& mValueRef;
-        /**
-         * @brief Renders a checkbox
-         * @param box Checkbox's position and size
-         * @param color Checkbox's base color
-         * @param value A reference to the bool to be changed
-         * @return True if value changed
-         */
-        bool draw(Context& ctx) const;
-    };
+        struct checkbox {
+            primitive::Rectangle mBoundingBox;
+            primitive::Color mBaseColor;
+            bool& mValueRef;
+            /**
+             * @brief Renders a checkbox
+             * @param box Checkbox's position and size
+             * @param color Checkbox's base color
+             * @param value A reference to the bool to be changed
+             * @return True if value changed
+             */
+            bool draw(Context& ctx) const;
+        };
 
-    struct textured_checkbox {
-        Rectangle mBoundingBox;
-        int mBaseTexture, mCheckTexture;
-        bool& mValueRef;
+        struct textured_checkbox {
+            primitive::Rectangle mBoundingBox;
+            int mBaseTexture, mCheckTexture;
+            bool& mValueRef;
 
-        /**
-         * @brief Renders a textured checkbox
-         * @param box Checkbox's position and size
-         * @param baseTexture Checkbox's base texture
-         * @param tickTexture Checkbox's tick texture
-         * @param value A reference to the bool to be changed
-         * @return True if value changed
-         */
-        bool draw(Context& ctx) const;
-    };
-
-    using DrawData = std::vector<Figure>;
-    using RenderHandler = void (*)(DrawData const&, std::any&);
+            /**
+             * @brief Renders a textured checkbox
+             * @param box Checkbox's position and size
+             * @param baseTexture Checkbox's base texture
+             * @param tickTexture Checkbox's tick texture
+             * @param value A reference to the bool to be changed
+             * @return True if value changed
+             */
+            bool draw(Context& ctx) const;
+        };
+    }
 
     /**
      * @class Context
@@ -452,6 +463,9 @@ namespace reig {
     class Context {
     public:
         Context() = default;
+
+        using DrawData = std::vector<primitive::Figure>;
+        using RenderHandler = void (*)(DrawData const&, std::any&);
 
         /**
          * @brief Set's a user function, which will draw the gui, based 
@@ -493,7 +507,7 @@ namespace reig {
         void render_all();
 
         // Inputs
-        Mouse mouse;
+        detail::Mouse mouse;
 
         // Widget renders
         void start_window(char const* title, float& x, float& y);
@@ -501,11 +515,11 @@ namespace reig {
         void end_window();
 
         template <typename T>
-        auto widget(T&& t) {
+        auto enqueue(T&& t) {
             return t.draw(*this);
         }
 
-        void fit_rect_in_window(Rectangle& rect);
+        void fit_rect_in_window(primitive::Rectangle& rect);
 
         /**
          * @brief Renders a vertical scrollbar
@@ -525,31 +539,31 @@ namespace reig {
          * @param text Text to be displayed
          * @param box Text's bounding box
          */
-        void render_text(char const* text, Rectangle box);
+        void render_text(char const* text, primitive::Rectangle box);
 
         /**
          * @brief Schedules a rectangle drawing
          * @param rect Position and size
          * @param color Color
          */
-        void render_rectangle(Rectangle const& rect, Color const& color);
+        void render_rectangle(primitive::Rectangle const& rect, primitive::Color const& color);
 
         /**
          * @brief Schedules a textured rectangle drawing (the texture is stretched)
          * @param rect Position and size
          * @param texture Index to the texture
          */
-        void render_rectangle(Rectangle const& rect, int texture);
+        void render_rectangle(primitive::Rectangle const& rect, int texture);
 
         /**
          * @brief Schedules a triangle drawing
          * @param triangle Position and size
          * @param color Color
          */
-        void render_triangle(Triangle const& triangle, Color const& color);
+        void render_triangle(primitive::Triangle const& triangle, primitive::Color const& color);
 
     private:
-        std::vector<Figure> mDrawData;
+        std::vector<primitive::Figure> mDrawData;
         detail::Font mFont;
         detail::Window mCurrentWindow;
 

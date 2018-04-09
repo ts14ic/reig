@@ -96,13 +96,15 @@ public:
                 if(quit) break;
             }
             if(quit) break;
-            
-            // ================== GUI setup =================
-            using namespace reig::Colors::literals;
-            using namespace reig::Colors::operators;
 
-            reig::Rectangle rect {40, 0, 100, 30};
-            reig::Color color {120_r, 100_g, 150_b};
+            // ================== GUI setup =================
+            using namespace reig::primitive::colors::literals;
+            using namespace reig::primitive::colors::operators;
+            namespace widget = reig::reference_widget;
+            namespace primitive = reig::primitive;
+
+            primitive::Rectangle rect {40, 0, 100, 30};
+            primitive::Color color {120_r, 100_g, 150_b};
             
             static float winX = 10, winY = 10;
             gui.ctx.start_window(fpsString.c_str(), winX, winY);
@@ -110,7 +112,7 @@ public:
                 rect.x -= 10; rect.y = 40 * i;
                 color = color + 25_r + 25_g;
                 std::string title = "some  " + std::to_string(i + 1);
-                if(gui.ctx.widget(reig::button{title.c_str(), rect, color})) {
+                if(gui.ctx.enqueue(widget::button{title.c_str(), rect, color})) {
                     std::cout << "Button " << (i + 1) << ": pressed" << std::endl;
                 }
             }
@@ -118,43 +120,43 @@ public:
             color = color + 50_g;
             rect.y += 40; rect.width += 50;
             static float sliderValue0 = 20;
-            if (gui.ctx.widget(reig::slider{rect, color, sliderValue0, 20, 40, 5})) {
+            if (gui.ctx.enqueue(widget::slider{rect, color, sliderValue0, 20, 40, 5})) {
                 std::cout << "Slider 1: new value " << sliderValue0 << std::endl;
             }
 
             color = color + 50_g;
             rect.y += 40;
             rect.width += 50;
-            
+
             static float sliderValue1 = 5.4f;
-            if (gui.ctx.widget(reig::slider{rect, color, sliderValue1, 3, 7, 0.1f})) {
+            if (gui.ctx.enqueue(widget::slider{rect, color, sliderValue1, 3, 7, 0.1f})) {
                 std::cout << "Slider 2: new value " << sliderValue1 << std::endl;
             }
             
             static float sliderValue2 = 0.3f;
             rect.y += 40; rect.width += 50; rect.height += 10;
-            if (gui.ctx.widget(reig::slider{rect, {220_r, 200_g, 150_b}, sliderValue2, 0.1f, 0.5f, 0.05f})) {
+            if (gui.ctx.enqueue(widget::slider{rect, {220_r, 200_g, 150_b}, sliderValue2, 0.1f, 0.5f, 0.05f})) {
                 std::cout << "Slider 2: new value " << sliderValue2 << std::endl;
             }
             
             static bool checkBox1 = false;
             color = color + 15_r - 35_r - 10_b;
             rect.x += 270; rect.width = 40; rect.height = 20;
-            if(gui.ctx.widget(reig::checkbox{rect, color, checkBox1})) {
+            if(gui.ctx.enqueue(widget::checkbox{rect, color, checkBox1})) {
                 std::cout << "Checkbox 1: new value " << checkBox1 << std::endl;
             }
             
             static bool checkBox2 = true;
             color = color - 100_r + 100_g + 100_b;
             rect.y -= 100; rect.width = rect.height = 50;
-            if(gui.ctx.widget(reig::checkbox{rect, color, checkBox2})) {
+            if(gui.ctx.enqueue(widget::checkbox{rect, color, checkBox2})) {
                 std::cout << "Checkbox 2: new value " << checkBox2 << std::endl;
             }
             
             static bool checkBox3 = false;
-            color = reig::Colors::from_uint(0xFFFFFFFFu);
+            color = primitive::colors::from_uint(0xFFFFFFFFu);
             rect.y += 60; rect.width = rect.height = 25;
-            if(gui.ctx.widget(reig::checkbox{rect, color, checkBox3})) {
+            if(gui.ctx.enqueue(widget::checkbox{rect, color, checkBox3})) {
                 std::cout << "Checkbox 3: new value " << checkBox3 << std::endl;
             }
             
@@ -183,7 +185,8 @@ public:
         return 0;
     }
 
-    static void gui_handler(reig::DrawData const& drawData, std::any& userPtr) {
+    static void gui_handler(reig::Context::DrawData const& drawData, std::any& userPtr) {
+        namespace colors = reig::primitive::colors;
         Main* self = std::any_cast<Main*>(userPtr);
         
         for(auto const& fig : drawData) {
@@ -205,7 +208,7 @@ public:
                         vertices[indices[i+1]].position.y,
                         vertices[indices[i+2]].position.x,
                         vertices[indices[i+2]].position.y,
-                        reig::Colors::to_uint(vertices[i].color)
+                        colors::to_uint(vertices[i].color)
                     );
                 }
             }
