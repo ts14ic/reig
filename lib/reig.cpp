@@ -510,7 +510,13 @@ bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
 }
 
 bool reig::reference_widget::scrollbar::draw(reig::Context& ctx) const {
-    return false;
+    float scale = mBoundingBox.height / mViewHeight;
+    float sliderHeight = scale * mBoundingBox.height;
+
+    const float min = 0.0f;
+    const float max = 100.0f;
+    float step = sliderHeight / max;
+    return base_slider_draw(ctx, {mBoundingBox}, SliderOrientation::Vertical, mBaseColor, mValueRef, min, max, step);
 }
 
 bool reig::reference_widget::slider_textured::draw(reig::Context& ctx) const {
