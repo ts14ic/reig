@@ -164,43 +164,45 @@ namespace reig {
 
     /*forward*/ class Mouse;
 
-    class MouseButton {
-    public:
-        MouseButton() = default;
+    namespace detail {
+        class MouseButton {
+        public:
+            MouseButton() = default;
 
-        MouseButton(MouseButton const&) = delete;
+            MouseButton(MouseButton const&) = delete;
 
-        MouseButton(MouseButton&&) = delete;
+            MouseButton(MouseButton&&) = delete;
 
-        MouseButton& operator=(MouseButton const&) = delete;
+            MouseButton& operator=(MouseButton const&) = delete;
 
-        MouseButton& operator=(MouseButton&&) = delete;
+            MouseButton& operator=(MouseButton&&) = delete;
 
-        /**
-         * @brief Sets mouse pressed and clicked states
-         * @param x X coordinate
-         * @param y Y coordinate
-         */
-        void press(float x, float y);
+            /**
+             * @brief Sets mouse pressed and clicked states
+             * @param x X coordinate
+             * @param y Y coordinate
+             */
+            void press(float x, float y);
 
-        /**
-         * @brief Unsets mouse pressed state
-         */
-        void release();
+            /**
+             * @brief Unsets mouse pressed state
+             */
+            void release();
 
-        const Point& get_clicked_pos() const;
+            const Point& get_clicked_pos() const;
 
-        bool is_pressed() const;
+            bool is_pressed() const;
 
-        bool is_clicked() const;
+            bool is_clicked() const;
 
-    private:
-        friend class ::reig::Context;
+        private:
+            friend class ::reig::Context;
 
-        Point mClickedPos;
-        bool mIsPressed = false;
-        bool mIsClicked = false;
-    };
+            Point mClickedPos;
+            bool mIsPressed = false;
+            bool mIsClicked = false;
+        };
+    }
 
     class Mouse {
     public:
@@ -214,8 +216,8 @@ namespace reig {
 
         Mouse& operator=(Mouse&&) = delete;
 
-        MouseButton leftButton;
-        MouseButton rightButton;
+        detail::MouseButton leftButton;
+        detail::MouseButton rightButton;
 
         /**
          * @brief Moves cursor against previous position

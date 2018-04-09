@@ -259,7 +259,7 @@ float reig::Mouse::get_scrolled() const {
     return mScrolled;
 }
 
-void reig::MouseButton::press(float_t x, float_t y) {
+void reig::detail::MouseButton::press(float_t x, float_t y) {
     if (!mIsPressed) {
         mIsPressed = true;
         mIsClicked = true;
@@ -267,19 +267,19 @@ void reig::MouseButton::press(float_t x, float_t y) {
     }
 }
 
-void reig::MouseButton::release() {
+void reig::detail::MouseButton::release() {
     mIsPressed = false;
 }
 
-const reig::Point& reig::MouseButton::get_clicked_pos() const {
+const reig::Point& reig::detail::MouseButton::get_clicked_pos() const {
     return mClickedPos;
 }
 
-bool reig::MouseButton::is_pressed() const {
+bool reig::detail::MouseButton::is_pressed() const {
     return mIsPressed;
 }
 
-bool reig::MouseButton::is_clicked() const {
+bool reig::detail::MouseButton::is_clicked() const {
     return mIsClicked;
 }
 

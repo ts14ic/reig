@@ -250,7 +250,7 @@ public:
     
     static void mouse_scroll_callback(GLFWwindow* window, double, double y) {
         Test* self = static_cast<Test*>(glfwGetWindowUserPointer(window));
-        
+
         if(self->mouse.free) {
             self->ctx.mouse.scroll(-y);
         }
