@@ -449,8 +449,13 @@ void reig::reference_widget::label::draw(reig::Context& ctx) const {
     ctx.render_text(mTitle, boundingBox);
 }
 
+enum class SliderOrientation {
+    Horizontal, Vertical
+};
+
 bool base_slider_draw(reig::Context& ctx,
                       Rectangle boundingBox,
+                      SliderOrientation orientation,
                       Color const& baseColor,
                       float& valueRef,
                       float aMin, float aMax, float step) {
@@ -501,7 +506,7 @@ bool base_slider_draw(reig::Context& ctx,
 }
 
 bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
-    return base_slider_draw(ctx, {mBoundingBox}, mBaseColor, mValueRef, mMin, mMax, mStep);
+    return base_slider_draw(ctx, {mBoundingBox}, SliderOrientation::Horizontal, mBaseColor, mValueRef, mMin, mMax, mStep);
 }
 
 bool reig::reference_widget::scrollbar::draw(reig::Context& ctx) const {
