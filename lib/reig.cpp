@@ -585,15 +585,12 @@ bool reig::reference_widget::checkbox::draw(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
 
-    // Render checkbox's base
-    Color contrastColor = internal::get_yiq_contrast(mBaseColor);
-    ctx.render_rectangle(boundingBox, contrastColor);
-    boundingBox = internal::decrease_box(boundingBox, 4);
-    ctx.render_rectangle(boundingBox, mBaseColor);
+    render_widget_frame(ctx, boundingBox, mBaseColor);
 
     // Render check
     if (mValueRef) {
         boundingBox = internal::decrease_box(boundingBox, 4);
+        Color contrastColor = internal::get_yiq_contrast(mBaseColor);
         ctx.render_rectangle(boundingBox, contrastColor);
     }
 
