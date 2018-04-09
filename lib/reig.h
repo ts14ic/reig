@@ -505,7 +505,7 @@ namespace reig {
         void end_window();
 
         template <typename T>
-        auto widget(T&& t) -> decltype(t.draw(*this)) {
+        auto widget(T&& t) {
             return t.draw(*this);
         }
 
