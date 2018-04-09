@@ -11,8 +11,6 @@ namespace reig {
     using std::uint8_t;
     using std::uint32_t;
 
-    static_assert(sizeof(uint32_t) >= 4 * sizeof(uint8_t), "uint32_t is too small");
-
     struct Point {
         float x = 0.0f;
         float y = 0.0f;
