@@ -386,7 +386,7 @@ void reig::Context::fit_rect_in_window(Rectangle& rect) {
     mCurrentWindow.expand(rect);
 }
 
-bool reig::button::draw(reig::Context& ctx) const {
+bool reig::reference_widgets::button::draw(reig::Context& ctx) const {
     Rectangle box = this->mBoundingBox;
     ctx.fit_rect_in_window(box);
 
@@ -418,7 +418,7 @@ bool reig::button::draw(reig::Context& ctx) const {
 }
 
 
-bool reig::textured_button::draw(reig::Context& ctx) const {
+bool reig::reference_widgets::textured_button::draw(reig::Context& ctx) const {
     Rectangle box = this->mBoundingBox;
     ctx.fit_rect_in_window(box);
 
@@ -437,13 +437,13 @@ bool reig::textured_button::draw(reig::Context& ctx) const {
     return ctx.mouse.leftButton.is_clicked() && clickedInBox;
 }
 
-void reig::label::draw(reig::Context& ctx) const {
+void reig::reference_widgets::label::draw(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
     ctx.render_text(mTitle, boundingBox);
 }
 
-bool reig::slider::draw(reig::Context& ctx) const {
+bool reig::reference_widgets::slider::draw(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
 
@@ -491,7 +491,7 @@ bool reig::slider::draw(reig::Context& ctx) const {
     }
 }
 
-bool reig::slider_textured::draw(reig::Context& ctx) const {
+bool reig::reference_widgets::slider_textured::draw(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
 
@@ -532,7 +532,7 @@ bool reig::slider_textured::draw(reig::Context& ctx) const {
     }
 }
 
-bool reig::checkbox::draw(reig::Context& ctx) const {
+bool reig::reference_widgets::checkbox::draw(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
 
@@ -557,7 +557,7 @@ bool reig::checkbox::draw(reig::Context& ctx) const {
     }
 }
 
-bool reig::textured_checkbox::draw(reig::Context& ctx) const {
+bool reig::reference_widgets::textured_checkbox::draw(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
 
