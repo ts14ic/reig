@@ -10,7 +10,9 @@
 using std::unique_ptr;
 using std::vector;
 
-namespace reig::internal {
+namespace internal {
+    using namespace reig;
+
     template<typename T>
     bool is_between(T val, T min, T max) {
         return val > min && val < max;
@@ -163,7 +165,7 @@ vector<reig::uint8_t> read_font_into_buffer(char const* fontFilePath) {
     long filePos = ftell(file.get());
     if (filePos < 0) throw reig::FailedToLoadFontException::invalidFile(fontFilePath);
 
-    auto fileSize = reig::internal::integral_cast<size_t>(filePos);
+    auto fileSize = internal::integral_cast<size_t>(filePos);
     std::rewind(file.get());
 
     auto ttfBuffer = std::vector<unsigned char>(fileSize);
