@@ -345,10 +345,10 @@ void reig::Context::end_window() {
     render_text(mCurrentWindow.title, titleBox);
     render_rectangle(bodyBox, Colors::mediumGrey | 100_a);
 
-    if (mouse.leftButton.mIsPressed && internal::is_boxed_in(mouse.leftButton.mClickedPos, headerBox)) {
+    if (mouse.leftButton.is_pressed() && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), headerBox)) {
         Point moved{
-                mouse.mCursorPos.x - mouse.leftButton.mClickedPos.x,
-                mouse.mCursorPos.y - mouse.leftButton.mClickedPos.y
+                mouse.get_cursor_pos().x - mouse.leftButton.get_clicked_pos().x,
+                mouse.get_cursor_pos().y - mouse.leftButton.get_clicked_pos().y
         };
 
         *mCurrentWindow.x += moved.x;

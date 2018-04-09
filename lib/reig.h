@@ -201,8 +201,6 @@ namespace reig {
     private:
         friend class ::reig::Context;
 
-        friend class ::reig::Mouse;
-
         Point mClickedPos;
         bool mIsPressed = false;
         bool mIsClicked = false;
