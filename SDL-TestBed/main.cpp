@@ -126,7 +126,7 @@ public:
             color = color + 50_g;
             rect.y += 40;
             rect.width += 50;
-            
+
             static float sliderValue1 = 5.4f;
             if (gui.ctx.widget(widget::slider{rect, color, sliderValue1, 3, 7, 0.1f})) {
                 std::cout << "Slider 2: new value " << sliderValue1 << std::endl;
@@ -184,7 +184,7 @@ public:
         return 0;
     }
 
-    static void gui_handler(reig::DrawData const& drawData, std::any& userPtr) {
+    static void gui_handler(reig::Context::DrawData const& drawData, std::any& userPtr) {
         Main* self = std::any_cast<Main*>(userPtr);
         
         for(auto const& fig : drawData) {

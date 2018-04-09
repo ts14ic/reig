@@ -336,7 +336,7 @@ namespace reig {
             const char* what() const noexcept override;
         };
     }
-    
+
     namespace reference_widgets {
         struct button {
             char const* mTitle;
@@ -452,9 +452,6 @@ namespace reig {
         };
     }
 
-    using DrawData = std::vector<Figure>;
-    using RenderHandler = void (*)(DrawData const&, std::any&);
-
     /**
      * @class Context
      * @brief Used to pump in input and request gui creation
@@ -462,6 +459,9 @@ namespace reig {
     class Context {
     public:
         Context() = default;
+
+        using DrawData = std::vector<Figure>;
+        using RenderHandler = void (*)(DrawData const&, std::any&);
 
         /**
          * @brief Set's a user function, which will draw the gui, based 

@@ -305,7 +305,7 @@ public:
         }
     }
     
-    static void render_handler(reig::DrawData const& drawData, std::any& userPtr) {
+    static void render_handler(reig::Context::DrawData const& drawData, std::any& userPtr) {
         Test* self = std::any_cast<Test*>(userPtr);
         
         struct {
