@@ -188,31 +188,30 @@ reig::FontData reig::Context::set_font(char const* fontFilePath, int textureId, 
 
     // We want all ASCII chars from space to square
     int const charsNum = 96;
-    struct {
-        int w, h;
-    } constexpr bmp {512, 512};
+    int bitmapWidth = 512;
+    int bitmapHeight = 512;
 
     auto bakedChars = std::vector<stbtt_bakedchar>(charsNum);
-    auto bitmap = vector<uint8_t>(internal::integral_cast<size_t>(bmp.w * bmp.h));
+    auto bitmap = vector<uint8_t>(internal::integral_cast<size_t>(bitmapWidth * bitmapHeight));
     auto height = stbtt_BakeFontBitmap(
-            ttfBuffer.data(), 0, fontHeightPx, bitmap.data(), bmp.w, bmp.h, ' ', charsNum, std::data(bakedChars)
+            ttfBuffer.data(), 0, fontHeightPx, bitmap.data(), bitmapWidth, bitmapHeight, ' ', charsNum, std::data(bakedChars)
     );
 
-    if (height < 0 || height > bmp.h) {
-        throw FailedToLoadFontException::couldNotFitCharacters(fontFilePath, fontHeightPx, bmp.w, bmp.h);
+    if (height < 0 || height > bitmapHeight) {
+        throw FailedToLoadFontException::couldNotFitCharacters(fontFilePath, fontHeightPx, bitmapWidth, bitmapHeight);
     }
 
     // If all successfull, replace current font data
     mFont.bakedChars = std::move(bakedChars);
     mFont.texture = textureId;
-    mFont.width = bmp.w;
+    mFont.width = bitmapWidth;
     mFont.height = height;
     mFont.size = fontHeightPx;
 
     // Return texture creation info
     FontData ret;
     ret.bitmap = bitmap;
-    ret.width = bmp.w;
+    ret.width = bitmapWidth;
     ret.height = height;
 
     return ret;
