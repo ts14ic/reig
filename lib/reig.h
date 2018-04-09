@@ -241,9 +241,9 @@ namespace reig {
          */
         void scroll(float dy);
 
-        const Point& get_cursor_pos();
+        const Point& get_cursor_pos() const;
 
-        float get_scrolled();
+        float get_scrolled() const;
 
     private:
         friend class ::reig::Context;

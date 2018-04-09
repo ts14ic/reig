@@ -249,11 +249,11 @@ void reig::Mouse::scroll(float dy) {
     mScrolled = dy;
 }
 
-const reig::Point& reig::Mouse::get_cursor_pos() {
+const reig::Point& reig::Mouse::get_cursor_pos() const {
     return mCursorPos;
 }
 
-float reig::Mouse::get_scrolled() {
+float reig::Mouse::get_scrolled() const {
     return mScrolled;
 }
 
