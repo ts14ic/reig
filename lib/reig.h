@@ -202,53 +202,53 @@ namespace reig {
             bool mIsPressed = false;
             bool mIsClicked = false;
         };
+
+        class Mouse {
+        public:
+            Mouse() = default;
+
+            Mouse(Mouse const&) = delete;
+
+            Mouse(Mouse&&) = delete;
+
+            Mouse& operator=(Mouse const&) = delete;
+
+            Mouse& operator=(Mouse&&) = delete;
+
+            detail::MouseButton leftButton;
+            detail::MouseButton rightButton;
+
+            /**
+             * @brief Moves cursor against previous position
+             * @param difx Delta x coordinate
+             * @param dify Delta y coordinate
+             */
+            void move(float difx, float dify);
+
+            /**
+             * @brief Places the cursors in abosulute coordinates
+             * @param x X coordinate
+             * @param y Y coordiante
+             */
+            void place(float x, float y);
+
+            /**
+             * @brief Scrolls the virtual mouse wheel
+             * @param dy Amount of scrolling
+             */
+            void scroll(float dy);
+
+            const Point& get_cursor_pos() const;
+
+            float get_scrolled() const;
+
+        private:
+            friend class ::reig::Context;
+
+            Point mCursorPos;
+            float mScrolled = 0.0f;
+        };
     }
-
-    class Mouse {
-    public:
-        Mouse() = default;
-
-        Mouse(Mouse const&) = delete;
-
-        Mouse(Mouse&&) = delete;
-
-        Mouse& operator=(Mouse const&) = delete;
-
-        Mouse& operator=(Mouse&&) = delete;
-
-        detail::MouseButton leftButton;
-        detail::MouseButton rightButton;
-
-        /**
-         * @brief Moves cursor against previous position
-         * @param difx Delta x coordinate
-         * @param dify Delta y coordinate
-         */
-        void move(float difx, float dify);
-
-        /**
-         * @brief Places the cursors in abosulute coordinates
-         * @param x X coordinate
-         * @param y Y coordiante
-         */
-        void place(float x, float y);
-
-        /**
-         * @brief Scrolls the virtual mouse wheel
-         * @param dy Amount of scrolling
-         */
-        void scroll(float dy);
-
-        const Point& get_cursor_pos() const;
-
-        float get_scrolled() const;
-
-    private:
-        friend class ::reig::Context;
-
-        Point mCursorPos;
-        float mScrolled = 0.0f;
-    };
 
     /**
      * @class Figure
@@ -495,7 +495,7 @@ namespace reig {
         void render_all();
 
         // Inputs
-        Mouse mouse;
+        detail::Mouse mouse;
 
         // Widget renders
         void start_window(char const* title, float& x, float& y);

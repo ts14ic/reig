@@ -237,25 +237,25 @@ void reig::Context::start_new_frame() {
     mouse.mScrolled = 0.f;
 }
 
-void reig::Mouse::move(float_t difx, float_t dify) {
+void reig::detail::Mouse::move(float_t difx, float_t dify) {
     mCursorPos.x += difx;
     mCursorPos.y += dify;
 }
 
-void reig::Mouse::place(float_t x, float_t y) {
+void reig::detail::Mouse::place(float_t x, float_t y) {
     mCursorPos.x = x;
     mCursorPos.y = y;
 }
 
-void reig::Mouse::scroll(float dy) {
+void reig::detail::Mouse::scroll(float dy) {
     mScrolled = dy;
 }
 
-const reig::Point& reig::Mouse::get_cursor_pos() const {
+const reig::Point& reig::detail::Mouse::get_cursor_pos() const {
     return mCursorPos;
 }
 
-float reig::Mouse::get_scrolled() const {
+float reig::detail::Mouse::get_scrolled() const {
     return mScrolled;
 }
 
