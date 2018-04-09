@@ -292,35 +292,6 @@ namespace reig {
         };
     }
 
-    struct FontData {
-        std::vector<uint8_t> bitmap;
-        int width = 0;
-        int height = 0;
-    };
-
-    namespace detail {
-        struct Font {
-            std::vector<stbtt_bakedchar> bakedChars;
-            float size = 0.f;
-            int texture = 0;
-            int width = 0;
-            int height = 0;
-        };
-
-        struct Window {
-            std::vector<primitive::Figure> drawData;
-            char const* title = nullptr;
-            float* x = nullptr;
-            float* y = nullptr;
-            float w = 0.f;
-            float h = 0.f;
-            float headerSize = 0.f;
-            bool started = false;
-
-            void expand(primitive::Rectangle& box);
-        };
-    }
-
     namespace exception {
         struct FailedToLoadFontException : std::exception {
         public:
@@ -471,6 +442,29 @@ namespace reig {
         };
     }
 
+    namespace detail {
+        struct Font {
+            std::vector<stbtt_bakedchar> bakedChars;
+            float size = 0.f;
+            int texture = 0;
+            int width = 0;
+            int height = 0;
+        };
+
+        struct Window {
+            std::vector<primitive::Figure> drawData;
+            char const* title = nullptr;
+            float* x = nullptr;
+            float* y = nullptr;
+            float w = 0.f;
+            float h = 0.f;
+            float headerSize = 0.f;
+            bool started = false;
+
+            void expand(primitive::Rectangle& box);
+        };
+    }
+
     /**
      * @class Context
      * @brief Used to pump in input and request gui creation
@@ -500,6 +494,12 @@ namespace reig {
          * @brief Gets the stored user pointer
          */
         std::any const& get_user_ptr() const;
+
+        struct FontData {
+            std::vector<uint8_t> bitmap;
+            int width = 0;
+            int height = 0;
+        };
 
         /**
          * @brief Sets reig's font to be used for labels

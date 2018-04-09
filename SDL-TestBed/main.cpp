@@ -241,7 +241,7 @@ private:
         reig::Context ctx;
         
         struct font {
-            reig::FontData data;
+            reig::Context::FontData data;
             SDL_Texture*   tex  = nullptr;
             int            id   = 100;
         }

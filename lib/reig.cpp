@@ -178,7 +178,7 @@ vector<reig::uint8_t> read_font_into_buffer(char const* fontFilePath) {
     return ttfBuffer;
 }
 
-reig::FontData reig::Context::set_font(char const* fontFilePath, int textureId, float fontHeightPx) {
+reig::Context::FontData reig::Context::set_font(char const* fontFilePath, int textureId, float fontHeightPx) {
     using exception::FailedToLoadFontException;
 
     if (textureId == 0) throw FailedToLoadFontException::noTextureId(fontFilePath);
