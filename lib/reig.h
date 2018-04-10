@@ -314,7 +314,7 @@ namespace reig {
 
     namespace reference_widget {
         struct button {
-            char const* mTitle;
+            char const* mTitle = "";
             primitive::Rectangle mBoundingBox;
             primitive::Color mBaseColor;
 
@@ -331,9 +331,9 @@ namespace reig {
         };
 
         struct textured_button {
-            char const* mTitle;
+            char const* mTitle = "";
             primitive::Rectangle mBoundingBox;
-            int mBaseTexture, mHoverTexture;
+            int mBaseTexture = 0, mHoverTexture = 0;
 
             /**
              * @brief Render a titled textured button
@@ -346,7 +346,7 @@ namespace reig {
         };
 
         struct label {
-            char const* mTitle;
+            char const* mTitle = "";
             primitive::Rectangle mBoundingBox;
             /**
              * @brief Render a label, which will be enclosed in the current window, if any
@@ -360,7 +360,7 @@ namespace reig {
             primitive::Rectangle mBoundingBox;
             primitive::Color mBaseColor;
             float& mValueRef;
-            float mMin, mMax, mStep;
+            float mMin = 0.0f, mMax = 0.0f, mStep = 0.0f;
 
             /**
              * @brief Renders a slider.
@@ -377,9 +377,9 @@ namespace reig {
 
         struct textured_slider {
             primitive::Rectangle mBoundingBox;
-            int mBaseTexture, mCursorTexture;
+            int mBaseTexture = 0, mCursorTexture = 0;
             float& mValueRef;
-            float mMin, mMax, mStep;
+            float mMin = 0.0f, mMax = 0.0f, mStep = 0.0f;
 
             /**
              * @brief
@@ -400,7 +400,7 @@ namespace reig {
             primitive::Rectangle mBoundingBox;
             primitive::Color mBaseColor;
             float& mValueRef;
-            float mViewSize;
+            float mViewSize = 0.0f;
 
             /**
              * @brief Renders a vertical scrollbar
@@ -428,7 +428,7 @@ namespace reig {
 
         struct textured_checkbox {
             primitive::Rectangle mBoundingBox;
-            int mBaseTexture, mCheckTexture;
+            int mBaseTexture = 0, mCheckTexture = 0;
             bool& mValueRef;
 
             /**
