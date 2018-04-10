@@ -37,12 +37,13 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Con
     Rectangle boundingBox = {mBoundingBox};
     ctx.fit_rect_in_window(boundingBox);
 
-    internal::render_widget_frame(ctx, boundingBox, mBaseColor);
-
     float fontHeight = ctx.get_font_size();
     float y = boundingBox.y;
     for (auto it = mBegin; it != mEnd; ++it) {
         Rectangle itemBox = {boundingBox.x, y, boundingBox.width, fontHeight};
+
+        internal::render_widget_frame(ctx, itemBox, mBaseColor);
+
         ctx.render_text(mAdapter(*it), itemBox);
         y += fontHeight;
 
