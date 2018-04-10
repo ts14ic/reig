@@ -554,7 +554,7 @@ bool reig::reference_widget::scrollbar::draw(reig::Context& ctx) const {
     return base_slider_draw(ctx, {mBoundingBox}, SliderOrientation::VERTICAL, mBaseColor, mValueRef, 0.0f, max, step);
 }
 
-bool reig::reference_widget::slider_textured::draw(reig::Context& ctx) const {
+bool reig::reference_widget::textured_slider::draw(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
 

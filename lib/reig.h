@@ -375,7 +375,7 @@ namespace reig {
             bool draw(Context& ctx) const;
         };
 
-        struct slider_textured {
+        struct textured_slider {
             primitive::Rectangle mBoundingBox;
             int mBaseTexture, mCursorTexture;
             float& mValueRef;
