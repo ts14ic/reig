@@ -92,9 +92,9 @@ namespace reig::primitive {
             namespace detail {
                 template <typename Comp>
                 static constexpr bool is_color_component_v = std::is_same_v<Comp, Color::Red> ||
-                std::is_same_v<Comp, Color::Green> ||
-                std::is_same_v<Comp, Color::Blue> ||
-                std::is_same_v<Comp, Color::Alpha>;
+                                                             std::is_same_v<Comp, Color::Green> ||
+                                                             std::is_same_v<Comp, Color::Blue> ||
+                                                             std::is_same_v<Comp, Color::Alpha>;
 
                 template <typename Comp, typename = std::enable_if_t<is_color_component_v<Comp>>>
                 Comp const& get_comp(Color const& color) {
@@ -162,10 +162,10 @@ namespace reig::primitive {
     };
 
     /**
-         * @class Figure
-         * @brief A bunch of vertices and indices to render a figure
-         * Can be collected by the user, but formation is accessible only for the Context
-         */
+     * @class Figure
+     * @brief A bunch of vertices and indices to render a figure
+     * Can be collected by the user, but formation is accessible only for the Context
+     */
     class Figure {
     public:
         /**

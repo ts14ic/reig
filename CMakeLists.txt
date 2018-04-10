@@ -12,10 +12,11 @@ add_library(reig_lib
         lib/reig/stb_truetype.h
         lib/reig/fwd.h
         lib/reig/defs.h
-        lib/reig/primitive.h
+        lib/reig/primitive.h lib/reig/primitive.cpp
         lib/reig/mouse.h
         lib/reig/exception.h
-        lib/reig/reference_widget.h lib/reig/context.h)
+        lib/reig/reference_widget.h
+        lib/reig/context.h)
 add_library(my::reig_lib ALIAS reig_lib)
 target_compile_features(reig_lib
         PUBLIC
