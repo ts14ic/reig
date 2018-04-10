@@ -556,9 +556,47 @@ bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
 }
 
 bool reig::reference_widget::scrollbar::draw(reig::Context& ctx) const {
+    Rectangle boundingBox = {mBoundingBox};
+    ctx.fit_rect_in_window(boundingBox);
+
+    render_widget_frame(ctx, boundingBox, mBaseColor);
+
     auto step = ctx.get_font_height() / 2.0f;
-    auto max = internal::min(mViewHeight - mBoundingBox.height, mBoundingBox.height);
-    return base_slider_draw(ctx, {mBoundingBox}, mBaseColor, mValueRef, 0.0f, max, step);
+    auto [min, max, value, offset, valuesNum] = prepare_slider_values(0.0f, mViewHeight - boundingBox.height, mValueRef, step);
+
+    SliderOrientation orientation = calculate_slider_orientation(boundingBox.width, boundingBox.height);
+
+    // Render the cursor
+    auto cursorBox = internal::decrease_box(boundingBox, 4);
+    if(orientation == SliderOrientation::HORIZONTAL) {
+        size_slider_cursor(cursorBox.x, cursorBox.width, valuesNum, offset);
+    } else {
+        size_slider_cursor(cursorBox.y, cursorBox.height, valuesNum, offset);
+    }
+
+    auto cursorColor = internal::get_yiq_contrast(mBaseColor);
+    if (internal::is_boxed_in(ctx.mouse.get_cursor_pos(), cursorBox)) {
+        cursorColor = internal::lighten_color_by(cursorColor, 50);
+    }
+    ctx.render_rectangle(cursorBox, cursorColor);
+
+    if (ctx.mouse.leftButton.is_pressed() && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox)) {
+        if(orientation == SliderOrientation::HORIZONTAL) {
+            progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorBox.width, cursorBox.x, min, max, step, value);
+        } else {
+            progress_slider_value(ctx.mouse.get_cursor_pos().y, cursorBox.height, cursorBox.y, min, max, step, value);
+        }
+    } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), boundingBox)) {
+        value += static_cast<int>(ctx.mouse.get_scrolled()) * step;
+        value = internal::clamp(value, min, max);
+    }
+
+    if (mValueRef != value) {
+        mValueRef = value;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool reig::reference_widget::textured_slider::draw(reig::Context& ctx) const {

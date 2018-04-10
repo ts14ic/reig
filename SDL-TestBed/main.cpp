@@ -162,7 +162,7 @@ public:
 
             static float scroll1 = 0.0f;
             rect.x += 60; rect.y = 5; rect.width = 30; rect.height = 280;
-            if(gui.ctx.enqueue(widget::scrollbar{rect, primitive::colors::black, scroll1, 500.0f})) {
+            if(gui.ctx.enqueue(widget::scrollbar{rect, primitive::colors::black, scroll1, 1000.0f})) {
                 std::cout << "Scrolled: " << scroll1 << '\n';
             }
             
