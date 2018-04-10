@@ -81,8 +81,8 @@ reig::Context::FontData reig::Context::set_font(char const* fontFilePath, int te
     return ret;
 }
 
-float reig::Context::get_font_height() const {
-    return mFont.height;
+float reig::Context::get_font_size() const {
+    return mFont.size;
 }
 
 const char* reig::exception::NoRenderHandlerException::what() const noexcept {

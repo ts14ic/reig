@@ -170,7 +170,7 @@ bool reig::reference_widget::scrollbar::draw(reig::Context& ctx) const {
 
     render_widget_frame(ctx, boundingBox, mBaseColor);
 
-    auto step = ctx.get_font_height() / 2.0f;
+    auto step = ctx.get_font_size() / 2.0f;
     auto [min, max, value, offset, valuesNum] = prepare_slider_values(0.0f, mViewSize - boundingBox.height, mValueRef, step);
 
     SliderOrientation orientation = calculate_slider_orientation(boundingBox);
