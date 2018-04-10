@@ -12,8 +12,8 @@ namespace reig::reference_widget {
             primitive::Color mBaseColor;
             Iter mBegin;
             Iter mEnd;
-            Adapter& adapter;
-            Action& action;
+            Adapter& mAdapter;
+            Action& mAction;
 
             void draw(Context& ctx) const;
         };
@@ -40,6 +40,13 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Con
     ctx.fit_rect_in_window(boundingBox);
 
     ctx.render_rectangle(boundingBox, mBaseColor);
+
+    float fontHeight = ctx.get_font_height();
+    float y = boundingBox.y;
+    for(auto it = mBegin; it != mEnd; ++it) {
+        ctx.render_text(mAdapter(*it), {boundingBox.x, y, boundingBox.width, fontHeight});
+        y += fontHeight;
+    }
 }
 
 #endif //REIG_REFERENCE_WIDGET_LIST_H
