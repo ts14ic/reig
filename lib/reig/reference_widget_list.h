@@ -48,11 +48,11 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Con
         bool clickedInBox = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox);
         bool isItemClicked = ctx.mouse.leftButton.is_clicked()
                              && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), itemBox);
-        if (hoveringOnItem && clickedInBox) {
-            color = internal::lighten_color_by(color, 20);
+        if (hoveringOnItem) {
+            color = internal::lighten_color_by(color, 30);
 
-            if (isItemClicked) {
-                color = internal::lighten_color_by(color, 20);
+            if (isItemClicked && clickedInBox) {
+                color = internal::lighten_color_by(color, 30);
 
                 mAction(it - mBegin, *it);
             }
