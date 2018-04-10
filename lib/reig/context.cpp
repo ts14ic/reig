@@ -1,11 +1,9 @@
-#include "reig.h"
-
-#define STB_TRUETYPE_IMPLEMENTATION
 #define STBTT_STATIC
+#define STB_TRUETYPE_IMPLEMENTATION
 
-#include "reig/stb_truetype.h"
-#include "reig/internal.h"
-#include <sstream>
+#include "context.h"
+#include "internal.h"
+#include "exception.h"
 #include <memory>
 
 using std::unique_ptr;
