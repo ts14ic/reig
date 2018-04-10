@@ -375,7 +375,7 @@ namespace reig {
             bool draw(Context& ctx) const;
         };
 
-        struct slider_textured {
+        struct textured_slider {
             primitive::Rectangle mBoundingBox;
             int mBaseTexture, mCursorTexture;
             float& mValueRef;
@@ -391,6 +391,22 @@ namespace reig {
              * @param min The lowest represantable value
              * @param max The highest represantable value
              * @param step The discrete portion by which the value can change
+             * @return True if value changed
+             */
+            bool draw(Context& ctx) const;
+        };
+
+        struct scrollbar {
+            primitive::Rectangle mBoundingBox;
+            primitive::Color mBaseColor;
+            float& mValueRef;
+            float mViewSize;
+
+            /**
+             * @brief Renders a vertical scrollbar
+             * @param box Scrollbar's position and size
+             * @param color Checkbox's base color
+             * @param value A reference to the float to be changed
              * @return True if value changed
              */
             bool draw(Context& ctx) const;
@@ -496,6 +512,8 @@ namespace reig {
          */
         FontData set_font(char const* fontFilePath, int textureId, float fontHeightPx);
 
+        float get_font_height() const;
+
         /**
          * @brief Resets draw data and inputs
          */
@@ -520,18 +538,6 @@ namespace reig {
         }
 
         void fit_rect_in_window(primitive::Rectangle& rect);
-
-        /**
-         * @brief Renders a vertical scrollbar
-         * @param box Scrollbar's position and size
-         * @param color Checkbox's base color
-         * @param value A reference to the bool to be changed
-         * @param min Scrollbar's output min value
-         * @param max Scrollbar's output max value
-         * @param logicalHeight Max logical value 
-         * @return 
-         */
-        //bool scrollbar(Rectangle box, Color color, float& value, float min, float max, float logicalHeight);
 
         // Primitive renders
         /**

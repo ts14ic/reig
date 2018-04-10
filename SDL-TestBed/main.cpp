@@ -159,6 +159,15 @@ public:
             if(gui.ctx.enqueue(widget::checkbox{rect, color, checkBox3})) {
                 std::cout << "Checkbox 3: new value " << checkBox3 << std::endl;
             }
+
+            static float scroll1 = 0.0f;
+            rect.x += 60; rect.y = 5; rect.width = 30; rect.height = 280;
+            if(gui.ctx.enqueue(widget::scrollbar{rect, primitive::colors::black, scroll1, 1000.0f})) {
+                std::cout << "Scrolled: " << scroll1 << '\n';
+            }
+
+            rect.x = 5; rect.y += 300; rect.width = 280; rect.height = 30;
+            gui.ctx.enqueue(widget::scrollbar{rect, primitive::colors::black, scroll1, 1000.0f});
             
             gui.ctx.end_window();
             
