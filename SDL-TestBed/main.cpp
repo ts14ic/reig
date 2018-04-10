@@ -183,7 +183,7 @@ public:
             };
             gui.ctx.enqueue(widget::list(
                     "Test", rect, colors::violet,
-                    std::begin(foos), std::end(foos), [](const Foo& foo) {
+                    foos, [](const Foo& foo) {
                         return foo.name.c_str();
                     },
                     [](int position, const Foo& foo) {

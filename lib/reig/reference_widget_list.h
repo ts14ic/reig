@@ -20,17 +20,14 @@ namespace reig::reference_widget {
         };
     }
 
-    template <typename Iter, typename Adapter, typename Action>
-    detail::list<Iter, Adapter, Action>
-    list(const char* title,
-         const primitive::Rectangle& rectangle,
-         const primitive::Color& baseColor,
-         Iter&& begin,
-         Iter&& end,
-         Adapter&& adapter,
-         Action&& action
-    ) {
-        return {title, rectangle, baseColor, begin, end, adapter, action};
+    template <typename Range, typename Adapter, typename Action>
+    auto list(const char* title,
+              const primitive::Rectangle& rectangle,
+              const primitive::Color& baseColor,
+              Range&& range,
+              Adapter&& adapter,
+              Action&& action) -> detail::list<decltype(std::begin(range)), Adapter, Action> {
+        return {title, rectangle, baseColor, std::begin(range), std::end(range), adapter, action};
     };
 }
 
@@ -44,7 +41,7 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Con
 
     float fontHeight = ctx.get_font_size();
     float y = boundingBox.y;
-    for(auto it = mBegin; it != mEnd; ++it) {
+    for (auto it = mBegin; it != mEnd; ++it) {
         Rectangle itemBox = {boundingBox.x, y, boundingBox.width, fontHeight};
         ctx.render_text(mAdapter(*it), itemBox);
         y += fontHeight;
