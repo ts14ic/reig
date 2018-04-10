@@ -40,7 +40,7 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Con
     Rectangle boundingBox = {mBoundingBox};
     ctx.fit_rect_in_window(boundingBox);
 
-    ctx.render_rectangle(boundingBox, mBaseColor);
+    internal::render_widget_frame(ctx, boundingBox, mBaseColor);
 
     float fontHeight = ctx.get_font_size();
     float y = boundingBox.y;

@@ -59,6 +59,8 @@ namespace reig::internal {
         }
         return r;
     };
+
+    void render_widget_frame(Context& ctx, Rectangle& boundingBox, Color const& baseColor);
 }
 
 #endif //REIG_INTERNAL_H
