@@ -551,7 +551,8 @@ bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
 
 bool reig::reference_widget::scrollbar::draw(reig::Context& ctx) const {
     auto step = ctx.get_font_height() / 2.0f;
-    return base_slider_draw(ctx, {mBoundingBox}, SliderOrientation::VERTICAL, mBaseColor, mValueRef, 0.0f, mViewHeight, step);
+    auto max = internal::min(mViewHeight - mBoundingBox.height, mBoundingBox.height);
+    return base_slider_draw(ctx, {mBoundingBox}, SliderOrientation::VERTICAL, mBaseColor, mValueRef, 0.0f, max, step);
 }
 
 bool reig::reference_widget::slider_textured::draw(reig::Context& ctx) const {
