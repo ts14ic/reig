@@ -478,7 +478,7 @@ SliderValues prepare_slider_values(float aMin, float aMax, float aValue, float a
     };
 };
 
-void resize_slider_cursor(float& coord, float& size, int valuesNum, int offset) {
+void size_slider_cursor(float& coord, float& size, int valuesNum, int offset) {
     size /= valuesNum;
     if(size < 1) size = 1;
     coord += offset * size;
@@ -521,9 +521,9 @@ bool base_slider_draw(reig::Context& ctx,
     // Render the cursor
     auto cursorBox = internal::decrease_box(boundingBox, 4);
     if(orientation == SliderOrientation::HORIZONTAL) {
-        resize_slider_cursor(cursorBox.x, cursorBox.width, valuesNum, offset);
+        size_slider_cursor(cursorBox.x, cursorBox.width, valuesNum, offset);
     } else {
-        resize_slider_cursor(cursorBox.y, cursorBox.height, valuesNum, offset);
+        size_slider_cursor(cursorBox.y, cursorBox.height, valuesNum, offset);
     }
 
     auto cursorColor = internal::get_yiq_contrast(baseColor);
@@ -572,7 +572,7 @@ bool reig::reference_widget::textured_slider::draw(reig::Context& ctx) const {
 
     // Render the cursor
     auto cursorBox = internal::decrease_box(boundingBox, 8);
-    resize_slider_cursor(cursorBox.x, cursorBox.width, valuesNum, offset);
+    size_slider_cursor(cursorBox.x, cursorBox.width, valuesNum, offset);
     ctx.render_rectangle(cursorBox, mCursorTexture);
 
     if (ctx.mouse.leftButton.is_pressed() && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox)) {
