@@ -172,16 +172,17 @@ public:
             gui.ctx.enqueue(widget::scrollbar{rect, primitive::colors::black, scroll1, 1000.0f});
 
             struct Foo {
-                const char* name = "";
+                const std::string name;
             };
             static std::vector<Foo> foos {
-                    {"One"}, {"Two"}, {"Three"}, {"Four"}
+                    {"Zero"}, {"One"}, {"Two"}, {"Three"}, {"Four"}, {"Five"},
+                    {"Six"}, {"Seven"}, {"Eight"}, {"Nine"}, {"Ten"}
             };
             rect.y = 5; rect.x += 370; rect.height = 280;
             gui.ctx.enqueue(widget::list(
                     "Test", rect, primitive::colors::violet,
                     std::begin(foos), std::end(foos), [](const Foo& foo) {
-                        return foo.name;
+                        return foo.name.c_str();
                     },
                     [](int position, const Foo& foo) {
                         std::cout << "Clicked on " << position << "th foo: " << foo.name << '\n';
