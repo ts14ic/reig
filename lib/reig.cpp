@@ -453,10 +453,6 @@ void reig::reference_widget::label::draw(reig::Context& ctx) const {
     ctx.render_text(mTitle, boundingBox);
 }
 
-enum class SliderOrientation {
-    HORIZONTAL, VERTICAL
-};
-
 void render_widget_frame(reig::Context& ctx, Rectangle& boundingBox, Color const& baseColor) {
     Color frameColor = internal::get_yiq_contrast(baseColor);
     ctx.render_rectangle(boundingBox, frameColor);
@@ -499,9 +495,18 @@ void progress_slider_value(float mouseCursorCoord, float cursorSize, float curso
     }
 }
 
+enum class SliderOrientation {
+    HORIZONTAL, VERTICAL
+};
+
+SliderOrientation calculate_slider_orientation(float width, float height) {
+    return width > height
+           ? SliderOrientation::HORIZONTAL
+           : SliderOrientation::VERTICAL;
+}
+
 bool base_slider_draw(reig::Context& ctx,
                       Rectangle boundingBox,
-                      SliderOrientation orientation,
                       Color const& baseColor,
                       float& valueRef,
                       float aMin, float aMax, float step) {
@@ -510,6 +515,8 @@ bool base_slider_draw(reig::Context& ctx,
     render_widget_frame(ctx, boundingBox, baseColor);
 
     auto [min, max, value, offset, valuesNum] = prepare_slider_values(aMin, aMax, valueRef, step);
+
+    SliderOrientation orientation = calculate_slider_orientation(boundingBox.width, boundingBox.height);
 
     // Render the cursor
     auto cursorBox = internal::decrease_box(boundingBox, 4);
@@ -545,13 +552,13 @@ bool base_slider_draw(reig::Context& ctx,
 }
 
 bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
-    return base_slider_draw(ctx, {mBoundingBox}, SliderOrientation::HORIZONTAL, mBaseColor, mValueRef, mMin, mMax, mStep);
+    return base_slider_draw(ctx, {mBoundingBox}, mBaseColor, mValueRef, mMin, mMax, mStep);
 }
 
 bool reig::reference_widget::scrollbar::draw(reig::Context& ctx) const {
     auto step = ctx.get_font_height() / 2.0f;
     auto max = internal::min(mViewHeight - mBoundingBox.height, mBoundingBox.height);
-    return base_slider_draw(ctx, {mBoundingBox}, SliderOrientation::VERTICAL, mBaseColor, mValueRef, 0.0f, max, step);
+    return base_slider_draw(ctx, {mBoundingBox}, mBaseColor, mValueRef, 0.0f, max, step);
 }
 
 bool reig::reference_widget::textured_slider::draw(reig::Context& ctx) const {
