@@ -1,7 +1,8 @@
 #include "Shader.hpp"
 #include "Camera.h"
 
-#include <reig.h>
+#include <reig/context.h>
+#include <reig/reference_widget.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <SOIL/SOIL.h>
