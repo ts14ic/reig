@@ -400,7 +400,7 @@ namespace reig {
             primitive::Rectangle mBoundingBox;
             primitive::Color mBaseColor;
             float& mValueRef;
-            float mViewHeight;
+            float mViewSize;
 
             /**
              * @brief Renders a vertical scrollbar

@@ -165,6 +165,9 @@ public:
             if(gui.ctx.enqueue(widget::scrollbar{rect, primitive::colors::black, scroll1, 1000.0f})) {
                 std::cout << "Scrolled: " << scroll1 << '\n';
             }
+
+            rect.x = 5; rect.y += 300; rect.width = 280; rect.height = 30;
+            gui.ctx.enqueue(widget::scrollbar{rect, primitive::colors::black, scroll1, 1000.0f});
             
             gui.ctx.end_window();
             

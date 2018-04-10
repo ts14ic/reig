@@ -555,6 +555,13 @@ bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
     return base_slider_draw(ctx, {mBoundingBox}, mBaseColor, mValueRef, mMin, mMax, mStep);
 }
 
+void size_scrollbar_cursor(float& coord, float& size, float step, int offset, float viewSize) {
+    float scale = size / viewSize;
+    size *= scale;
+    if(size < 1) size = 1;
+    coord += offset * step * scale;
+}
+
 bool reig::reference_widget::scrollbar::draw(reig::Context& ctx) const {
     Rectangle boundingBox = {mBoundingBox};
     ctx.fit_rect_in_window(boundingBox);
@@ -562,16 +569,16 @@ bool reig::reference_widget::scrollbar::draw(reig::Context& ctx) const {
     render_widget_frame(ctx, boundingBox, mBaseColor);
 
     auto step = ctx.get_font_height() / 2.0f;
-    auto [min, max, value, offset, valuesNum] = prepare_slider_values(0.0f, mViewHeight - boundingBox.height, mValueRef, step);
+    auto [min, max, value, offset, valuesNum] = prepare_slider_values(0.0f, mViewSize - boundingBox.height, mValueRef, step);
 
     SliderOrientation orientation = calculate_slider_orientation(boundingBox.width, boundingBox.height);
 
     // Render the cursor
     auto cursorBox = internal::decrease_box(boundingBox, 4);
     if(orientation == SliderOrientation::HORIZONTAL) {
-        size_slider_cursor(cursorBox.x, cursorBox.width, valuesNum, offset);
+        size_scrollbar_cursor(cursorBox.x, cursorBox.width, step, offset, mViewSize);
     } else {
-        size_slider_cursor(cursorBox.y, cursorBox.height, valuesNum, offset);
+        size_scrollbar_cursor(cursorBox.y, cursorBox.height, step, offset, mViewSize);
     }
 
     auto cursorColor = internal::get_yiq_contrast(mBaseColor);
