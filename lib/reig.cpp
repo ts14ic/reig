@@ -499,8 +499,8 @@ enum class SliderOrientation {
     HORIZONTAL, VERTICAL
 };
 
-SliderOrientation calculate_slider_orientation(float width, float height) {
-    return height > width
+SliderOrientation calculate_slider_orientation(const Rectangle& rect) {
+    return rect.height > rect.width
            ? SliderOrientation::VERTICAL
            : SliderOrientation::HORIZONTAL;
 }
@@ -513,7 +513,7 @@ bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
 
     auto [min, max, value, offset, valuesNum] = prepare_slider_values(mMin, mMax, mValueRef, mStep);
 
-    SliderOrientation orientation = calculate_slider_orientation(boundingBox.width, boundingBox.height);
+    SliderOrientation orientation = calculate_slider_orientation(boundingBox);
 
     // Render the cursor
     auto cursorBox = internal::decrease_box(boundingBox, 4);
@@ -564,7 +564,7 @@ bool reig::reference_widget::scrollbar::draw(reig::Context& ctx) const {
     auto step = ctx.get_font_height() / 2.0f;
     auto [min, max, value, offset, valuesNum] = prepare_slider_values(0.0f, mViewSize - boundingBox.height, mValueRef, step);
 
-    SliderOrientation orientation = calculate_slider_orientation(boundingBox.width, boundingBox.height);
+    SliderOrientation orientation = calculate_slider_orientation(boundingBox);
 
     // Render the cursor
     auto cursorBox = internal::decrease_box(boundingBox, 4);
@@ -610,11 +610,20 @@ bool reig::reference_widget::textured_slider::draw(reig::Context& ctx) const {
 
     // Render the cursor
     auto cursorBox = internal::decrease_box(boundingBox, 8);
-    size_slider_cursor(cursorBox.x, cursorBox.width, valuesNum, offset);
+    auto orientation = calculate_slider_orientation(boundingBox);
+    if(orientation == SliderOrientation::HORIZONTAL) {
+        size_slider_cursor(cursorBox.x, cursorBox.width, valuesNum, offset);
+    } else {
+        size_slider_cursor(cursorBox.y, cursorBox.height, valuesNum, offset);
+    }
     ctx.render_rectangle(cursorBox, mCursorTexture);
 
     if (ctx.mouse.leftButton.is_pressed() && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox)) {
-        progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorBox.width, cursorBox.x, min, max, mStep, value);
+        if(orientation == SliderOrientation::HORIZONTAL) {
+            progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorBox.width, cursorBox.x, min, max, mStep, value);
+        } else {
+            progress_slider_value(ctx.mouse.get_cursor_pos().y, cursorBox.height, cursorBox.y, min, max, mStep, value);
+        }
     } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), boundingBox)) {
         value += static_cast<int>(ctx.mouse.get_scrolled()) * mStep;
         value = internal::clamp(value, min, max);
