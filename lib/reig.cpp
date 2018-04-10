@@ -217,6 +217,10 @@ reig::Context::FontData reig::Context::set_font(char const* fontFilePath, int te
     return ret;
 }
 
+float reig::Context::get_font_height() const {
+    return mFont.height;
+}
+
 const char* reig::exception::NoRenderHandlerException::what() const noexcept {
     return "No render handler specified";
 }
@@ -546,13 +550,8 @@ bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
 }
 
 bool reig::reference_widget::scrollbar::draw(reig::Context& ctx) const {
-    float scale = mBoundingBox.height / mViewHeight;
-    float sliderHeight = scale * mBoundingBox.height;
-
-    const float min = 0.0f;
-    const float max = 100.0f;
-    float step = sliderHeight / max;
-    return base_slider_draw(ctx, {mBoundingBox}, SliderOrientation::VERTICAL, mBaseColor, mValueRef, min, max, step);
+    auto step = ctx.get_font_height() / 2.0f;
+    return base_slider_draw(ctx, {mBoundingBox}, SliderOrientation::VERTICAL, mBaseColor, mValueRef, 0.0f, mViewHeight, step);
 }
 
 bool reig::reference_widget::slider_textured::draw(reig::Context& ctx) const {

@@ -512,6 +512,8 @@ namespace reig {
          */
         FontData set_font(char const* fontFilePath, int textureId, float fontHeightPx);
 
+        float get_font_height() const;
+
         /**
          * @brief Resets draw data and inputs
          */
