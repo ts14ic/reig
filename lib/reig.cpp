@@ -500,9 +500,9 @@ enum class SliderOrientation {
 };
 
 SliderOrientation calculate_slider_orientation(float width, float height) {
-    return width > height
-           ? SliderOrientation::HORIZONTAL
-           : SliderOrientation::VERTICAL;
+    return height > width
+           ? SliderOrientation::VERTICAL
+           : SliderOrientation::HORIZONTAL;
 }
 
 bool base_slider_draw(reig::Context& ctx,
