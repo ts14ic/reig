@@ -2,6 +2,7 @@
 #define REIG_REFERENCE_WIDGET_LIST_H
 
 #include "context.h"
+#include "internal.h"
 
 namespace reig::reference_widget {
     namespace detail {
@@ -41,11 +42,16 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Con
 
     ctx.render_rectangle(boundingBox, mBaseColor);
 
-    float fontHeight = ctx.get_font_height();
+    float fontHeight = ctx.get_font_size();
     float y = boundingBox.y;
     for(auto it = mBegin; it != mEnd; ++it) {
-        ctx.render_text(mAdapter(*it), {boundingBox.x, y, boundingBox.width, fontHeight});
+        Rectangle itemBox = {boundingBox.x, y, boundingBox.width, fontHeight};
+        ctx.render_text(mAdapter(*it), itemBox);
         y += fontHeight;
+
+        if(ctx.mouse.leftButton.is_clicked() && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), itemBox)) {
+            mAction(it - mBegin, *it);
+        }
     }
 }
 
