@@ -16,7 +16,7 @@ add_library(reig_lib
         lib/reig/mouse.h
         lib/reig/exception.h
         lib/reig/reference_widget.h
-        lib/reig/context.h)
+        lib/reig/context.h lib/reig/mouse.cpp)
 add_library(my::reig_lib ALIAS reig_lib)
 target_compile_features(reig_lib
         PUBLIC
