@@ -49,7 +49,9 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Con
         ctx.render_text(mAdapter(*it), itemBox);
         y += fontHeight;
 
-        if(ctx.mouse.leftButton.is_clicked() && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), itemBox)) {
+        if (ctx.mouse.leftButton.is_clicked()
+            && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), itemBox)
+            && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox)) {
             mAction(it - mBegin, *it);
         }
     }
