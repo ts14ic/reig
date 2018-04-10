@@ -182,8 +182,8 @@ public:
                     {"Six"}, {"Seven"}, {"Eight"}, {"Nine"}, {"Ten"}
             };
             gui.ctx.enqueue(widget::list(
-                    "Test", rect, colors::violet,
-                    foos, [](const Foo& foo) {
+                    "Test", rect, colors::violet, foos,
+                    [](const Foo& foo) {
                         return foo.name.c_str();
                     },
                     [](int position, const Foo& foo) {
