@@ -488,6 +488,17 @@ void resize_slider_cursor(float& coord, float& size, int valuesNum, int offset) 
     coord += offset * size;
 }
 
+void progress_slider_value(float mouseCursorCoord, float cursorSize, float cursorCoord,
+                           float min, float max, float step, float& value) {
+    auto halfCursorW = cursorSize / 2;
+    auto distanceToMouseCoord = mouseCursorCoord - cursorCoord - halfCursorW;
+
+    if (internal::abs(distanceToMouseCoord) > halfCursorW) {
+        value += static_cast<int>(distanceToMouseCoord / cursorSize) * step;
+        value = internal::clamp(value, min, max);
+    }
+}
+
 bool base_slider_draw(reig::Context& ctx,
                       Rectangle boundingBox,
                       SliderOrientation orientation,
@@ -516,21 +527,9 @@ bool base_slider_draw(reig::Context& ctx,
 
     if (ctx.mouse.leftButton.is_pressed() && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox)) {
         if(orientation == SliderOrientation::HORIZONTAL) {
-            auto halfCursorW = cursorBox.width / 2;
-            auto distance = ctx.mouse.get_cursor_pos().x - cursorBox.x - halfCursorW;
-
-            if (internal::abs(distance) > halfCursorW) {
-                value += static_cast<int>(distance / cursorBox.width) * step;
-                value = internal::clamp(value, min, max);
-            }
+            progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorBox.width, cursorBox.x, min, max, step, value);
         } else {
-            auto halfCursorH = cursorBox.height / 2;
-            auto distance = ctx.mouse.get_cursor_pos().y - cursorBox.y - halfCursorH;
-
-            if(internal::abs(distance) > halfCursorH) {
-                value += static_cast<int>(distance / cursorBox.height) * step;
-                value = internal::clamp(value, min, max);
-            }
+            progress_slider_value(ctx.mouse.get_cursor_pos().y, cursorBox.height, cursorBox.y, min, max, step, value);
         }
     } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), boundingBox)) {
         value += static_cast<int>(ctx.mouse.get_scrolled()) * step;
@@ -570,13 +569,7 @@ bool reig::reference_widget::slider_textured::draw(reig::Context& ctx) const {
     ctx.render_rectangle(cursorBox, mCursorTexture);
 
     if (ctx.mouse.leftButton.is_pressed() && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox)) {
-        auto halfCursorW = cursorBox.width / 2;
-        auto distance = ctx.mouse.get_cursor_pos().x - cursorBox.x - halfCursorW;
-
-        if (internal::abs(distance) > halfCursorW) {
-            value += static_cast<int>(distance / cursorBox.width) * mStep;
-            value = internal::clamp(value, min, max);
-        }
+        progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorBox.width, cursorBox.x, min, max, mStep, value);
     } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), boundingBox)) {
         value += static_cast<int>(ctx.mouse.get_scrolled()) * mStep;
         value = internal::clamp(value, min, max);
