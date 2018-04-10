@@ -104,6 +104,7 @@ public:
             using namespace reig::primitive::colors::operators;
             namespace widget = reig::reference_widget;
             namespace primitive = reig::primitive;
+            namespace colors = reig::primitive::colors;
 
             primitive::Rectangle rect {40, 0, 100, 30};
             primitive::Color color {120_r, 100_g, 150_b};
@@ -156,7 +157,7 @@ public:
             }
 
             static bool checkBox3 = false;
-            color = primitive::colors::from_uint(0xFFFFFFFFu);
+            color = colors::from_uint(0xFFFFFFFFu);
             rect.y += 60; rect.width = rect.height = 25;
             if(gui.ctx.enqueue(widget::checkbox{rect, color, checkBox3})) {
                 std::cout << "Checkbox 3: new value " << checkBox3 << std::endl;
@@ -164,12 +165,14 @@ public:
 
             static float scroll1 = 0.0f;
             rect.x += 60; rect.y = 5; rect.width = 30; rect.height = 280;
-            if(gui.ctx.enqueue(widget::scrollbar{rect, primitive::colors::black, scroll1, 1000.0f})) {
+            if(gui.ctx.enqueue(widget::scrollbar{rect, colors::black, scroll1, 1000.0f})) {
                 std::cout << "Scrolled: " << scroll1 << '\n';
             }
 
             rect.x = 5; rect.y += 300; rect.width = 280; rect.height = 30;
-            gui.ctx.enqueue(widget::scrollbar{rect, primitive::colors::black, scroll1, 1000.0f});
+            gui.ctx.enqueue(widget::scrollbar{rect, colors::black, scroll1, 1000.0f});
+
+            rect.y = 5; rect.x += 370; rect.height = 280;
 
             struct Foo {
                 const std::string name;
@@ -178,9 +181,8 @@ public:
                     {"Zero"}, {"One"}, {"Two"}, {"Three"}, {"Four"}, {"Five"},
                     {"Six"}, {"Seven"}, {"Eight"}, {"Nine"}, {"Ten"}
             };
-            rect.y = 5; rect.x += 370; rect.height = 280;
             gui.ctx.enqueue(widget::list(
-                    "Test", rect, primitive::colors::violet,
+                    "Test", rect, colors::violet,
                     std::begin(foos), std::end(foos), [](const Foo& foo) {
                         return foo.name.c_str();
                     },
