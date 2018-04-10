@@ -39,19 +39,27 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Con
 
     float fontHeight = ctx.get_font_size();
     float y = boundingBox.y;
-    for (auto it = mBegin; it != mEnd; ++it) {
+    for (auto it = mBegin; it != mEnd; ++it, y += fontHeight) {
         Rectangle itemBox = {boundingBox.x, y, boundingBox.width, fontHeight};
 
-        internal::render_widget_frame(ctx, itemBox, mBaseColor);
+        Color color = mBaseColor;
 
-        ctx.render_text(mAdapter(*it), itemBox);
-        y += fontHeight;
+        bool hoveringOnItem = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), itemBox);
+        bool clickedInBox = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox);
+        bool isItemClicked = ctx.mouse.leftButton.is_clicked()
+                             && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), itemBox);
+        if (hoveringOnItem && clickedInBox) {
+            color = internal::lighten_color_by(color, 20);
 
-        if (ctx.mouse.leftButton.is_clicked()
-            && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), itemBox)
-            && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox)) {
-            mAction(it - mBegin, *it);
+            if (isItemClicked) {
+                color = internal::lighten_color_by(color, 20);
+
+                mAction(it - mBegin, *it);
+            }
         }
+
+        internal::render_widget_frame(ctx, itemBox, color);
+        ctx.render_text(mAdapter(*it), itemBox);
     }
 }
 
