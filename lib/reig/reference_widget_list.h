@@ -34,27 +34,32 @@ namespace reig::reference_widget {
 template <typename Iter, typename Adapter, typename Action>
 void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Context& ctx) const {
     using namespace reig::primitive;
-    Rectangle boundingBox = {mBoundingBox};
-    ctx.fit_rect_in_window(boundingBox);
+    Rectangle listBox = {mBoundingBox};
+    ctx.fit_rect_in_window(listBox);
 
     float fontHeight = ctx.get_font_size();
-    float y = boundingBox.y;
+    float y = listBox.y;
     for (auto it = mBegin; it != mEnd; ++it, y += fontHeight) {
-        Rectangle itemBox = {boundingBox.x, y, boundingBox.width, fontHeight};
+        Rectangle itemBox = {listBox.x, y, listBox.width, fontHeight};
+        auto is_in_bounds = [&](const Point& pt) {
+            return internal::is_boxed_in(pt, itemBox)
+                   && internal::is_boxed_in(pt, listBox);
+        };
 
         Color color = mBaseColor;
-
-        bool hoveringOnItem = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), itemBox);
-        bool clickedInBox = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox);
-        bool isItemClicked = ctx.mouse.leftButton.is_clicked()
-                             && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), itemBox);
-        if (hoveringOnItem) {
+        bool isHoveringOnItem = is_in_bounds(ctx.mouse.get_cursor_pos());
+        if (isHoveringOnItem) {
             color = internal::lighten_color_by(color, 30);
+        }
 
-            if (isItemClicked && clickedInBox) {
-                color = internal::lighten_color_by(color, 30);
-
+        bool clickedOnItem = is_in_bounds(ctx.mouse.leftButton.get_clicked_pos());
+        if (clickedOnItem) {
+            if (ctx.mouse.leftButton.is_clicked()) {
                 mAction(it - mBegin, *it);
+            }
+
+            if (ctx.mouse.leftButton.is_pressed()) {
+                color = internal::lighten_color_by(color, 30);
             }
         }
 
