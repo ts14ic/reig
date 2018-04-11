@@ -39,7 +39,7 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Con
 
     float fontHeight = ctx.get_font_size();
     float y = listBox.y;
-    for (auto it = mBegin; it != mEnd; ++it, y += fontHeight) {
+    for (auto it = mBegin; it != mEnd && y < listBox.y + listBox.height; ++it, y += fontHeight) {
         Rectangle itemBox = {listBox.x, y, listBox.width, fontHeight};
         auto is_in_bounds = [&](const Point& pt) {
             return internal::is_boxed_in(pt, itemBox)
