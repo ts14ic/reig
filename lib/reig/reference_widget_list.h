@@ -3,9 +3,14 @@
 
 #include "context.h"
 #include "internal.h"
+#include "reference_widget.h"
+#include <iostream>
 
 namespace reig::reference_widget {
     namespace detail {
+        // FIXME: This cache can't be dropped
+        float& get_scroll_value(const char* title);
+
         template <typename Iter, typename Adapter, typename Action>
         struct list {
             const char* mTitle = "";
@@ -34,7 +39,9 @@ namespace reig::reference_widget {
 template <typename Iter, typename Adapter, typename Action>
 void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Context& ctx) const {
     using namespace reig::primitive;
+    int scrollbarWidth = 30;
     Rectangle listBox = {mBoundingBox};
+    listBox.x += scrollbarWidth;
     ctx.fit_rect_in_window(listBox);
 
     float fontHeight = ctx.get_font_size();
@@ -67,6 +74,14 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Con
 
         internal::render_widget_frame(ctx, itemBox, color);
         ctx.render_text(mAdapter(*it), itemBox);
+    }
+
+    auto scrollbarRect = mBoundingBox;
+    scrollbarRect.width = scrollbarWidth;
+    auto itemsCount = mEnd - mBegin;
+    auto& scrolled = detail::get_scroll_value(mTitle);
+    if(ctx.enqueue(scrollbar{scrollbarRect, mBaseColor, scrolled, itemsCount * fontHeight})) {
+        std::cout << "scrolled list: " << scrolled << '\n';
     }
 }
 
