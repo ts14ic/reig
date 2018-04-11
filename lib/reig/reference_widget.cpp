@@ -62,13 +62,6 @@ void reig::reference_widget::label::draw(reig::Context& ctx) const {
     ctx.render_text(mTitle, boundingBox);
 }
 
-void render_widget_frame(reig::Context& ctx, Rectangle& boundingBox, Color const& baseColor) {
-    Color frameColor = internal::get_yiq_contrast(baseColor);
-    ctx.render_rectangle(boundingBox, frameColor);
-    boundingBox = internal::decrease_box(boundingBox, 4);
-    ctx.render_rectangle(boundingBox, baseColor);
-}
-
 struct SliderValues {
     float min = 0.0f;
     float max = 0.0f;
@@ -118,7 +111,7 @@ bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
     Rectangle boundingBox = {mBoundingBox};
     ctx.fit_rect_in_window(boundingBox);
 
-    render_widget_frame(ctx, boundingBox, mBaseColor);
+    internal::render_widget_frame(ctx, boundingBox, mBaseColor);
 
     auto [min, max, value, offset, valuesNum] = prepare_slider_values(mMin, mMax, mValueRef, mStep);
 
@@ -168,7 +161,7 @@ bool reig::reference_widget::scrollbar::draw(reig::Context& ctx) const {
     Rectangle boundingBox = {mBoundingBox};
     ctx.fit_rect_in_window(boundingBox);
 
-    render_widget_frame(ctx, boundingBox, mBaseColor);
+    internal::render_widget_frame(ctx, boundingBox, mBaseColor);
 
     auto step = ctx.get_font_size() / 2.0f;
     auto [min, max, value, offset, valuesNum] = prepare_slider_values(0.0f, mViewSize - boundingBox.height, mValueRef, step);
@@ -250,7 +243,7 @@ bool reig::reference_widget::checkbox::draw(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
 
-    render_widget_frame(ctx, boundingBox, mBaseColor);
+    internal::render_widget_frame(ctx, boundingBox, mBaseColor);
 
     // Render check
     if (mValueRef) {

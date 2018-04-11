@@ -2,6 +2,7 @@
 
 #include <reig/context.h>
 #include <reig/reference_widget.h>
+#include <reig/reference_widget_list.h>
 
 #include <SDL2_gfxPrimitives.h>
 #include <SDL2_framerate.h>
@@ -22,10 +23,10 @@ public:
             SDL_WINDOW_SHOWN
         );
         sdl.renderer = SDL_CreateRenderer(
-            sdl.window, -1, 
+            sdl.window, -1,
             SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
         );
-        
+
         gui.ctx.set_render_handler(&gui_handler);
         gui.ctx.set_user_ptr(this);
 
@@ -52,7 +53,7 @@ public:
             exit(0);
         }
     }
-    
+
     int run() {
         int last;
         std::string fpsString;
@@ -63,35 +64,35 @@ public:
         while(!quit) {
             last = SDL_GetTicks();
             gui.ctx.start_new_frame();
-            
+
             // =================== Input polling ===============
             for(SDL_Event evt; SDL_PollEvent(&evt);) {
                 switch(evt.type) {
                     case SDL_QUIT:
                     quit = true;
                     break;
-                    
+
                     case SDL_MOUSEMOTION:
                     gui.ctx.mouse.place(evt.motion.x, evt.motion.y);
                     break;
-                    
+
                     case SDL_MOUSEWHEEL:
                     gui.ctx.mouse.scroll(-evt.wheel.y);
                     break;
-                    
+
                     case SDL_MOUSEBUTTONDOWN: {
                         if(evt.button.button == SDL_BUTTON_LEFT) {
                             gui.ctx.mouse.leftButton.press(evt.button.x, evt.button.y);
                         }
                     }
                     break;
-                    
+
                     case SDL_MOUSEBUTTONUP: {
                         if(evt.button.button == SDL_BUTTON_LEFT) {
                             gui.ctx.mouse.leftButton.release();
                         }
                     }
-                    
+
                     default:;
                 }
                 if(quit) break;
@@ -103,10 +104,11 @@ public:
             using namespace reig::primitive::colors::operators;
             namespace widget = reig::reference_widget;
             namespace primitive = reig::primitive;
+            namespace colors = reig::primitive::colors;
 
             primitive::Rectangle rect {40, 0, 100, 30};
             primitive::Color color {120_r, 100_g, 150_b};
-            
+
             static float winX = 10, winY = 10;
             gui.ctx.start_window(fpsString.c_str(), winX, winY);
             for(int i = 0; i < 4; ++i) {
@@ -133,29 +135,29 @@ public:
             if (gui.ctx.enqueue(widget::slider{rect, color, sliderValue1, 3, 7, 0.1f})) {
                 std::cout << "Slider 2: new value " << sliderValue1 << std::endl;
             }
-            
+
             static float sliderValue2 = 0.3f;
             rect.y += 40; rect.width += 50; rect.height += 10;
             if (gui.ctx.enqueue(widget::slider{rect, {220_r, 200_g, 150_b}, sliderValue2, 0.1f, 0.5f, 0.05f})) {
                 std::cout << "Slider 2: new value " << sliderValue2 << std::endl;
             }
-            
+
             static bool checkBox1 = false;
             color = color + 15_r - 35_r - 10_b;
             rect.x += 270; rect.width = 40; rect.height = 20;
             if(gui.ctx.enqueue(widget::checkbox{rect, color, checkBox1})) {
                 std::cout << "Checkbox 1: new value " << checkBox1 << std::endl;
             }
-            
+
             static bool checkBox2 = true;
             color = color - 100_r + 100_g + 100_b;
             rect.y -= 100; rect.width = rect.height = 50;
             if(gui.ctx.enqueue(widget::checkbox{rect, color, checkBox2})) {
                 std::cout << "Checkbox 2: new value " << checkBox2 << std::endl;
             }
-            
+
             static bool checkBox3 = false;
-            color = primitive::colors::from_uint(0xFFFFFFFFu);
+            color = colors::from_uint(0xFFFFFFFFu);
             rect.y += 60; rect.width = rect.height = 25;
             if(gui.ctx.enqueue(widget::checkbox{rect, color, checkBox3})) {
                 std::cout << "Checkbox 3: new value " << checkBox3 << std::endl;
@@ -163,51 +165,70 @@ public:
 
             static float scroll1 = 0.0f;
             rect.x += 60; rect.y = 5; rect.width = 30; rect.height = 280;
-            if(gui.ctx.enqueue(widget::scrollbar{rect, primitive::colors::black, scroll1, 1000.0f})) {
+            if(gui.ctx.enqueue(widget::scrollbar{rect, colors::black, scroll1, 1000.0f})) {
                 std::cout << "Scrolled: " << scroll1 << '\n';
             }
 
             rect.x = 5; rect.y += 300; rect.width = 280; rect.height = 30;
-            gui.ctx.enqueue(widget::scrollbar{rect, primitive::colors::black, scroll1, 1000.0f});
-            
+            gui.ctx.enqueue(widget::scrollbar{rect, colors::black, scroll1, 1000.0f});
+
+            rect.y = 5; rect.x += 370; rect.height = 280;
+
+            struct Foo {
+                const std::string name;
+            };
+            static std::vector<Foo> foos {
+                    {"Zero"}, {"One"}, {"Two"}, {"Three"}, {"Four"}, {"Five"},
+                    {"Six"}, {"Seven"}, {"Eight"}, {"Nine"}, {"Ten"}
+            };
+            gui.ctx.enqueue(widget::list(
+                    "Test", rect, colors::blue, foos,
+                    [](const Foo& foo) {
+                        return foo.name.c_str();
+                    },
+                    [](int position, const Foo& foo) {
+                        std::cout << "Clicked on " << position << "th foo: " << foo.name << '\n';
+                    }
+            ));
+
             gui.ctx.end_window();
-            
+
             // ================== Render ==================== 
             SDL_SetRenderDrawColor(sdl.renderer, 50, 50, 50, 255);
             SDL_RenderClear(sdl.renderer);
-            
+
             auto ticks = SDL_GetTicks() - last;
             if(ticks != 0) {
                 ticks = 1000 / ticks;
                 fpsString = std::to_string(ticks) + " FPS";
             }
             gui.ctx.render_all();
-            
+
             int mx, my;
             int state = SDL_GetMouseState(&mx, &my);
             if((state & SDL_BUTTON_LMASK) == SDL_BUTTON_LMASK) {
                 filledCircleRGBA(sdl.renderer, mx, my, 15, 150, 220, 220, 150);
             }
-            
+
             SDL_RenderPresent(sdl.renderer);
         }
-        
+
         return 0;
     }
 
     static void gui_handler(reig::Context::DrawData const& drawData, std::any& userPtr) {
         namespace colors = reig::primitive::colors;
         Main* self = std::any_cast<Main*>(userPtr);
-        
+
         for(auto const& fig : drawData) {
             auto const& vertices = fig.vertices();
             auto const& indices = fig.indices();
             auto number = indices.size();
-            
+
             if(number % 3 != 0) {
                 continue;
             }
-            
+
             if(fig.texture() == 0) {
                 for(auto i = 0ul; i < number; i += 3) {
                     filledTrigonColor(
@@ -237,7 +258,7 @@ public:
             }
         }
     }
-    
+
 private:
     struct sdl {
         SDL_Renderer* renderer = nullptr;
@@ -246,10 +267,10 @@ private:
         int height = 600;
     }
     sdl;
-    
+
     struct gui {
         reig::Context ctx;
-        
+
         struct font {
             reig::Context::FontData data;
             SDL_Texture*   tex  = nullptr;

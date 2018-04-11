@@ -1,4 +1,5 @@
 #include "internal.h"
+#include "context.h"
 
 bool reig::internal::is_boxed_in(Point const& pt, Rectangle const& box) {
     return is_between(pt.x, box.x, box.x + box.width) && is_between(pt.y, box.y, box.y + box.height);
@@ -28,4 +29,28 @@ Rectangle reig::internal::decrease_box(Rectangle aRect, int by) {
     aRect.width -= by;
     aRect.height -= by;
     return aRect;
+}
+
+void reig::internal::render_widget_frame(reig::Context& ctx, Rectangle& boundingBox, Color const& baseColor) {
+    Color frameColor = internal::get_yiq_contrast(baseColor);
+    ctx.render_rectangle(boundingBox, frameColor);
+    boundingBox = internal::decrease_box(boundingBox, 4);
+    ctx.render_rectangle(boundingBox, baseColor);
+}
+
+void reig::internal::fit_rect_in_other(Rectangle& fitted, const Rectangle& container) {
+    fitted.x = max(fitted.x, container.x);
+    fitted.y = max(fitted.y, container.y);
+
+    auto fit_size = [](float& fittedSize, const float& fittedCoord,
+                       const float& containerSize, const float& containerCoord) {
+        auto fittedEnd = fittedCoord + fittedSize;
+        auto containerEnd = containerCoord + containerSize;
+        auto end = min(fittedEnd, containerEnd);
+        auto excess = fittedEnd - end;
+        fittedSize -= excess;
+    };
+
+    fit_size(fitted.width, fitted.x, container.width, container.x);
+    fit_size(fitted.height, fitted.y, container.height, container.y);
 }
