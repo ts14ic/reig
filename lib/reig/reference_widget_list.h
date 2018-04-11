@@ -4,7 +4,6 @@
 #include "context.h"
 #include "internal.h"
 #include "reference_widget.h"
-#include <iostream>
 
 namespace reig::reference_widget {
     namespace detail {
@@ -44,9 +43,13 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Con
     listBox.x += scrollbarWidth;
     ctx.fit_rect_in_window(listBox);
 
+    auto& scrolled = detail::get_scroll_value(mTitle);
     float fontHeight = ctx.get_font_size();
+    auto itemCount = mEnd - mBegin;
+    auto skippedItemCount = static_cast<int>(scrolled / fontHeight);
+
     float y = listBox.y;
-    for (auto it = mBegin; it != mEnd && y < listBox.y + listBox.height; ++it, y += fontHeight) {
+    for (auto it = mBegin + skippedItemCount; it != mEnd && y < listBox.y + listBox.height; ++it, y += fontHeight) {
         Rectangle itemBox = {listBox.x, y, listBox.width, fontHeight};
         internal::fit_rect_in_other(itemBox, listBox);
 
@@ -78,11 +81,7 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Con
 
     auto scrollbarRect = mBoundingBox;
     scrollbarRect.width = scrollbarWidth;
-    auto itemsCount = mEnd - mBegin;
-    auto& scrolled = detail::get_scroll_value(mTitle);
-    if(ctx.enqueue(scrollbar{scrollbarRect, mBaseColor, scrolled, itemsCount * fontHeight})) {
-        std::cout << "scrolled list: " << scrolled << '\n';
-    }
+    ctx.enqueue(scrollbar{scrollbarRect, mBaseColor, scrolled, itemCount * fontHeight});
 }
 
 #endif //REIG_REFERENCE_WIDGET_LIST_H
