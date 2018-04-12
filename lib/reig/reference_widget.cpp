@@ -64,26 +64,43 @@ void reig::reference_widget::label::draw(reig::Context& ctx) const {
     ctx.render_text(mTitle, boundingBox);
 }
 
+struct CheckboxModel {
+    Rectangle baseArea;
+    Rectangle outlineArea;
+    Rectangle checkArea;
+    bool valueChanged = false;
+};
+
+template <typename Checkbox>
+CheckboxModel get_checkbox_model(reig::Context& ctx, const Checkbox& checkbox) {
+    Rectangle outlineArea = checkbox.mBoundingBox;
+    ctx.fit_rect_in_window(outlineArea);
+
+    Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
+    Rectangle checkArea = internal::decrease_rect(baseArea, 4);
+
+    bool justClicked = ctx.mouse.leftButton.is_clicked()
+                       && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
+
+    if (justClicked) {
+        checkbox.mValueRef = !checkbox.mValueRef;
+    }
+
+    return {baseArea, outlineArea, checkArea, justClicked};
+}
+
 bool reig::reference_widget::checkbox::draw(reig::Context& ctx) const {
-    Rectangle boundingBox = this->mBoundingBox;
-    ctx.fit_rect_in_window(boundingBox);
+    auto model = get_checkbox_model(ctx, *this);
 
-    internal::render_widget_frame(ctx, boundingBox, mBaseColor);
-
-    // Render check
+    Color secondaryColor = internal::get_yiq_contrast(mBaseColor);
+    ctx.render_rectangle(model.outlineArea, secondaryColor);
+    ctx.render_rectangle(model.baseArea, mBaseColor);
+    
     if (mValueRef) {
-        boundingBox = internal::decrease_rect(boundingBox, 4);
-        Color contrastColor = internal::get_yiq_contrast(mBaseColor);
-        ctx.render_rectangle(boundingBox, contrastColor);
+        ctx.render_rectangle(model.checkArea, secondaryColor);
     }
 
-    // True if state changed
-    if (ctx.mouse.leftButton.is_clicked() && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox)) {
-        mValueRef = !mValueRef;
-        return true;
-    } else {
-        return false;
-    }
+    return model.valueChanged;
 }
 
 bool reig::reference_widget::textured_checkbox::draw(reig::Context& ctx) const {
