@@ -115,7 +115,8 @@ public:
                 rect.x -= 10; rect.y = 40 * i;
                 color = color + 25_r + 25_g;
                 std::string title = "some  " + std::to_string(i + 1);
-                if(gui.ctx.enqueue(widget::button{title.c_str(), rect, color})) {
+                if(gui.ctx.enqueue(widget::textured_button{title.c_str(), rect, gui.font.id, 0})) {
+//                if(gui.ctx.enqueue(widget::button{title.c_str(), rect, color})) {
                     std::cout << "Button " << (i + 1) << ": pressed" << std::endl;
                 }
             }

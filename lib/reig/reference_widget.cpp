@@ -5,9 +5,18 @@
 using namespace reig::primitive;
 namespace internal = reig::internal;
 
-bool reig::reference_widget::button::draw(reig::Context& ctx) const {
-    // logic
-    Rectangle baseArea {mBoundingBox};
+struct ButtonModel {
+    Rectangle outlineArea;
+    Rectangle baseArea;
+    bool hoveringOverArea = false;
+    bool clickedInArea = false;
+    bool justClicked = false;
+    bool holdingClick = false;
+};
+
+template <typename B>
+ButtonModel get_button_model(reig::Context& ctx, const B& button) {
+    Rectangle baseArea {button.mBoundingBox};
     ctx.fit_rect_in_window(baseArea);
 
     bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea);
@@ -17,43 +26,37 @@ bool reig::reference_widget::button::draw(reig::Context& ctx) const {
     bool justClicked = ctx.mouse.leftButton.is_clicked() && clickedInArea;
     bool holdingClick = ctx.mouse.leftButton.is_pressed() && clickedInArea;
 
-    // render
-    Color innerColor {mBaseColor};
-    if (hoveringOverArea) {
-        innerColor = internal::lighten_color_by(innerColor, 30);
-    }
-    if (holdingClick) {
-        innerColor = internal::lighten_color_by(innerColor, 30);
-    }
-    ctx.render_rectangle(outlineArea, internal::get_yiq_contrast(mBaseColor));
-    ctx.render_rectangle(baseArea, innerColor);
-    ctx.render_text(mTitle, baseArea);
-
-    return justClicked;
+    return {outlineArea, baseArea, hoveringOverArea, clickedInArea, justClicked, holdingClick};
 }
 
+bool reig::reference_widget::button::draw(reig::Context& ctx) const {
+    auto model = get_button_model(ctx, *this);
+
+    Color innerColor {mBaseColor};
+    if (model.hoveringOverArea) {
+        innerColor = internal::lighten_color_by(innerColor, 30);
+    }
+    if (model.holdingClick) {
+        innerColor = internal::lighten_color_by(innerColor, 30);
+    }
+    ctx.render_rectangle(model.outlineArea, internal::get_yiq_contrast(mBaseColor));
+    ctx.render_rectangle(model.baseArea, innerColor);
+    ctx.render_text(mTitle, model.baseArea);
+
+    return model.justClicked;
+}
 
 bool reig::reference_widget::textured_button::draw(reig::Context& ctx) const {
-    // logic
-    Rectangle baseArea {mBoundingBox};
-    ctx.fit_rect_in_window(baseArea);
+    auto model = get_button_model(ctx, *this);
 
-    bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea);
-    Rectangle outlineArea = baseArea;
-    baseArea = internal::decrease_rect(baseArea, 4);
-    bool clickedInArea = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
-    bool justClicked = ctx.mouse.leftButton.is_clicked() && clickedInArea;
-    bool holdingClick = ctx.mouse.leftButton.is_pressed() && clickedInArea;
-
-    // render
     int texture = mHoverTexture;
-    if(holdingClick || hoveringOverArea) {
+    if(model.holdingClick || model.hoveringOverArea) {
         texture = mBaseTexture;
     }
-    ctx.render_rectangle(outlineArea, texture);
-    ctx.render_text(mTitle, outlineArea);
+    ctx.render_rectangle(model.outlineArea, texture);
+    ctx.render_text(mTitle, model.outlineArea);
 
-    return justClicked;
+    return model.justClicked;
 }
 
 void reig::reference_widget::label::draw(reig::Context& ctx) const {
