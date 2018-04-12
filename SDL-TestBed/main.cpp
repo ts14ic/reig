@@ -18,7 +18,7 @@ public:
         SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS);
         sdl.window = SDL_CreateWindow(
             "reig SDL testbed",
-            SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+            SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, //NOLINT
             sdl.width, sdl.height,
             SDL_WINDOW_SHOWN
         );
@@ -206,7 +206,7 @@ public:
 
             int mx, my;
             int state = SDL_GetMouseState(&mx, &my);
-            if((state & SDL_BUTTON_LMASK) == SDL_BUTTON_LMASK) {
+            if((state & SDL_BUTTON_LMASK) == SDL_BUTTON_LMASK) { //NOLINT
                 filledCircleRGBA(sdl.renderer, mx, my, 15, 150, 220, 220, 150);
             }
 
@@ -218,7 +218,7 @@ public:
 
     static void gui_handler(reig::Context::DrawData const& drawData, std::any& userPtr) {
         namespace colors = reig::primitive::colors;
-        Main* self = std::any_cast<Main*>(userPtr);
+        auto* self = std::any_cast<Main*>(userPtr);
 
         for(auto const& fig : drawData) {
             auto const& vertices = fig.vertices();
