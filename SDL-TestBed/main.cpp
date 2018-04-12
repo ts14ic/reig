@@ -124,7 +124,8 @@ public:
             color = color + 50_g;
             rect.y += 40; rect.width += 50;
             static float sliderValue0 = 20;
-            if (gui.ctx.enqueue(widget::slider{rect, color, sliderValue0, 20, 40, 5})) {
+//            if (gui.ctx.enqueue(widget::slider{rect, color, sliderValue0, 20, 40, 5})) {
+            if (gui.ctx.enqueue(widget::textured_slider{rect, 0, gui.font.id, sliderValue0, 20, 40, 5})) {
                 std::cout << "Slider 1: new value " << sliderValue0 << std::endl;
             }
 
@@ -146,7 +147,8 @@ public:
             static bool checkBox1 = false;
             color = color + 15_r - 35_r - 10_b;
             rect.x += 270; rect.width = 40; rect.height = 20;
-            if(gui.ctx.enqueue(widget::checkbox{rect, color, checkBox1})) {
+//            if(gui.ctx.enqueue(widget::checkbox{rect, color, checkBox1})) {
+            if(gui.ctx.enqueue(widget::textured_checkbox{rect, 0, gui.font.id, checkBox1})) {
                 std::cout << "Checkbox 1: new value " << checkBox1 << std::endl;
             }
 
