@@ -158,17 +158,17 @@ SliderModel get_slider_model(reig::Context& ctx, const Slider& slider) {
 bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
     auto model = get_slider_model(ctx, *this);
 
-    Color baseColor = internal::get_yiq_contrast(mBaseColor);
-    ctx.render_rectangle(model.outlineArea, baseColor);
+    Color frameColor = internal::get_yiq_contrast(mBaseColor);
+    ctx.render_rectangle(model.outlineArea, frameColor);
     ctx.render_rectangle(model.baseArea, mBaseColor);
 
     if (model.hoveringOverCursor) {
-        baseColor = internal::lighten_color_by(baseColor, 30);
+        frameColor = internal::lighten_color_by(frameColor, 30);
     }
     if (model.holdingClickOnCursor) {
-        baseColor = internal::lighten_color_by(baseColor, 30);
+        frameColor = internal::lighten_color_by(frameColor, 30);
     }
-    ctx.render_rectangle(model.cursorArea, baseColor);
+    ctx.render_rectangle(model.cursorArea, frameColor);
 
     if (mValueRef != model.value) {
         mValueRef = model.value;
@@ -179,37 +179,13 @@ bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
 }
 
 bool reig::reference_widget::textured_slider::draw(reig::Context& ctx) const {
-    Rectangle boundingBox = this->mBoundingBox;
-    ctx.fit_rect_in_window(boundingBox);
+    auto model = get_slider_model(ctx, *this);
 
-    // Render slider's base
-    ctx.render_rectangle(boundingBox, mBaseTexture);
+    ctx.render_rectangle(model.outlineArea, mBaseTexture);
+    ctx.render_rectangle(model.cursorArea, mCursorTexture);
 
-    auto [min, max, value, offset, valuesNum] = prepare_slider_values(mMin, mMax, mValueRef, mStep);
-
-    // Render the cursor
-    auto cursorBox = internal::decrease_rect(boundingBox, 8);
-    auto orientation = calculate_slider_orientation(boundingBox);
-    if(orientation == SliderOrientation::HORIZONTAL) {
-        size_slider_cursor(cursorBox.x, cursorBox.width, valuesNum, offset);
-    } else {
-        size_slider_cursor(cursorBox.y, cursorBox.height, valuesNum, offset);
-    }
-    ctx.render_rectangle(cursorBox, mCursorTexture);
-
-    if (ctx.mouse.leftButton.is_pressed() && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox)) {
-        if(orientation == SliderOrientation::HORIZONTAL) {
-            progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorBox.width, cursorBox.x, min, max, mStep, value);
-        } else {
-            progress_slider_value(ctx.mouse.get_cursor_pos().y, cursorBox.height, cursorBox.y, min, max, mStep, value);
-        }
-    } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), boundingBox)) {
-        value += static_cast<int>(ctx.mouse.get_scrolled()) * mStep;
-        value = internal::clamp(value, min, max);
-    }
-
-    if (mValueRef != value) {
-        mValueRef = value;
+    if (mValueRef != model.value) {
+        mValueRef = model.value;
         return true;
     } else {
         return false;
