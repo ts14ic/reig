@@ -49,9 +49,9 @@ bool reig::reference_widget::button::draw(reig::Context& ctx) const {
 bool reig::reference_widget::textured_button::draw(reig::Context& ctx) const {
     auto model = get_button_model(ctx, *this);
 
-    int texture = mHoverTexture;
+    int texture = mBaseTexture;
     if(model.holdingClick || model.hoveringOverArea) {
-        texture = mBaseTexture;
+        texture = mHoverTexture;
     }
     ctx.render_rectangle(model.outlineArea, texture);
     ctx.render_text(mTitle, model.outlineArea);

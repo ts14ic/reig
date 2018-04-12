@@ -25,7 +25,7 @@ namespace reig::reference_widget {
     struct textured_button {
         char const* mTitle = "";
         primitive::Rectangle mBoundingBox;
-        int mBaseTexture = 0, mHoverTexture = 0;
+        int mHoverTexture = 0, mBaseTexture = 0;
 
         /**
          * @brief Render a titled textured button
