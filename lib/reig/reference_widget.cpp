@@ -155,12 +155,11 @@ SliderModel get_slider_model(reig::Context& ctx, const Slider& slider) {
     return {baseArea, outlineArea, cursorArea, hoveringOverCursor, holdingClickOnCursor, value};
 }
 
-bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
-    auto model = get_slider_model(ctx, *this);
-
-    Color frameColor = internal::get_yiq_contrast(mBaseColor);
+template <typename Slider>
+void draw_slider_model(reig::Context& ctx, const SliderModel& model, const Slider& slider) {
+    Color frameColor = internal::get_yiq_contrast(slider.mBaseColor);
     ctx.render_rectangle(model.outlineArea, frameColor);
-    ctx.render_rectangle(model.baseArea, mBaseColor);
+    ctx.render_rectangle(model.baseArea, slider.mBaseColor);
 
     if (model.hoveringOverCursor) {
         frameColor = internal::lighten_color_by(frameColor, 30);
@@ -169,6 +168,12 @@ bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
         frameColor = internal::lighten_color_by(frameColor, 30);
     }
     ctx.render_rectangle(model.cursorArea, frameColor);
+}
+
+bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
+    auto model = get_slider_model(ctx, *this);
+
+    draw_slider_model(ctx, model, *this);
 
     if (mValueRef != model.value) {
         mValueRef = model.value;
@@ -241,17 +246,7 @@ SliderModel get_scrollbar_model(reig::Context& ctx, const Scrollbar& scrollbar) 
 bool reig::reference_widget::scrollbar::draw(reig::Context& ctx) const {
     auto model = get_scrollbar_model(ctx, *this);
 
-    Color frameColor = internal::get_yiq_contrast(mBaseColor);
-    ctx.render_rectangle(model.outlineArea, frameColor);
-    ctx.render_rectangle(model.baseArea, mBaseColor);
-    auto cursorColor = internal::get_yiq_contrast(mBaseColor);
-    if (model.hoveringOverCursor) {
-        cursorColor = internal::lighten_color_by(cursorColor, 30);
-    }
-    if (model.holdingClickOnCursor) {
-        cursorColor = internal::lighten_color_by(cursorColor, 30);
-    }
-    ctx.render_rectangle(model.cursorArea, cursorColor);
+    draw_slider_model(ctx, model, *this);
 
     if (mValueRef != model.value) {
         mValueRef = model.value;
