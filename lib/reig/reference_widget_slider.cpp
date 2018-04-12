@@ -103,38 +103,6 @@ SliderModel get_slider_model(reig::Context& ctx, const Slider& slider) {
     return {baseArea, outlineArea, cursorArea, hoveringOverCursor, holdingClickOnCursor, valueChanged};
 }
 
-template <typename Slider>
-void draw_slider_model(reig::Context& ctx, const SliderModel& model, const Slider& slider) {
-    Color frameColor = internal::get_yiq_contrast(slider.mBaseColor);
-    ctx.render_rectangle(model.outlineArea, frameColor);
-    ctx.render_rectangle(model.baseArea, slider.mBaseColor);
-
-    if (model.hoveringOverCursor) {
-        frameColor = internal::lighten_color_by(frameColor, 30);
-    }
-    if (model.holdingClickOnCursor) {
-        frameColor = internal::lighten_color_by(frameColor, 30);
-    }
-    ctx.render_rectangle(model.cursorArea, frameColor);
-}
-
-bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
-    auto model = get_slider_model(ctx, *this);
-
-    draw_slider_model(ctx, model, *this);
-
-    return model.valueChanged;
-}
-
-bool reig::reference_widget::textured_slider::draw(reig::Context& ctx) const {
-    auto model = get_slider_model(ctx, *this);
-
-    ctx.render_rectangle(model.outlineArea, mBaseTexture);
-    ctx.render_rectangle(model.cursorArea, mCursorTexture);
-
-    return model.valueChanged;
-}
-
 void size_scrollbar_cursor(float& coord, float& size, float step, int offset, float viewSize) {
     float scale = size / viewSize;
     size *= scale;
@@ -184,6 +152,38 @@ SliderModel get_scrollbar_model(reig::Context& ctx, const Scrollbar& scrollbar) 
     }
 
     return {baseArea, outlineArea, cursorArea, hoveringOverCursor, holdingClickOnCursor, valueChanged};
+}
+
+template <typename Slider>
+void draw_slider_model(reig::Context& ctx, const SliderModel& model, const Slider& slider) {
+    Color frameColor = internal::get_yiq_contrast(slider.mBaseColor);
+    ctx.render_rectangle(model.outlineArea, frameColor);
+    ctx.render_rectangle(model.baseArea, slider.mBaseColor);
+
+    if (model.hoveringOverCursor) {
+        frameColor = internal::lighten_color_by(frameColor, 30);
+    }
+    if (model.holdingClickOnCursor) {
+        frameColor = internal::lighten_color_by(frameColor, 30);
+    }
+    ctx.render_rectangle(model.cursorArea, frameColor);
+}
+
+bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
+    auto model = get_slider_model(ctx, *this);
+
+    draw_slider_model(ctx, model, *this);
+
+    return model.valueChanged;
+}
+
+bool reig::reference_widget::textured_slider::draw(reig::Context& ctx) const {
+    auto model = get_slider_model(ctx, *this);
+
+    ctx.render_rectangle(model.outlineArea, mBaseTexture);
+    ctx.render_rectangle(model.cursorArea, mCursorTexture);
+
+    return model.valueChanged;
 }
 
 bool reig::reference_widget::scrollbar::draw(reig::Context& ctx) const {
