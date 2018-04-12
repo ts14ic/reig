@@ -110,39 +110,49 @@ SliderOrientation calculate_slider_orientation(const Rectangle& rect) {
 }
 
 bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
-    Rectangle boundingBox = {mBoundingBox};
-    ctx.fit_rect_in_window(boundingBox);
+    // logic
+    Rectangle baseArea = {mBoundingBox};
+    ctx.fit_rect_in_window(baseArea);
 
-    internal::render_widget_frame(ctx, boundingBox, mBaseColor);
+    Rectangle outlineArea = baseArea;
+    baseArea = internal::decrease_rect(baseArea, 4);
 
     auto [min, max, value, offset, valuesNum] = prepare_slider_values(mMin, mMax, mValueRef, mStep);
 
-    SliderOrientation orientation = calculate_slider_orientation(boundingBox);
+    SliderOrientation orientation = calculate_slider_orientation(baseArea);
 
-    // Render the cursor
-    auto cursorBox = internal::decrease_rect(boundingBox, 4);
+    auto cursorBox = internal::decrease_rect(baseArea, 4);
     if(orientation == SliderOrientation::HORIZONTAL) {
         size_slider_cursor(cursorBox.x, cursorBox.width, valuesNum, offset);
     } else {
         size_slider_cursor(cursorBox.y, cursorBox.height, valuesNum, offset);
     }
 
-    auto cursorColor = internal::get_yiq_contrast(mBaseColor);
-    if (internal::is_boxed_in(ctx.mouse.get_cursor_pos(), cursorBox)) {
-        cursorColor = internal::lighten_color_by(cursorColor, 50);
-    }
-    ctx.render_rectangle(cursorBox, cursorColor);
+    bool hoveringOverCursor = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), cursorBox);
+    bool holdingClick = ctx.mouse.leftButton.is_pressed() && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
 
-    if (ctx.mouse.leftButton.is_pressed() && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox)) {
+    if (holdingClick) {
         if(orientation == SliderOrientation::HORIZONTAL) {
             progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorBox.width, cursorBox.x, min, max, mStep, value);
         } else {
             progress_slider_value(ctx.mouse.get_cursor_pos().y, cursorBox.height, cursorBox.y, min, max, mStep, value);
         }
-    } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), boundingBox)) {
+    } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea)) {
         value += static_cast<int>(ctx.mouse.get_scrolled()) * mStep;
         value = internal::clamp(value, min, max);
     }
+
+    // render
+    Color frameColor = internal::get_yiq_contrast(mBaseColor);
+    ctx.render_rectangle(outlineArea, frameColor);
+    ctx.render_rectangle(baseArea, mBaseColor);
+
+    // Render the cursor
+    auto cursorColor = internal::get_yiq_contrast(mBaseColor);
+    if (hoveringOverCursor) {
+        cursorColor = internal::lighten_color_by(cursorColor, 50);
+    }
+    ctx.render_rectangle(cursorBox, cursorColor);
 
     if (mValueRef != value) {
         mValueRef = value;
