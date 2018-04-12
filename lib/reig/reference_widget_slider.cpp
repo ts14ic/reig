@@ -56,7 +56,7 @@ struct SliderModel {
     Rectangle cursorArea;
     bool hoveringOverCursor = false;
     bool holdingClickOnCursor = false;
-    float value = 0.0f;
+    bool valueChanged = false;
 };
 
 template <typename Slider>
@@ -94,7 +94,13 @@ SliderModel get_slider_model(reig::Context& ctx, const Slider& slider) {
         values.value = internal::clamp(values.value, values.min, values.max);
     }
 
-    return {baseArea, outlineArea, cursorArea, hoveringOverCursor, holdingClickOnCursor, values.value};
+    bool valueChanged = false;
+    if (slider.mValueRef != values.value) {
+        slider.mValueRef = values.value;
+        valueChanged = true;
+    }
+
+    return {baseArea, outlineArea, cursorArea, hoveringOverCursor, holdingClickOnCursor, valueChanged};
 }
 
 template <typename Slider>
@@ -117,12 +123,7 @@ bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
 
     draw_slider_model(ctx, model, *this);
 
-    if (mValueRef != model.value) {
-        mValueRef = model.value;
-        return true;
-    } else {
-        return false;
-    }
+    return model.valueChanged;
 }
 
 bool reig::reference_widget::textured_slider::draw(reig::Context& ctx) const {
@@ -131,12 +132,7 @@ bool reig::reference_widget::textured_slider::draw(reig::Context& ctx) const {
     ctx.render_rectangle(model.outlineArea, mBaseTexture);
     ctx.render_rectangle(model.cursorArea, mCursorTexture);
 
-    if (mValueRef != model.value) {
-        mValueRef = model.value;
-        return true;
-    } else {
-        return false;
-    }
+    return model.valueChanged;
 }
 
 void size_scrollbar_cursor(float& coord, float& size, float step, int offset, float viewSize) {
@@ -181,7 +177,13 @@ SliderModel get_scrollbar_model(reig::Context& ctx, const Scrollbar& scrollbar) 
         value = internal::clamp(value, min, max);
     }
 
-    return {baseArea, outlineArea, cursorArea, hoveringOverCursor, holdingClickOnCursor, value};
+    bool valueChanged = false;
+    if(scrollbar.mValueRef != value) {
+        scrollbar.mValueRef = value;
+        valueChanged = true;
+    }
+
+    return {baseArea, outlineArea, cursorArea, hoveringOverCursor, holdingClickOnCursor, valueChanged};
 }
 
 bool reig::reference_widget::scrollbar::draw(reig::Context& ctx) const {
@@ -189,10 +191,5 @@ bool reig::reference_widget::scrollbar::draw(reig::Context& ctx) const {
 
     draw_slider_model(ctx, model, *this);
 
-    if (mValueRef != model.value) {
-        mValueRef = model.value;
-        return true;
-    } else {
-        return false;
-    }
+    return model.valueChanged;
 }
