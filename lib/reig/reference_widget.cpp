@@ -104,23 +104,13 @@ bool reig::reference_widget::checkbox::draw(reig::Context& ctx) const {
 }
 
 bool reig::reference_widget::textured_checkbox::draw(reig::Context& ctx) const {
-    Rectangle boundingBox = this->mBoundingBox;
-    ctx.fit_rect_in_window(boundingBox);
+    auto model = get_checkbox_model(ctx, *this);
 
-    // Render checkbox's base
-    ctx.render_rectangle(boundingBox, mBaseTexture);
+    ctx.render_rectangle(model.outlineArea, mBaseTexture);
 
-    // Render check
     if (mValueRef) {
-        boundingBox = internal::decrease_rect(boundingBox, 8);
-        ctx.render_rectangle(boundingBox, mCheckTexture);
+        ctx.render_rectangle(model.checkArea, mCheckTexture);
     }
 
-    // True if state changed
-    if (ctx.mouse.leftButton.is_clicked() && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox)) {
-        mValueRef = !mValueRef;
-        return true;
-    } else {
-        return false;
-    }
+    return model.valueChanged;
 }
