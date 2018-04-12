@@ -178,6 +178,44 @@ bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
     }
 }
 
+bool reig::reference_widget::textured_slider::draw(reig::Context& ctx) const {
+    Rectangle boundingBox = this->mBoundingBox;
+    ctx.fit_rect_in_window(boundingBox);
+
+    // Render slider's base
+    ctx.render_rectangle(boundingBox, mBaseTexture);
+
+    auto [min, max, value, offset, valuesNum] = prepare_slider_values(mMin, mMax, mValueRef, mStep);
+
+    // Render the cursor
+    auto cursorBox = internal::decrease_rect(boundingBox, 8);
+    auto orientation = calculate_slider_orientation(boundingBox);
+    if(orientation == SliderOrientation::HORIZONTAL) {
+        size_slider_cursor(cursorBox.x, cursorBox.width, valuesNum, offset);
+    } else {
+        size_slider_cursor(cursorBox.y, cursorBox.height, valuesNum, offset);
+    }
+    ctx.render_rectangle(cursorBox, mCursorTexture);
+
+    if (ctx.mouse.leftButton.is_pressed() && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox)) {
+        if(orientation == SliderOrientation::HORIZONTAL) {
+            progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorBox.width, cursorBox.x, min, max, mStep, value);
+        } else {
+            progress_slider_value(ctx.mouse.get_cursor_pos().y, cursorBox.height, cursorBox.y, min, max, mStep, value);
+        }
+    } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), boundingBox)) {
+        value += static_cast<int>(ctx.mouse.get_scrolled()) * mStep;
+        value = internal::clamp(value, min, max);
+    }
+
+    if (mValueRef != value) {
+        mValueRef = value;
+        return true;
+    } else {
+        return false;
+    }
+}
+
 void size_scrollbar_cursor(float& coord, float& size, float step, int offset, float viewSize) {
     float scale = size / viewSize;
     size *= scale;
@@ -218,44 +256,6 @@ bool reig::reference_widget::scrollbar::draw(reig::Context& ctx) const {
         }
     } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), boundingBox)) {
         value += static_cast<int>(ctx.mouse.get_scrolled()) * step;
-        value = internal::clamp(value, min, max);
-    }
-
-    if (mValueRef != value) {
-        mValueRef = value;
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool reig::reference_widget::textured_slider::draw(reig::Context& ctx) const {
-    Rectangle boundingBox = this->mBoundingBox;
-    ctx.fit_rect_in_window(boundingBox);
-
-    // Render slider's base
-    ctx.render_rectangle(boundingBox, mBaseTexture);
-
-    auto [min, max, value, offset, valuesNum] = prepare_slider_values(mMin, mMax, mValueRef, mStep);
-
-    // Render the cursor
-    auto cursorBox = internal::decrease_rect(boundingBox, 8);
-    auto orientation = calculate_slider_orientation(boundingBox);
-    if(orientation == SliderOrientation::HORIZONTAL) {
-        size_slider_cursor(cursorBox.x, cursorBox.width, valuesNum, offset);
-    } else {
-        size_slider_cursor(cursorBox.y, cursorBox.height, valuesNum, offset);
-    }
-    ctx.render_rectangle(cursorBox, mCursorTexture);
-
-    if (ctx.mouse.leftButton.is_pressed() && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), boundingBox)) {
-        if(orientation == SliderOrientation::HORIZONTAL) {
-            progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorBox.width, cursorBox.x, min, max, mStep, value);
-        } else {
-            progress_slider_value(ctx.mouse.get_cursor_pos().y, cursorBox.height, cursorBox.y, min, max, mStep, value);
-        }
-    } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), boundingBox)) {
-        value += static_cast<int>(ctx.mouse.get_scrolled()) * mStep;
         value = internal::clamp(value, min, max);
     }
 
