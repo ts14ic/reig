@@ -25,7 +25,7 @@ SliderValues prepare_slider_values(float aMin, float aMax, float aValue, float a
 
 void size_slider_cursor(float& coord, float& size, int valuesNum, int offset) {
     size /= valuesNum;
-    if(size < 1) size = 1;
+    if (size < 1) size = 1;
     coord += offset * size;
 }
 
@@ -71,18 +71,20 @@ SliderModel get_slider_model(reig::Context& ctx, const Slider& slider) {
     SliderOrientation orientation = calculate_slider_orientation(baseArea);
 
     auto cursorArea = internal::decrease_rect(baseArea, 4);
-    if(orientation == SliderOrientation::HORIZONTAL) {
+    if (orientation == SliderOrientation::HORIZONTAL) {
         size_slider_cursor(cursorArea.x, cursorArea.width, values.valuesNum, values.offset);
     } else {
         size_slider_cursor(cursorArea.y, cursorArea.height, values.valuesNum, values.offset);
     }
 
     bool hoveringOverCursor = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), cursorArea);
-    bool holdingClick = ctx.mouse.leftButton.is_pressed() && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
-    bool holdingClickOnCursor = ctx.mouse.leftButton.is_pressed() && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), cursorArea);
+    bool holdingClick = ctx.mouse.leftButton.is_pressed()
+                        && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
+    bool holdingClickOnCursor = ctx.mouse.leftButton.is_pressed()
+                                && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), cursorArea);
 
     if (holdingClick) {
-        if(orientation == SliderOrientation::HORIZONTAL) {
+        if (orientation == SliderOrientation::HORIZONTAL) {
             progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorArea.width, cursorArea.x,
                                   values.min, values.max, slider.mStep, values.value);
         } else {
@@ -106,7 +108,7 @@ SliderModel get_slider_model(reig::Context& ctx, const Slider& slider) {
 void size_scrollbar_cursor(float& coord, float& size, float step, int offset, float viewSize) {
     float scale = size / viewSize;
     size *= scale;
-    if(size < 1) size = 1;
+    if (size < 1) size = 1;
     coord += offset * step * scale;
 }
 
@@ -123,21 +125,25 @@ SliderModel get_scrollbar_model(reig::Context& ctx, const Scrollbar& scrollbar) 
     SliderOrientation orientation = calculate_slider_orientation(baseArea);
 
     auto cursorArea = internal::decrease_rect(baseArea, 4);
-    if(orientation == SliderOrientation::HORIZONTAL) {
+    if (orientation == SliderOrientation::HORIZONTAL) {
         size_scrollbar_cursor(cursorArea.x, cursorArea.width, step, values.offset, scrollbar.mViewSize);
     } else {
         size_scrollbar_cursor(cursorArea.y, cursorArea.height, step, values.offset, scrollbar.mViewSize);
     }
 
     bool hoveringOverCursor = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), cursorArea);
-    bool holdingClick = ctx.mouse.leftButton.is_pressed() && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
-    bool holdingClickOnCursor = ctx.mouse.leftButton.is_pressed() && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), cursorArea);
+    bool holdingClick = ctx.mouse.leftButton.is_pressed()
+                        && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
+    bool holdingClickOnCursor = ctx.mouse.leftButton.is_pressed()
+                                && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), cursorArea);
 
     if (holdingClick) {
-        if(orientation == SliderOrientation::HORIZONTAL) {
-            progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorArea.width, cursorArea.x, values.min, values.max, step, values.value);
+        if (orientation == SliderOrientation::HORIZONTAL) {
+            progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorArea.width, cursorArea.x,
+                                  values.min, values.max, step, values.value);
         } else {
-            progress_slider_value(ctx.mouse.get_cursor_pos().y, cursorArea.height, cursorArea.y, values.min, values.max, step, values.value);
+            progress_slider_value(ctx.mouse.get_cursor_pos().y, cursorArea.height, cursorArea.y,
+                                  values.min, values.max, step, values.value);
         }
     } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea)) {
         values.value += static_cast<int>(ctx.mouse.get_scrolled()) * step;
@@ -145,7 +151,7 @@ SliderModel get_scrollbar_model(reig::Context& ctx, const Scrollbar& scrollbar) 
     }
 
     bool valueChanged = false;
-    if(scrollbar.mValueRef != values.value) {
+    if (scrollbar.mValueRef != values.value) {
         scrollbar.mValueRef = values.value;
         valueChanged = true;
     }
