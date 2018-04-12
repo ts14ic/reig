@@ -121,21 +121,22 @@ bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
 
     SliderOrientation orientation = calculate_slider_orientation(baseArea);
 
-    auto cursorBox = internal::decrease_rect(baseArea, 4);
+    auto cursorArea = internal::decrease_rect(baseArea, 4);
     if(orientation == SliderOrientation::HORIZONTAL) {
-        size_slider_cursor(cursorBox.x, cursorBox.width, valuesNum, offset);
+        size_slider_cursor(cursorArea.x, cursorArea.width, valuesNum, offset);
     } else {
-        size_slider_cursor(cursorBox.y, cursorBox.height, valuesNum, offset);
+        size_slider_cursor(cursorArea.y, cursorArea.height, valuesNum, offset);
     }
 
-    bool hoveringOverCursor = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), cursorBox);
+    bool hoveringOverCursor = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), cursorArea);
     bool holdingClick = ctx.mouse.leftButton.is_pressed() && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
+    bool holdingClickOnCursor = ctx.mouse.leftButton.is_pressed() && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), cursorArea);
 
     if (holdingClick) {
         if(orientation == SliderOrientation::HORIZONTAL) {
-            progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorBox.width, cursorBox.x, min, max, mStep, value);
+            progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorArea.width, cursorArea.x, min, max, mStep, value);
         } else {
-            progress_slider_value(ctx.mouse.get_cursor_pos().y, cursorBox.height, cursorBox.y, min, max, mStep, value);
+            progress_slider_value(ctx.mouse.get_cursor_pos().y, cursorArea.height, cursorArea.y, min, max, mStep, value);
         }
     } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea)) {
         value += static_cast<int>(ctx.mouse.get_scrolled()) * mStep;
@@ -143,16 +144,17 @@ bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
     }
 
     // render
-    Color frameColor = internal::get_yiq_contrast(mBaseColor);
-    ctx.render_rectangle(outlineArea, frameColor);
+    Color baseColor = internal::get_yiq_contrast(mBaseColor);
+    ctx.render_rectangle(outlineArea, baseColor);
     ctx.render_rectangle(baseArea, mBaseColor);
 
-    // Render the cursor
-    auto cursorColor = internal::get_yiq_contrast(mBaseColor);
     if (hoveringOverCursor) {
-        cursorColor = internal::lighten_color_by(cursorColor, 50);
+        baseColor = internal::lighten_color_by(baseColor, 30);
     }
-    ctx.render_rectangle(cursorBox, cursorColor);
+    if (holdingClickOnCursor) {
+        baseColor = internal::lighten_color_by(baseColor, 30);
+    }
+    ctx.render_rectangle(cursorArea, baseColor);
 
     if (mValueRef != value) {
         mValueRef = value;
