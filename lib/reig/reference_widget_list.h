@@ -48,6 +48,23 @@ namespace reig::reference_widget {
 
             return {itemFrameBox, itemBox, hoveringOnItem, holdingClickOnItem};
         }
+
+        template <typename Adapter, typename Iter>
+        void draw_item_model(Context& ctx, const ItemModel& model, const Color& baseColor, Adapter&& adapter, Iter&& it) {
+            Color primaryColor = baseColor;
+            if (model.hoveringOnItem) {
+                primaryColor = internal::lighten_color_by(primaryColor, 30);
+            }
+            if (model.holdingClickOnItem) {
+                primaryColor = internal::lighten_color_by(primaryColor, 30);
+            }
+
+            Color secondaryColor = internal::get_yiq_contrast(primaryColor);
+            ctx.render_rectangle(model.itemFrameBox, secondaryColor);
+            ctx.render_rectangle(model.itemBox, primaryColor);
+
+            ctx.render_text(adapter(*it), model.itemBox);
+        }
     }
 
     template <typename Range, typename Adapter, typename Action>
@@ -77,20 +94,7 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Con
     float maxY = listArea.y + listArea.height;
     for (auto it = mBegin + skippedItemCount; it != mEnd && y < maxY; ++it, y += fontHeight) {
         auto model = get_item_model(ctx, *this, listArea, y, fontHeight, it, mBegin);
-
-        Color primaryColor = mBaseColor;
-        if (model.hoveringOnItem) {
-            primaryColor = internal::lighten_color_by(primaryColor, 30);
-        }
-        if (model.holdingClickOnItem) {
-            primaryColor = internal::lighten_color_by(primaryColor, 30);
-        }
-
-        Color secondaryColor = internal::get_yiq_contrast(primaryColor);
-        ctx.render_rectangle(model.itemFrameBox, secondaryColor);
-        ctx.render_rectangle(model.itemBox, primaryColor);
-
-        ctx.render_text(mAdapter(*it), model.itemBox);
+        draw_item_model(ctx, model, mBaseColor, mAdapter, it);
     }
 
     auto scrollbarArea = mBoundingBox;
