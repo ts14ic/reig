@@ -6,34 +6,30 @@ using namespace reig::primitive;
 namespace internal = reig::internal;
 
 bool reig::reference_widget::button::draw(reig::Context& ctx) const {
-    Rectangle buttonArea {mBoundingBox};
-    ctx.fit_rect_in_window(buttonArea);
+    // logic
+    Rectangle baseArea {mBoundingBox};
+    ctx.fit_rect_in_window(baseArea);
 
-    // Render button outline first
-    Color outlineCol = internal::get_yiq_contrast(mBaseColor);
-    ctx.render_rectangle(buttonArea, outlineCol);
+    bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea);
+    Rectangle outlineArea {baseArea};
+    baseArea = internal::decrease_box(baseArea, 4);
+    bool clickedInArea = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
+    bool justClicked = ctx.mouse.leftButton.is_clicked() && clickedInArea;
+    bool holdingClick = ctx.mouse.leftButton.is_pressed() && clickedInArea;
 
-    Color color = this->mBaseColor;
-    // if cursor is over the button, highlight it
-    if (internal::is_boxed_in(ctx.mouse.get_cursor_pos(), buttonArea)) {
-        color = internal::lighten_color_by(color, 30);
+    // render
+    Color innerColor {mBaseColor};
+    if (hoveringOverArea) {
+        innerColor = internal::lighten_color_by(innerColor, 30);
     }
-
-    // see, if clicked the inner part of button
-    buttonArea = internal::decrease_box(buttonArea, 4);
-    bool clickedInBox = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), buttonArea);
-
-    // highlight even more, if clicked
-    if (ctx.mouse.leftButton.is_pressed() && clickedInBox) {
-        color = internal::lighten_color_by(color, 30);
+    if (holdingClick) {
+        innerColor = internal::lighten_color_by(innerColor, 30);
     }
+    ctx.render_rectangle(outlineArea, internal::get_yiq_contrast(mBaseColor));
+    ctx.render_rectangle(baseArea, innerColor);
+    ctx.render_text(mTitle, baseArea);
 
-    // render the inner part of button
-    ctx.render_rectangle(buttonArea, color);
-    // render button's title
-    ctx.render_text(mTitle, buttonArea);
-
-    return ctx.mouse.leftButton.is_clicked() && clickedInBox;
+    return justClicked;
 }
 
 
