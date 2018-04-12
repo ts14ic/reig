@@ -50,32 +50,36 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Con
 
     float y = listArea.y;
     for (auto it = mBegin + skippedItemCount; it != mEnd && y < listArea.y + listArea.height; ++it, y += fontHeight) {
-        Rectangle itemBox = {listArea.x, y, listArea.width, fontHeight};
-        internal::fit_rect_in_other(itemBox, listArea);
+        Rectangle itemFrameBox = {listArea.x, y, listArea.width, fontHeight};
+        internal::fit_rect_in_other(itemFrameBox, listArea);
+        Rectangle itemBox = internal::decrease_rect(itemFrameBox, 4);
 
         auto is_in_bounds = [&](const Point& pt) {
             return internal::is_boxed_in(pt, itemBox)
                    && internal::is_boxed_in(pt, listArea);
         };
 
-        Color color = mBaseColor;
-        bool isHoveringOnItem = is_in_bounds(ctx.mouse.get_cursor_pos());
-        if (isHoveringOnItem) {
-            color = internal::lighten_color_by(color, 30);
-        }
-
+        bool hoveringOnItem = is_in_bounds(ctx.mouse.get_cursor_pos());
         bool clickedOnItem = is_in_bounds(ctx.mouse.leftButton.get_clicked_pos());
+        bool holdingClickOnItem = ctx.mouse.leftButton.is_pressed() && clickedOnItem;
         if (clickedOnItem) {
             if (ctx.mouse.leftButton.is_clicked()) {
                 mAction(it - mBegin, *it);
             }
-
-            if (ctx.mouse.leftButton.is_pressed()) {
-                color = internal::lighten_color_by(color, 30);
-            }
         }
 
-        internal::render_widget_frame(ctx, itemBox, color);
+        Color primaryColor = mBaseColor;
+        if (hoveringOnItem) {
+            primaryColor = internal::lighten_color_by(primaryColor, 30);
+        }
+        if (holdingClickOnItem) {
+            primaryColor = internal::lighten_color_by(primaryColor, 30);
+        }
+
+        Color secondaryColor = internal::get_yiq_contrast(primaryColor);
+        ctx.render_rectangle(itemFrameBox, secondaryColor);
+        ctx.render_rectangle(itemBox, primaryColor);
+
         ctx.render_text(mAdapter(*it), itemBox);
     }
 
