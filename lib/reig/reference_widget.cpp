@@ -88,10 +88,10 @@ void size_slider_cursor(float& coord, float& size, int valuesNum, int offset) {
 
 void progress_slider_value(float mouseCursorCoord, float cursorSize, float cursorCoord,
                            float min, float max, float step, float& value) {
-    auto halfCursorW = cursorSize / 2;
-    auto distanceToMouseCoord = mouseCursorCoord - cursorCoord - halfCursorW;
+    auto halfCursorSize = cursorSize / 2;
+    auto distanceToMouseCoord = mouseCursorCoord - cursorCoord - halfCursorSize;
 
-    if (internal::abs(distanceToMouseCoord) > halfCursorW) {
+    if (internal::abs(distanceToMouseCoord) > halfCursorSize) {
         value += static_cast<int>(distanceToMouseCoord / cursorSize) * step;
         value = internal::clamp(value, min, max);
     }
