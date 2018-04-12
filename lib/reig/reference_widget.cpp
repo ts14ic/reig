@@ -6,22 +6,22 @@ using namespace reig::primitive;
 namespace internal = reig::internal;
 
 bool reig::reference_widget::button::draw(reig::Context& ctx) const {
-    Rectangle box = this->mBoundingBox;
-    ctx.fit_rect_in_window(box);
+    Rectangle buttonArea {mBoundingBox};
+    ctx.fit_rect_in_window(buttonArea);
 
     // Render button outline first
     Color outlineCol = internal::get_yiq_contrast(mBaseColor);
-    ctx.render_rectangle(box, outlineCol);
+    ctx.render_rectangle(buttonArea, outlineCol);
 
     Color color = this->mBaseColor;
     // if cursor is over the button, highlight it
-    if (internal::is_boxed_in(ctx.mouse.get_cursor_pos(), box)) {
+    if (internal::is_boxed_in(ctx.mouse.get_cursor_pos(), buttonArea)) {
         color = internal::lighten_color_by(color, 30);
     }
 
     // see, if clicked the inner part of button
-    box = internal::decrease_box(box, 4);
-    bool clickedInBox = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), box);
+    buttonArea = internal::decrease_box(buttonArea, 4);
+    bool clickedInBox = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), buttonArea);
 
     // highlight even more, if clicked
     if (ctx.mouse.leftButton.is_pressed() && clickedInBox) {
@@ -29,9 +29,9 @@ bool reig::reference_widget::button::draw(reig::Context& ctx) const {
     }
 
     // render the inner part of button
-    ctx.render_rectangle(box, color);
+    ctx.render_rectangle(buttonArea, color);
     // render button's title
-    ctx.render_text(mTitle, box);
+    ctx.render_text(mTitle, buttonArea);
 
     return ctx.mouse.leftButton.is_clicked() && clickedInBox;
 }
