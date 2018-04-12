@@ -118,15 +118,15 @@ SliderModel get_scrollbar_model(reig::Context& ctx, const Scrollbar& scrollbar) 
     Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
 
     auto step = ctx.get_font_size() / 2.0f;
-    auto [min, max, value, offset, valuesNum] = prepare_slider_values(0.0f, scrollbar.mViewSize - baseArea.height, scrollbar.mValueRef, step);
+    auto values = prepare_slider_values(0.0f, scrollbar.mViewSize - baseArea.height, scrollbar.mValueRef, step);
 
     SliderOrientation orientation = calculate_slider_orientation(baseArea);
 
     auto cursorArea = internal::decrease_rect(baseArea, 4);
     if(orientation == SliderOrientation::HORIZONTAL) {
-        size_scrollbar_cursor(cursorArea.x, cursorArea.width, step, offset, scrollbar.mViewSize);
+        size_scrollbar_cursor(cursorArea.x, cursorArea.width, step, values.offset, scrollbar.mViewSize);
     } else {
-        size_scrollbar_cursor(cursorArea.y, cursorArea.height, step, offset, scrollbar.mViewSize);
+        size_scrollbar_cursor(cursorArea.y, cursorArea.height, step, values.offset, scrollbar.mViewSize);
     }
 
     bool hoveringOverCursor = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), cursorArea);
@@ -135,18 +135,18 @@ SliderModel get_scrollbar_model(reig::Context& ctx, const Scrollbar& scrollbar) 
 
     if (holdingClick) {
         if(orientation == SliderOrientation::HORIZONTAL) {
-            progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorArea.width, cursorArea.x, min, max, step, value);
+            progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorArea.width, cursorArea.x, values.min, values.max, step, values.value);
         } else {
-            progress_slider_value(ctx.mouse.get_cursor_pos().y, cursorArea.height, cursorArea.y, min, max, step, value);
+            progress_slider_value(ctx.mouse.get_cursor_pos().y, cursorArea.height, cursorArea.y, values.min, values.max, step, values.value);
         }
     } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea)) {
-        value += static_cast<int>(ctx.mouse.get_scrolled()) * step;
-        value = internal::clamp(value, min, max);
+        values.value += static_cast<int>(ctx.mouse.get_scrolled()) * step;
+        values.value = internal::clamp(values.value, values.min, values.max);
     }
 
     bool valueChanged = false;
-    if(scrollbar.mValueRef != value) {
-        scrollbar.mValueRef = value;
+    if(scrollbar.mValueRef != values.value) {
+        scrollbar.mValueRef = values.value;
         valueChanged = true;
     }
 
