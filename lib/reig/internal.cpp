@@ -31,6 +31,7 @@ Rectangle reig::internal::decrease_rect(Rectangle aRect, int by) {
     return aRect;
 }
 
+[[deprecated("mixed logic and view")]]
 void reig::internal::render_widget_frame(reig::Context& ctx, Rectangle& boundingBox, Color const& baseColor) {
     Color frameColor = internal::get_yiq_contrast(baseColor);
     ctx.render_rectangle(boundingBox, frameColor);
