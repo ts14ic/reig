@@ -61,11 +61,10 @@ struct SliderModel {
 
 template <typename Slider>
 SliderModel get_slider_model(reig::Context& ctx, const Slider& slider) {
-    Rectangle baseArea = slider.mBoundingBox;
-    ctx.fit_rect_in_window(baseArea);
+    Rectangle outlineArea = slider.mBoundingBox;
+    ctx.fit_rect_in_window(outlineArea);
 
-    Rectangle outlineArea = baseArea;
-    baseArea = internal::decrease_rect(baseArea, 4);
+    Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
 
     auto values = prepare_slider_values(slider.mMin, slider.mMax, slider.mValueRef, slider.mStep);
 
@@ -149,11 +148,10 @@ void size_scrollbar_cursor(float& coord, float& size, float step, int offset, fl
 
 template <typename Scrollbar>
 SliderModel get_scrollbar_model(reig::Context& ctx, const Scrollbar& scrollbar) {
-    Rectangle baseArea = scrollbar.mBoundingBox;
-    ctx.fit_rect_in_window(baseArea);
+    Rectangle outlineArea = scrollbar.mBoundingBox;
+    ctx.fit_rect_in_window(outlineArea);
 
-    Rectangle outlineArea = baseArea;
-    baseArea = internal::decrease_rect(baseArea, 4);
+    Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
 
     auto step = ctx.get_font_size() / 2.0f;
     auto [min, max, value, offset, valuesNum] = prepare_slider_values(0.0f, scrollbar.mViewSize - baseArea.height, scrollbar.mValueRef, step);

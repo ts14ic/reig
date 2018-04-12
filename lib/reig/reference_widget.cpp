@@ -15,12 +15,11 @@ struct ButtonModel {
 
 template <typename Button>
 ButtonModel get_button_model(reig::Context& ctx, const Button& button) {
-    Rectangle baseArea {button.mBoundingBox};
-    ctx.fit_rect_in_window(baseArea);
+    Rectangle outlineArea = button.mBoundingBox;
+    ctx.fit_rect_in_window(outlineArea);
 
-    bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea);
-    Rectangle outlineArea {baseArea};
-    baseArea = internal::decrease_rect(baseArea, 4);
+    bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), outlineArea);
+    Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
     bool clickedInArea = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
     bool justClicked = ctx.mouse.leftButton.is_clicked() && clickedInArea;
     bool holdingClick = ctx.mouse.leftButton.is_pressed() && clickedInArea;
