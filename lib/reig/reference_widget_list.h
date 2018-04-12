@@ -39,23 +39,23 @@ template <typename Iter, typename Adapter, typename Action>
 void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Context& ctx) const {
     using namespace reig::primitive;
     int scrollbarWidth = 30;
-    Rectangle listBox = {mBoundingBox};
-    listBox.x += scrollbarWidth;
-    ctx.fit_rect_in_window(listBox);
+    Rectangle listArea = mBoundingBox;
+    listArea.x += scrollbarWidth;
+    ctx.fit_rect_in_window(listArea);
 
     auto& scrolled = detail::get_scroll_value(mTitle);
     float fontHeight = ctx.get_font_size();
     auto itemCount = mEnd - mBegin;
     auto skippedItemCount = static_cast<int>(scrolled / fontHeight);
 
-    float y = listBox.y;
-    for (auto it = mBegin + skippedItemCount; it != mEnd && y < listBox.y + listBox.height; ++it, y += fontHeight) {
-        Rectangle itemBox = {listBox.x, y, listBox.width, fontHeight};
-        internal::fit_rect_in_other(itemBox, listBox);
+    float y = listArea.y;
+    for (auto it = mBegin + skippedItemCount; it != mEnd && y < listArea.y + listArea.height; ++it, y += fontHeight) {
+        Rectangle itemBox = {listArea.x, y, listArea.width, fontHeight};
+        internal::fit_rect_in_other(itemBox, listArea);
 
         auto is_in_bounds = [&](const Point& pt) {
             return internal::is_boxed_in(pt, itemBox)
-                   && internal::is_boxed_in(pt, listBox);
+                   && internal::is_boxed_in(pt, listArea);
         };
 
         Color color = mBaseColor;
@@ -79,9 +79,9 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Con
         ctx.render_text(mAdapter(*it), itemBox);
     }
 
-    auto scrollbarRect = mBoundingBox;
-    scrollbarRect.width = scrollbarWidth;
-    ctx.enqueue(scrollbar{scrollbarRect, mBaseColor, scrolled, itemCount * fontHeight});
+    auto scrollbarArea = mBoundingBox;
+    scrollbarArea.width = scrollbarWidth;
+    ctx.enqueue(scrollbar{scrollbarArea, mBaseColor, scrolled, itemCount * fontHeight});
 }
 
 #endif //REIG_REFERENCE_WIDGET_LIST_H
