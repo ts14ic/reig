@@ -197,7 +197,7 @@ void reig::Context::fit_rect_in_window(Rectangle& rect) {
 void reig::Context::render_text(char const* ch, Rectangle aBox) {
     if (mFont.mBakedChars.empty() || !ch) return;
 
-    aBox = internal::decrease_box(aBox, 8);
+    aBox = internal::decrease_rect(aBox, 8);
     float x = aBox.x;
     float y = aBox.y + aBox.height;
 

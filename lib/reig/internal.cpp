@@ -22,7 +22,7 @@ Color reig::internal::lighten_color_by(Color color, uint8_t delta) {
     return color;
 }
 
-Rectangle reig::internal::decrease_box(Rectangle aRect, int by) {
+Rectangle reig::internal::decrease_rect(Rectangle aRect, int by) {
     int moveBy = by / 2;
     aRect.x += moveBy;
     aRect.y += moveBy;
@@ -34,7 +34,7 @@ Rectangle reig::internal::decrease_box(Rectangle aRect, int by) {
 void reig::internal::render_widget_frame(reig::Context& ctx, Rectangle& boundingBox, Color const& baseColor) {
     Color frameColor = internal::get_yiq_contrast(baseColor);
     ctx.render_rectangle(boundingBox, frameColor);
-    boundingBox = internal::decrease_box(boundingBox, 4);
+    boundingBox = internal::decrease_rect(boundingBox, 4);
     ctx.render_rectangle(boundingBox, baseColor);
 }
 

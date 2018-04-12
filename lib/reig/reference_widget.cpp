@@ -12,7 +12,7 @@ bool reig::reference_widget::button::draw(reig::Context& ctx) const {
 
     bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea);
     Rectangle outlineArea {baseArea};
-    baseArea = internal::decrease_box(baseArea, 4);
+    baseArea = internal::decrease_rect(baseArea, 4);
     bool clickedInArea = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
     bool justClicked = ctx.mouse.leftButton.is_clicked() && clickedInArea;
     bool holdingClick = ctx.mouse.leftButton.is_pressed() && clickedInArea;
@@ -34,20 +34,20 @@ bool reig::reference_widget::button::draw(reig::Context& ctx) const {
 
 
 bool reig::reference_widget::textured_button::draw(reig::Context& ctx) const {
-    Rectangle box = this->mBoundingBox;
-    ctx.fit_rect_in_window(box);
+    Rectangle baseArea {mBoundingBox};
+    ctx.fit_rect_in_window(baseArea);
 
-    bool clickedInBox = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), box);
-    bool hoveredOnBox = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), box);
+    bool clickedInBox = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
+    bool hoveredOnBox = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea);
 
     if((ctx.mouse.leftButton.is_pressed() && clickedInBox) || hoveredOnBox) {
-        ctx.render_rectangle(box, mBaseTexture);
+        ctx.render_rectangle(baseArea, mBaseTexture);
     } else {
-        ctx.render_rectangle(box, mHoverTexture);
+        ctx.render_rectangle(baseArea, mHoverTexture);
     }
 
-    box = internal::decrease_box(box, 8);
-    ctx.render_text(mTitle, box);
+    baseArea = internal::decrease_rect(baseArea, 8);
+    ctx.render_text(mTitle, baseArea);
 
     return ctx.mouse.leftButton.is_clicked() && clickedInBox;
 }
@@ -114,7 +114,7 @@ bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
     SliderOrientation orientation = calculate_slider_orientation(boundingBox);
 
     // Render the cursor
-    auto cursorBox = internal::decrease_box(boundingBox, 4);
+    auto cursorBox = internal::decrease_rect(boundingBox, 4);
     if(orientation == SliderOrientation::HORIZONTAL) {
         size_slider_cursor(cursorBox.x, cursorBox.width, valuesNum, offset);
     } else {
@@ -165,7 +165,7 @@ bool reig::reference_widget::scrollbar::draw(reig::Context& ctx) const {
     SliderOrientation orientation = calculate_slider_orientation(boundingBox);
 
     // Render the cursor
-    auto cursorBox = internal::decrease_box(boundingBox, 4);
+    auto cursorBox = internal::decrease_rect(boundingBox, 4);
     if(orientation == SliderOrientation::HORIZONTAL) {
         size_scrollbar_cursor(cursorBox.x, cursorBox.width, step, offset, mViewSize);
     } else {
@@ -207,7 +207,7 @@ bool reig::reference_widget::textured_slider::draw(reig::Context& ctx) const {
     auto [min, max, value, offset, valuesNum] = prepare_slider_values(mMin, mMax, mValueRef, mStep);
 
     // Render the cursor
-    auto cursorBox = internal::decrease_box(boundingBox, 8);
+    auto cursorBox = internal::decrease_rect(boundingBox, 8);
     auto orientation = calculate_slider_orientation(boundingBox);
     if(orientation == SliderOrientation::HORIZONTAL) {
         size_slider_cursor(cursorBox.x, cursorBox.width, valuesNum, offset);
@@ -243,7 +243,7 @@ bool reig::reference_widget::checkbox::draw(reig::Context& ctx) const {
 
     // Render check
     if (mValueRef) {
-        boundingBox = internal::decrease_box(boundingBox, 4);
+        boundingBox = internal::decrease_rect(boundingBox, 4);
         Color contrastColor = internal::get_yiq_contrast(mBaseColor);
         ctx.render_rectangle(boundingBox, contrastColor);
     }
@@ -266,7 +266,7 @@ bool reig::reference_widget::textured_checkbox::draw(reig::Context& ctx) const {
 
     // Render check
     if (mValueRef) {
-        boundingBox = internal::decrease_box(boundingBox, 8);
+        boundingBox = internal::decrease_rect(boundingBox, 8);
         ctx.render_rectangle(boundingBox, mCheckTexture);
     }
 

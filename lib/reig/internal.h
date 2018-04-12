@@ -47,7 +47,7 @@ namespace reig::internal {
 
     Color lighten_color_by(Color color, uint8_t delta);
 
-    Rectangle decrease_box(Rectangle aRect, int by);
+    Rectangle decrease_rect(Rectangle aRect, int by);
 
     template <typename R, typename T, typename = std::enable_if_t<std::is_integral_v<R> && std::is_integral_v<R>>>
     R integral_cast(T t) {
