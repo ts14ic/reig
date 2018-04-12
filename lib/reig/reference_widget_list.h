@@ -13,8 +13,8 @@ namespace reig::reference_widget {
         template <typename Iter, typename Adapter, typename Action>
         struct list {
             const char* mTitle = "";
-            primitive::Rectangle mBoundingBox;
-            primitive::Color mBaseColor;
+            Rectangle mBoundingBox;
+            Color mBaseColor;
             Iter mBegin;
             Iter mEnd;
             Adapter& mAdapter;
@@ -31,7 +31,8 @@ namespace reig::reference_widget {
         };
 
         template <typename List, typename Iter>
-        ItemModel get_item_model(Context& ctx, const List& list, const Rectangle& listArea, float itemY, float fontHeight, const Iter& it, const Iter& begin) {
+        ItemModel get_item_model(Context& ctx, const List& list, const Rectangle& listArea,
+                                 float itemY, float fontHeight, const Iter& it, const Iter& begin) {
             Rectangle itemFrameBox = {listArea.x, itemY, listArea.width, fontHeight};
             internal::trim_rect_in_other(itemFrameBox, listArea);
             Rectangle itemBox = internal::decrease_rect(itemFrameBox, 4);
@@ -51,8 +52,8 @@ namespace reig::reference_widget {
 
     template <typename Range, typename Adapter, typename Action>
     auto list(const char* title,
-              const primitive::Rectangle& rectangle,
-              const primitive::Color& baseColor,
+              const Rectangle& rectangle,
+              const Color& baseColor,
               Range&& range,
               Adapter&& adapter,
               Action&& action) -> detail::list<decltype(std::begin(range)), Adapter, Action> {
