@@ -62,7 +62,6 @@ namespace reig::reference_widget {
 
 template <typename Iter, typename Adapter, typename Action>
 void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Context& ctx) const {
-    using namespace reig::primitive;
     int scrollbarWidth = 30;
     Rectangle listArea = mBoundingBox;
     listArea.x += scrollbarWidth;
@@ -74,7 +73,8 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Con
     auto skippedItemCount = static_cast<int>(scrolled / fontHeight);
 
     float y = listArea.y;
-    for (auto it = mBegin + skippedItemCount; it != mEnd && y < listArea.y + listArea.height; ++it, y += fontHeight) {
+    float maxY = listArea.y + listArea.height;
+    for (auto it = mBegin + skippedItemCount; it != mEnd && y < maxY; ++it, y += fontHeight) {
         auto model = get_item_model(ctx, *this, listArea, y, fontHeight, it, mBegin);
 
         Color primaryColor = mBaseColor;
