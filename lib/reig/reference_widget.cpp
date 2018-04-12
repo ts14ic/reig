@@ -13,8 +13,8 @@ struct ButtonModel {
     bool holdingClick = false;
 };
 
-template <typename B>
-ButtonModel get_button_model(reig::Context& ctx, const B& button) {
+template <typename Button>
+ButtonModel get_button_model(reig::Context& ctx, const Button& button) {
     Rectangle baseArea {button.mBoundingBox};
     ctx.fit_rect_in_window(baseArea);
 
