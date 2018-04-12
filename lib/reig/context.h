@@ -10,24 +10,30 @@
 namespace reig {
     namespace detail {
         struct Font {
-            std::vector<stbtt_bakedchar> bakedChars;
-            float size = 0.f;
-            int texture = 0;
-            int width = 0;
-            int height = 0;
+            std::vector<stbtt_bakedchar> mBakedChars;
+            float mSize = 0.f;
+            int mTextureId = 0;
+            int mWidth = 0;
+            int mHeight = 0;
         };
 
         struct Window {
-            std::vector<primitive::Figure> drawData;
-            char const* title = nullptr;
-            float* x = nullptr;
-            float* y = nullptr;
-            float w = 0.f;
-            float h = 0.f;
-            float headerSize = 0.f;
-            bool started = false;
+            std::vector<primitive::Figure> mDrawData;
+            char const* mTitle = nullptr;
+            float* mX = nullptr;
+            float* mY = nullptr;
+            float mWidth = 0.f;
+            float mHeight = 0.f;
+            float mTitleBarHeight = 0.f;
+            bool mIsStarted = false;
 
-            void expand(primitive::Rectangle& box);
+            /**
+             * Increase the window's width and height to fit rect's bottom right point
+             * Shift rect's y down to accommodate window's title bar
+             * Reset rect's position if it's top left corner can't be fitted
+             * @param rect The rectangle to accommodate
+             */
+            void fit_rect(primitive::Rectangle& rect);
         };
     }
 
