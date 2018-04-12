@@ -33,16 +33,11 @@ namespace reig::reference_widget {
         template <typename List, typename Iter>
         ItemModel get_item_model(Context& ctx, const List& list, const Rectangle& listArea, float itemY, float fontHeight, const Iter& it, const Iter& begin) {
             Rectangle itemFrameBox = {listArea.x, itemY, listArea.width, fontHeight};
-            internal::fit_rect_in_other(itemFrameBox, listArea);
+            internal::trim_rect_in_other(itemFrameBox, listArea);
             Rectangle itemBox = internal::decrease_rect(itemFrameBox, 4);
 
-            auto is_in_bounds = [&](const Point& pt) {
-                return internal::is_boxed_in(pt, itemBox)
-                       && internal::is_boxed_in(pt, listArea);
-            };
-
-            bool hoveringOnItem = is_in_bounds(ctx.mouse.get_cursor_pos());
-            bool clickedOnItem = is_in_bounds(ctx.mouse.leftButton.get_clicked_pos());
+            bool hoveringOnItem = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), itemBox);
+            bool clickedOnItem = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), itemBox);
             bool holdingClickOnItem = ctx.mouse.leftButton.is_pressed() && clickedOnItem;
             if (clickedOnItem) {
                 if (ctx.mouse.leftButton.is_clicked()) {

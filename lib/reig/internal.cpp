@@ -39,7 +39,7 @@ void reig::internal::render_widget_frame(reig::Context& ctx, Rectangle& bounding
     ctx.render_rectangle(boundingBox, baseColor);
 }
 
-void reig::internal::fit_rect_in_other(Rectangle& fitted, const Rectangle& container) {
+void reig::internal::trim_rect_in_other(Rectangle& fitted, const Rectangle& container) {
     fitted.x = max(fitted.x, container.x);
     fitted.y = max(fitted.y, container.y);
 
