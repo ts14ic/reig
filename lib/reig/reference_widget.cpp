@@ -109,15 +109,24 @@ SliderOrientation calculate_slider_orientation(const Rectangle& rect) {
            : SliderOrientation::HORIZONTAL;
 }
 
-bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
-    // logic
-    Rectangle baseArea = {mBoundingBox};
+struct SliderModel {
+    Rectangle baseArea;
+    Rectangle outlineArea;
+    Rectangle cursorArea;
+    bool hoveringOverCursor = false;
+    bool holdingClickOnCursor = false;
+    float value = 0.0f;
+};
+
+template <typename Slider>
+SliderModel get_slider_model(reig::Context& ctx, const Slider& slider) {
+    Rectangle baseArea = slider.mBoundingBox;
     ctx.fit_rect_in_window(baseArea);
 
     Rectangle outlineArea = baseArea;
     baseArea = internal::decrease_rect(baseArea, 4);
 
-    auto [min, max, value, offset, valuesNum] = prepare_slider_values(mMin, mMax, mValueRef, mStep);
+    auto [min, max, value, offset, valuesNum] = prepare_slider_values(slider.mMin, slider.mMax, slider.mValueRef, slider.mStep);
 
     SliderOrientation orientation = calculate_slider_orientation(baseArea);
 
@@ -134,30 +143,35 @@ bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
 
     if (holdingClick) {
         if(orientation == SliderOrientation::HORIZONTAL) {
-            progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorArea.width, cursorArea.x, min, max, mStep, value);
+            progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorArea.width, cursorArea.x, min, max, slider.mStep, value);
         } else {
-            progress_slider_value(ctx.mouse.get_cursor_pos().y, cursorArea.height, cursorArea.y, min, max, mStep, value);
+            progress_slider_value(ctx.mouse.get_cursor_pos().y, cursorArea.height, cursorArea.y, min, max, slider.mStep, value);
         }
     } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea)) {
-        value += static_cast<int>(ctx.mouse.get_scrolled()) * mStep;
+        value += static_cast<int>(ctx.mouse.get_scrolled()) * slider.mStep;
         value = internal::clamp(value, min, max);
     }
 
-    // render
+    return {baseArea, outlineArea, cursorArea, hoveringOverCursor, holdingClickOnCursor, value};
+}
+
+bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
+    auto model = get_slider_model(ctx, *this);
+
     Color baseColor = internal::get_yiq_contrast(mBaseColor);
-    ctx.render_rectangle(outlineArea, baseColor);
-    ctx.render_rectangle(baseArea, mBaseColor);
+    ctx.render_rectangle(model.outlineArea, baseColor);
+    ctx.render_rectangle(model.baseArea, mBaseColor);
 
-    if (hoveringOverCursor) {
+    if (model.hoveringOverCursor) {
         baseColor = internal::lighten_color_by(baseColor, 30);
     }
-    if (holdingClickOnCursor) {
+    if (model.holdingClickOnCursor) {
         baseColor = internal::lighten_color_by(baseColor, 30);
     }
-    ctx.render_rectangle(cursorArea, baseColor);
+    ctx.render_rectangle(model.cursorArea, baseColor);
 
-    if (mValueRef != value) {
-        mValueRef = value;
+    if (mValueRef != model.value) {
+        mValueRef = model.value;
         return true;
     } else {
         return false;
