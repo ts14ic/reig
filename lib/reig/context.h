@@ -18,14 +18,14 @@ namespace reig {
         };
 
         struct Window {
-            std::vector<primitive::Figure> drawData;
-            char const* title = nullptr;
-            float* x = nullptr;
-            float* y = nullptr;
-            float w = 0.f;
-            float h = 0.f;
-            float headerSize = 0.f;
-            bool started = false;
+            std::vector<primitive::Figure> mDrawData;
+            char const* mTitle = nullptr;
+            float* mX = nullptr;
+            float* mY = nullptr;
+            float mWidth = 0.f;
+            float mHeight = 0.f;
+            float mTitleBarHeight = 0.f;
+            bool mIsStarted = false;
 
             void expand(primitive::Rectangle& box);
         };
