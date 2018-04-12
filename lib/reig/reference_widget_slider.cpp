@@ -5,8 +5,6 @@
 using namespace reig::primitive;
 namespace internal = reig::internal;
 
-
-
 struct SliderValues {
     float min = 0.0f;
     float max = 0.0f;
@@ -69,15 +67,15 @@ SliderModel get_slider_model(reig::Context& ctx, const Slider& slider) {
     Rectangle outlineArea = baseArea;
     baseArea = internal::decrease_rect(baseArea, 4);
 
-    auto [min, max, value, offset, valuesNum] = prepare_slider_values(slider.mMin, slider.mMax, slider.mValueRef, slider.mStep);
+    auto values = prepare_slider_values(slider.mMin, slider.mMax, slider.mValueRef, slider.mStep);
 
     SliderOrientation orientation = calculate_slider_orientation(baseArea);
 
     auto cursorArea = internal::decrease_rect(baseArea, 4);
     if(orientation == SliderOrientation::HORIZONTAL) {
-        size_slider_cursor(cursorArea.x, cursorArea.width, valuesNum, offset);
+        size_slider_cursor(cursorArea.x, cursorArea.width, values.valuesNum, values.offset);
     } else {
-        size_slider_cursor(cursorArea.y, cursorArea.height, valuesNum, offset);
+        size_slider_cursor(cursorArea.y, cursorArea.height, values.valuesNum, values.offset);
     }
 
     bool hoveringOverCursor = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), cursorArea);
@@ -86,16 +84,18 @@ SliderModel get_slider_model(reig::Context& ctx, const Slider& slider) {
 
     if (holdingClick) {
         if(orientation == SliderOrientation::HORIZONTAL) {
-            progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorArea.width, cursorArea.x, min, max, slider.mStep, value);
+            progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorArea.width, cursorArea.x,
+                                  values.min, values.max, slider.mStep, values.value);
         } else {
-            progress_slider_value(ctx.mouse.get_cursor_pos().y, cursorArea.height, cursorArea.y, min, max, slider.mStep, value);
+            progress_slider_value(ctx.mouse.get_cursor_pos().y, cursorArea.height, cursorArea.y,
+                                  values.min, values.max, slider.mStep, values.value);
         }
     } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea)) {
-        value += static_cast<int>(ctx.mouse.get_scrolled()) * slider.mStep;
-        value = internal::clamp(value, min, max);
+        values.value += static_cast<int>(ctx.mouse.get_scrolled()) * slider.mStep;
+        values.value = internal::clamp(values.value, values.min, values.max);
     }
 
-    return {baseArea, outlineArea, cursorArea, hoveringOverCursor, holdingClickOnCursor, value};
+    return {baseArea, outlineArea, cursorArea, hoveringOverCursor, holdingClickOnCursor, values.value};
 }
 
 template <typename Slider>
