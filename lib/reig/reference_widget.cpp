@@ -9,7 +9,6 @@ struct ButtonModel {
     Rectangle outlineArea;
     Rectangle baseArea;
     bool hoveringOverArea = false;
-    bool clickedInArea = false;
     bool justClicked = false;
     bool holdingClick = false;
 };
@@ -26,7 +25,7 @@ ButtonModel get_button_model(reig::Context& ctx, const B& button) {
     bool justClicked = ctx.mouse.leftButton.is_clicked() && clickedInArea;
     bool holdingClick = ctx.mouse.leftButton.is_pressed() && clickedInArea;
 
-    return {outlineArea, baseArea, hoveringOverArea, clickedInArea, justClicked, holdingClick};
+    return {outlineArea, baseArea, hoveringOverArea, justClicked, holdingClick};
 }
 
 bool reig::reference_widget::button::draw(reig::Context& ctx) const {
