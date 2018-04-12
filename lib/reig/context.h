@@ -10,11 +10,11 @@
 namespace reig {
     namespace detail {
         struct Font {
-            std::vector<stbtt_bakedchar> bakedChars;
-            float size = 0.f;
-            int texture = 0;
-            int width = 0;
-            int height = 0;
+            std::vector<stbtt_bakedchar> mBakedChars;
+            float mSize = 0.f;
+            int mTextureId = 0;
+            int mWidth = 0;
+            int mHeight = 0;
         };
 
         struct Window {

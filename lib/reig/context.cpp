@@ -66,11 +66,11 @@ reig::Context::FontData reig::Context::set_font(char const* fontFilePath, int te
     }
 
     // If all successfull, replace current font data
-    mFont.bakedChars = std::move(bakedChars);
-    mFont.texture = textureId;
-    mFont.width = bitmapWidth;
-    mFont.height = height;
-    mFont.size = fontHeightPx;
+    mFont.mBakedChars = std::move(bakedChars);
+    mFont.mTextureId = textureId;
+    mFont.mWidth = bitmapWidth;
+    mFont.mHeight = height;
+    mFont.mSize = fontHeightPx;
 
     // Return texture creation info
     FontData ret;
@@ -82,7 +82,7 @@ reig::Context::FontData reig::Context::set_font(char const* fontFilePath, int te
 }
 
 float reig::Context::get_font_size() const {
-    return mFont.size;
+    return mFont.mSize;
 }
 
 const char* reig::exception::NoRenderHandlerException::what() const noexcept {
@@ -120,7 +120,7 @@ void reig::Context::start_window(char const* aTitle, float& aX, float& aY) {
     mCurrentWindow.mY = &aY;
     mCurrentWindow.mWidth = 0;
     mCurrentWindow.mHeight = 0;
-    mCurrentWindow.mTitleBarHeight = 8 + mFont.size;
+    mCurrentWindow.mTitleBarHeight = 8 + mFont.mSize;
 }
 
 void reig::Context::end_window() {
@@ -197,7 +197,7 @@ void reig::Context::fit_rect_in_window(Rectangle& rect) {
 }
 
 void reig::Context::render_text(char const* ch, Rectangle aBox) {
-    if (mFont.bakedChars.empty() || !ch) return;
+    if (mFont.mBakedChars.empty() || !ch) return;
 
     aBox = internal::decrease_box(aBox, 8);
     float x = aBox.x;
@@ -217,8 +217,8 @@ void reig::Context::render_text(char const* ch, Rectangle aBox) {
 
         stbtt_aligned_quad q;
         stbtt_GetBakedQuad(
-                mFont.bakedChars.data(),
-                mFont.width, mFont.height, c - ' ', &x, &y, &q, 1
+                mFont.mBakedChars.data(),
+                mFont.mWidth, mFont.mHeight, c - ' ', &x, &y, &q, 1
         );
         if (q.x0 > aBox.x + aBox.width) {
             break;
@@ -230,7 +230,7 @@ void reig::Context::render_text(char const* ch, Rectangle aBox) {
             q.y0 = aBox.y;
         }
 
-        textWidth += mFont.bakedChars[c - ' '].xadvance;
+        textWidth += mFont.mBakedChars[c - ' '].xadvance;
 
         quads.push_back(q);
     }
@@ -247,7 +247,7 @@ void reig::Context::render_text(char const* ch, Rectangle aBox) {
         vector<int> indices{0, 1, 2, 2, 3, 0};
 
         Figure fig;
-        fig.form(vertices, indices, mFont.texture);
+        fig.form(vertices, indices, mFont.mTextureId);
         mDrawData.push_back(fig);
     }
 }
