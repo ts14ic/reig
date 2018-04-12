@@ -34,22 +34,26 @@ bool reig::reference_widget::button::draw(reig::Context& ctx) const {
 
 
 bool reig::reference_widget::textured_button::draw(reig::Context& ctx) const {
+    // logic
     Rectangle baseArea {mBoundingBox};
     ctx.fit_rect_in_window(baseArea);
 
-    bool clickedInBox = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
-    bool hoveredOnBox = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea);
+    bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea);
+    Rectangle outlineArea = baseArea;
+    baseArea = internal::decrease_rect(baseArea, 4);
+    bool clickedInArea = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
+    bool justClicked = ctx.mouse.leftButton.is_clicked() && clickedInArea;
+    bool holdingClick = ctx.mouse.leftButton.is_pressed() && clickedInArea;
 
-    if((ctx.mouse.leftButton.is_pressed() && clickedInBox) || hoveredOnBox) {
-        ctx.render_rectangle(baseArea, mBaseTexture);
-    } else {
-        ctx.render_rectangle(baseArea, mHoverTexture);
+    // render
+    int texture = mHoverTexture;
+    if(holdingClick || hoveringOverArea) {
+        texture = mBaseTexture;
     }
+    ctx.render_rectangle(outlineArea, texture);
+    ctx.render_text(mTitle, outlineArea);
 
-    baseArea = internal::decrease_rect(baseArea, 8);
-    ctx.render_text(mTitle, baseArea);
-
-    return ctx.mouse.leftButton.is_clicked() && clickedInBox;
+    return justClicked;
 }
 
 void reig::reference_widget::label::draw(reig::Context& ctx) const {
