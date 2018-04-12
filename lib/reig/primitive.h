@@ -171,7 +171,7 @@ namespace reig::primitive {
         /**
          * @brief Returns figure's read-only vertices
          */
-        std::vector<primitive::Vertex> const& vertices() const;
+        std::vector<Vertex> const& vertices() const;
 
         /**
          * @brief Returns figure's read-only indices
@@ -188,9 +188,9 @@ namespace reig::primitive {
 
         friend class ::reig::Context;
 
-        void form(std::vector<primitive::Vertex>& vertices, std::vector<int>& indices, int id = 0);
+        void form(std::vector<Vertex>& vertices, std::vector<int>& indices, int id = 0);
 
-        std::vector<primitive::Vertex> mVertices;
+        std::vector<Vertex> mVertices;
         std::vector<int> mIndices;
         int mTextureId = 0;
     };
