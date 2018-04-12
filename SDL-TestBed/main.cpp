@@ -157,7 +157,7 @@ public:
             }
 
             static bool checkBox3 = false;
-            color = colors::from_uint(0xFFFFFFFFu);
+            color = colors::white;
             rect.y += 60; rect.width = rect.height = 25;
             if(gui.ctx.enqueue(widget::checkbox{rect, color, checkBox3})) {
                 std::cout << "Checkbox 3: new value " << checkBox3 << std::endl;
