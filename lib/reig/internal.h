@@ -60,8 +60,6 @@ namespace reig::internal {
         return r;
     };
 
-    void render_widget_frame(Context& ctx, Rectangle& boundingBox, Color const& baseColor);
-
     void trim_rect_in_other(Rectangle& fitted, const Rectangle& container);
 }
 
