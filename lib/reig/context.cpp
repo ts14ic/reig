@@ -170,28 +170,28 @@ void reig::Context::end_window() {
     }
 }
 
-void reig::detail::Window::expand(Rectangle& aBox) {
+void reig::detail::Window::fit_rect(Rectangle& rect) {
     if (mIsStarted) {
-        aBox.x += *mX + 4;
-        aBox.y += *mY + mTitleBarHeight + 4;
+        rect.x += *mX + 4;
+        rect.y += *mY + mTitleBarHeight + 4;
 
-        if (*mX + mWidth < aBox.x + aBox.width) {
-            mWidth = aBox.x + aBox.width - *mX;
+        if (*mX + mWidth < rect.x + rect.width) {
+            mWidth = rect.x + rect.width - *mX;
         }
-        if (*mY + mHeight < aBox.y + aBox.height) {
-            mHeight = aBox.y + aBox.height - *mY;
+        if (*mY + mHeight < rect.y + rect.height) {
+            mHeight = rect.y + rect.height - *mY;
         }
-        if (aBox.x < *mX) {
-            aBox.x = *mX + 4;
+        if (rect.x < *mX) {
+            rect.x = *mX + 4;
         }
-        if (aBox.y < *mY) {
-            aBox.y = *mY + 4;
+        if (rect.y < *mY) {
+            rect.y = *mY + 4;
         }
     }
 }
 
 void reig::Context::fit_rect_in_window(Rectangle& rect) {
-    mCurrentWindow.expand(rect);
+    mCurrentWindow.fit_rect(rect);
 }
 
 void reig::Context::render_text(char const* ch, Rectangle aBox) {

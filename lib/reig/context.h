@@ -27,7 +27,13 @@ namespace reig {
             float mTitleBarHeight = 0.f;
             bool mIsStarted = false;
 
-            void expand(primitive::Rectangle& box);
+            /**
+             * Increase the window's width and height to fit rect's bottom right point
+             * Shift rect's y down to accommodate window's title bar
+             * Reset rect's position if it's top left corner can't be fitted
+             * @param rect The rectangle to accommodate
+             */
+            void fit_rect(primitive::Rectangle& rect);
         };
     }
 
