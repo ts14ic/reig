@@ -122,7 +122,6 @@ SliderModel get_scrollbar_model(reig::Context& ctx, const Scrollbar& scrollbar) 
 
     SliderOrientation orientation = calculate_slider_orientation(baseArea);
 
-    // Render the cursor
     auto cursorArea = internal::decrease_rect(baseArea, 4);
     if(orientation == SliderOrientation::HORIZONTAL) {
         size_scrollbar_cursor(cursorArea.x, cursorArea.width, step, offset, scrollbar.mViewSize);
