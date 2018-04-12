@@ -16,7 +16,7 @@ bool reig::reference_widget::button::draw(reig::Context& ctx) const {
     Color color = this->mBaseColor;
     // if cursor is over the button, highlight it
     if (internal::is_boxed_in(ctx.mouse.get_cursor_pos(), box)) {
-        color = internal::lighten_color_by(color, 50);
+        color = internal::lighten_color_by(color, 30);
     }
 
     // see, if clicked the inner part of button
@@ -25,7 +25,7 @@ bool reig::reference_widget::button::draw(reig::Context& ctx) const {
 
     // highlight even more, if clicked
     if (ctx.mouse.leftButton.is_pressed() && clickedInBox) {
-        color = internal::lighten_color_by(color, 50);
+        color = internal::lighten_color_by(color, 30);
     }
 
     // render the inner part of button
