@@ -182,12 +182,10 @@ void reig::detail::Window::expand(Rectangle& aBox) {
             mHeight = aBox.y + aBox.height - *mY;
         }
         if (aBox.x < *mX) {
-            auto d = *mX - aBox.x;
-            aBox.x += d + 4;
+            aBox.x = *mX + 4;
         }
         if (aBox.y < *mY) {
-            auto d = *mY - aBox.y;
-            aBox.y += d + 4;
+            aBox.y = *mY + 4;
         }
     }
 }
