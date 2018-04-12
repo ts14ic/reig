@@ -22,6 +22,36 @@ namespace reig::reference_widget {
 
             void draw(Context& ctx) const;
         };
+
+        struct ItemModel {
+            Rectangle itemFrameBox;
+            Rectangle itemBox;
+            bool hoveringOnItem = false;
+            bool holdingClickOnItem = false;
+        };
+
+        template <typename List, typename Iter>
+        ItemModel get_item_model(Context& ctx, const List& list, const Rectangle& listArea, float itemY, float fontHeight, const Iter& it, const Iter& begin) {
+            Rectangle itemFrameBox = {listArea.x, itemY, listArea.width, fontHeight};
+            internal::fit_rect_in_other(itemFrameBox, listArea);
+            Rectangle itemBox = internal::decrease_rect(itemFrameBox, 4);
+
+            auto is_in_bounds = [&](const Point& pt) {
+                return internal::is_boxed_in(pt, itemBox)
+                       && internal::is_boxed_in(pt, listArea);
+            };
+
+            bool hoveringOnItem = is_in_bounds(ctx.mouse.get_cursor_pos());
+            bool clickedOnItem = is_in_bounds(ctx.mouse.leftButton.get_clicked_pos());
+            bool holdingClickOnItem = ctx.mouse.leftButton.is_pressed() && clickedOnItem;
+            if (clickedOnItem) {
+                if (ctx.mouse.leftButton.is_clicked()) {
+                    list.mAction(it - begin, *it);
+                }
+            }
+
+            return {itemFrameBox, itemBox, hoveringOnItem, holdingClickOnItem};
+        }
     }
 
     template <typename Range, typename Adapter, typename Action>
@@ -50,37 +80,21 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Con
 
     float y = listArea.y;
     for (auto it = mBegin + skippedItemCount; it != mEnd && y < listArea.y + listArea.height; ++it, y += fontHeight) {
-        Rectangle itemFrameBox = {listArea.x, y, listArea.width, fontHeight};
-        internal::fit_rect_in_other(itemFrameBox, listArea);
-        Rectangle itemBox = internal::decrease_rect(itemFrameBox, 4);
-
-        auto is_in_bounds = [&](const Point& pt) {
-            return internal::is_boxed_in(pt, itemBox)
-                   && internal::is_boxed_in(pt, listArea);
-        };
-
-        bool hoveringOnItem = is_in_bounds(ctx.mouse.get_cursor_pos());
-        bool clickedOnItem = is_in_bounds(ctx.mouse.leftButton.get_clicked_pos());
-        bool holdingClickOnItem = ctx.mouse.leftButton.is_pressed() && clickedOnItem;
-        if (clickedOnItem) {
-            if (ctx.mouse.leftButton.is_clicked()) {
-                mAction(it - mBegin, *it);
-            }
-        }
+        auto model = get_item_model(ctx, *this, listArea, y, fontHeight, it, mBegin);
 
         Color primaryColor = mBaseColor;
-        if (hoveringOnItem) {
+        if (model.hoveringOnItem) {
             primaryColor = internal::lighten_color_by(primaryColor, 30);
         }
-        if (holdingClickOnItem) {
+        if (model.holdingClickOnItem) {
             primaryColor = internal::lighten_color_by(primaryColor, 30);
         }
 
         Color secondaryColor = internal::get_yiq_contrast(primaryColor);
-        ctx.render_rectangle(itemFrameBox, secondaryColor);
-        ctx.render_rectangle(itemBox, primaryColor);
+        ctx.render_rectangle(model.itemFrameBox, secondaryColor);
+        ctx.render_rectangle(model.itemBox, primaryColor);
 
-        ctx.render_text(mAdapter(*it), itemBox);
+        ctx.render_text(mAdapter(*it), model.itemBox);
     }
 
     auto scrollbarArea = mBoundingBox;
