@@ -55,7 +55,7 @@ struct SliderModel {
     Rectangle outlineArea;
     Rectangle cursorArea;
     bool hoveringOverCursor = false;
-    bool holdingClickOnCursor = false;
+    bool holdingClickOnSlider = false;
     bool valueChanged = false;
 };
 
@@ -80,8 +80,8 @@ SliderModel get_slider_model(reig::Context& ctx, const Slider& slider) {
     bool hoveringOverCursor = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), cursorArea);
     bool holdingClick = ctx.mouse.leftButton.is_pressed()
                         && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
-    bool holdingClickOnCursor = ctx.mouse.leftButton.is_pressed()
-                                && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), cursorArea);
+    bool holdingClickOnSlider = ctx.mouse.leftButton.is_pressed()
+                                && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea);
 
     if (holdingClick) {
         if (orientation == SliderOrientation::HORIZONTAL) {
@@ -95,6 +95,9 @@ SliderModel get_slider_model(reig::Context& ctx, const Slider& slider) {
         values.value += static_cast<int>(ctx.mouse.get_scrolled()) * slider.mStep;
         values.value = internal::clamp(values.value, values.min, values.max);
     }
+    if (holdingClickOnSlider) {
+        cursorArea = internal::decrease_rect(cursorArea, 4);
+    }
 
     bool valueChanged = false;
     if (slider.mValueRef != values.value) {
@@ -102,7 +105,7 @@ SliderModel get_slider_model(reig::Context& ctx, const Slider& slider) {
         valueChanged = true;
     }
 
-    return {baseArea, outlineArea, cursorArea, hoveringOverCursor, holdingClickOnCursor, valueChanged};
+    return {baseArea, outlineArea, cursorArea, hoveringOverCursor, holdingClickOnSlider, valueChanged};
 }
 
 void size_scrollbar_cursor(float& coord, float& size, float step, int offset, float viewSize) {
@@ -134,8 +137,8 @@ SliderModel get_scrollbar_model(reig::Context& ctx, const Scrollbar& scrollbar) 
     bool hoveringOverCursor = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), cursorArea);
     bool holdingClick = ctx.mouse.leftButton.is_pressed()
                         && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
-    bool holdingClickOnCursor = ctx.mouse.leftButton.is_pressed()
-                                && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), cursorArea);
+    bool holdingClickOnSlider = ctx.mouse.leftButton.is_pressed()
+                                && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea);
 
     if (holdingClick) {
         if (orientation == SliderOrientation::HORIZONTAL) {
@@ -149,6 +152,9 @@ SliderModel get_scrollbar_model(reig::Context& ctx, const Scrollbar& scrollbar) 
         values.value += static_cast<int>(ctx.mouse.get_scrolled()) * step;
         values.value = internal::clamp(values.value, values.min, values.max);
     }
+    if (holdingClickOnSlider) {
+        cursorArea = internal::decrease_rect(cursorArea, 4);
+    }
 
     bool valueChanged = false;
     if (scrollbar.mValueRef != values.value) {
@@ -156,7 +162,7 @@ SliderModel get_scrollbar_model(reig::Context& ctx, const Scrollbar& scrollbar) 
         valueChanged = true;
     }
 
-    return {baseArea, outlineArea, cursorArea, hoveringOverCursor, holdingClickOnCursor, valueChanged};
+    return {baseArea, outlineArea, cursorArea, hoveringOverCursor, holdingClickOnSlider, valueChanged};
 }
 
 template <typename Slider>
@@ -168,7 +174,7 @@ void draw_slider_model(reig::Context& ctx, const SliderModel& model, const Slide
     if (model.hoveringOverCursor) {
         frameColor = internal::lighten_color_by(frameColor, 30);
     }
-    if (model.holdingClickOnCursor) {
+    if (model.holdingClickOnSlider) {
         frameColor = internal::lighten_color_by(frameColor, 30);
     }
     ctx.render_rectangle(model.cursorArea, frameColor);

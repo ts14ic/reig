@@ -26,8 +26,8 @@ Rectangle reig::internal::decrease_rect(Rectangle aRect, int by) {
     int moveBy = by / 2;
     aRect.x += moveBy;
     aRect.y += moveBy;
-    aRect.width -= by;
-    aRect.height -= by;
+    aRect.width = max(aRect.width - by, 2.0f);
+    aRect.height = max(aRect.height - by, 2.0f);
     return aRect;
 }
 
