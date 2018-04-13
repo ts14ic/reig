@@ -180,7 +180,7 @@ void draw_slider_model(reig::Context& ctx, const SliderModel& model, const Slide
     ctx.render_rectangle(model.cursorArea, frameColor);
 }
 
-bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
+bool reig::reference_widget::slider::use(reig::Context& ctx) const {
     auto model = get_slider_model(ctx, *this);
 
     draw_slider_model(ctx, model, *this);
@@ -188,7 +188,7 @@ bool reig::reference_widget::slider::draw(reig::Context& ctx) const {
     return model.valueChanged;
 }
 
-bool reig::reference_widget::textured_slider::draw(reig::Context& ctx) const {
+bool reig::reference_widget::textured_slider::use(reig::Context& ctx) const {
     auto model = get_slider_model(ctx, *this);
 
     ctx.render_rectangle(model.outlineArea, mBaseTexture);
@@ -197,7 +197,7 @@ bool reig::reference_widget::textured_slider::draw(reig::Context& ctx) const {
     return model.valueChanged;
 }
 
-bool reig::reference_widget::scrollbar::draw(reig::Context& ctx) const {
+bool reig::reference_widget::scrollbar::use(reig::Context& ctx) const {
     auto model = get_scrollbar_model(ctx, *this);
 
     draw_slider_model(ctx, model, *this);

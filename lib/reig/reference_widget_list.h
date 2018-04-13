@@ -20,7 +20,7 @@ namespace reig::reference_widget {
             Adapter& mAdapter;
             Action& mAction;
 
-            void draw(Context& ctx) const;
+            void use(Context& ctx) const;
         };
 
         struct ItemModel {
@@ -82,7 +82,7 @@ namespace reig::reference_widget {
 }
 
 template <typename Iter, typename Adapter, typename Action>
-void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Context& ctx) const {
+void reig::reference_widget::detail::list<Iter, Adapter, Action>::use(reig::Context& ctx) const {
     int scrollbarWidth = 30;
     Rectangle listArea = mBoundingBox;
     listArea.x += scrollbarWidth;
@@ -102,7 +102,7 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::draw(reig::Con
 
     auto scrollbarArea = mBoundingBox;
     scrollbarArea.width = scrollbarWidth;
-    ctx.enqueue(scrollbar{scrollbarArea, mBaseColor, scrolled, itemCount * fontHeight});
+    scrollbar{scrollbarArea, mBaseColor, scrolled, itemCount * fontHeight}.use(ctx);
 }
 
 #endif //REIG_REFERENCE_WIDGET_LIST_H
