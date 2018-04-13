@@ -103,11 +103,6 @@ namespace reig {
 
         void end_window();
 
-        template <typename T>
-        auto enqueue(T&& t) {
-            return t.draw(*this);
-        }
-
         void fit_rect_in_window(primitive::Rectangle& rect);
 
         // Primitive renders

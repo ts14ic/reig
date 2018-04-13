@@ -116,7 +116,7 @@ public:
                 color = color + 25_r + 25_g;
                 std::string title = "some  " + std::to_string(i + 1);
 //                if(gui.ctx.enqueue(widget::textured_button{title.c_str(), rect, gui.font.id, 0})) {
-                if(gui.ctx.enqueue(widget::button{title.c_str(), rect, color})) {
+                if(widget::button{title.c_str(), rect, color}.use(gui.ctx)) {
                     std::cout << "Button " << (i + 1) << ": pressed" << std::endl;
                 }
             }
@@ -125,7 +125,7 @@ public:
             rect.y += 40; rect.width += 50;
             static float sliderValue0 = 20;
 //            if (gui.ctx.enqueue(widget::slider{rect, color, sliderValue0, 20, 40, 5})) {
-            if (gui.ctx.enqueue(widget::textured_slider{rect, 0, gui.font.id, sliderValue0, 20, 40, 5})) {
+            if (widget::textured_slider{rect, 0, gui.font.id, sliderValue0, 20, 40, 5}.use(gui.ctx)) {
                 std::cout << "Slider 1: new value " << sliderValue0 << std::endl;
             }
 
@@ -134,13 +134,13 @@ public:
             rect.width += 50;
 
             static float sliderValue1 = 5.4f;
-            if (gui.ctx.enqueue(widget::slider{rect, color, sliderValue1, 3, 7, 0.1f})) {
+            if (widget::slider{rect, color, sliderValue1, 3, 7, 0.1f}.use(gui.ctx)) {
                 std::cout << "Slider 2: new value " << sliderValue1 << std::endl;
             }
 
             static float sliderValue2 = 0.3f;
             rect.y += 40; rect.width += 50; rect.height += 10;
-            if (gui.ctx.enqueue(widget::slider{rect, {220_r, 200_g, 150_b}, sliderValue2, 0.1f, 0.5f, 0.05f})) {
+            if (widget::slider{rect, {220_r, 200_g, 150_b}, sliderValue2, 0.1f, 0.5f, 0.05f}.use(gui.ctx)) {
                 std::cout << "Slider 2: new value " << sliderValue2 << std::endl;
             }
 
@@ -148,32 +148,32 @@ public:
             color = color + 15_r - 35_r - 10_b;
             rect.x += 270; rect.width = 40; rect.height = 20;
 //            if(gui.ctx.enqueue(widget::checkbox{rect, color, checkBox1})) {
-            if(gui.ctx.enqueue(widget::textured_checkbox{rect, 0, gui.font.id, checkBox1})) {
+            if(widget::textured_checkbox{rect, 0, gui.font.id, checkBox1}.use(gui.ctx)) {
                 std::cout << "Checkbox 1: new value " << checkBox1 << std::endl;
             }
 
             static bool checkBox2 = true;
             color = color - 100_r + 100_g + 100_b;
             rect.y -= 100; rect.width = rect.height = 50;
-            if(gui.ctx.enqueue(widget::checkbox{rect, color, checkBox2})) {
+            if(widget::checkbox{rect, color, checkBox2}.use(gui.ctx)) {
                 std::cout << "Checkbox 2: new value " << checkBox2 << std::endl;
             }
 
             static bool checkBox3 = false;
             color = colors::white;
             rect.y += 60; rect.width = rect.height = 25;
-            if(gui.ctx.enqueue(widget::checkbox{rect, color, checkBox3})) {
+            if(widget::checkbox{rect, color, checkBox3}.use(gui.ctx)) {
                 std::cout << "Checkbox 3: new value " << checkBox3 << std::endl;
             }
 
             static float scroll1 = 0.0f;
             rect.x += 60; rect.y = 5; rect.width = 30; rect.height = 280;
-            if(gui.ctx.enqueue(widget::scrollbar{rect, colors::black, scroll1, 1000.0f})) {
+            if(widget::scrollbar{rect, colors::black, scroll1, 1000.0f}.use(gui.ctx)) {
                 std::cout << "Scrolled: " << scroll1 << '\n';
             }
 
             rect.x = 5; rect.y += 300; rect.width = 280; rect.height = 30;
-            gui.ctx.enqueue(widget::scrollbar{rect, colors::black, scroll1, 1000.0f});
+            widget::scrollbar{rect, colors::black, scroll1, 1000.0f}.use(gui.ctx);
 
             rect.y = 5; rect.x += 370; rect.height = 280;
 
@@ -184,7 +184,7 @@ public:
                     {"Zero"}, {"One"}, {"Two"}, {"Three"}, {"Four"}, {"Five"},
                     {"Six"}, {"Seven"}, {"Eight"}, {"Nine"}, {"Ten"}
             };
-            gui.ctx.enqueue(widget::list(
+            widget::list(
                     "Test", rect, colors::blue, foos,
                     [](const Foo& foo) {
                         return foo.name.c_str();
@@ -192,7 +192,7 @@ public:
                     [](int position, const Foo& foo) {
                         std::cout << "Clicked on " << position << "th foo: " << foo.name << '\n';
                     }
-            ));
+            ).use(gui.ctx);
 
             gui.ctx.end_window();
 

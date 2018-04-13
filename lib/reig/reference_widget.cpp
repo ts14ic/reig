@@ -31,7 +31,7 @@ ButtonModel get_button_model(reig::Context& ctx, const Button& button) {
     return {outlineArea, baseArea, hoveringOverArea, justClicked, holdingClick};
 }
 
-bool reig::reference_widget::button::draw(reig::Context& ctx) const {
+bool reig::reference_widget::button::use(reig::Context& ctx) const {
     auto model = get_button_model(ctx, *this);
 
     Color innerColor {mBaseColor};
@@ -48,7 +48,7 @@ bool reig::reference_widget::button::draw(reig::Context& ctx) const {
     return model.justClicked;
 }
 
-bool reig::reference_widget::textured_button::draw(reig::Context& ctx) const {
+bool reig::reference_widget::textured_button::use(reig::Context& ctx) const {
     auto model = get_button_model(ctx, *this);
 
     int texture = mBaseTexture;
@@ -61,7 +61,7 @@ bool reig::reference_widget::textured_button::draw(reig::Context& ctx) const {
     return model.justClicked;
 }
 
-void reig::reference_widget::label::draw(reig::Context& ctx) const {
+void reig::reference_widget::label::use(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
     ctx.render_text(mTitle, boundingBox);
@@ -97,7 +97,7 @@ CheckboxModel get_checkbox_model(reig::Context& ctx, const Checkbox& checkbox) {
     return {baseArea, outlineArea, checkArea, justClicked};
 }
 
-bool reig::reference_widget::checkbox::draw(reig::Context& ctx) const {
+bool reig::reference_widget::checkbox::use(reig::Context& ctx) const {
     auto model = get_checkbox_model(ctx, *this);
 
     Color secondaryColor = internal::get_yiq_contrast(mBaseColor);
@@ -111,7 +111,7 @@ bool reig::reference_widget::checkbox::draw(reig::Context& ctx) const {
     return model.valueChanged;
 }
 
-bool reig::reference_widget::textured_checkbox::draw(reig::Context& ctx) const {
+bool reig::reference_widget::textured_checkbox::use(reig::Context& ctx) const {
     auto model = get_checkbox_model(ctx, *this);
 
     ctx.render_rectangle(model.outlineArea, mBaseTexture);
