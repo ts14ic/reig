@@ -45,6 +45,9 @@ namespace reig::reference_widget {
                     list.mAction(it - begin, *it);
                 }
             }
+            if(holdingClickOnItem) {
+                itemBox = internal::decrease_rect(itemBox, 4);
+            }
 
             return {itemFrameBox, itemBox, hoveringOnItem, holdingClickOnItem};
         }
