@@ -1,6 +1,7 @@
 #ifndef REIG_REFERENCE_WIDGET_ENTRY_TCC
 #define REIG_REFERENCE_WIDGET_ENTRY_TCC
 
+#include "reference_widget_entry.h"
 #include "internal.h"
 
 namespace reig::reference_widget {
