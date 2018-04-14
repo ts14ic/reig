@@ -223,7 +223,7 @@ float reig::Context::render_text(char const* text, Rectangle aBox, text::Alignme
     quads.reserve(20);
     float textWidth = 0.f;
 
-    stbtt_aligned_quad q;
+    stbtt_aligned_quad quad;
     int from = ' ';
     int to = ' ' + 95; // The empty box character
     for (int ch = *text; *text; ch = *++text) {
@@ -231,18 +231,18 @@ float reig::Context::render_text(char const* text, Rectangle aBox, text::Alignme
 
         stbtt_GetBakedQuad(
                 data(mFont.mBakedChars),
-                mFont.mBitmapWidth, mFont.mBitmapHeight, ch - from, &x, &y, &q, 1
+                mFont.mBitmapWidth, mFont.mBitmapHeight, ch - from, &x, &y, &quad, 1
         );
-        if (q.x0 > aBox.x + aBox.width) {
+        if (quad.x0 > aBox.x + aBox.width) {
             break;
         }
-        q.x1 = internal::min(q.x1, aBox.x + aBox.width);
-        q.y0 = internal::max(q.y0, aBox.y);
-        q.y1 = internal::min(q.y1, aBox.y + aBox.height);
+        quad.x1 = internal::min(quad.x1, aBox.x + aBox.width);
+        quad.y0 = internal::max(quad.y0, aBox.y);
+        quad.y1 = internal::min(quad.y1, aBox.y + aBox.height);
 
         textWidth += mFont.mBakedChars[ch - from].xadvance;
 
-        quads.push_back(q);
+        quads.push_back(quad);
     }
 
     float horizontalAlignment =
