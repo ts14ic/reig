@@ -4,6 +4,7 @@
 #include "defs.h"
 #include "mouse.h"
 #include "keyboard.h"
+#include "text.h"
 #include "stb_truetype.h"
 #include <vector>
 #include <any>
@@ -35,22 +36,6 @@ namespace reig {
              * @param rect The rectangle to accommodate
              */
             void fit_rect(primitive::Rectangle& rect);
-        };
-    }
-
-    namespace text {
-        enum class Alignment : unsigned {
-            CENTER_HORIZONTAL = 0x1u,
-            LEFT = 0x2u,
-            RIGHT = 0x4u,
-            CENTER_VERTICAL = 0x10,
-            TOP = 0x20,
-            BOTTOM = 0x40,
-            CENTER = CENTER_HORIZONTAL | CENTER_VERTICAL,
-            TOP_LEFT = TOP | LEFT,
-            TOP_RIGHT = TOP | RIGHT,
-            BOTTOM_LEFT = BOTTOM | LEFT,
-            BOTTOM_RIGHT = BOTTOM | RIGHT
         };
     }
 

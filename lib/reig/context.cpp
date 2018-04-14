@@ -215,9 +215,9 @@ bool has_alignment(reig::text::Alignment container, reig::text::Alignment alignm
 float reig::Context::render_text(char const* text, Rectangle aBox, text::Alignment alignment) {
     if (mFont.mBakedChars.empty() || !text) return aBox.x;
 
-    aBox = internal::decrease_rect(aBox, 8);
+    float fontHeight = internal::min(mFont.mSize, aBox.height);
     float x = aBox.x;
-    float y = aBox.y + aBox.height;
+    float y = aBox.y + fontHeight;
 
     vector<stbtt_aligned_quad> quads;
     quads.reserve(20);
@@ -236,12 +236,9 @@ float reig::Context::render_text(char const* text, Rectangle aBox, text::Alignme
         if (q.x0 > aBox.x + aBox.width) {
             break;
         }
-        if (q.x1 > aBox.x + aBox.width) {
-            q.x1 = aBox.x + aBox.width;
-        }
-        if (q.y0 < aBox.y) {
-            q.y0 = aBox.y;
-        }
+        q.x1 = internal::min(q.x1, aBox.x + aBox.width);
+        q.y0 = internal::max(q.y0, aBox.y);
+        q.y1 = internal::min(q.y1, aBox.y + aBox.height);
 
         textWidth += mFont.mBakedChars[ch - from].xadvance;
 
@@ -253,9 +250,9 @@ float reig::Context::render_text(char const* text, Rectangle aBox, text::Alignme
             has_alignment(alignment, text::Alignment::LEFT) ? 0.0f :
             (aBox.width - textWidth) * 0.5f;
     float verticalAlignment =
-            has_alignment(alignment, text::Alignment::TOP) ? -(aBox.height - mFont.mSize) :
+            has_alignment(alignment, text::Alignment::TOP) ? -(aBox.height - fontHeight) :
             has_alignment(alignment, text::Alignment::BOTTOM) ? 0.0f :
-            (aBox.height - mFont.mSize) * -0.5f;
+            (aBox.height - fontHeight) * -0.5f;
 
     for (auto& q : quads) {
         vector<Vertex> vertices{

@@ -236,17 +236,21 @@ public:
                 std::cout << "Entry 2: " << input << '\n';
             }).use(gui.ctx);
 
-            Rectangle testRect{150, 50, 150, 150};
-            gui.ctx.render_rectangle(testRect, reig::primitive::colors::black);
-            gui.ctx.render_text("TL", testRect, reig::text::Alignment::TOP_LEFT);
-            gui.ctx.render_text(" T", testRect, reig::text::Alignment::TOP);
-            gui.ctx.render_text("TR", testRect, reig::text::Alignment::TOP_RIGHT);
-            gui.ctx.render_text(" R", testRect, reig::text::Alignment::RIGHT);
-            gui.ctx.render_text("BR", testRect, reig::text::Alignment::BOTTOM_RIGHT);
-            gui.ctx.render_text(" B", testRect, reig::text::Alignment::BOTTOM);
-            gui.ctx.render_text("BL", testRect, reig::text::Alignment::BOTTOM_LEFT);
-            gui.ctx.render_text(" L", testRect, reig::text::Alignment::LEFT);
-            gui.ctx.render_text(" C", testRect, reig::text::Alignment::CENTER);
+//            using reig::text::Alignment;
+//            std::vector<widget::button> buttons {
+//                    widget::button{"TL", {150.f, 50.f, 100.f, 40.f}, colors::black, Alignment::TOP_LEFT},
+//                    widget::button{" T", {250.f, 50.f, 100.f, 40.f}, colors::black, Alignment::TOP},
+//                    widget::button{"TR", {350.f, 50.f, 100.f, 40.f}, colors::black, Alignment::TOP_RIGHT},
+//                    widget::button{" L", {150.f, 100.f, 100.f, 40.f}, colors::black, Alignment::LEFT},
+//                    widget::button{" C", {250.f, 100.f, 100.f, 40.f}, colors::black, Alignment::CENTER},
+//                    widget::button{" R", {350.f, 100.f, 100.f, 40.f}, colors::black, Alignment::RIGHT},
+//                    widget::button{"BL", {150.f, 150.f, 100.f, 40.f}, colors::black, Alignment::BOTTOM_LEFT},
+//                    widget::button{" B", {250.f, 150.f, 100.f, 40.f}, colors::black, Alignment::BOTTOM},
+//                    widget::button{"BR", {350.f, 150.f, 100.f, 40.f}, colors::black, Alignment::BOTTOM_RIGHT},
+//            };
+//            for (const widget::button& bt : buttons) {
+//                bt.use(gui.ctx);
+//            }
 
             gui.ctx.end_window();
 
