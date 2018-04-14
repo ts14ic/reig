@@ -23,6 +23,7 @@ namespace reig::reference_widget {
         struct EntryModel {
             Rectangle outlineArea;
             Rectangle baseArea;
+            bool isSelected = false;
             bool isHoveringOverArea = false;
             bool isInputModified = false;
         };
@@ -73,7 +74,7 @@ auto reig::reference_widget::detail::get_entry_model(reig::Context& ctx, const E
         }
     }
 
-    return EntryModel<String>{outlineArea, baseArea, hoveringOverArea, isInputModified};
+    return EntryModel<String>{outlineArea, baseArea, clickedInArea, hoveringOverArea, isInputModified};
 }
 
 template <typename String, typename Action>
@@ -86,7 +87,11 @@ void reig::reference_widget::detail::ref_entry<String, Action>::use(reig::Contex
         primaryColor = internal::lighten_color_by(primaryColor, 30);
     }
     ctx.render_rectangle(model.baseArea, primaryColor);
-    ctx.render_text(mValueRef.empty() ? mTitle : mValueRef.c_str(), model.baseArea);
+    if (model.isSelected) {
+        ctx.render_text(mValueRef.c_str(), model.baseArea);
+    } else {
+        ctx.render_text(mValueRef.empty() ? mTitle : mValueRef.c_str(), model.baseArea);
+    }
 
     if (model.isInputModified) {
         mAction(mValueRef);
