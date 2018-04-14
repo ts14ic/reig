@@ -1,7 +1,6 @@
 #ifndef REIG_REFERENCE_WIDGET_ENTRY_H
 #define REIG_REFERENCE_WIDGET_ENTRY_H
 
-#include <search.h>
 #include "context.h"
 #include "internal.h"
 #include "reference_widget.h"
