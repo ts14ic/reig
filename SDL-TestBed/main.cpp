@@ -98,7 +98,7 @@ public:
                         break;
                     }
 
-                    case SDL_KEYUP: {
+                    case SDL_KEYDOWN: {
                         gui.ctx.keyboard.press(evt.key.keysym.sym);
                         break;
                     }
