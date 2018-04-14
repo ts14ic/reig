@@ -8,6 +8,7 @@ namespace reig {
         NONE,
         CHAR,
         BACKSPACE,
+        ESCAPE,
         UNKNOWN,
     };
 

@@ -32,6 +32,7 @@ namespace reig::detail {
         return mKeyCode == 0 ? Key::NONE :
                mKeyCode >= from && mKeyCode < to ? Key::CHAR :
                mKeyCode == '\b' ? Key::BACKSPACE :
+               mKeyCode == '\033' ? Key::ESCAPE :
                Key::UNKNOWN;
     }
 

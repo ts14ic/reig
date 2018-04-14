@@ -28,7 +28,7 @@ namespace reig::reference_widget {
             bool isInputModified = false;
         };
 
-        template <template<class, class> typename Entry, typename String, typename Action>
+        template <template <class, class> typename Entry, typename String, typename Action>
         auto get_entry_model(Context& ctx, const Entry<String, Action>& entry);
     }
 
@@ -39,7 +39,7 @@ namespace reig::reference_widget {
     };
 }
 
-template <template<class, class> typename Entry, typename String, typename Action>
+template <template <class, class> typename Entry, typename String, typename Action>
 auto reig::reference_widget::detail::get_entry_model(reig::Context& ctx, const Entry<String, Action>& entry) {
     Rectangle outlineArea = entry.mBoundingArea;
     ctx.fit_rect_in_window(outlineArea);
@@ -51,8 +51,8 @@ auto reig::reference_widget::detail::get_entry_model(reig::Context& ctx, const E
     if (clickedInArea) {
         baseArea = internal::decrease_rect(baseArea, 4);
 
-        using reig::Key;
-        switch (ctx.keyboard.get_pressed_key_type()) {
+        Key keyType = ctx.keyboard.get_pressed_key_type();
+        switch (keyType) {
             case Key::CHAR: {
                 entry.mValueRef += ctx.keyboard.get_pressed_char();
                 isInputModified = true;
@@ -65,6 +65,12 @@ auto reig::reference_widget::detail::get_entry_model(reig::Context& ctx, const E
                     entry.mValueRef.pop_back();
                     isInputModified = true;
                 }
+                break;
+            }
+
+            case Key::ESCAPE: {
+                ctx.mouse.leftButton.press(outlineArea.x, outlineArea.y);
+                ctx.mouse.leftButton.release();
                 break;
             }
 
