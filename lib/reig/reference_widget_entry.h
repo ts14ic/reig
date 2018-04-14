@@ -44,6 +44,10 @@ auto reig::reference_widget::detail::get_entry_model(reig::Context& ctx, const E
 
     Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
     bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), outlineArea);
+    bool clickedInArea = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
+    if (clickedInArea) {
+        baseArea = internal::decrease_rect(baseArea, 4);
+    }
 
     return EntryModel<String>{outlineArea, baseArea, hoveringOverArea};
 }
