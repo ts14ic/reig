@@ -248,6 +248,8 @@ float reig::Context::render_text(char const* ch, Rectangle aBox, text::Alignment
     float alignmentOffsetX = 0.0f;
     if (alignment == text::Alignment::CENTER) {
         alignmentOffsetX = (aBox.width - textWidth) / 2.f;
+    } else if (alignment == text::Alignment::RIGHT) {
+        alignmentOffsetX = aBox.width - textWidth;
     }
 
     for (auto& q : quads) {
