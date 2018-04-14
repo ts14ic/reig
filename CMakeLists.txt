@@ -12,12 +12,16 @@ add_library(reig_lib
         lib/reig/defs.h
         lib/reig/primitive.h lib/reig/primitive.cpp
         lib/reig/mouse.h lib/reig/mouse.cpp
+        lib/reig/keyboard.h lib/reig/keyboard.cpp
+        lib/reig/keyboard_shifted.cpp
         lib/reig/exception.h lib/reig/exception.cpp
-        lib/reig/reference_widget.h lib/reig/reference_widget.cpp
         lib/reig/internal.h lib/reig/internal.cpp
         lib/reig/context.h lib/reig/context.cpp
+        lib/reig/reference_widget.h lib/reig/reference_widget.cpp
         lib/reig/reference_widget_list.h lib/reig/reference_widget_list.cpp
-        lib/reig/reference_widget_slider.cpp)
+        lib/reig/reference_widget_slider.cpp
+        lib/reig/reference_widget_entry.h lib/reig/reference_widget_entry.tcc
+        )
 add_library(my::reig_lib ALIAS reig_lib)
 target_compile_features(reig_lib
         PUBLIC

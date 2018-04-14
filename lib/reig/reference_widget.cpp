@@ -24,7 +24,7 @@ ButtonModel get_button_model(reig::Context& ctx, const Button& button) {
     bool justClicked = ctx.mouse.leftButton.is_clicked() && clickedInArea;
     bool holdingClick = ctx.mouse.leftButton.is_pressed() && clickedInArea;
 
-    if(holdingClick) {
+    if (holdingClick) {
         baseArea = internal::decrease_rect(baseArea, 4);
     }
 
@@ -34,7 +34,7 @@ ButtonModel get_button_model(reig::Context& ctx, const Button& button) {
 bool reig::reference_widget::button::use(reig::Context& ctx) const {
     auto model = get_button_model(ctx, *this);
 
-    Color innerColor {mBaseColor};
+    Color innerColor{mBaseColor};
     if (model.hoveringOverArea) {
         innerColor = internal::lighten_color_by(innerColor, 30);
     }
@@ -52,7 +52,7 @@ bool reig::reference_widget::textured_button::use(reig::Context& ctx) const {
     auto model = get_button_model(ctx, *this);
 
     int texture = mBaseTexture;
-    if(model.holdingClick || model.hoveringOverArea) {
+    if (model.holdingClick || model.hoveringOverArea) {
         texture = mHoverTexture;
     }
     ctx.render_rectangle(model.outlineArea, texture);
@@ -103,7 +103,7 @@ bool reig::reference_widget::checkbox::use(reig::Context& ctx) const {
     Color secondaryColor = internal::get_yiq_contrast(mBaseColor);
     ctx.render_rectangle(model.outlineArea, secondaryColor);
     ctx.render_rectangle(model.baseArea, mBaseColor);
-    
+
     if (mValueRef) {
         ctx.render_rectangle(model.checkArea, secondaryColor);
     }

@@ -3,6 +3,7 @@
 #include <reig/context.h>
 #include <reig/reference_widget.h>
 #include <reig/reference_widget_list.h>
+#include <reig/reference_widget_entry.h>
 
 #include <SDL2_gfxPrimitives.h>
 #include <SDL2_framerate.h>
@@ -68,29 +69,61 @@ public:
             // =================== Input polling ===============
             for(SDL_Event evt; SDL_PollEvent(&evt);) {
                 switch(evt.type) {
-                    case SDL_QUIT:
-                    quit = true;
-                    break;
+                    case SDL_QUIT: {
+                        quit = true;
+                        break;
+                    }
 
-                    case SDL_MOUSEMOTION:
-                    gui.ctx.mouse.place(evt.motion.x, evt.motion.y);
-                    break;
+                    case SDL_MOUSEMOTION: {
+                        gui.ctx.mouse.place(evt.motion.x, evt.motion.y);
+                        break;
+                    }
 
-                    case SDL_MOUSEWHEEL:
-                    gui.ctx.mouse.scroll(-evt.wheel.y);
-                    break;
+                    case SDL_MOUSEWHEEL: {
+                        gui.ctx.mouse.scroll(-evt.wheel.y);
+                        break;
+                    }
 
                     case SDL_MOUSEBUTTONDOWN: {
-                        if(evt.button.button == SDL_BUTTON_LEFT) {
+                        if (evt.button.button == SDL_BUTTON_LEFT) {
                             gui.ctx.mouse.leftButton.press(evt.button.x, evt.button.y);
                         }
+                        break;
                     }
-                    break;
 
                     case SDL_MOUSEBUTTONUP: {
-                        if(evt.button.button == SDL_BUTTON_LEFT) {
+                        if (evt.button.button == SDL_BUTTON_LEFT) {
                             gui.ctx.mouse.leftButton.release();
                         }
+                        break;
+                    }
+
+                    case SDL_KEYDOWN: {
+                        switch (evt.key.keysym.sym) {
+                            case SDLK_RETURN: {
+                                gui.ctx.keyboard.press_special_key(reig::Key::RETURN);
+                                break;
+                            }
+
+                            case SDLK_BACKSPACE: {
+                                gui.ctx.keyboard.press_special_key(reig::Key::BACKSPACE);
+                                break;
+                            }
+
+                            case SDLK_ESCAPE: {
+                                gui.ctx.keyboard.press_special_key(reig::Key::ESCAPE);
+                                break;
+                            }
+
+                            default: {
+                                gui.ctx.keyboard.press_key(evt.key.keysym.sym);
+                                break;
+                            }
+                        }
+                        if (evt.key.keysym.mod & KMOD_SHIFT) { // NOLINT
+                            gui.ctx.keyboard.press_modifier(reig::KeyModifier::SHIFT);
+                        }
+                        break;
                     }
 
                     default:;
@@ -193,6 +226,15 @@ public:
                         std::cout << "Clicked on " << position << "th foo: " << foo.name << '\n';
                     }
             ).use(gui.ctx);
+
+            rect.y += 300;
+            rect.height = 40;
+
+            static std::string input {"Hello )"};
+
+            widget::entry("Entry 2", rect, colors::violet, input, [](const std::string& input) {
+                std::cout << "Entry 2: " << input << '\n';
+            }).use(gui.ctx);
 
             gui.ctx.end_window();
 

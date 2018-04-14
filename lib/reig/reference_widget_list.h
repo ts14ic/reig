@@ -66,18 +66,17 @@ namespace reig::reference_widget {
             ctx.render_rectangle(model.itemFrameBox, secondaryColor);
             ctx.render_rectangle(model.itemBox, primaryColor);
 
-            ctx.render_text(adapter(*it), model.itemBox);
+            ctx.render_text(adapter(*it), model.itemBox, text::Alignment::LEFT);
         }
     }
 
     template <typename Range, typename Adapter, typename Action>
-    auto list(const char* title,
-              const Rectangle& rectangle,
-              const Color& baseColor,
-              Range&& range,
-              Adapter&& adapter,
-              Action&& action) -> detail::list<decltype(std::begin(range)), Adapter, Action> {
-        return {title, rectangle, baseColor, std::begin(range), std::end(range), adapter, action};
+    auto list(const char* title, const Rectangle& rectangle, const Color& baseColor,
+              Range&& range, Adapter&& adapter, Action&& action) {
+        using std::begin;
+        using std::end;
+        return detail::list<decltype(begin(range)), Adapter, Action>
+                {title, rectangle, baseColor, begin(range), end(range), adapter, action};
     };
 }
 

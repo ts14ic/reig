@@ -3,6 +3,7 @@
 
 #include "defs.h"
 #include "mouse.h"
+#include "keyboard.h"
 #include "stb_truetype.h"
 #include <vector>
 #include <any>
@@ -34,6 +35,20 @@ namespace reig {
              * @param rect The rectangle to accommodate
              */
             void fit_rect(primitive::Rectangle& rect);
+        };
+    }
+
+    namespace text {
+        enum class Alignment : unsigned {
+            LEFT = 1u << 0u,
+            RIGHT = 1u << 1u,
+            TOP = 1u << 2u,
+            BOTTOM = 1u << 3u,
+            TOP_LEFT = TOP | LEFT,
+            TOP_RIGHT = TOP | RIGHT,
+            BOTTOM_LEFT = BOTTOM | LEFT,
+            BOTTOM_RIGHT = BOTTOM | RIGHT,
+            CENTER = LEFT | RIGHT | TOP | BOTTOM,
         };
     }
 
@@ -90,6 +105,8 @@ namespace reig {
          */
         void start_new_frame();
 
+        unsigned get_frame_counter() const;
+
         /**
          * @brief Uses stored drawData and draws everything using the user handler
          */
@@ -97,6 +114,7 @@ namespace reig {
 
         // Inputs
         detail::Mouse mouse;
+        detail::Keyboard keyboard;
 
         // Widget renders
         void start_window(char const* title, float& x, float& y);
@@ -110,8 +128,9 @@ namespace reig {
          * @brief Render some text
          * @param text Text to be displayed
          * @param box Text's bounding box
+         * @return x coordinate after printing
          */
-        void render_text(char const* text, primitive::Rectangle box);
+        float render_text(char const* text, primitive::Rectangle box, text::Alignment alignment = text::Alignment::CENTER);
 
         /**
          * @brief Schedules a rectangle drawing
@@ -141,6 +160,7 @@ namespace reig {
 
         RenderHandler mRenderHandler = nullptr;
         std::any mUserPtr;
+        unsigned mFrameCounter = 0;
     };
 }
 
