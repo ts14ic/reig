@@ -57,6 +57,7 @@ auto reig::reference_widget::detail::get_entry_model(reig::Context& ctx, const E
             }
 
             case Key::BACKSPACE: {
+                using std::empty;
                 if (!empty(entry.mValueRef)) {
                     entry.mValueRef.pop_back();
                 }

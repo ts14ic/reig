@@ -17,6 +17,7 @@ void reig::Context::set_render_handler(RenderHandler renderHandler) {
 }
 
 void reig::Context::set_user_ptr(std::any ptr) {
+    using std::move;
     mUserPtr = move(ptr);
 }
 
@@ -65,6 +66,7 @@ reig::Context::FontData reig::Context::set_font(char const* fontFilePath, int te
         throw FailedToLoadFontException::couldNotFitCharacters(fontFilePath, fontHeightPx, bitmapWidth, bitmapHeight);
     }
 
+    using std::move;
     // If all successfull, replace current font data
     mFont.mBakedChars = move(bakedChars);
     mFont.mTextureId = textureId;

@@ -71,13 +71,12 @@ namespace reig::reference_widget {
     }
 
     template <typename Range, typename Adapter, typename Action>
-    auto list(const char* title,
-              const Rectangle& rectangle,
-              const Color& baseColor,
-              Range&& range,
-              Adapter&& adapter,
-              Action&& action) -> detail::list<decltype(begin(range)), Adapter, Action> {
-        return {title, rectangle, baseColor, begin(range), end(range), adapter, action};
+    auto list(const char* title, const Rectangle& rectangle, const Color& baseColor,
+              Range&& range, Adapter&& adapter, Action&& action) {
+        using std::begin;
+        using std::end;
+        return detail::list<decltype(begin(range)), Adapter, Action>
+                {title, rectangle, baseColor, begin(range), end(range), adapter, action};
     };
 }
 
