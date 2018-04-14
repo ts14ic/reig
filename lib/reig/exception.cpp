@@ -3,7 +3,7 @@
 #include <sstream>
 
 reig::exception::FailedToLoadFontException::FailedToLoadFontException(std::string message)
-        : message{std::move(message)} {}
+        : message{move(message)} {}
 
 const char* reig::exception::FailedToLoadFontException::what() const noexcept {
     return message.c_str();

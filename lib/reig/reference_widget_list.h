@@ -76,8 +76,8 @@ namespace reig::reference_widget {
               const Color& baseColor,
               Range&& range,
               Adapter&& adapter,
-              Action&& action) -> detail::list<decltype(std::begin(range)), Adapter, Action> {
-        return {title, rectangle, baseColor, std::begin(range), std::end(range), adapter, action};
+              Action&& action) -> detail::list<decltype(begin(range)), Adapter, Action> {
+        return {title, rectangle, baseColor, begin(range), end(range), adapter, action};
     };
 }
 

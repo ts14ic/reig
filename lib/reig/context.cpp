@@ -17,7 +17,7 @@ void reig::Context::set_render_handler(RenderHandler renderHandler) {
 }
 
 void reig::Context::set_user_ptr(std::any ptr) {
-    mUserPtr = std::move(ptr);
+    mUserPtr = move(ptr);
 }
 
 std::any const& reig::Context::get_user_ptr() const {
