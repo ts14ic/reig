@@ -6,6 +6,14 @@
 namespace reig::detail {
     void Keyboard::press_key(int key) {
         mKeyCode = key;
+        mSpecialKey = Key::NONE;
+    }
+
+    void Keyboard::press_special_key(Key key) {
+        if (key != Key::CHAR) {
+            mKeyCode = 0;
+            mSpecialKey = key;
+        }
     }
 
     void Keyboard::press_modifier(KeyModifier modifier) {
@@ -16,10 +24,11 @@ namespace reig::detail {
 
     void Keyboard::reset() {
         mKeyCode = 0;
+        mSpecialKey = Key::NONE;
         mModifiers.clear();
     }
 
-    bool Keyboard::is_modifier_pressed(reig::KeyModifier modifier) const {
+    bool Keyboard::is_modifier_pressed(KeyModifier modifier) const {
         using std::begin;
         using std::end;
         return std::find(begin(mModifiers), end(mModifiers), modifier) != end(mModifiers);
@@ -28,11 +37,7 @@ namespace reig::detail {
     Key Keyboard::get_pressed_key_type() const {
         int from = ' ';
         int to = from + 95;
-        return mKeyCode == 0 ? Key::NONE :
-               mKeyCode >= from && mKeyCode < to ? Key::CHAR :
-               mKeyCode == '\b' ? Key::BACKSPACE :
-               mKeyCode == '\033' ? Key::ESCAPE :
-               Key::UNKNOWN;
+        return mKeyCode >= from && mKeyCode < to ? Key::CHAR : mSpecialKey;
     }
 
     int Keyboard::get_pressed_char() const {

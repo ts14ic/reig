@@ -70,6 +70,7 @@ reig::reference_widget::detail::EntryModel reig::reference_widget::detail::get_e
                 break;
             }
 
+            case Key::RETURN:
             case Key::ESCAPE: {
                 ctx.mouse.leftButton.press(outlineArea.x, outlineArea.y);
                 ctx.mouse.leftButton.release();

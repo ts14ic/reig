@@ -7,9 +7,9 @@ namespace reig {
     enum class Key {
         NONE,
         CHAR,
+        RETURN,
         BACKSPACE,
-        ESCAPE,
-        UNKNOWN,
+        ESCAPE
     };
 
     enum class KeyModifier {
@@ -40,6 +40,8 @@ namespace reig {
 
             void press_key(int key);
 
+            void press_special_key(Key key);
+
             void press_modifier(KeyModifier modifier);
 
             void reset();
@@ -52,6 +54,7 @@ namespace reig {
 
         private:
             std::vector<KeyModifier> mModifiers;
+            Key mSpecialKey = Key::NONE;
             int mKeyCode = 0;
         };
     }

@@ -99,7 +99,27 @@ public:
                     }
 
                     case SDL_KEYDOWN: {
-                        gui.ctx.keyboard.press_key(evt.key.keysym.sym);
+                        switch (evt.key.keysym.sym) {
+                            case SDLK_RETURN: {
+                                gui.ctx.keyboard.press_special_key(reig::Key::RETURN);
+                                break;
+                            }
+
+                            case SDLK_BACKSPACE: {
+                                gui.ctx.keyboard.press_special_key(reig::Key::BACKSPACE);
+                                break;
+                            }
+
+                            case SDLK_ESCAPE: {
+                                gui.ctx.keyboard.press_special_key(reig::Key::ESCAPE);
+                                break;
+                            }
+
+                            default: {
+                                gui.ctx.keyboard.press_key(evt.key.keysym.sym);
+                                break;
+                            }
+                        }
                         if (evt.key.keysym.mod & KMOD_SHIFT) { // NOLINT
                             gui.ctx.keyboard.press_modifier(reig::KeyModifier::SHIFT);
                         }
