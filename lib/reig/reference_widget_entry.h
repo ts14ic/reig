@@ -2,15 +2,16 @@
 #define REIG_REFERENCE_WIDGET_ENTRY_H
 
 #include "context.h"
+#include <string>
 
 namespace reig::reference_widget {
     namespace detail {
-        template <typename String, typename Action>
+        template <typename Char, typename Action>
         struct ref_entry {
             const char* const mTitle;
             const Rectangle& mBoundingArea;
             const Color& mPrimaryColor;
-            String& mValueRef;
+            std::basic_string<Char>& mValueRef;
             Action& mAction;
 
             void use(Context& ctx) const;
@@ -28,10 +29,10 @@ namespace reig::reference_widget {
         EntryModel get_entry_model(Context& ctx, const Entry<String, Action>& entry);
     }
 
-    template <typename String, typename Action>
+    template <typename Char, typename Action>
     auto entry(const char* title, const Rectangle& boundingArea, const Color& primaryColor,
-               String& string, Action&& action) {
-        return detail::ref_entry<String, Action>{title, boundingArea, primaryColor, string, action};
+               std::basic_string<Char>& string, Action&& action) {
+        return detail::ref_entry<Char, Action>{title, boundingArea, primaryColor, string, action};
     };
 }
 
