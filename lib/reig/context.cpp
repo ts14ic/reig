@@ -230,8 +230,8 @@ float reig::Context::render_text(char const* text, Rectangle aBox, text::Alignme
         if (ch < from || ch > to) ch = to;
 
         stbtt_GetBakedQuad(
-                data(mFont.mBakedChars),
-                mFont.mBitmapWidth, mFont.mBitmapHeight, ch - from, &x, &y, &quad, 1
+                data(mFont.mBakedChars), mFont.mBitmapWidth, mFont.mBitmapHeight,
+                ch - from, &x, &y, &quad, true
         );
         if (quad.x0 > aBox.x + aBox.width) {
             break;
