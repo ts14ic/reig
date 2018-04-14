@@ -41,7 +41,7 @@ void reig::internal::trim_rect_in_other(Rectangle& fitted, const Rectangle& cont
         auto containerEnd = containerCoord + containerSize;
         auto end = min(fittedEnd, containerEnd);
         auto excess = fittedEnd - end;
-        fittedSize -= excess;
+        fittedSize = max(fittedSize - excess, 0.0f);
     };
 
     fit_size(fitted.width, fitted.x, container.width, container.x);
