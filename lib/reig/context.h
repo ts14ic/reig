@@ -105,6 +105,8 @@ namespace reig {
          */
         void start_new_frame();
 
+        unsigned get_frame_counter() const;
+
         /**
          * @brief Uses stored drawData and draws everything using the user handler
          */
@@ -159,6 +161,7 @@ namespace reig {
 
         RenderHandler mRenderHandler = nullptr;
         std::any mUserPtr;
+        unsigned mFrameCounter = 0;
     };
 }
 

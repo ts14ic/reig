@@ -18,11 +18,13 @@ namespace reig::reference_widget {
         if (clickedInArea) {
             baseArea = internal::decrease_rect(baseArea, 4);
 
-            float textWidth = ctx.measure_text_width(entry.mValueRef.c_str());
-            caretArea.x = textWidth + baseArea.x;
-            caretArea = internal::decrease_rect(caretArea, 10);
-            caretArea.width = 5;
-            internal::trim_rect_in_other(caretArea, baseArea);
+            if ((ctx.get_frame_counter() / 30) % 2 == 0) {
+                float textWidth = ctx.measure_text_width(entry.mValueRef.c_str());
+                caretArea.x = textWidth + baseArea.x;
+                caretArea = internal::decrease_rect(caretArea, 10);
+                caretArea.width = 5;
+                internal::trim_rect_in_other(caretArea, baseArea);
+            }
 
             Key keyType = ctx.keyboard.get_pressed_key_type();
             switch (keyType) {

@@ -115,6 +115,12 @@ void reig::Context::start_new_frame() {
     mouse.mScrolled = 0.f;
 
     keyboard.reset();
+
+    ++mFrameCounter;
+}
+
+unsigned reig::Context::get_frame_counter() const {
+    return mFrameCounter;
 }
 
 void reig::Context::start_window(char const* aTitle, float& aX, float& aY) {
