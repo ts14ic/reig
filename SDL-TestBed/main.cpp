@@ -3,6 +3,7 @@
 #include <reig/context.h>
 #include <reig/reference_widget.h>
 #include <reig/reference_widget_list.h>
+#include <reig/reference_widget_entry.h>
 
 #include <SDL2_gfxPrimitives.h>
 #include <SDL2_framerate.h>
@@ -193,6 +194,26 @@ public:
                         std::cout << "Clicked on " << position << "th foo: " << foo.name << '\n';
                     }
             ).use(gui.ctx);
+
+            rect.y += 300;
+            rect.height = 40;
+
+            static std::string input {"Hello )"};
+
+            widget::entry("Entry 2", rect, colors::violet, input, [](const std::string& input) {
+                std::cout << "Entry 2: " << input << '\n';
+            }).use(gui.ctx);
+
+//            rect.y += 40;
+//            if (widget::entry("Entry 3", rect, colors::green, input).use(gui.ctx)) {
+//                std::cout << "Entry 3: " << input << '\n';
+//            }
+
+
+//            rect.y += 40;
+//            widget::еntry("Entry 1", rect, colors::violet, [](const std::string& input) {
+//                std::cout << "Entry 1: " << input << '\n';
+//            }).use(gui.ctx);
 
             gui.ctx.end_window();
 
