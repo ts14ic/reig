@@ -217,7 +217,7 @@ float reig::Context::render_text(char const* text, Rectangle aBox, text::Alignme
 
     aBox = internal::decrease_rect(aBox, 8);
     float x = aBox.x;
-    float y = aBox.y + internal::min(mFont.mSize, aBox.height);
+    float y = aBox.y + aBox.height;
 
     vector<stbtt_aligned_quad> quads;
     quads.reserve(20);
@@ -251,15 +251,21 @@ float reig::Context::render_text(char const* text, Rectangle aBox, text::Alignme
 
     float horizontalAlignment =
             has_alignment(alignment, text::Alignment::RIGHT) ? aBox.width - textWidth :
-            has_alignment(alignment, text::Alignment::CENTER_HORIZONTAL) ? (aBox.width - textWidth) / 2.0f :
-            0.0f;
+            has_alignment(alignment, text::Alignment::CENTER_HORIZONTAL) ? (aBox.width - textWidth) * 0.5f :
+            has_alignment(alignment, text::Alignment::LEFT) ? 0.0f :
+            (aBox.width - textWidth) * 0.5f;
+    float verticalAlignment =
+            has_alignment(alignment, text::Alignment::TOP) ? -(aBox.height - mFont.mSize) :
+            has_alignment(alignment, text::Alignment::CENTER_VERTICAL) ? (aBox.height - mFont.mSize) * -0.5f :
+            has_alignment(alignment, text::Alignment::BOTTOM) ? 0.0f :
+            (aBox.height - mFont.mSize) * -0.5f;
 
     for (auto& q : quads) {
         vector<Vertex> vertices{
-                {{q.x0 + horizontalAlignment, q.y0}, {q.s0, q.t0}, {}},
-                {{q.x1 + horizontalAlignment, q.y0}, {q.s1, q.t0}, {}},
-                {{q.x1 + horizontalAlignment, q.y1}, {q.s1, q.t1}, {}},
-                {{q.x0 + horizontalAlignment, q.y1}, {q.s0, q.t1}, {}}
+                {{q.x0 + horizontalAlignment, q.y0 + verticalAlignment}, {q.s0, q.t0}, {}},
+                {{q.x1 + horizontalAlignment, q.y0 + verticalAlignment}, {q.s1, q.t0}, {}},
+                {{q.x1 + horizontalAlignment, q.y1 + verticalAlignment}, {q.s1, q.t1}, {}},
+                {{q.x0 + horizontalAlignment, q.y1 + verticalAlignment}, {q.s0, q.t1}, {}}
         };
         vector<int> indices{0, 1, 2, 2, 3, 0};
 
