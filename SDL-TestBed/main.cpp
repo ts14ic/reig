@@ -99,7 +99,10 @@ public:
                     }
 
                     case SDL_KEYDOWN: {
-                        gui.ctx.keyboard.press(evt.key.keysym.sym);
+                        gui.ctx.keyboard.press_key(evt.key.keysym.sym);
+                        if (evt.key.keysym.mod & KMOD_SHIFT) { // NOLINT
+                            gui.ctx.keyboard.press_modifier(reig::KeyModifier::SHIFT);
+                        }
                         break;
                     }
 

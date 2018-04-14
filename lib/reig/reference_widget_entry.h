@@ -49,10 +49,10 @@ auto reig::reference_widget::detail::get_entry_model(reig::Context& ctx, const E
     if (clickedInArea) {
         baseArea = internal::decrease_rect(baseArea, 4);
 
-        using reig::detail::Key;
+        using reig::Key;
         switch (ctx.keyboard.get_pressed_key_type()) {
             case Key::CHAR: {
-                entry.mValueRef += ctx.keyboard.get_pressed_key();
+                entry.mValueRef += ctx.keyboard.get_pressed_char();
                 break;
             }
 
