@@ -215,6 +215,7 @@ bool has_alignment(reig::text::Alignment container, reig::text::Alignment alignm
 float reig::Context::render_text(char const* text, Rectangle aBox, text::Alignment alignment) {
     if (mFont.mBakedChars.empty() || !text) return aBox.x;
 
+    aBox.height -= mFont.mHeight * 0.125f;
     float fontHeight = internal::min(mFont.mHeight, aBox.height);
     float x = aBox.x;
     float y = aBox.y + fontHeight;
