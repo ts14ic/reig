@@ -13,10 +13,10 @@ namespace reig {
     namespace detail {
         struct Font {
             std::vector<stbtt_bakedchar> mBakedChars;
-            float mSize = 0.f;
+            float mHeight = 0.f;
             int mTextureId = 0;
-            int mWidth = 0;
-            int mHeight = 0;
+            int mBitmapWidth = 0;
+            int mBitmapHeight = 0;
         };
 
         struct Window {

@@ -72,9 +72,9 @@ reig::Context::FontData reig::Context::set_font(char const* fontFilePath, int te
     // If all successfull, replace current font data
     mFont.mBakedChars = move(bakedChars);
     mFont.mTextureId = textureId;
-    mFont.mWidth = bitmapWidth;
-    mFont.mHeight = height;
-    mFont.mSize = fontHeightPx;
+    mFont.mBitmapWidth = bitmapWidth;
+    mFont.mBitmapHeight = height;
+    mFont.mHeight = fontHeightPx;
 
     // Return texture creation info
     FontData ret;
@@ -86,7 +86,7 @@ reig::Context::FontData reig::Context::set_font(char const* fontFilePath, int te
 }
 
 float reig::Context::get_font_size() const {
-    return mFont.mSize;
+    return mFont.mHeight;
 }
 
 const char* reig::exception::NoRenderHandlerException::what() const noexcept {
@@ -132,7 +132,7 @@ void reig::Context::start_window(char const* aTitle, float& aX, float& aY) {
     mCurrentWindow.mY = &aY;
     mCurrentWindow.mWidth = 0;
     mCurrentWindow.mHeight = 0;
-    mCurrentWindow.mTitleBarHeight = 8 + mFont.mSize;
+    mCurrentWindow.mTitleBarHeight = 8 + mFont.mHeight;
 }
 
 void reig::Context::end_window() {
@@ -215,7 +215,7 @@ bool has_alignment(reig::text::Alignment container, reig::text::Alignment alignm
 float reig::Context::render_text(char const* text, Rectangle aBox, text::Alignment alignment) {
     if (mFont.mBakedChars.empty() || !text) return aBox.x;
 
-    float fontHeight = internal::min(mFont.mSize, aBox.height);
+    float fontHeight = internal::min(mFont.mHeight, aBox.height);
     float x = aBox.x;
     float y = aBox.y + fontHeight;
 
@@ -231,7 +231,7 @@ float reig::Context::render_text(char const* text, Rectangle aBox, text::Alignme
 
         stbtt_GetBakedQuad(
                 data(mFont.mBakedChars),
-                mFont.mWidth, mFont.mHeight, ch - from, &x, &y, &q, 1
+                mFont.mBitmapWidth, mFont.mBitmapHeight, ch - from, &x, &y, &q, 1
         );
         if (q.x0 > aBox.x + aBox.width) {
             break;
