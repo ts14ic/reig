@@ -66,7 +66,7 @@ reig::Context::FontData reig::Context::set_font(char const* fontFilePath, int te
     }
 
     // If all successfull, replace current font data
-    mFont.mBakedChars = std::move(bakedChars);
+    mFont.mBakedChars = move(bakedChars);
     mFont.mTextureId = textureId;
     mFont.mWidth = bitmapWidth;
     mFont.mHeight = height;

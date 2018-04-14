@@ -69,29 +69,43 @@ public:
             // =================== Input polling ===============
             for(SDL_Event evt; SDL_PollEvent(&evt);) {
                 switch(evt.type) {
-                    case SDL_QUIT:
-                    quit = true;
-                    break;
+                    case SDL_QUIT: {
+                        quit = true;
+                        break;
+                    }
 
-                    case SDL_MOUSEMOTION:
-                    gui.ctx.mouse.place(evt.motion.x, evt.motion.y);
-                    break;
+                    case SDL_MOUSEMOTION: {
+                        gui.ctx.mouse.place(evt.motion.x, evt.motion.y);
+                        break;
+                    }
 
-                    case SDL_MOUSEWHEEL:
-                    gui.ctx.mouse.scroll(-evt.wheel.y);
-                    break;
+                    case SDL_MOUSEWHEEL: {
+                        gui.ctx.mouse.scroll(-evt.wheel.y);
+                        break;
+                    }
 
                     case SDL_MOUSEBUTTONDOWN: {
                         if (evt.button.button == SDL_BUTTON_LEFT) {
                             gui.ctx.mouse.leftButton.press(evt.button.x, evt.button.y);
                         }
+                        break;
                     }
-                    break;
 
                     case SDL_MOUSEBUTTONUP: {
                         if (evt.button.button == SDL_BUTTON_LEFT) {
                             gui.ctx.mouse.leftButton.release();
                         }
+                        break;
+                    }
+
+                    case SDL_KEYDOWN: {
+                        gui.ctx.keyboard.press(evt.key.keysym.sym);
+                        break;
+                    }
+
+                    case SDL_KEYUP: {
+                        gui.ctx.keyboard.release(evt.key.keysym.sym);
+                        break;
                     }
 
                     default:;

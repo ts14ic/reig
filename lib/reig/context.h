@@ -3,6 +3,7 @@
 
 #include "defs.h"
 #include "mouse.h"
+#include "keyboard.h"
 #include "stb_truetype.h"
 #include <vector>
 #include <any>
@@ -97,6 +98,7 @@ namespace reig {
 
         // Inputs
         detail::Mouse mouse;
+        detail::Keyboard keyboard;
 
         // Widget renders
         void start_window(char const* title, float& x, float& y);
