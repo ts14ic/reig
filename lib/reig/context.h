@@ -38,6 +38,20 @@ namespace reig {
         };
     }
 
+    namespace text {
+        enum class Alignment : unsigned {
+            LEFT = 1u << 0u,
+            RIGHT = 1u << 1u,
+            TOP = 1u << 2u,
+            BOTTOM = 1u << 3u,
+            TOP_LEFT = TOP | LEFT,
+            TOP_RIGHT = TOP | RIGHT,
+            BOTTOM_LEFT = BOTTOM | LEFT,
+            BOTTOM_RIGHT = BOTTOM | RIGHT,
+            CENTER = LEFT | RIGHT | TOP | BOTTOM,
+        };
+    }
+
     /**
      * @class Context
      * @brief Used to pump in input and request gui creation
@@ -115,7 +129,7 @@ namespace reig {
          * @param text Text to be displayed
          * @param box Text's bounding box
          */
-        void render_text(char const* text, primitive::Rectangle box);
+        void render_text(char const* text, primitive::Rectangle box, text::Alignment alignment = text::Alignment::CENTER);
 
         /**
          * @brief Schedules a rectangle drawing

@@ -68,10 +68,10 @@ namespace reig::reference_widget {
         }
         ctx.render_rectangle(model.baseArea, primaryColor);
         if (model.isSelected) {
-            ctx.render_text(mValueRef.c_str(), model.baseArea);
+            ctx.render_text(mValueRef.c_str(), model.baseArea, text::Alignment::LEFT);
             ctx.render_rectangle(model.cursorArea, colors::black);
         } else {
-            ctx.render_text(mValueRef.empty() ? mTitle : mValueRef.c_str(), model.baseArea);
+            ctx.render_text(mValueRef.empty() ? mTitle : mValueRef.c_str(), model.baseArea, text::Alignment::LEFT);
         }
 
         if (model.isInputModified) {

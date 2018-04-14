@@ -56,10 +56,12 @@ reig::Context::FontData reig::Context::set_font(char const* fontFilePath, int te
     int bitmapWidth = 512;
     int bitmapHeight = 512;
 
+    using std::data;
     auto bakedChars = std::vector<stbtt_bakedchar>(charsNum);
     auto bitmap = vector<uint8_t>(internal::integral_cast<size_t>(bitmapWidth * bitmapHeight));
     auto height = stbtt_BakeFontBitmap(
-            ttfBuffer.data(), 0, fontHeightPx, bitmap.data(), bitmapWidth, bitmapHeight, ' ', charsNum, std::data(bakedChars)
+            ttfBuffer.data(), 0, fontHeightPx,
+            bitmap.data(), bitmapWidth, bitmapHeight, ' ', charsNum, data(bakedChars)
     );
 
     if (height < 0 || height > bitmapHeight) {
@@ -226,7 +228,7 @@ float reig::Context::measure_text_width(const char* text) const {
 }
 
 
-void reig::Context::render_text(char const* ch, Rectangle aBox) {
+void reig::Context::render_text(char const* ch, Rectangle aBox, text::Alignment alignment) {
     if (mFont.mBakedChars.empty() || !ch) return;
 
     aBox = internal::decrease_rect(aBox, 8);
@@ -265,14 +267,17 @@ void reig::Context::render_text(char const* ch, Rectangle aBox) {
         quads.push_back(q);
     }
 
-    auto deltax = (aBox.width - textWidth) / 2.f;
+    float alignmentOffsetX = 0.0f;
+    if (alignment == text::Alignment::CENTER) {
+        alignmentOffsetX = (aBox.width - textWidth) / 2.f;
+    }
 
     for (auto& q : quads) {
         vector<Vertex> vertices{
-                {{q.x0 + deltax, q.y0}, {q.s0, q.t0}, {}},
-                {{q.x1 + deltax, q.y0}, {q.s1, q.t0}, {}},
-                {{q.x1 + deltax, q.y1}, {q.s1, q.t1}, {}},
-                {{q.x0 + deltax, q.y1}, {q.s0, q.t1}, {}}
+                {{q.x0 + alignmentOffsetX, q.y0}, {q.s0, q.t0}, {}},
+                {{q.x1 + alignmentOffsetX, q.y0}, {q.s1, q.t0}, {}},
+                {{q.x1 + alignmentOffsetX, q.y1}, {q.s1, q.t1}, {}},
+                {{q.x0 + alignmentOffsetX, q.y1}, {q.s0, q.t1}, {}}
         };
         vector<int> indices{0, 1, 2, 2, 3, 0};
 
