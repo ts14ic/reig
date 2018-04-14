@@ -29,7 +29,8 @@ namespace reig::detail {
     Key Keyboard::get_pressed_key_type() const {
         int from = ' ';
         int to = from + 95;
-        return mKeyCode >= from && mKeyCode < to ? Key::CHAR :
+        return mKeyCode == 0 ? Key::NONE :
+               mKeyCode >= from && mKeyCode < to ? Key::CHAR :
                mKeyCode == '\b' ? Key::BACKSPACE :
                Key::UNKNOWN;
     }

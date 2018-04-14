@@ -5,9 +5,10 @@
 
 namespace reig {
     enum class Key {
-        UNKNOWN,
+        NONE,
         CHAR,
-        BACKSPACE
+        BACKSPACE,
+        UNKNOWN,
     };
 
     enum class KeyModifier {
