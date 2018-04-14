@@ -86,7 +86,7 @@ void reig::reference_widget::detail::ref_entry<String, Action>::use(reig::Contex
         primaryColor = internal::lighten_color_by(primaryColor, 30);
     }
     ctx.render_rectangle(model.baseArea, primaryColor);
-    ctx.render_text((String{mTitle} + ": " + mValueRef).c_str(), model.baseArea);
+    ctx.render_text(mValueRef.empty() ? mTitle : mValueRef.c_str(), model.baseArea);
 
     if (model.isInputModified) {
         mAction(mValueRef);
