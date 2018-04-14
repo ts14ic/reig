@@ -2,7 +2,6 @@
 #include "context.h"
 #include <vector>
 #include <algorithm>
-#include <cctype>
 
 namespace reig::detail {
     void Keyboard::press_key(int key) {
@@ -38,7 +37,7 @@ namespace reig::detail {
 
     int Keyboard::get_pressed_char() const {
         if (is_modifier_pressed(KeyModifier::SHIFT)) {
-            return std::toupper(static_cast<unsigned char>(mKeyCode));
+            return shift_to_upper(mKeyCode);
         } else {
             return mKeyCode;
         }

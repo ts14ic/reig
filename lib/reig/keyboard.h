@@ -17,6 +17,15 @@ namespace reig {
     };
 
     namespace detail {
+        /**
+         * This is pretty bad approach that assumes we are on Intel keyboard.
+         * Ideally shifting characters should not be our concern
+         *
+         * @param ch The character that is to be transformed to upper
+         * @return The shifted version of the character
+         */
+        int shift_to_upper(int ch);
+
         class Keyboard {
         public:
             Keyboard() = default;

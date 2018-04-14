@@ -13,6 +13,7 @@ add_library(reig_lib
         lib/reig/primitive.h lib/reig/primitive.cpp
         lib/reig/mouse.h lib/reig/mouse.cpp
         lib/reig/keyboard.h lib/reig/keyboard.cpp
+        lib/reig/keyboard_shifted.cpp
         lib/reig/exception.h lib/reig/exception.cpp
         lib/reig/internal.h lib/reig/internal.cpp
         lib/reig/context.h lib/reig/context.cpp
