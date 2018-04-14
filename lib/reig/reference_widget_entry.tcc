@@ -49,8 +49,8 @@ namespace reig::reference_widget {
         return EntryModel{outlineArea, baseArea, clickedInArea, hoveringOverArea, isInputModified};
     }
 
-    template <typename String, typename Action>
-    void detail::ref_entry<String, Action>::use(reig::Context& ctx) const {
+    template <typename Char, typename Action>
+    void detail::ref_entry<Char, Action>::use(reig::Context& ctx) const {
         auto model = get_entry_model(ctx, *this);
 
         ctx.render_rectangle(model.outlineArea, internal::get_yiq_contrast(mPrimaryColor));
