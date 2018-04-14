@@ -238,9 +238,15 @@ public:
 
             Rectangle testRect{150, 50, 150, 150};
             gui.ctx.render_rectangle(testRect, reig::primitive::colors::black);
-            gui.ctx.render_text("CH", testRect, reig::text::Alignment::CENTER_HORIZONTAL);
-            gui.ctx.render_text("L", testRect, reig::text::Alignment::LEFT);
-            gui.ctx.render_text("R", testRect, reig::text::Alignment::RIGHT);
+            gui.ctx.render_text("TL", testRect, reig::text::Alignment::TOP_LEFT);
+            gui.ctx.render_text(" T", testRect, reig::text::Alignment::TOP);
+            gui.ctx.render_text("TR", testRect, reig::text::Alignment::TOP_RIGHT);
+            gui.ctx.render_text(" R", testRect, reig::text::Alignment::RIGHT);
+            gui.ctx.render_text("BR", testRect, reig::text::Alignment::BOTTOM_RIGHT);
+            gui.ctx.render_text(" B", testRect, reig::text::Alignment::BOTTOM);
+            gui.ctx.render_text("BL", testRect, reig::text::Alignment::BOTTOM_LEFT);
+            gui.ctx.render_text(" L", testRect, reig::text::Alignment::LEFT);
+            gui.ctx.render_text(" C", testRect, reig::text::Alignment::CENTER);
 
             gui.ctx.end_window();
 
