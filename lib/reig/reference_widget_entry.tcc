@@ -19,11 +19,8 @@ namespace reig::reference_widget {
             baseArea = internal::decrease_rect(baseArea, 4);
 
             if ((ctx.get_frame_counter() / 30) % 2 == 0) {
-                float textWidth = ctx.measure_text_width(entry.mValueRef.c_str());
-                caretArea.x = textWidth + baseArea.x;
                 caretArea = internal::decrease_rect(caretArea, 10);
                 caretArea.width = 5;
-                internal::trim_rect_in_other(caretArea, baseArea);
             }
 
             Key keyType = ctx.keyboard.get_pressed_key_type();
@@ -63,15 +60,21 @@ namespace reig::reference_widget {
     void detail::ref_entry<Char, Action>::use(reig::Context& ctx) const {
         auto model = get_entry_model(ctx, *this);
 
-        ctx.render_rectangle(model.outlineArea, internal::get_yiq_contrast(mPrimaryColor));
+        Color secondaryColor = internal::get_yiq_contrast(mPrimaryColor);
+
+        ctx.render_rectangle(model.outlineArea, secondaryColor);
         auto primaryColor = mPrimaryColor;
         if (model.isHoveringOverArea) {
             primaryColor = internal::lighten_color_by(primaryColor, 30);
         }
         ctx.render_rectangle(model.baseArea, primaryColor);
         if (model.isSelected) {
-            ctx.render_text(mValueRef.c_str(), model.baseArea, text::Alignment::LEFT);
-            ctx.render_rectangle(model.cursorArea, colors::black);
+            float caretX = ctx.render_text(mValueRef.c_str(), model.baseArea, text::Alignment::LEFT);
+
+            Rectangle caretArea = model.caretArea;
+            caretArea.x = caretX;
+            internal::trim_rect_in_other(caretArea, model.baseArea);
+            ctx.render_rectangle(caretArea, secondaryColor);
         } else {
             ctx.render_text(mValueRef.empty() ? mTitle : mValueRef.c_str(), model.baseArea, text::Alignment::LEFT);
         }

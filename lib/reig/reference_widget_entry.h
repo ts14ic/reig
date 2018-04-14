@@ -20,7 +20,7 @@ namespace reig::reference_widget {
         struct EntryModel {
             const Rectangle outlineArea;
             const Rectangle baseArea;
-            const Rectangle cursorArea;
+            const Rectangle caretArea;
             const bool isSelected = false;
             const bool isHoveringOverArea = false;
             const bool isInputModified = false;
