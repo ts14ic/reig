@@ -46,6 +46,7 @@ auto reig::reference_widget::detail::get_entry_model(reig::Context& ctx, const E
     Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
     bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), outlineArea);
     bool clickedInArea = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
+    bool isInputModified = false;
     if (clickedInArea) {
         baseArea = internal::decrease_rect(baseArea, 4);
 
@@ -53,6 +54,7 @@ auto reig::reference_widget::detail::get_entry_model(reig::Context& ctx, const E
         switch (ctx.keyboard.get_pressed_key_type()) {
             case Key::CHAR: {
                 entry.mValueRef += ctx.keyboard.get_pressed_char();
+                isInputModified = true;
                 break;
             }
 
@@ -60,6 +62,7 @@ auto reig::reference_widget::detail::get_entry_model(reig::Context& ctx, const E
                 using std::empty;
                 if (!empty(entry.mValueRef)) {
                     entry.mValueRef.pop_back();
+                    isInputModified = true;
                 }
                 break;
             }
@@ -70,7 +73,7 @@ auto reig::reference_widget::detail::get_entry_model(reig::Context& ctx, const E
         }
     }
 
-    return EntryModel<String>{outlineArea, baseArea, hoveringOverArea};
+    return EntryModel<String>{outlineArea, baseArea, hoveringOverArea, isInputModified};
 }
 
 template <typename String, typename Action>
@@ -84,6 +87,10 @@ void reig::reference_widget::detail::ref_entry<String, Action>::use(reig::Contex
     }
     ctx.render_rectangle(model.baseArea, primaryColor);
     ctx.render_text((String{mTitle} + ": " + mValueRef).c_str(), model.baseArea);
+
+    if (model.isInputModified) {
+        mAction(mValueRef);
+    }
 }
 
 #endif //REIG_REFERENCE_WIDGET_ENTRY_H
