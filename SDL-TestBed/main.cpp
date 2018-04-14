@@ -236,6 +236,12 @@ public:
                 std::cout << "Entry 2: " << input << '\n';
             }).use(gui.ctx);
 
+            Rectangle testRect{150, 50, 150, 150};
+            gui.ctx.render_rectangle(testRect, reig::primitive::colors::black);
+            gui.ctx.render_text("CH", testRect, reig::text::Alignment::CENTER_HORIZONTAL);
+            gui.ctx.render_text("L", testRect, reig::text::Alignment::LEFT);
+            gui.ctx.render_text("R", testRect, reig::text::Alignment::RIGHT);
+
             gui.ctx.end_window();
 
             // ================== Render ==================== 

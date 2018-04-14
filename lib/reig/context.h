@@ -40,15 +40,17 @@ namespace reig {
 
     namespace text {
         enum class Alignment : unsigned {
-            LEFT = 1u << 0u,
-            RIGHT = 1u << 1u,
-            TOP = 1u << 2u,
-            BOTTOM = 1u << 3u,
+            CENTER_HORIZONTAL = 0x1u,
+            LEFT = 0x2u,
+            RIGHT = 0x4u,
+            CENTER_VERTICAL = 0x10,
+            TOP = 0x20,
+            BOTTOM = 0x40,
+            CENTER = CENTER_HORIZONTAL | CENTER_VERTICAL,
             TOP_LEFT = TOP | LEFT,
             TOP_RIGHT = TOP | RIGHT,
             BOTTOM_LEFT = BOTTOM | LEFT,
-            BOTTOM_RIGHT = BOTTOM | RIGHT,
-            CENTER = LEFT | RIGHT | TOP | BOTTOM,
+            BOTTOM_RIGHT = BOTTOM | RIGHT
         };
     }
 

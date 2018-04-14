@@ -206,6 +206,12 @@ void reig::Context::fit_rect_in_window(Rectangle& rect) {
     mCurrentWindow.fit_rect(rect);
 }
 
+bool has_alignment(reig::text::Alignment container, reig::text::Alignment alignment) {
+    auto containerU = static_cast<unsigned>(container);
+    auto alignmentU = static_cast<unsigned>(alignment);
+    return (alignmentU & containerU) == alignmentU;
+}
+
 float reig::Context::render_text(char const* ch, Rectangle aBox, text::Alignment alignment) {
     if (mFont.mBakedChars.empty() || !ch) return aBox.x;
 
@@ -245,12 +251,9 @@ float reig::Context::render_text(char const* ch, Rectangle aBox, text::Alignment
         quads.push_back(q);
     }
 
-    float alignmentOffsetX = 0.0f;
-    if (alignment == text::Alignment::CENTER) {
-        alignmentOffsetX = (aBox.width - textWidth) / 2.f;
-    } else if (alignment == text::Alignment::RIGHT) {
-        alignmentOffsetX = aBox.width - textWidth;
-    }
+    float alignmentOffsetX = has_alignment(alignment, text::Alignment::RIGHT) ? aBox.width - textWidth :
+                             has_alignment(alignment, text::Alignment::CENTER_HORIZONTAL) ? (aBox.width - textWidth) / 2.0f :
+                             0.0f;
 
     for (auto& q : quads) {
         vector<Vertex> vertices{
