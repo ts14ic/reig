@@ -19,7 +19,6 @@ namespace reig::reference_widget {
             void use(Context& ctx) const;
         };
 
-        template <typename String>
         struct EntryModel {
             Rectangle outlineArea;
             Rectangle baseArea;
@@ -29,7 +28,7 @@ namespace reig::reference_widget {
         };
 
         template <template <class, class> typename Entry, typename String, typename Action>
-        auto get_entry_model(Context& ctx, const Entry<String, Action>& entry);
+        EntryModel get_entry_model(Context& ctx, const Entry<String, Action>& entry);
     }
 
     template <typename String, typename Action>
@@ -40,7 +39,10 @@ namespace reig::reference_widget {
 }
 
 template <template <class, class> typename Entry, typename String, typename Action>
-auto reig::reference_widget::detail::get_entry_model(reig::Context& ctx, const Entry<String, Action>& entry) {
+reig::reference_widget::detail::EntryModel reig::reference_widget::detail::get_entry_model(
+        reig::Context& ctx,
+        const Entry<String, Action>& entry
+) {
     Rectangle outlineArea = entry.mBoundingArea;
     ctx.fit_rect_in_window(outlineArea);
 
@@ -80,7 +82,7 @@ auto reig::reference_widget::detail::get_entry_model(reig::Context& ctx, const E
         }
     }
 
-    return EntryModel<String>{outlineArea, baseArea, clickedInArea, hoveringOverArea, isInputModified};
+    return EntryModel{outlineArea, baseArea, clickedInArea, hoveringOverArea, isInputModified};
 }
 
 template <typename String, typename Action>
