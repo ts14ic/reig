@@ -217,7 +217,7 @@ float reig::Context::render_text(char const* text, Rectangle aBox, text::Alignme
 
     aBox = internal::decrease_rect(aBox, 8);
     float x = aBox.x;
-    float y = aBox.y + aBox.height;
+    float y = aBox.y + internal::min(mFont.mSize, aBox.height);
 
     vector<stbtt_aligned_quad> quads;
     quads.reserve(20);
