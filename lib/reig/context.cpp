@@ -224,14 +224,14 @@ float reig::Context::render_text(char const* text, Rectangle aBox, text::Alignme
     float textWidth = 0.f;
 
     int from = ' ';
-    int to = ' ' + 95;
+    int to = ' ' + 95; // The empty box character
 
     for (int ch = *text; *text; ch = *++text) {
         if (ch < from || ch > to) ch = to;
 
         stbtt_aligned_quad q;
         stbtt_GetBakedQuad(
-                mFont.mBakedChars.data(),
+                data(mFont.mBakedChars),
                 mFont.mWidth, mFont.mHeight, ch - from, &x, &y, &q, 1
         );
         if (q.x0 > aBox.x + aBox.width) {
