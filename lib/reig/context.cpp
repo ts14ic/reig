@@ -225,7 +225,7 @@ float reig::Context::render_text(char const* text, Rectangle aBox, text::Alignme
 
     stbtt_aligned_quad quad;
     int from = ' ';
-    int to = ' ' + 95; // The empty box character
+    int to = from + 95; // The empty box character
     for (int ch = *text; *text; ch = *++text) {
         if (ch < from || ch > to) ch = to;
 
