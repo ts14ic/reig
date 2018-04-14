@@ -96,6 +96,8 @@ namespace reig {
          */
         void render_all();
 
+        float measure_text_width(const char* text) const;
+
         // Inputs
         detail::Mouse mouse;
         detail::Keyboard keyboard;

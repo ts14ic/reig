@@ -11,11 +11,18 @@ namespace reig::reference_widget {
         ctx.fit_rect_in_window(outlineArea);
 
         Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
+        Rectangle caretArea {0, baseArea.y, 0, baseArea.height};
         bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), outlineArea);
         bool clickedInArea = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
         bool isInputModified = false;
         if (clickedInArea) {
             baseArea = internal::decrease_rect(baseArea, 4);
+
+            float textWidth = ctx.measure_text_width(entry.mValueRef.c_str());
+            caretArea.x = textWidth + baseArea.x;
+            caretArea = internal::decrease_rect(caretArea, 10);
+            caretArea.width = 5;
+            internal::trim_rect_in_other(caretArea, baseArea);
 
             Key keyType = ctx.keyboard.get_pressed_key_type();
             switch (keyType) {
@@ -47,7 +54,7 @@ namespace reig::reference_widget {
             }
         }
 
-        return EntryModel{outlineArea, baseArea, clickedInArea, hoveringOverArea, isInputModified};
+        return EntryModel{outlineArea, baseArea, caretArea, clickedInArea, hoveringOverArea, isInputModified};
     }
 
     template <typename Char, typename Action>
@@ -61,7 +68,8 @@ namespace reig::reference_widget {
         }
         ctx.render_rectangle(model.baseArea, primaryColor);
         if (model.isSelected) {
-            ctx.render_text((mValueRef + "|").c_str(), model.baseArea);
+            ctx.render_text(mValueRef.c_str(), model.baseArea);
+            ctx.render_rectangle(model.cursorArea, colors::black);
         } else {
             ctx.render_text(mValueRef.empty() ? mTitle : mValueRef.c_str(), model.baseArea);
         }

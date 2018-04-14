@@ -18,11 +18,12 @@ namespace reig::reference_widget {
         };
 
         struct EntryModel {
-            Rectangle outlineArea;
-            Rectangle baseArea;
-            bool isSelected = false;
-            bool isHoveringOverArea = false;
-            bool isInputModified = false;
+            const Rectangle outlineArea;
+            const Rectangle baseArea;
+            const Rectangle cursorArea;
+            const bool isSelected = false;
+            const bool isHoveringOverArea = false;
+            const bool isInputModified = false;
         };
 
         template <template <class, class> typename Entry, typename String, typename Action>

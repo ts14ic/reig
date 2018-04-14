@@ -198,6 +198,34 @@ void reig::Context::fit_rect_in_window(Rectangle& rect) {
     mCurrentWindow.fit_rect(rect);
 }
 
+
+float reig::Context::measure_text_width(const char* text) const {
+    if (mFont.mBakedChars.empty() || !text) return 0.0f;
+
+    float x = 0;
+    float y = 0;
+
+    float textWidth = 0.f;
+
+    int from = ' ';
+    int to = from + 95;
+    int c;
+    stbtt_aligned_quad q;
+
+    for (; *text; ++text) {
+        c = *text;
+        if (c < from || c > to) c = to;
+        stbtt_GetBakedQuad(
+                mFont.mBakedChars.data(),
+                mFont.mWidth, mFont.mHeight, c - from, &x, &y, &q, 1
+        );
+        textWidth += mFont.mBakedChars[c - ' '].xadvance;
+    }
+
+    return textWidth;
+}
+
+
 void reig::Context::render_text(char const* ch, Rectangle aBox) {
     if (mFont.mBakedChars.empty() || !ch) return;
 
