@@ -66,7 +66,7 @@ namespace reig::reference_widget {
             ctx.render_rectangle(model.itemFrameBox, secondaryColor);
             ctx.render_rectangle(model.itemBox, primaryColor);
 
-            ctx.render_text(adapter(*it), model.itemBox);
+            ctx.render_text(adapter(*it), model.itemBox, text::Alignment::LEFT);
         }
     }
 
