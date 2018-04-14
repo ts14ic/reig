@@ -1,20 +1,24 @@
 #include "keyboard.h"
+#include "context.h"
 #include <vector>
 #include <algorithm>
 
 namespace reig::detail {
     void Keyboard::press(int keycode) {
-        mKeyCodes.push_back(keycode);
-    }
-
-    void Keyboard::release(int keycode) {
-        auto it = std::remove_if(begin(mKeyCodes), end(mKeyCodes), [keycode](int containedKeyCode) {
-            return containedKeyCode == keycode;
-        });
-        mKeyCodes.erase(it, end(mKeyCodes));
+        mKeyCode = keycode;
     }
 
     void Keyboard::reset() {
-        mKeyCodes.clear();
+        mKeyCode = 0;
+    }
+
+    bool Keyboard::is_char_key_pressed() const {
+        int from = ' ';
+        int to = from + 95;
+        return mKeyCode > from && mKeyCode < to;
+    }
+
+    int Keyboard::get_pressed_char_key() const {
+        return mKeyCode;
     }
 }

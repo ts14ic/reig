@@ -109,6 +109,8 @@ void reig::Context::start_new_frame() {
 
     mouse.leftButton.mIsClicked = false;
     mouse.mScrolled = 0.f;
+
+    keyboard.reset();
 }
 
 void reig::Context::start_window(char const* aTitle, float& aX, float& aY) {

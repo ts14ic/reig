@@ -98,13 +98,8 @@ public:
                         break;
                     }
 
-                    case SDL_KEYDOWN: {
-                        gui.ctx.keyboard.press(evt.key.keysym.sym);
-                        break;
-                    }
-
                     case SDL_KEYUP: {
-                        gui.ctx.keyboard.release(evt.key.keysym.sym);
+                        gui.ctx.keyboard.press(evt.key.keysym.sym);
                         break;
                     }
 
