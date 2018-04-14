@@ -212,8 +212,8 @@ bool has_alignment(reig::text::Alignment container, reig::text::Alignment alignm
     return (alignmentU & containerU) == alignmentU;
 }
 
-float reig::Context::render_text(char const* ch, Rectangle aBox, text::Alignment alignment) {
-    if (mFont.mBakedChars.empty() || !ch) return aBox.x;
+float reig::Context::render_text(char const* text, Rectangle aBox, text::Alignment alignment) {
+    if (mFont.mBakedChars.empty() || !text) return aBox.x;
 
     aBox = internal::decrease_rect(aBox, 8);
     float x = aBox.x;
@@ -223,18 +223,16 @@ float reig::Context::render_text(char const* ch, Rectangle aBox, text::Alignment
     quads.reserve(20);
     float textWidth = 0.f;
 
-    char from = ' ';
-    char to = ' ' + 95;
-    char c;
+    int from = ' ';
+    int to = ' ' + 95;
 
-    for (; *ch; ++ch) {
-        c = *ch;
-        if (c < from || c > to) c = to;
+    for (int ch = *text; *text; ch = *++text) {
+        if (ch < from || ch > to) ch = to;
 
         stbtt_aligned_quad q;
         stbtt_GetBakedQuad(
                 mFont.mBakedChars.data(),
-                mFont.mWidth, mFont.mHeight, c - ' ', &x, &y, &q, 1
+                mFont.mWidth, mFont.mHeight, ch - from, &x, &y, &q, 1
         );
         if (q.x0 > aBox.x + aBox.width) {
             break;
@@ -246,7 +244,7 @@ float reig::Context::render_text(char const* ch, Rectangle aBox, text::Alignment
             q.y0 = aBox.y;
         }
 
-        textWidth += mFont.mBakedChars[c - ' '].xadvance;
+        textWidth += mFont.mBakedChars[ch - from].xadvance;
 
         quads.push_back(q);
     }
