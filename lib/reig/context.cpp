@@ -249,16 +249,17 @@ float reig::Context::render_text(char const* text, Rectangle aBox, text::Alignme
         quads.push_back(q);
     }
 
-    float alignmentOffsetX = has_alignment(alignment, text::Alignment::RIGHT) ? aBox.width - textWidth :
-                             has_alignment(alignment, text::Alignment::CENTER_HORIZONTAL) ? (aBox.width - textWidth) / 2.0f :
-                             0.0f;
+    float horizontalAlignment =
+            has_alignment(alignment, text::Alignment::RIGHT) ? aBox.width - textWidth :
+            has_alignment(alignment, text::Alignment::CENTER_HORIZONTAL) ? (aBox.width - textWidth) / 2.0f :
+            0.0f;
 
     for (auto& q : quads) {
         vector<Vertex> vertices{
-                {{q.x0 + alignmentOffsetX, q.y0}, {q.s0, q.t0}, {}},
-                {{q.x1 + alignmentOffsetX, q.y0}, {q.s1, q.t0}, {}},
-                {{q.x1 + alignmentOffsetX, q.y1}, {q.s1, q.t1}, {}},
-                {{q.x0 + alignmentOffsetX, q.y1}, {q.s0, q.t1}, {}}
+                {{q.x0 + horizontalAlignment, q.y0}, {q.s0, q.t0}, {}},
+                {{q.x1 + horizontalAlignment, q.y0}, {q.s1, q.t0}, {}},
+                {{q.x1 + horizontalAlignment, q.y1}, {q.s1, q.t1}, {}},
+                {{q.x0 + horizontalAlignment, q.y1}, {q.s0, q.t1}, {}}
         };
         vector<int> indices{0, 1, 2, 2, 3, 0};
 
