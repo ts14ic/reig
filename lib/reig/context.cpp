@@ -251,12 +251,10 @@ float reig::Context::render_text(char const* text, Rectangle aBox, text::Alignme
 
     float horizontalAlignment =
             has_alignment(alignment, text::Alignment::RIGHT) ? aBox.width - textWidth :
-            has_alignment(alignment, text::Alignment::CENTER_HORIZONTAL) ? (aBox.width - textWidth) * 0.5f :
             has_alignment(alignment, text::Alignment::LEFT) ? 0.0f :
             (aBox.width - textWidth) * 0.5f;
     float verticalAlignment =
             has_alignment(alignment, text::Alignment::TOP) ? -(aBox.height - mFont.mSize) :
-            has_alignment(alignment, text::Alignment::CENTER_VERTICAL) ? (aBox.height - mFont.mSize) * -0.5f :
             has_alignment(alignment, text::Alignment::BOTTOM) ? 0.0f :
             (aBox.height - mFont.mSize) * -0.5f;
 
