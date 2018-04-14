@@ -49,8 +49,23 @@ auto reig::reference_widget::detail::get_entry_model(reig::Context& ctx, const E
     if (clickedInArea) {
         baseArea = internal::decrease_rect(baseArea, 4);
 
-        if (ctx.keyboard.is_char_key_pressed()) {
-            entry.mValueRef += ctx.keyboard.get_pressed_char_key();
+        using reig::detail::Key;
+        switch (ctx.keyboard.get_pressed_key_type()) {
+            case Key::CHAR: {
+                entry.mValueRef += ctx.keyboard.get_pressed_key();
+                break;
+            }
+
+            case Key::BACKSPACE: {
+                if (!empty(entry.mValueRef)) {
+                    entry.mValueRef.pop_back();
+                }
+                break;
+            }
+
+            default: {
+                break;
+            }
         }
     }
 

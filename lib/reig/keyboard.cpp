@@ -12,13 +12,15 @@ namespace reig::detail {
         mKeyCode = 0;
     }
 
-    bool Keyboard::is_char_key_pressed() const {
+    Key Keyboard::get_pressed_key_type() const {
         int from = ' ';
         int to = from + 95;
-        return mKeyCode > from && mKeyCode < to;
+        return mKeyCode > from && mKeyCode < to ? Key::CHAR :
+               mKeyCode == '\b' ? Key::BACKSPACE :
+               Key::UNKNOWN;
     }
 
-    int Keyboard::get_pressed_char_key() const {
+    int Keyboard::get_pressed_key() const {
         return mKeyCode;
     }
 }

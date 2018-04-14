@@ -2,6 +2,12 @@
 #define REIG_KEYBOARD_H
 
 namespace reig::detail {
+    enum class Key {
+        UNKNOWN,
+        CHAR,
+        BACKSPACE
+    };
+
     class Keyboard {
     public:
         Keyboard() = default;
@@ -18,9 +24,9 @@ namespace reig::detail {
 
         void reset();
 
-        bool is_char_key_pressed() const;
+        Key get_pressed_key_type() const;
 
-        int get_pressed_char_key() const;
+        int get_pressed_key() const;
 
     private:
         int mKeyCode = 0;
