@@ -206,36 +206,8 @@ void reig::Context::fit_rect_in_window(Rectangle& rect) {
     mCurrentWindow.fit_rect(rect);
 }
 
-
-float reig::Context::measure_text_width(const char* text) const {
-    if (mFont.mBakedChars.empty() || !text) return 0.0f;
-
-    float x = 0;
-    float y = 0;
-
-    float textWidth = 0.f;
-
-    int from = ' ';
-    int to = from + 95;
-    int c;
-    stbtt_aligned_quad q;
-
-    for (; *text; ++text) {
-        c = *text;
-        if (c < from || c > to) c = to;
-        stbtt_GetBakedQuad(
-                mFont.mBakedChars.data(),
-                mFont.mWidth, mFont.mHeight, c - from, &x, &y, &q, 1
-        );
-        textWidth += mFont.mBakedChars[c - ' '].xadvance;
-    }
-
-    return textWidth;
-}
-
-
-void reig::Context::render_text(char const* ch, Rectangle aBox, text::Alignment alignment) {
-    if (mFont.mBakedChars.empty() || !ch) return;
+float reig::Context::render_text(char const* ch, Rectangle aBox, text::Alignment alignment) {
+    if (mFont.mBakedChars.empty() || !ch) return aBox.x;
 
     aBox = internal::decrease_rect(aBox, 8);
     float x = aBox.x;
@@ -291,6 +263,8 @@ void reig::Context::render_text(char const* ch, Rectangle aBox, text::Alignment 
         fig.form(vertices, indices, mFont.mTextureId);
         mDrawData.push_back(fig);
     }
+
+    return x;
 }
 
 void reig::Context::render_triangle(Triangle const& aTri, Color const& aColor) {

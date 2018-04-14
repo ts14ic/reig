@@ -112,8 +112,6 @@ namespace reig {
          */
         void render_all();
 
-        float measure_text_width(const char* text) const;
-
         // Inputs
         detail::Mouse mouse;
         detail::Keyboard keyboard;
@@ -130,8 +128,9 @@ namespace reig {
          * @brief Render some text
          * @param text Text to be displayed
          * @param box Text's bounding box
+         * @return x coordinate after printing
          */
-        void render_text(char const* text, primitive::Rectangle box, text::Alignment alignment = text::Alignment::CENTER);
+        float render_text(char const* text, primitive::Rectangle box, text::Alignment alignment = text::Alignment::CENTER);
 
         /**
          * @brief Schedules a rectangle drawing
