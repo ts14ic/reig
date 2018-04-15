@@ -8,13 +8,15 @@ namespace internal = reig::internal;
 struct ButtonModel {
     Rectangle outlineArea;
     Rectangle baseArea;
+    bool isFocused = false;
     bool hoveringOverArea = false;
     bool justClicked = false;
     bool holdingClick = false;
 };
 
 template <typename Button>
-ButtonModel get_button_model(reig::Context& ctx, const Button& button, int focusId) {
+ButtonModel get_button_model(reig::Context& ctx, const Button& button) {
+    auto focusId = ctx.focus.create_id();
     Rectangle outlineArea = button.mBoundingBox;
     ctx.fit_rect_in_window(outlineArea);
 
@@ -38,18 +40,17 @@ ButtonModel get_button_model(reig::Context& ctx, const Button& button, int focus
         }
     }
 
-    return {outlineArea, baseArea, hoveringOverArea && ctx.focus.is_focused(focusId), justClicked, holdingClick};
+    return {outlineArea, baseArea, ctx.focus.is_focused(focusId), hoveringOverArea, justClicked, holdingClick};
 }
 
 bool reig::reference_widget::button::use(reig::Context& ctx) const {
-    auto focusId = ctx.focus.create_id();
-    auto model = get_button_model(ctx, *this, focusId);
+    auto model = get_button_model(ctx, *this);
 
     Color innerColor{mBaseColor};
-    if (model.hoveringOverArea && ctx.focus.is_focused(focusId)) {
+    if (model.hoveringOverArea && model.isFocused) {
         innerColor = internal::lighten_color_by(innerColor, 30);
     }
-    if (model.holdingClick && ctx.focus.is_focused(focusId)) {
+    if (model.holdingClick && model.isFocused) {
         innerColor = internal::lighten_color_by(innerColor, 30);
     }
     ctx.render_rectangle(model.outlineArea, internal::get_yiq_contrast(mBaseColor));
@@ -60,8 +61,7 @@ bool reig::reference_widget::button::use(reig::Context& ctx) const {
 }
 
 bool reig::reference_widget::textured_button::use(reig::Context& ctx) const {
-    auto focusId = ctx.focus.create_id();
-    auto model = get_button_model(ctx, *this, focusId);
+    auto model = get_button_model(ctx, *this);
 
     int texture = mBaseTexture;
     if (model.holdingClick || model.hoveringOverArea) {
