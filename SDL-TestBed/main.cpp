@@ -13,6 +13,24 @@
 
 using namespace std::string_literals;
 
+struct Sdl {
+    SDL_Renderer* renderer = nullptr;
+    SDL_Window* window = nullptr;
+    int width = 800;
+    int height = 600;
+};
+
+struct Font {
+    reig::Context::FontData data;
+    SDL_Texture* tex = nullptr;
+    int id = 100;
+};
+
+struct Gui {
+    reig::Context ctx;
+    Font font;
+};
+
 class Main {
 public:
     Main() {
@@ -305,25 +323,8 @@ public:
     }
 
 private:
-    struct sdl {
-        SDL_Renderer* renderer = nullptr;
-        SDL_Window*   window   = nullptr;
-        int width  = 800;
-        int height = 600;
-    }
-    sdl;
-
-    struct gui {
-        reig::Context ctx;
-
-        struct font {
-            reig::Context::FontData data;
-            SDL_Texture*   tex  = nullptr;
-            int            id   = 100;
-        }
-        font;
-    }
-    gui;
+    Sdl sdl;
+    Gui gui;
 };
 
 int main(int, char*[]) {
