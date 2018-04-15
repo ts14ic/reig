@@ -29,6 +29,11 @@ namespace reig {
 
         void reset_counter();
 
+        bool claim_for_window(const char* window);
+
+        void release_from_window(const char* window);
+
+        const char* mFocusedWindow = nullptr;
         int mCurrentFocus = 0;
         unsigned mFocusCounter = 0;
     };
