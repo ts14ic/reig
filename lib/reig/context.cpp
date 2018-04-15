@@ -116,6 +116,8 @@ void reig::Context::start_new_frame() {
 
     keyboard.reset();
 
+    focus.reset_counter();
+
     ++mFrameCounter;
 }
 

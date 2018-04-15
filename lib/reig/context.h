@@ -5,6 +5,7 @@
 #include "mouse.h"
 #include "keyboard.h"
 #include "text.h"
+#include "focus.h"
 #include "stb_truetype.h"
 #include <vector>
 #include <any>
@@ -102,6 +103,7 @@ namespace reig {
         // Inputs
         detail::Mouse mouse;
         detail::Keyboard keyboard;
+        Focus focus;
 
         // Widget renders
         void start_window(char const* title, float& x, float& y);
@@ -141,9 +143,9 @@ namespace reig {
         void render_triangle(primitive::Triangle const& triangle, primitive::Color const& color);
 
     private:
-        std::vector<primitive::Figure> mDrawData;
         detail::Font mFont;
         detail::Window mCurrentWindow;
+        std::vector<primitive::Figure> mDrawData;
 
         RenderHandler mRenderHandler = nullptr;
         std::any mUserPtr;

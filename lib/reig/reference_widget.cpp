@@ -14,31 +14,42 @@ struct ButtonModel {
 };
 
 template <typename Button>
-ButtonModel get_button_model(reig::Context& ctx, const Button& button) {
+ButtonModel get_button_model(reig::Context& ctx, const Button& button, int focusId) {
     Rectangle outlineArea = button.mBoundingBox;
     ctx.fit_rect_in_window(outlineArea);
 
-    bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), outlineArea);
     Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
-    bool clickedInArea = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
-    bool justClicked = ctx.mouse.leftButton.is_clicked() && clickedInArea;
-    bool holdingClick = ctx.mouse.leftButton.is_pressed() && clickedInArea;
-
-    if (holdingClick) {
-        baseArea = internal::decrease_rect(baseArea, 4);
+    bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), outlineArea);
+    if (hoveringOverArea) {
+        ctx.focus.claim(focusId);
+    } else {
+        ctx.focus.release(focusId);
     }
 
-    return {outlineArea, baseArea, hoveringOverArea, justClicked, holdingClick};
+    bool justClicked = false;
+    bool holdingClick = false;
+    if (ctx.focus.is_focused(focusId)) {
+        bool clickedInArea = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), outlineArea);
+        justClicked = ctx.mouse.leftButton.is_clicked() && clickedInArea;
+        holdingClick = ctx.mouse.leftButton.is_pressed() && clickedInArea;
+
+        if (holdingClick) {
+            baseArea = internal::decrease_rect(baseArea, 4);
+        }
+    }
+
+    return {outlineArea, baseArea, hoveringOverArea && ctx.focus.is_focused(focusId), justClicked, holdingClick};
 }
 
 bool reig::reference_widget::button::use(reig::Context& ctx) const {
-    auto model = get_button_model(ctx, *this);
+    auto focusId = ctx.focus.create_id();
+    auto model = get_button_model(ctx, *this, focusId);
 
     Color innerColor{mBaseColor};
-    if (model.hoveringOverArea) {
+    if (model.hoveringOverArea && ctx.focus.is_focused(focusId)) {
         innerColor = internal::lighten_color_by(innerColor, 30);
     }
-    if (model.holdingClick) {
+    if (model.holdingClick && ctx.focus.is_focused(focusId)) {
         innerColor = internal::lighten_color_by(innerColor, 30);
     }
     ctx.render_rectangle(model.outlineArea, internal::get_yiq_contrast(mBaseColor));
@@ -49,7 +60,8 @@ bool reig::reference_widget::button::use(reig::Context& ctx) const {
 }
 
 bool reig::reference_widget::textured_button::use(reig::Context& ctx) const {
-    auto model = get_button_model(ctx, *this);
+    auto focusId = ctx.focus.create_id();
+    auto model = get_button_model(ctx, *this, focusId);
 
     int texture = mBaseTexture;
     if (model.holdingClick || model.hoveringOverArea) {
