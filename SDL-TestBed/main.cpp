@@ -217,13 +217,13 @@ private:
     }
 
     struct Window {
-        const char* title = "";
+        std::string title;
         float x = 0;
         float y = 0;
     };
 
     void start_window(Window& window) {
-        mGui.ctx.start_window(window.title, window.x, window.y);
+        mGui.ctx.start_window(window.title.c_str(), window.x, window.y);
     }
 
     void draw_gui() {
@@ -270,14 +270,14 @@ private:
         }
 
         color = color - 100_r + 100_g + 100_b;
-        rect = {rect.x + 80, rect.y, 50, 50};
+        rect = {rect.x + 80, rect.y + 50, 50, 50};
         static bool checkBox2 = true;
         if(widget::checkbox{rect, color, checkBox2}.use(mGui.ctx)) {
             std::cout << "Checkbox 2: new value " << checkBox2 << std::endl;
         }
 
         color = colors::white;
-        rect = {rect.x + 80, rect.y, 25, 25};
+        rect = {rect.x + 80, rect.y - 50, 25, 25};
         static bool checkBox3 = false;
         if(widget::checkbox{rect, color, checkBox3}.use(mGui.ctx)) {
             std::cout << "Checkbox 3: new value " << checkBox3 << std::endl;
@@ -349,7 +349,7 @@ private:
 
         rect.y += 50;
         static std::string entry2;
-        widget::entry("Entry 2", rect, colors::black, entry2, [](const std::string& input) {
+        widget::entry("Entry 2", rect, colors::black, mTextEntryWindow.title, [](const std::string& input) {
             std::cout << "Entry 2: " << input << '\n';
         }).use(mGui.ctx);
     }
