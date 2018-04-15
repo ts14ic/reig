@@ -72,9 +72,9 @@ reig::Context::FontData reig::Context::set_font(char const* fontFilePath, int te
     // If all successfull, replace current font data
     mFont.mBakedChars = move(bakedChars);
     mFont.mTextureId = textureId;
-    mFont.mWidth = bitmapWidth;
-    mFont.mHeight = height;
-    mFont.mSize = fontHeightPx;
+    mFont.mBitmapWidth = bitmapWidth;
+    mFont.mBitmapHeight = height;
+    mFont.mHeight = fontHeightPx;
 
     // Return texture creation info
     FontData ret;
@@ -86,7 +86,7 @@ reig::Context::FontData reig::Context::set_font(char const* fontFilePath, int te
 }
 
 float reig::Context::get_font_size() const {
-    return mFont.mSize;
+    return mFont.mHeight;
 }
 
 const char* reig::exception::NoRenderHandlerException::what() const noexcept {
@@ -132,7 +132,7 @@ void reig::Context::start_window(char const* aTitle, float& aX, float& aY) {
     mCurrentWindow.mY = &aY;
     mCurrentWindow.mWidth = 0;
     mCurrentWindow.mHeight = 0;
-    mCurrentWindow.mTitleBarHeight = 8 + mFont.mSize;
+    mCurrentWindow.mTitleBarHeight = 8 + mFont.mHeight;
 }
 
 void reig::Context::end_window() {
@@ -206,56 +206,61 @@ void reig::Context::fit_rect_in_window(Rectangle& rect) {
     mCurrentWindow.fit_rect(rect);
 }
 
-float reig::Context::render_text(char const* ch, Rectangle aBox, text::Alignment alignment) {
-    if (mFont.mBakedChars.empty() || !ch) return aBox.x;
+bool has_alignment(reig::text::Alignment container, reig::text::Alignment alignment) {
+    auto containerU = static_cast<unsigned>(container);
+    auto alignmentU = static_cast<unsigned>(alignment);
+    return (alignmentU & containerU) == alignmentU;
+}
 
-    aBox = internal::decrease_rect(aBox, 8);
+float reig::Context::render_text(char const* text, Rectangle aBox, text::Alignment alignment) {
+    if (mFont.mBakedChars.empty() || !text) return aBox.x;
+
+    aBox.height -= mFont.mHeight * 0.125f;
+    float fontHeight = internal::min(mFont.mHeight, aBox.height);
     float x = aBox.x;
-    float y = aBox.y + aBox.height;
+    float y = aBox.y + fontHeight;
 
     vector<stbtt_aligned_quad> quads;
     quads.reserve(20);
     float textWidth = 0.f;
 
-    char from = ' ';
-    char to = ' ' + 95;
-    char c;
+    stbtt_aligned_quad quad;
+    int from = ' ';
+    int to = from + 95; // The empty box character
+    for (int ch = *text; *text; ch = *++text) {
+        if (ch < from || ch > to) ch = to;
 
-    for (; *ch; ++ch) {
-        c = *ch;
-        if (c < from || c > to) c = to;
-
-        stbtt_aligned_quad q;
         stbtt_GetBakedQuad(
-                mFont.mBakedChars.data(),
-                mFont.mWidth, mFont.mHeight, c - ' ', &x, &y, &q, 1
+                data(mFont.mBakedChars), mFont.mBitmapWidth, mFont.mBitmapHeight,
+                ch - from, &x, &y, &quad, true
         );
-        if (q.x0 > aBox.x + aBox.width) {
+        if (quad.x0 > aBox.x + aBox.width) {
             break;
         }
-        if (q.x1 > aBox.x + aBox.width) {
-            q.x1 = aBox.x + aBox.width;
-        }
-        if (q.y0 < aBox.y) {
-            q.y0 = aBox.y;
-        }
+        quad.x1 = internal::min(quad.x1, aBox.x + aBox.width);
+        quad.y0 = internal::max(quad.y0, aBox.y);
+        quad.y1 = internal::min(quad.y1, aBox.y + aBox.height);
 
-        textWidth += mFont.mBakedChars[c - ' '].xadvance;
+        textWidth += mFont.mBakedChars[ch - from].xadvance;
 
-        quads.push_back(q);
+        quads.push_back(quad);
     }
 
-    float alignmentOffsetX = 0.0f;
-    if (alignment == text::Alignment::CENTER) {
-        alignmentOffsetX = (aBox.width - textWidth) / 2.f;
-    }
+    float horizontalAlignment =
+            has_alignment(alignment, text::Alignment::RIGHT) ? aBox.width - textWidth :
+            has_alignment(alignment, text::Alignment::LEFT) ? 0.0f :
+            (aBox.width - textWidth) * 0.5f;
+    float verticalAlignment =
+            has_alignment(alignment, text::Alignment::TOP) ? -(aBox.height - fontHeight) :
+            has_alignment(alignment, text::Alignment::BOTTOM) ? 0.0f :
+            (aBox.height - fontHeight) * -0.5f;
 
     for (auto& q : quads) {
         vector<Vertex> vertices{
-                {{q.x0 + alignmentOffsetX, q.y0}, {q.s0, q.t0}, {}},
-                {{q.x1 + alignmentOffsetX, q.y0}, {q.s1, q.t0}, {}},
-                {{q.x1 + alignmentOffsetX, q.y1}, {q.s1, q.t1}, {}},
-                {{q.x0 + alignmentOffsetX, q.y1}, {q.s0, q.t1}, {}}
+                {{q.x0 + horizontalAlignment, q.y0 + verticalAlignment}, {q.s0, q.t0}, {}},
+                {{q.x1 + horizontalAlignment, q.y0 + verticalAlignment}, {q.s1, q.t0}, {}},
+                {{q.x1 + horizontalAlignment, q.y1 + verticalAlignment}, {q.s1, q.t1}, {}},
+                {{q.x0 + horizontalAlignment, q.y1 + verticalAlignment}, {q.s0, q.t1}, {}}
         };
         vector<int> indices{0, 1, 2, 2, 3, 0};
 

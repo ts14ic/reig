@@ -4,6 +4,7 @@
 #include "defs.h"
 #include "mouse.h"
 #include "keyboard.h"
+#include "text.h"
 #include "stb_truetype.h"
 #include <vector>
 #include <any>
@@ -12,10 +13,10 @@ namespace reig {
     namespace detail {
         struct Font {
             std::vector<stbtt_bakedchar> mBakedChars;
-            float mSize = 0.f;
+            float mHeight = 0.f;
             int mTextureId = 0;
-            int mWidth = 0;
-            int mHeight = 0;
+            int mBitmapWidth = 0;
+            int mBitmapHeight = 0;
         };
 
         struct Window {
@@ -35,20 +36,6 @@ namespace reig {
              * @param rect The rectangle to accommodate
              */
             void fit_rect(primitive::Rectangle& rect);
-        };
-    }
-
-    namespace text {
-        enum class Alignment : unsigned {
-            LEFT = 1u << 0u,
-            RIGHT = 1u << 1u,
-            TOP = 1u << 2u,
-            BOTTOM = 1u << 3u,
-            TOP_LEFT = TOP | LEFT,
-            TOP_RIGHT = TOP | RIGHT,
-            BOTTOM_LEFT = BOTTOM | LEFT,
-            BOTTOM_RIGHT = BOTTOM | RIGHT,
-            CENTER = LEFT | RIGHT | TOP | BOTTOM,
         };
     }
 

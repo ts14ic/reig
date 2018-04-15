@@ -21,7 +21,7 @@ add_library(reig_lib
         lib/reig/reference_widget_list.h lib/reig/reference_widget_list.cpp
         lib/reig/reference_widget_slider.cpp
         lib/reig/reference_widget_entry.h lib/reig/reference_widget_entry.tcc
-        )
+        lib/reig/text.h)
 add_library(my::reig_lib ALIAS reig_lib)
 target_compile_features(reig_lib
         PUBLIC
