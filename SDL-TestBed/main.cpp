@@ -12,6 +12,11 @@
 #include <iomanip>
 
 using namespace std::string_literals;
+using namespace reig::primitive::colors::literals;
+using namespace reig::primitive::colors::operators;
+namespace widget = reig::reference_widget;
+namespace primitive = reig::primitive;
+namespace colors = reig::primitive::colors;
 
 struct Sdl {
     SDL_Renderer* renderer = nullptr;
@@ -39,13 +44,13 @@ public:
     }
 
     int run() {
-        int last;
+        int previousFrameTimestamp;
         std::string fpsString;
         // FPSmanager fpsManager;
         // SDL_initFramerate(&fpsManager);
         // SDL_setFramerate(&fpsManager, 60);
         while(true) {
-            last = SDL_GetTicks();
+            previousFrameTimestamp = SDL_GetTicks();
             gui.ctx.start_new_frame();
 
             if(!handle_input_events()) {
@@ -53,12 +58,6 @@ public:
             }
 
             // ================== GUI setup =================
-            using namespace reig::primitive::colors::literals;
-            using namespace reig::primitive::colors::operators;
-            namespace widget = reig::reference_widget;
-            namespace primitive = reig::primitive;
-            namespace colors = reig::primitive::colors;
-
             primitive::Rectangle rect {40, 0, 100, 30};
             primitive::Color color {120_r, 100_g, 150_b};
 
@@ -158,24 +157,7 @@ public:
 
             gui.ctx.end_window();
 
-            // ================== Render ==================== 
-            SDL_SetRenderDrawColor(sdl.renderer, 50, 50, 50, 255);
-            SDL_RenderClear(sdl.renderer);
-
-            auto ticks = SDL_GetTicks() - last;
-            if(ticks != 0) {
-                ticks = 1000 / ticks;
-                fpsString = std::to_string(ticks) + " FPS";
-            }
-            gui.ctx.render_all();
-
-            int mx, my;
-            int state = SDL_GetMouseState(&mx, &my);
-            if((state & SDL_BUTTON_LMASK) == SDL_BUTTON_LMASK) { //NOLINT
-                filledCircleRGBA(sdl.renderer, mx, my, 15, 150, 220, 220, 150);
-            }
-
-            SDL_RenderPresent(sdl.renderer);
+            render_frame(previousFrameTimestamp, fpsString);
         }
 
         return 0;
@@ -334,6 +316,26 @@ private:
         if (evt.key.keysym.mod & KMOD_SHIFT) { // NOLINT
             gui.ctx.keyboard.press_modifier(reig::KeyModifier::SHIFT);
         }
+    }
+
+    void render_frame(int& previousFrameTimestamp, std::string& fpsString) {
+        SDL_SetRenderDrawColor(sdl.renderer, 50, 50, 50, 255);
+        SDL_RenderClear(sdl.renderer);
+
+        auto ticks = SDL_GetTicks() - previousFrameTimestamp;
+        if(ticks != 0) {
+            ticks = 1000 / ticks;
+            fpsString = std::to_string(ticks) + " FPS";
+        }
+        gui.ctx.render_all();
+
+        int mx, my;
+        int state = SDL_GetMouseState(&mx, &my);
+        if((state & SDL_BUTTON_LMASK) == SDL_BUTTON_LMASK) { //NOLINT
+            filledCircleRGBA(sdl.renderer, mx, my, 15, 150, 220, 220, 150);
+        }
+
+        SDL_RenderPresent(sdl.renderer);
     }
 
 private:
