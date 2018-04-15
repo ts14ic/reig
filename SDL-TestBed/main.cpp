@@ -21,8 +21,8 @@ namespace colors = reig::primitive::colors;
 struct Sdl {
     SDL_Renderer* renderer = nullptr;
     SDL_Window* window = nullptr;
-    int width = 800;
-    int height = 600;
+    int width = 1366;
+    int height = 768;
 };
 
 struct Font {
