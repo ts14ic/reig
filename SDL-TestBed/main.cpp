@@ -34,43 +34,8 @@ struct Gui {
 class Main {
 public:
     Main() {
-        SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS);
-        sdl.window = SDL_CreateWindow(
-            "reig SDL testbed",
-            SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, //NOLINT
-            sdl.width, sdl.height,
-            SDL_WINDOW_SHOWN
-        );
-        sdl.renderer = SDL_CreateRenderer(
-            sdl.window, -1,
-            SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
-        );
-
-        gui.ctx.set_render_handler(&gui_handler);
-        gui.ctx.set_user_ptr(this);
-
-        gui.font.data = gui.ctx.set_font("/usr/share/fonts/TTF/impact.ttf", gui.font.id, 32.f);
-        auto* surf = SDL_CreateRGBSurfaceFrom(
-            gui.font.data.bitmap.data(), gui.font.data.width, gui.font.data.height, 8, gui.font.data.width,
-            0, 0, 0, 0
-        );
-        SDL_Color colors[256];
-        {
-            Uint8 v = 0;
-            for(SDL_Color& color: colors) {
-                color.r = color.g = color.b = 0xFF;
-                color.a = v++;
-            }
-        }
-        if(SDL_SetPaletteColors(surf->format->palette, colors, 0, 256) < 0) {
-            std::cerr << "Failed to set palette\n";
-            exit(1);
-        }
-        gui.font.tex = SDL_CreateTextureFromSurface(sdl.renderer, surf);
-        if(SDL_SetTextureBlendMode(gui.font.tex, SDL_BLENDMODE_BLEND) < 0) {
-            std::cerr << "Failed to set texture blend mode: ["<< SDL_GetError() << "]\n";
-            exit(0);
-        }
+        setup_sdl();
+        setup_reig();
     }
 
     int run() {
@@ -277,6 +242,49 @@ public:
         }
 
         return 0;
+    }
+
+private:
+    void setup_sdl() {
+        SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS);
+        sdl.window = SDL_CreateWindow(
+                "reig SDL testbed",
+                SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, //NOLINT
+                sdl.width, sdl.height,
+                SDL_WINDOW_SHOWN
+        );
+        sdl.renderer = SDL_CreateRenderer(
+                sdl.window, -1,
+                SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
+        );
+    }
+
+    void setup_reig() {
+        gui.ctx.set_render_handler(&gui_handler);
+        gui.ctx.set_user_ptr(this);
+
+        gui.font.data = gui.ctx.set_font("/usr/share/fonts/TTF/impact.ttf", gui.font.id, 32.f);
+        auto* surf = SDL_CreateRGBSurfaceFrom(
+                gui.font.data.bitmap.data(), gui.font.data.width, gui.font.data.height, 8, gui.font.data.width,
+                0, 0, 0, 0
+        );
+        SDL_Color colors[256];
+        {
+            Uint8 v = 0;
+            for(SDL_Color& color: colors) {
+                color.r = color.g = color.b = 0xFF;
+                color.a = v++;
+            }
+        }
+        if(SDL_SetPaletteColors(surf->format->palette, colors, 0, 256) < 0) {
+            std::cerr << "Failed to set palette\n";
+            exit(1);
+        }
+        gui.font.tex = SDL_CreateTextureFromSurface(sdl.renderer, surf);
+        if(SDL_SetTextureBlendMode(gui.font.tex, SDL_BLENDMODE_BLEND) < 0) {
+            std::cerr << "Failed to set texture blend mode: ["<< SDL_GetError() << "]\n";
+            exit(0);
+        }
     }
 
     static void gui_handler(reig::Context::DrawData const& drawData, std::any& userPtr) {
