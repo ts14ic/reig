@@ -41,79 +41,16 @@ public:
     int run() {
         int last;
         std::string fpsString;
-        bool quit = false;
         // FPSmanager fpsManager;
         // SDL_initFramerate(&fpsManager);
         // SDL_setFramerate(&fpsManager, 60);
-        while(!quit) {
+        while(true) {
             last = SDL_GetTicks();
             gui.ctx.start_new_frame();
 
-            // =================== Input polling ===============
-            for(SDL_Event evt; SDL_PollEvent(&evt);) {
-                switch(evt.type) {
-                    case SDL_QUIT: {
-                        quit = true;
-                        break;
-                    }
-
-                    case SDL_MOUSEMOTION: {
-                        gui.ctx.mouse.place(evt.motion.x, evt.motion.y);
-                        break;
-                    }
-
-                    case SDL_MOUSEWHEEL: {
-                        gui.ctx.mouse.scroll(-evt.wheel.y);
-                        break;
-                    }
-
-                    case SDL_MOUSEBUTTONDOWN: {
-                        if (evt.button.button == SDL_BUTTON_LEFT) {
-                            gui.ctx.mouse.leftButton.press(evt.button.x, evt.button.y);
-                        }
-                        break;
-                    }
-
-                    case SDL_MOUSEBUTTONUP: {
-                        if (evt.button.button == SDL_BUTTON_LEFT) {
-                            gui.ctx.mouse.leftButton.release();
-                        }
-                        break;
-                    }
-
-                    case SDL_KEYDOWN: {
-                        switch (evt.key.keysym.sym) {
-                            case SDLK_RETURN: {
-                                gui.ctx.keyboard.press_special_key(reig::Key::RETURN);
-                                break;
-                            }
-
-                            case SDLK_BACKSPACE: {
-                                gui.ctx.keyboard.press_special_key(reig::Key::BACKSPACE);
-                                break;
-                            }
-
-                            case SDLK_ESCAPE: {
-                                gui.ctx.keyboard.press_special_key(reig::Key::ESCAPE);
-                                break;
-                            }
-
-                            default: {
-                                gui.ctx.keyboard.press_key(evt.key.keysym.sym);
-                                break;
-                            }
-                        }
-                        if (evt.key.keysym.mod & KMOD_SHIFT) { // NOLINT
-                            gui.ctx.keyboard.press_modifier(reig::KeyModifier::SHIFT);
-                        }
-                        break;
-                    }
-
-                    default:;
-                }
-                if(quit) break;
+            if(!handle_input_events()) {
+                break;
             }
-            if(quit) break;
 
             // ================== GUI setup =================
             using namespace reig::primitive::colors::literals;
@@ -327,6 +264,75 @@ private:
                 dst.h = vertices[2].position.y - dst.y;
                 SDL_RenderCopy(self->sdl.renderer, self->gui.font.tex, &src, &dst);
             }
+        }
+    }
+
+    bool handle_input_events() {
+        for(SDL_Event evt; SDL_PollEvent(&evt);) {
+            switch(evt.type) {
+                case SDL_QUIT: {
+                    return false;
+                }
+
+                case SDL_MOUSEMOTION: {
+                    gui.ctx.mouse.place(evt.motion.x, evt.motion.y);
+                    break;
+                }
+
+                case SDL_MOUSEWHEEL: {
+                    gui.ctx.mouse.scroll(-evt.wheel.y);
+                    break;
+                }
+
+                case SDL_MOUSEBUTTONDOWN: {
+                    if (evt.button.button == SDL_BUTTON_LEFT) {
+                        gui.ctx.mouse.leftButton.press(evt.button.x, evt.button.y);
+                    }
+                    break;
+                }
+
+                case SDL_MOUSEBUTTONUP: {
+                    if (evt.button.button == SDL_BUTTON_LEFT) {
+                        gui.ctx.mouse.leftButton.release();
+                    }
+                    break;
+                }
+
+                case SDL_KEYDOWN: {
+                    handle_key_event(evt);
+                    break;
+                }
+
+                default:;
+            }
+        }
+        return true;
+    }
+
+    void handle_key_event(SDL_Event& evt) {
+        switch (evt.key.keysym.sym) {
+            case SDLK_RETURN: {
+                gui.ctx.keyboard.press_special_key(reig::Key::RETURN);
+                break;
+            }
+
+            case SDLK_BACKSPACE: {
+                gui.ctx.keyboard.press_special_key(reig::Key::BACKSPACE);
+                break;
+            }
+
+            case SDLK_ESCAPE: {
+                gui.ctx.keyboard.press_special_key(reig::Key::ESCAPE);
+                break;
+            }
+
+            default: {
+                gui.ctx.keyboard.press_key(evt.key.keysym.sym);
+                break;
+            }
+        }
+        if (evt.key.keysym.mod & KMOD_SHIFT) { // NOLINT
+            gui.ctx.keyboard.press_modifier(reig::KeyModifier::SHIFT);
         }
     }
 
