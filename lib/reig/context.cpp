@@ -116,6 +116,8 @@ void reig::Context::start_new_frame() {
 
     keyboard.reset();
 
+    focus.reset_counter();
+
     ++mFrameCounter;
 }
 
@@ -169,7 +171,9 @@ void reig::Context::end_window() {
     render_text(mCurrentWindow.mTitle, titleBox);
     render_rectangle(bodyBox, colors::mediumGrey | 100_a);
 
-    if (mouse.leftButton.is_pressed() && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), headerBox)) {
+    if (mouse.leftButton.is_pressed()
+        && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), headerBox)
+        && focus.claim_for_window(mCurrentWindow.mTitle)) {
         Point moved{
                 mouse.get_cursor_pos().x - mouse.leftButton.get_clicked_pos().x,
                 mouse.get_cursor_pos().y - mouse.leftButton.get_clicked_pos().y
@@ -179,6 +183,8 @@ void reig::Context::end_window() {
         *mCurrentWindow.mY += moved.y;
         mouse.leftButton.mClickedPos.x += moved.x;
         mouse.leftButton.mClickedPos.y += moved.y;
+    } else {
+        focus.release_from_window(mCurrentWindow.mTitle);
     }
 }
 

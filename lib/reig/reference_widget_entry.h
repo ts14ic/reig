@@ -16,18 +16,6 @@ namespace reig::reference_widget {
 
             void use(Context& ctx) const;
         };
-
-        struct EntryModel {
-            const Rectangle outlineArea;
-            const Rectangle baseArea;
-            const Rectangle caretArea;
-            const bool isSelected = false;
-            const bool isHoveringOverArea = false;
-            const bool isInputModified = false;
-        };
-
-        template <template <class, class> typename Entry, typename String, typename Action>
-        EntryModel get_entry_model(Context& ctx, const Entry<String, Action>& entry);
     }
 
     template <typename Char, typename Action>
