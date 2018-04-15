@@ -5,8 +5,24 @@
 #include "internal.h"
 
 namespace reig::reference_widget {
+    namespace detail {
+        struct EntryModel {
+            const Rectangle outlineArea;
+            const Rectangle baseArea;
+            const Rectangle caretArea;
+            const bool isFocused = false;
+            const bool isSelected = false;
+            const bool isHoveringOverArea = false;
+            const bool isInputModified = false;
+        };
+
+        template <template <class, class> typename Entry, typename String, typename Action>
+        EntryModel get_entry_model(Context& ctx, const Entry<String, Action>& entry);
+    }
+
     template <template <class, class> typename Entry, typename String, typename Action>
     auto detail::get_entry_model(reig::Context& ctx, const Entry<String, Action>& entry) -> EntryModel {
+        int focusId = ctx.focus.create_id();
         Rectangle outlineArea = entry.mBoundingArea;
         ctx.fit_rect_in_window(outlineArea);
 
@@ -14,8 +30,9 @@ namespace reig::reference_widget {
         Rectangle caretArea {0, baseArea.y, 0, baseArea.height};
         bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), outlineArea);
         bool clickedInArea = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
+        bool isFocused = ctx.focus.handle(focusId, clickedInArea);
         bool isInputModified = false;
-        if (clickedInArea) {
+        if (clickedInArea && isFocused) {
             baseArea = internal::decrease_rect(baseArea, 4);
 
             if ((ctx.get_frame_counter() / 30) % 2 == 0) {
@@ -53,7 +70,7 @@ namespace reig::reference_widget {
             }
         }
 
-        return EntryModel{outlineArea, baseArea, caretArea, clickedInArea, hoveringOverArea, isInputModified};
+        return EntryModel{outlineArea, baseArea, caretArea, isFocused, clickedInArea, hoveringOverArea, isInputModified};
     }
 
     template <typename Char, typename Action>
@@ -64,11 +81,11 @@ namespace reig::reference_widget {
 
         ctx.render_rectangle(model.outlineArea, secondaryColor);
         auto primaryColor = mPrimaryColor;
-        if (model.isHoveringOverArea) {
+        if (model.isHoveringOverArea && model.isFocused) {
             primaryColor = internal::lighten_color_by(primaryColor, 30);
         }
         ctx.render_rectangle(model.baseArea, primaryColor);
-        if (model.isSelected) {
+        if (model.isSelected && model.isFocused) {
             float caretX = ctx.render_text(mValueRef.c_str(), model.baseArea, text::Alignment::LEFT);
 
             Rectangle caretArea = model.caretArea;
