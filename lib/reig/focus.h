@@ -18,11 +18,11 @@ namespace reig {
 
         int create_id();
 
-        bool is_focused(int focusId) const;
-
         bool claim(int focusId);
 
         void release(int focusId);
+
+        bool handle(int focusId, bool claiming);
 
     private:
         friend Context;

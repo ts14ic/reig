@@ -5,10 +5,6 @@ namespace reig {
         return ++mFocusCounter;
     }
 
-    bool Focus::is_focused(int focusId) const {
-        return mCurrentFocus == focusId;
-    }
-
     bool Focus::claim(int focusId) {
         if (focusId > mCurrentFocus) {
             mCurrentFocus = focusId;
@@ -19,6 +15,15 @@ namespace reig {
     void Focus::release(int focusId) {
         if (mCurrentFocus == focusId) {
             mCurrentFocus = 0;
+        }
+    }
+
+    bool Focus::handle(int focusId, bool claiming) {
+        if (claiming) {
+            return claim(focusId);
+        } else {
+            release(focusId);
+            return false;
         }
     }
 

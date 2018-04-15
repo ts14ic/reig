@@ -22,15 +22,11 @@ ButtonModel get_button_model(reig::Context& ctx, const Button& button) {
 
     Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
     bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), outlineArea);
-    if (hoveringOverArea) {
-        ctx.focus.claim(focusId);
-    } else {
-        ctx.focus.release(focusId);
-    }
+    bool isFocused = ctx.focus.handle(focusId, hoveringOverArea);
 
     bool justClicked = false;
     bool holdingClick = false;
-    if (ctx.focus.is_focused(focusId)) {
+    if (isFocused) {
         bool clickedInArea = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), outlineArea);
         justClicked = ctx.mouse.leftButton.is_clicked() && clickedInArea;
         holdingClick = ctx.mouse.leftButton.is_pressed() && clickedInArea;
@@ -40,7 +36,7 @@ ButtonModel get_button_model(reig::Context& ctx, const Button& button) {
         }
     }
 
-    return {outlineArea, baseArea, ctx.focus.is_focused(focusId), hoveringOverArea, justClicked, holdingClick};
+    return {outlineArea, baseArea, isFocused, hoveringOverArea, justClicked, holdingClick};
 }
 
 bool reig::reference_widget::button::use(reig::Context& ctx) const {
@@ -83,13 +79,19 @@ struct CheckboxModel {
     Rectangle baseArea;
     Rectangle outlineArea;
     Rectangle checkArea;
+    bool isFocused = false;
+    bool hoveringOverArea = false;
     bool valueChanged = false;
 };
 
 template <typename Checkbox>
 CheckboxModel get_checkbox_model(reig::Context& ctx, const Checkbox& checkbox) {
+    int focusId = ctx.focus.create_id();
     Rectangle outlineArea = checkbox.mBoundingBox;
     ctx.fit_rect_in_window(outlineArea);
+
+    bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), outlineArea);
+    bool isFocused = ctx.focus.handle(focusId, hoveringOverArea);
 
     Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
     Rectangle checkArea = internal::decrease_rect(baseArea, 4);
@@ -98,15 +100,15 @@ CheckboxModel get_checkbox_model(reig::Context& ctx, const Checkbox& checkbox) {
                        && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
     bool holdingClick = ctx.mouse.leftButton.is_pressed()
                         && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
-    if (justClicked) {
+    if (justClicked && isFocused) {
         checkbox.mValueRef = !checkbox.mValueRef;
     }
-    if (holdingClick) {
+    if (holdingClick && isFocused) {
         baseArea = internal::decrease_rect(baseArea, 4);
         checkArea = internal::decrease_rect(checkArea, 4);
     }
 
-    return {baseArea, outlineArea, checkArea, justClicked};
+    return {baseArea, outlineArea, checkArea, isFocused, hoveringOverArea, justClicked};
 }
 
 bool reig::reference_widget::checkbox::use(reig::Context& ctx) const {
@@ -114,7 +116,10 @@ bool reig::reference_widget::checkbox::use(reig::Context& ctx) const {
 
     Color secondaryColor = internal::get_yiq_contrast(mBaseColor);
     ctx.render_rectangle(model.outlineArea, secondaryColor);
-    ctx.render_rectangle(model.baseArea, mBaseColor);
+    ctx.render_rectangle(model.baseArea,
+                         model.hoveringOverArea && model.isFocused
+                         ? internal::lighten_color_by(mBaseColor, 30)
+                         : mBaseColor);
 
     if (mValueRef) {
         ctx.render_rectangle(model.checkArea, secondaryColor);
