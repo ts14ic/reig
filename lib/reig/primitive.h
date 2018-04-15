@@ -18,6 +18,14 @@ namespace reig::primitive {
         float height = 0.0f;
     };
 
+    inline float get_x2(const Rectangle& rect) {
+        return rect.x + rect.width;
+    }
+
+    inline float get_y2(const Rectangle& rect) {
+        return rect.y + rect.height;
+    }
+
     struct Triangle {
         Point pos0;
         Point pos1;

@@ -1,8 +1,8 @@
 #include "internal.h"
 #include "context.h"
 
-bool reig::internal::is_boxed_in(Point const& pt, Rectangle const& box) {
-    return is_between(pt.x, box.x, box.x + box.width) && is_between(pt.y, box.y, box.y + box.height);
+bool reig::internal::is_boxed_in(Point const& pt, Rectangle const& rect) {
+    return is_between(pt.x, rect.x, get_x2(rect)) && is_between(pt.y, rect.y, get_y2(rect));
 }
 
 Color reig::internal::get_yiq_contrast(Color color) {

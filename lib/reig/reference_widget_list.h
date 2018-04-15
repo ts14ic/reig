@@ -46,7 +46,7 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::use(reig::Cont
     auto skippedItemCount = static_cast<int>(scrolled / fontHeight);
 
     float y = mBoundingBox.y;
-    float maxY = mBoundingBox.y + mBoundingBox.height;
+    float maxY = get_y2(mBoundingBox);
     float scrollbarWidth = 30.0f;
     for (auto it = mBegin + skippedItemCount; it != mEnd && y < maxY; ++it, y += fontHeight) {
         Rectangle itemFrameBox = {mBoundingBox.x + scrollbarWidth, y, mBoundingBox.width, fontHeight};

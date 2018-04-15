@@ -193,11 +193,11 @@ void reig::detail::Window::fit_rect(Rectangle& rect) {
         rect.x += *mX + 4;
         rect.y += *mY + mTitleBarHeight + 4;
 
-        if (*mX + mWidth < rect.x + rect.width) {
-            mWidth = rect.x + rect.width - *mX;
+        if (*mX + mWidth < get_x2(rect)) {
+            mWidth = get_x2(rect) - *mX;
         }
-        if (*mY + mHeight < rect.y + rect.height) {
-            mHeight = rect.y + rect.height - *mY;
+        if (*mY + mHeight < get_y2(rect)) {
+            mHeight = get_y2(rect) - *mY;
         }
         if (rect.x < *mX) {
             rect.x = *mX + 4;
@@ -218,13 +218,13 @@ bool has_alignment(reig::text::Alignment container, reig::text::Alignment alignm
     return (alignmentU & containerU) == alignmentU;
 }
 
-float reig::Context::render_text(char const* text, Rectangle aBox, text::Alignment alignment) {
-    if (mFont.mBakedChars.empty() || !text) return aBox.x;
+float reig::Context::render_text(char const* text, Rectangle rect, text::Alignment alignment) {
+    if (mFont.mBakedChars.empty() || !text) return rect.x;
 
-    aBox.height -= mFont.mHeight * 0.125f;
-    float fontHeight = internal::min(mFont.mHeight, aBox.height);
-    float x = aBox.x;
-    float y = aBox.y + fontHeight;
+    rect.height -= mFont.mHeight * 0.125f;
+    float fontHeight = internal::min(mFont.mHeight, rect.height);
+    float x = rect.x;
+    float y = rect.y + fontHeight;
 
     vector<stbtt_aligned_quad> quads;
     quads.reserve(20);
@@ -240,12 +240,12 @@ float reig::Context::render_text(char const* text, Rectangle aBox, text::Alignme
                 data(mFont.mBakedChars), mFont.mBitmapWidth, mFont.mBitmapHeight,
                 ch - from, &x, &y, &quad, true
         );
-        if (quad.x0 > aBox.x + aBox.width) {
+        if (quad.x0 > get_x2(rect)) {
             break;
         }
-        quad.x1 = internal::min(quad.x1, aBox.x + aBox.width);
-        quad.y0 = internal::max(quad.y0, aBox.y);
-        quad.y1 = internal::min(quad.y1, aBox.y + aBox.height);
+        quad.x1 = internal::min(quad.x1, get_x2(rect));
+        quad.y0 = internal::max(quad.y0, rect.y);
+        quad.y1 = internal::min(quad.y1, get_y2(rect));
 
         textWidth += mFont.mBakedChars[ch - from].xadvance;
 
@@ -253,13 +253,13 @@ float reig::Context::render_text(char const* text, Rectangle aBox, text::Alignme
     }
 
     float horizontalAlignment =
-            has_alignment(alignment, text::Alignment::RIGHT) ? aBox.width - textWidth :
+            has_alignment(alignment, text::Alignment::RIGHT) ? rect.width - textWidth :
             has_alignment(alignment, text::Alignment::LEFT) ? 0.0f :
-            (aBox.width - textWidth) * 0.5f;
+            (rect.width - textWidth) * 0.5f;
     float verticalAlignment =
-            has_alignment(alignment, text::Alignment::TOP) ? -(aBox.height - fontHeight) :
+            has_alignment(alignment, text::Alignment::TOP) ? -(rect.height - fontHeight) :
             has_alignment(alignment, text::Alignment::BOTTOM) ? 0.0f :
-            (aBox.height - fontHeight) * -0.5f;
+            (rect.height - fontHeight) * -0.5f;
 
     for (auto& q : quads) {
         vector<Vertex> vertices{
@@ -291,26 +291,26 @@ void reig::Context::render_triangle(Triangle const& aTri, Color const& aColor) {
     mDrawData.push_back(fig);
 }
 
-void reig::Context::render_rectangle(Rectangle const& aBox, int aTexture) {
+void reig::Context::render_rectangle(Rectangle const& rect, int textureId) {
     vector<Vertex> vertices{
-            {{aBox.x,              aBox.y},               {0.f, 0.f}, {}},
-            {{aBox.x + aBox.width, aBox.y},               {1.f, 0.f}, {}},
-            {{aBox.x + aBox.width, aBox.y + aBox.height}, {1.f, 1.f}, {}},
-            {{aBox.x,              aBox.y + aBox.height}, {0.f, 1.f}, {}}
+            {{rect.x,       rect.y},       {0.f, 0.f}, {}},
+            {{get_x2(rect), rect.y},       {1.f, 0.f}, {}},
+            {{get_x2(rect), get_y2(rect)}, {1.f, 1.f}, {}},
+            {{rect.x,       get_y2(rect)}, {0.f, 1.f}, {}}
     };
     vector<int> indices{0, 1, 2, 2, 3, 0};
 
     Figure fig;
-    fig.form(vertices, indices, aTexture);
+    fig.form(vertices, indices, textureId);
     mDrawData.push_back(fig);
 }
 
-void reig::Context::render_rectangle(Rectangle const& aRect, Color const& aColor) {
+void reig::Context::render_rectangle(Rectangle const& rect, Color const& color) {
     vector<Vertex> vertices{
-            {{aRect.x,               aRect.y},                {}, aColor},
-            {{aRect.x + aRect.width, aRect.y},                {}, aColor},
-            {{aRect.x + aRect.width, aRect.y + aRect.height}, {}, aColor},
-            {{aRect.x,               aRect.y + aRect.height}, {}, aColor}
+            {{rect.x,       rect.y},       {}, color},
+            {{get_x2(rect), rect.y},       {}, color},
+            {{get_x2(rect), get_y2(rect)}, {}, color},
+            {{rect.x,       get_y2(rect)}, {}, color}
     };
     vector<int> indices{0, 1, 2, 2, 3, 0};
 

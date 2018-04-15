@@ -116,10 +116,10 @@ namespace reig {
         /**
          * @brief Render some text
          * @param text Text to be displayed
-         * @param box Text's bounding box
+         * @param rect Text's bounding box
          * @return x coordinate after printing
          */
-        float render_text(char const* text, primitive::Rectangle box, text::Alignment alignment = text::Alignment::CENTER);
+        float render_text(char const* text, primitive::Rectangle rect, text::Alignment alignment = text::Alignment::CENTER);
 
         /**
          * @brief Schedules a rectangle drawing
@@ -131,9 +131,9 @@ namespace reig {
         /**
          * @brief Schedules a textured rectangle drawing (the texture is stretched)
          * @param rect Position and size
-         * @param texture Index to the texture
+         * @param textureId Index to the texture
          */
-        void render_rectangle(primitive::Rectangle const& rect, int texture);
+        void render_rectangle(primitive::Rectangle const& rect, int textureId);
 
         /**
          * @brief Schedules a triangle drawing
