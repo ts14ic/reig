@@ -22,7 +22,7 @@ namespace reig::reference_widget {
 
     template <template <class, class> typename Entry, typename String, typename Action>
     auto detail::get_entry_model(reig::Context& ctx, const Entry<String, Action>& entry) -> EntryModel {
-        int focusId = ctx.focus.create_id();
+        auto focusId = ctx.focus.create_id();
         Rectangle outlineArea = entry.mBoundingArea;
         ctx.fit_rect_in_window(outlineArea);
 

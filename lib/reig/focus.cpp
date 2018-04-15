@@ -1,24 +1,24 @@
 #include "focus.h"
 
 namespace reig {
-    int Focus::create_id() {
+    Focus::FocusId Focus::create_id() {
         return ++mFocusCounter;
     }
 
-    bool Focus::claim(int focusId) {
-        if (focusId > mCurrentFocus && !mFocusedWindow) {
+    bool Focus::claim(const FocusId& focusId) {
+        if (focusId.mId > mCurrentFocus.mId && !mFocusedWindow) {
             mCurrentFocus = focusId;
         }
-        return mCurrentFocus == focusId;
+        return mCurrentFocus.mId == focusId.mId;
     }
 
-    void Focus::release(int focusId) {
-        if (mCurrentFocus == focusId) {
+    void Focus::release(const FocusId& focusId) {
+        if (mCurrentFocus.mId == focusId.mId) {
             mCurrentFocus = 0;
         }
     }
 
-    bool Focus::handle(int focusId, bool claiming) {
+    bool Focus::handle(const FocusId& focusId, bool claiming) {
         if (claiming) {
             return claim(focusId);
         } else {

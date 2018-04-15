@@ -86,7 +86,7 @@ struct CheckboxModel {
 
 template <typename Checkbox>
 CheckboxModel get_checkbox_model(reig::Context& ctx, const Checkbox& checkbox) {
-    int focusId = ctx.focus.create_id();
+    auto focusId = ctx.focus.create_id();
     Rectangle outlineArea = checkbox.mBoundingBox;
     ctx.fit_rect_in_window(outlineArea);
 

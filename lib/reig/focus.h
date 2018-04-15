@@ -16,13 +16,25 @@ namespace reig {
 
         Focus& operator=(Focus&& other) noexcept = delete;
 
-        int create_id();
+        struct FocusId;
 
-        bool claim(int focusId);
+        FocusId create_id();
 
-        void release(int focusId);
+        bool claim(const FocusId& focusId);
 
-        bool handle(int focusId, bool claiming);
+        void release(const FocusId& focusId);
+
+        bool handle(const FocusId& focusId, bool claiming);
+
+        struct FocusId {
+        private:
+            /*implicit*/ FocusId(int id) { // NOLINT
+                mId = id;
+            };
+
+            friend Focus;
+            int mId;
+        };
 
     private:
         friend Context;
@@ -34,8 +46,8 @@ namespace reig {
         void release_from_window(const char* window);
 
         const char* mFocusedWindow = nullptr;
-        int mCurrentFocus = 0;
-        unsigned mFocusCounter = 0;
+        FocusId mCurrentFocus = 0;
+        int mFocusCounter = 0;
     };
 }
 
