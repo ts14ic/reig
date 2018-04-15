@@ -147,7 +147,6 @@ SliderModel get_scrollbar_model(reig::Context& ctx, const Scrollbar& scrollbar) 
     bool isFocused = ctx.focus.handle(focusId, holdingClick || hoveringOverArea);
     bool holdingClickOnSlider = ctx.mouse.leftButton.is_pressed()
                                 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea);
-
     if (isFocused) {
         if (holdingClick) {
             if (orientation == SliderOrientation::HORIZONTAL) {

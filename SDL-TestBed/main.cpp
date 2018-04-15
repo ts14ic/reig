@@ -315,7 +315,7 @@ private:
             std::cout << "Scrolled: " << scrollValue0 << '\n';
         }
 
-        rect = {rect.x + rect.width + 20, 130, 250, 280};
+        rect = {rect.x + rect.width + 20, 130, 280, 280};
         struct Foo {
             const std::string name;
         };
@@ -333,7 +333,7 @@ private:
                 }
         ).use(mGui.ctx);
 
-        rect = {0, rect.y + rect.height + 20, rect.width + 80, 30};
+        rect = {0, rect.y + rect.height + 20, rect.width + 50, 30};
         widget::scrollbar{rect, colors::black, scrollValue0, 1000.0f}.use(mGui.ctx);
     }
 
