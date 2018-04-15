@@ -98,14 +98,17 @@ CheckboxModel get_checkbox_model(reig::Context& ctx, const Checkbox& checkbox) {
 
     bool justClicked = ctx.mouse.leftButton.is_clicked()
                        && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
-    bool holdingClick = ctx.mouse.leftButton.is_pressed()
-                        && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
-    if (justClicked && isFocused) {
-        checkbox.mValueRef = !checkbox.mValueRef;
-    }
-    if (holdingClick && isFocused) {
-        baseArea = internal::decrease_rect(baseArea, 4);
-        checkArea = internal::decrease_rect(checkArea, 4);
+    if (isFocused) {
+        if (justClicked) {
+            checkbox.mValueRef = !checkbox.mValueRef;
+        }
+
+        bool holdingClick = ctx.mouse.leftButton.is_pressed()
+                            && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
+        if (holdingClick) {
+            baseArea = internal::decrease_rect(baseArea, 4);
+            checkArea = internal::decrease_rect(checkArea, 4);
+        }
     }
 
     return {baseArea, outlineArea, checkArea, isFocused, hoveringOverArea, justClicked};
