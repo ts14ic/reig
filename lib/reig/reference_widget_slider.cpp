@@ -79,12 +79,11 @@ SliderModel get_slider_model(reig::Context& ctx, const Slider& slider) {
         size_slider_cursor(cursorArea.y, cursorArea.height, values.valuesNum, values.offset);
     }
 
-    bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), outlineArea);
-    bool isFocused = ctx.focus.handle(focusId, hoveringOverArea);
-
     bool hoveringOverCursor = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), cursorArea);
+    bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), outlineArea);
     bool holdingClick = ctx.mouse.leftButton.is_pressed()
                         && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
+    bool isFocused = ctx.focus.handle(focusId, holdingClick || hoveringOverArea);
     bool holdingClickOnSlider = ctx.mouse.leftButton.is_pressed()
                                 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea);
     if (isFocused) {
@@ -142,11 +141,10 @@ SliderModel get_scrollbar_model(reig::Context& ctx, const Scrollbar& scrollbar) 
     }
 
     bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), outlineArea);
-    bool isFocused = ctx.focus.handle(focusId, hoveringOverArea);
-
     bool hoveringOverCursor = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), cursorArea);
     bool holdingClick = ctx.mouse.leftButton.is_pressed()
                         && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
+    bool isFocused = ctx.focus.handle(focusId, holdingClick || hoveringOverArea);
     bool holdingClickOnSlider = ctx.mouse.leftButton.is_pressed()
                                 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea);
 
