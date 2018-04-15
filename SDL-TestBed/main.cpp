@@ -216,80 +216,106 @@ private:
         }
     }
 
-    float winX = 10;
-    float winY = 10;
+    struct Window {
+        const char* title = "";
+        float x = 0;
+        float y = 0;
+    };
+
+    void start_window(Window& window) {
+        mGui.ctx.start_window(window.title, window.x, window.y);
+    }
 
     void draw_gui() {
-        primitive::Rectangle rect {40, 0, 100, 30};
-        primitive::Color color {120_r, 100_g, 150_b};
+        widget::label{mFpsString.c_str(), {0, 0, 100, 32}}.use(mGui.ctx);
 
-        mGui.ctx.start_window(mFpsString.c_str(), winX, winY);
-        for(int i = 0; i < 4; ++i) {
-            rect.x -= 10; rect.y = 40 * i;
+        draw_buttons();
+        draw_checkboxes();
+        draw_sliders();
+        draw_text_entries();
+    }
+
+    Window mButtonsWindow {"Buttons", 30, 30};
+    Window mCheckboxesWindow {"Checkboxes", 200, 30};
+    Window mSlidersWindow {"Sliders", 430, 30};
+    Window mTextEntryWindow {"Text entry", 30, 250};
+
+    void draw_buttons() {
+        primitive::Rectangle rect{40, 0, 100, 30};
+        primitive::Color color{120_r, 100_g, 150_b};
+
+        start_window(mButtonsWindow);
+        for (int i = 0; i < 4; ++i) {
+            rect.x -= 10;
+            rect.y = 40 * i;
             color = color + 25_r + 25_g;
             std::string title = "some  " + std::to_string(i + 1);
-//                if(mGui.ctx.enqueue(widget::textured_button{title.c_str(), rect, mGui.font.id, 0})) {
-            if(widget::button{title.c_str(), rect, color}.use(mGui.ctx)) {
+//            if(widget::textured_button{title.c_str(), rect, mGui.font.id, 0}.use(mGui.ctx)) {
+            if (widget::button{title.c_str(), rect, color}.use(mGui.ctx)) {
                 std::cout << "Button " << (i + 1) << ": pressed" << std::endl;
             }
         }
+    }
 
-        color = color + 50_g;
-        rect.y += 40; rect.width += 50;
+    void draw_checkboxes() {
+        start_window(mCheckboxesWindow);
+
+        primitive::Color color{150_r, 115_g, 140_b};
+        primitive::Rectangle rect = {0, 0, 40, 20};
+
+        static bool checkBox1 = false;
+        if(widget::checkbox{rect, color, checkBox1}.use(mGui.ctx)) {
+//        if(widget::textured_checkbox{rect, 0, mGui.font.id, checkBox1}.use(mGui.ctx)) {
+            std::cout << "Checkbox 1: new value " << checkBox1 << std::endl;
+        }
+
+        color = color - 100_r + 100_g + 100_b;
+        rect = {rect.x + 80, rect.y, 50, 50};
+        static bool checkBox2 = true;
+        if(widget::checkbox{rect, color, checkBox2}.use(mGui.ctx)) {
+            std::cout << "Checkbox 2: new value " << checkBox2 << std::endl;
+        }
+
+        color = colors::white;
+        rect = {rect.x + 80, rect.y, 25, 25};
+        static bool checkBox3 = false;
+        if(widget::checkbox{rect, color, checkBox3}.use(mGui.ctx)) {
+            std::cout << "Checkbox 3: new value " << checkBox3 << std::endl;
+        }
+    }
+
+    void draw_sliders() {
+        start_window(mSlidersWindow);
+
+        primitive::Rectangle rect{50, 0, 150, 30};
+        primitive::Color color{120_r, 150_g, 150_b};
+
         static float sliderValue0 = 20;
-//            if (mGui.ctx.enqueue(widget::slider{rect, color, sliderValue0, 20, 40, 5})) {
-        if (widget::textured_slider{rect, 0, mGui.font.id, sliderValue0, 20, 40, 5}.use(mGui.ctx)) {
+        if (widget::slider{rect, color, sliderValue0, 20, 40, 5}.use(mGui.ctx)) {
+//        if (widget::textured_slider{rect, 0, mGui.font.id, sliderValue0, 20, 40, 5}.use(mGui.ctx)) {
             std::cout << "Slider 1: new value " << sliderValue0 << std::endl;
         }
 
+        rect = {rect.x, rect.y + 40, rect.width + 50, rect.height};
         color = color + 50_g;
-        rect.y += 40;
-        rect.width += 50;
-
         static float sliderValue1 = 5.4f;
         if (widget::slider{rect, color, sliderValue1, 3, 7, 0.1f}.use(mGui.ctx)) {
             std::cout << "Slider 2: new value " << sliderValue1 << std::endl;
         }
 
+        rect = {rect.x, rect.y + 40, rect.width + 80, rect.height + 10};
         static float sliderValue2 = 0.3f;
-        rect.y += 40; rect.width += 50; rect.height += 10;
         if (widget::slider{rect, {220_r, 200_g, 150_b}, sliderValue2, 0.1f, 0.5f, 0.05f}.use(mGui.ctx)) {
             std::cout << "Slider 2: new value " << sliderValue2 << std::endl;
         }
 
-        static bool checkBox1 = false;
-        color = color + 15_r - 35_r - 10_b;
-        rect.x += 270; rect.width = 40; rect.height = 20;
-//            if(mGui.ctx.enqueue(widget::checkbox{rect, color, checkBox1})) {
-        if(widget::textured_checkbox{rect, 0, mGui.font.id, checkBox1}.use(mGui.ctx)) {
-            std::cout << "Checkbox 1: new value " << checkBox1 << std::endl;
+        rect = {0, 5, 30, 400};
+        static float scrollValue0 = 0.0f;
+        if (widget::scrollbar{rect, colors::black, scrollValue0, 1000.0f}.use(mGui.ctx)) {
+            std::cout << "Scrolled: " << scrollValue0 << '\n';
         }
 
-        static bool checkBox2 = true;
-        color = color - 100_r + 100_g + 100_b;
-        rect.y -= 100; rect.width = rect.height = 50;
-        if(widget::checkbox{rect, color, checkBox2}.use(mGui.ctx)) {
-            std::cout << "Checkbox 2: new value " << checkBox2 << std::endl;
-        }
-
-        static bool checkBox3 = false;
-        color = colors::white;
-        rect.y += 60; rect.width = rect.height = 25;
-        if(widget::checkbox{rect, color, checkBox3}.use(mGui.ctx)) {
-            std::cout << "Checkbox 3: new value " << checkBox3 << std::endl;
-        }
-
-        static float scroll1 = 0.0f;
-        rect.x += 60; rect.y = 5; rect.width = 30; rect.height = 280;
-        if(widget::scrollbar{rect, colors::black, scroll1, 1000.0f}.use(mGui.ctx)) {
-            std::cout << "Scrolled: " << scroll1 << '\n';
-        }
-
-        rect.x = 5; rect.y += 300; rect.width = 280; rect.height = 30;
-        widget::scrollbar{rect, colors::black, scroll1, 1000.0f}.use(mGui.ctx);
-
-        rect.y = 5; rect.x += 370; rect.height = 280;
-
+        rect = {rect.x + rect.width + 20, 130, 250, 280};
         struct Foo {
             const std::string name;
         };
@@ -307,16 +333,25 @@ private:
                 }
         ).use(mGui.ctx);
 
-        rect.y += 300;
-        rect.height = 40;
+        rect = {0, rect.y + rect.height + 20, rect.width + 80, 30};
+        widget::scrollbar{rect, colors::black, scrollValue0, 1000.0f}.use(mGui.ctx);
+    }
 
-        static std::string input {"Hello )"};
+    void draw_text_entries() {
+        start_window(mTextEntryWindow);
+        primitive::Rectangle rect {0, 0, 300, 40};
+        primitive::Color color {120_r, 100_g, 150_b};
 
-        widget::entry("Entry 2", rect, colors::violet, input, [](const std::string& input) {
-            std::cout << "Entry 2: " << input << '\n';
+        static std::string entry1;
+        widget::entry("Entry 1", rect, colors::violet, entry1, [](const std::string& input) {
+            std::cout << "Entry 1: " << input << '\n';
         }).use(mGui.ctx);
 
-        mGui.ctx.end_window();
+        rect.y += 50;
+        static std::string entry2;
+        widget::entry("Entry 2", rect, colors::black, entry2, [](const std::string& input) {
+            std::cout << "Entry 2: " << input << '\n';
+        }).use(mGui.ctx);
     }
 
     void render_frame(int& previousFrameTimestamp) {
