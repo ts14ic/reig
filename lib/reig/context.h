@@ -149,7 +149,7 @@ namespace reig {
 
     private:
         detail::Font mFont;
-        detail::Window mCurrentWindow;
+        std::vector<detail::Window> mWindows;
         std::vector<primitive::Figure> mDrawData;
         Config mConfig;
 

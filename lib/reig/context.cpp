@@ -100,18 +100,19 @@ void reig::Context::render_all() {
     if (!mRenderHandler) {
         throw exception::NoRenderHandlerException{};
     }
-    if (mCurrentWindow.mIsStarted) end_window();
+    if (mWindows.back().mIsStarted) end_window();
 
-    if (!mCurrentWindow.mDrawData.empty()) {
-        mRenderHandler(mCurrentWindow.mDrawData, mUserPtr);
-    }
+    // TODO: Draw all windows data
+//    if (!mCurrentWindow.mDrawData.empty()) {
+//        mRenderHandler(mCurrentWindow.mDrawData, mUserPtr);
+//    }
     if (!mDrawData.empty()) {
         mRenderHandler(mDrawData, mUserPtr);
     }
 }
 
 void reig::Context::start_new_frame() {
-    mCurrentWindow.mDrawData.clear();
+    mWindows.clear();
     mDrawData.clear();
 
     mouse.leftButton.mIsClicked = false;
@@ -129,41 +130,48 @@ unsigned reig::Context::get_frame_counter() const {
 }
 
 void reig::Context::start_window(char const* aTitle, float& aX, float& aY) {
-    if (mCurrentWindow.mIsStarted) end_window();
+    if (!mWindows.empty() && mWindows.back().mIsStarted) end_window();
 
-    mCurrentWindow.mIsStarted = true;
-    mCurrentWindow.mTitle = aTitle;
-    mCurrentWindow.mX = &aX;
-    mCurrentWindow.mY = &aY;
-    mCurrentWindow.mWidth = 0;
-    mCurrentWindow.mHeight = 0;
-    mCurrentWindow.mTitleBarHeight = 8 + mFont.mHeight;
+    detail::Window currentWindow;
+
+    currentWindow.mIsStarted = true;
+    currentWindow.mTitle = aTitle;
+    currentWindow.mX = &aX;
+    currentWindow.mY = &aY;
+    currentWindow.mWidth = 0;
+    currentWindow.mHeight = 0;
+    currentWindow.mTitleBarHeight = 8 + mFont.mHeight;
+
+    mWindows.push_back(currentWindow);
 }
 
 void reig::Context::end_window() {
-    if (!mCurrentWindow.mIsStarted) return;
-    mCurrentWindow.mIsStarted = false;
+    if (mWindows.empty() || !mWindows.back().mIsStarted) return;
 
-    mCurrentWindow.mWidth += 4;
-    mCurrentWindow.mHeight += 4;
+    detail::Window currentWindow = mWindows.back();
+
+    currentWindow.mIsStarted = false;
+
+    currentWindow.mWidth += 4;
+    currentWindow.mHeight += 4;
 
     Rectangle headerBox{
-            *mCurrentWindow.mX, *mCurrentWindow.mY,
-            mCurrentWindow.mWidth, mCurrentWindow.mTitleBarHeight
+            *currentWindow.mX, *currentWindow.mY,
+            currentWindow.mWidth, currentWindow.mTitleBarHeight
     };
     Triangle headerTriangle{
-            *mCurrentWindow.mX + 3.f, *mCurrentWindow.mY + 3.f,
-            *mCurrentWindow.mX + 3.f + mCurrentWindow.mTitleBarHeight, *mCurrentWindow.mY + 3.f,
-            *mCurrentWindow.mX + 3.f + mCurrentWindow.mTitleBarHeight / 2.f,
-            *mCurrentWindow.mY + mCurrentWindow.mTitleBarHeight - 3.f
+            *currentWindow.mX + 3.f, *currentWindow.mY + 3.f,
+            *currentWindow.mX + 3.f + currentWindow.mTitleBarHeight, *currentWindow.mY + 3.f,
+            *currentWindow.mX + 3.f + currentWindow.mTitleBarHeight / 2.f,
+            *currentWindow.mY + currentWindow.mTitleBarHeight - 3.f
     };
     Rectangle titleBox{
-            *mCurrentWindow.mX + mCurrentWindow.mTitleBarHeight + 4, *mCurrentWindow.mY + 4,
-            mCurrentWindow.mWidth - mCurrentWindow.mTitleBarHeight - 4, mCurrentWindow.mTitleBarHeight - 4
+            *currentWindow.mX + currentWindow.mTitleBarHeight + 4, *currentWindow.mY + 4,
+            currentWindow.mWidth - currentWindow.mTitleBarHeight - 4, currentWindow.mTitleBarHeight - 4
     };
     Rectangle bodyBox{
-            *mCurrentWindow.mX, *mCurrentWindow.mY + mCurrentWindow.mTitleBarHeight,
-            mCurrentWindow.mWidth, mCurrentWindow.mHeight - mCurrentWindow.mTitleBarHeight
+            *currentWindow.mX, *currentWindow.mY + currentWindow.mTitleBarHeight,
+            currentWindow.mWidth, currentWindow.mHeight - currentWindow.mTitleBarHeight
     };
 
     using namespace colors::literals;
@@ -175,7 +183,7 @@ void reig::Context::end_window() {
         render_rectangle(headerBox, mConfig.mTitleBackgroundColor);
     }
     render_triangle(headerTriangle, colors::lightGrey);
-    render_text(mCurrentWindow.mTitle, titleBox);
+    render_text(currentWindow.mTitle, titleBox);
     if (mConfig.mWindowsTextured) {
         render_rectangle(bodyBox, mConfig.mWindowBackgroundTexture);
     } else {
@@ -184,18 +192,18 @@ void reig::Context::end_window() {
 
     if (mouse.leftButton.is_pressed()
         && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), headerBox)
-        && focus.claim_for_window(mCurrentWindow.mTitle)) {
+        && focus.claim_for_window(currentWindow.mTitle)) {
         Point moved{
                 mouse.get_cursor_pos().x - mouse.leftButton.get_clicked_pos().x,
                 mouse.get_cursor_pos().y - mouse.leftButton.get_clicked_pos().y
         };
 
-        *mCurrentWindow.mX += moved.x;
-        *mCurrentWindow.mY += moved.y;
+        *currentWindow.mX += moved.x;
+        *currentWindow.mY += moved.y;
         mouse.leftButton.mClickedPos.x += moved.x;
         mouse.leftButton.mClickedPos.y += moved.y;
     } else {
-        focus.release_from_window(mCurrentWindow.mTitle);
+        focus.release_from_window(currentWindow.mTitle);
     }
 }
 
@@ -220,7 +228,9 @@ void reig::detail::Window::fit_rect(Rectangle& rect) {
 }
 
 void reig::Context::fit_rect_in_window(Rectangle& rect) {
-    mCurrentWindow.fit_rect(rect);
+    if (!mWindows.empty()) {
+        mWindows.back().fit_rect(rect);
+    }
 }
 
 bool has_alignment(reig::text::Alignment container, reig::text::Alignment alignment) {
