@@ -69,20 +69,14 @@ reig::Context::FontBitmap reig::Context::set_font(char const* fontFilePath, int 
     }
 
     using std::move;
-    // If all successfull, replace current font data
+    // If all successful, replace current font data
     mFont.mBakedChars = move(bakedChars);
     mFont.mTextureId = textureId;
     mFont.mBitmapWidth = bitmapWidth;
     mFont.mBitmapHeight = height;
     mFont.mHeight = fontHeightPx;
 
-    // Return texture creation info
-    FontBitmap ret;
-    ret.bitmap = bitmap;
-    ret.width = bitmapWidth;
-    ret.height = height;
-
-    return ret;
+    return FontBitmap{bitmap, bitmapWidth, height};
 }
 
 float reig::Context::get_font_size() const {
