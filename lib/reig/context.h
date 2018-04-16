@@ -40,13 +40,25 @@ namespace reig {
         };
     }
 
+    struct Config {
+        primitive::Color windowBackgroundColor = primitive::colors::mediumGrey;
+        uint8_t titleBarTransparency = 200;
+        uint8_t windowTransparency = 100;
+        int fontBitmapWidth = 512;
+        int fontBitmapHeight = 512;
+    };
+
     /**
      * @class Context
      * @brief Used to pump in input and request gui creation
      */
     class Context {
     public:
-        Context() = default;
+        Context();
+
+        explicit Context(const Config& config);
+
+        void set_config(const Config& config);
 
         using DrawData = std::vector<primitive::Figure>;
         using RenderHandler = void (*)(DrawData const&, std::any&);
@@ -146,6 +158,7 @@ namespace reig {
         detail::Font mFont;
         detail::Window mCurrentWindow;
         std::vector<primitive::Figure> mDrawData;
+        Config mConfig;
 
         RenderHandler mRenderHandler = nullptr;
         std::any mUserPtr;
