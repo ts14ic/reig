@@ -226,16 +226,20 @@ float reig::Context::render_text(char const* text, const Rectangle rect, text::A
 
     vector<stbtt_aligned_quad> quads;
     quads.reserve(20);
-    stbtt_aligned_quad quad;
-    int from = ' ';
-    int to = from + 95; // The backspace character
-    for (int ch = *text; *text; ch = *++text) {
-        if (ch < from || ch > to) ch = to;
 
+    int fromChar = ' ';
+    int toChar = fromChar + 95;
+    int fallbackChar = toChar; // The backspace character
+    for (int ch = *text; ch != '\0'; ch = *++text) {
+        if (!(ch >= fromChar && ch <= toChar)) {
+            ch = fallbackChar;
+        }
+
+        stbtt_aligned_quad quad;
         float previousX = x;
         stbtt_GetBakedQuad(
                 data(mFont.mBakedChars), mFont.mBitmapWidth, mFont.mBitmapHeight,
-                ch - from, &x, &y, &quad, true
+                ch - fromChar, &x, &y, &quad, true
         );
 
         float scalingHorizontalOffset = (x - previousX) * (1 - scale);
