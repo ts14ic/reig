@@ -51,7 +51,7 @@ reig::Context::FontBitmap reig::Context::set_font(char const* fontFilePath, int 
 
     auto ttfBuffer = read_font_into_buffer(fontFilePath);
 
-    // We want all ASCII chars from space to square
+    // We want all ASCII chars from space to backspace
     int const charsNum = 96;
     int bitmapWidth = 512;
     int bitmapHeight = 512;
@@ -59,13 +59,13 @@ reig::Context::FontBitmap reig::Context::set_font(char const* fontFilePath, int 
     using std::data;
     auto bakedChars = std::vector<stbtt_bakedchar>(charsNum);
     auto bitmap = vector<uint8_t>(internal::integral_cast<size_t>(bitmapWidth * bitmapHeight));
-    auto height = stbtt_BakeFontBitmap(
-            ttfBuffer.data(), 0, fontHeightPx,
-            bitmap.data(), bitmapWidth, bitmapHeight, ' ', charsNum, data(bakedChars)
-    );
 
-    if (height < 0 || height > bitmapHeight) {
+    int bakedHeight = stbtt_BakeFontBitmap(ttfBuffer.data(), 0, fontHeightPx, bitmap.data(),
+                                           bitmapWidth, bitmapHeight, ' ', charsNum, data(bakedChars));
+    if (bakedHeight < 0 || bakedHeight > bitmapHeight) {
         throw FailedToLoadFontException::couldNotFitCharacters(fontFilePath, fontHeightPx, bitmapWidth, bitmapHeight);
+    } else {
+        bitmapHeight = bakedHeight;
     }
 
     using std::move;
@@ -73,10 +73,10 @@ reig::Context::FontBitmap reig::Context::set_font(char const* fontFilePath, int 
     mFont.mBakedChars = move(bakedChars);
     mFont.mTextureId = textureId;
     mFont.mBitmapWidth = bitmapWidth;
-    mFont.mBitmapHeight = height;
+    mFont.mBitmapHeight = bitmapHeight;
     mFont.mHeight = fontHeightPx;
 
-    return FontBitmap{bitmap, bitmapWidth, height};
+    return FontBitmap{bitmap, bitmapWidth, bitmapHeight};
 }
 
 float reig::Context::get_font_size() const {
