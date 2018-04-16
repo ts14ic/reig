@@ -70,7 +70,7 @@ namespace reig {
          */
         std::any const& get_user_ptr() const;
 
-        struct FontData {
+        struct FontBitmap {
             std::vector<uint8_t> bitmap;
             int width = 0;
             int height = 0;
@@ -84,7 +84,7 @@ namespace reig {
          * @return Returns the bitmap, which is used to create a texture by user.
          * Set returned bitmap field to nullptr, to avoid deletion
          */
-        FontData set_font(char const* fontFilePath, int textureId, float fontHeightPx);
+        FontBitmap set_font(char const* fontFilePath, int textureId, float fontHeightPx);
 
         float get_font_size() const;
 

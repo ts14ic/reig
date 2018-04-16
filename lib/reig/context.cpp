@@ -43,7 +43,7 @@ vector<reig::uint8_t> read_font_into_buffer(char const* fontFilePath) {
     return ttfBuffer;
 }
 
-reig::Context::FontData reig::Context::set_font(char const* fontFilePath, int textureId, float fontHeightPx) {
+reig::Context::FontBitmap reig::Context::set_font(char const* fontFilePath, int textureId, float fontHeightPx) {
     using exception::FailedToLoadFontException;
 
     if (textureId == 0) throw FailedToLoadFontException::noTextureId(fontFilePath);
@@ -77,7 +77,7 @@ reig::Context::FontData reig::Context::set_font(char const* fontFilePath, int te
     mFont.mHeight = fontHeightPx;
 
     // Return texture creation info
-    FontData ret;
+    FontBitmap ret;
     ret.bitmap = bitmap;
     ret.width = bitmapWidth;
     ret.height = height;

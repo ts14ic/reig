@@ -26,7 +26,7 @@ struct Sdl {
 };
 
 struct Font {
-    reig::Context::FontData data;
+    reig::Context::FontBitmap data;
     SDL_Texture* tex = nullptr;
     int id = 100;
 };
