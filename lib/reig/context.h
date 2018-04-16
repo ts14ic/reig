@@ -22,14 +22,12 @@ namespace reig {
         };
 
         struct Window {
-            std::vector<primitive::Figure> mDrawData;
             char const* mTitle = nullptr;
             float* mX = nullptr;
             float* mY = nullptr;
             float mWidth = 0.f;
             float mHeight = 0.f;
             float mTitleBarHeight = 0.f;
-            bool mIsStarted = false;
 
             /**
              * Increase the window's width and height to fit rect's bottom right point

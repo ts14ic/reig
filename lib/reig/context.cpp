@@ -100,7 +100,7 @@ void reig::Context::render_all() {
     if (!mRenderHandler) {
         throw exception::NoRenderHandlerException{};
     }
-    if (mWindows.back().mIsStarted) end_window();
+    end_window();
 
     if (!mDrawData.empty()) {
         using std::move;
@@ -131,11 +131,10 @@ unsigned reig::Context::get_frame_counter() const {
 }
 
 void reig::Context::start_window(char const* aTitle, float& aX, float& aY) {
-    if (!mWindows.empty() && mWindows.back().mIsStarted) end_window();
+    if (!mWindows.empty()) end_window();
 
     detail::Window currentWindow;
 
-    currentWindow.mIsStarted = true;
     currentWindow.mTitle = aTitle;
     currentWindow.mX = &aX;
     currentWindow.mY = &aY;
@@ -183,11 +182,9 @@ void reig::Context::render_windows() {
 }
 
 void reig::Context::end_window() {
-    if (mWindows.empty() || !mWindows.back().mIsStarted) return;
+    if (mWindows.empty()) return;
 
     detail::Window currentWindow = mWindows.back();
-
-    currentWindow.mIsStarted = false;
 
     currentWindow.mWidth += 4;
     currentWindow.mHeight += 4;
@@ -215,22 +212,20 @@ void reig::Context::end_window() {
 }
 
 void reig::detail::Window::fit_rect(Rectangle& rect) {
-    if (mIsStarted) {
-        rect.x += *mX + 4;
-        rect.y += *mY + mTitleBarHeight + 4;
+    rect.x += *mX + 4;
+    rect.y += *mY + mTitleBarHeight + 4;
 
-        if (*mX + mWidth < get_x2(rect)) {
-            mWidth = get_x2(rect) - *mX;
-        }
-        if (*mY + mHeight < get_y2(rect)) {
-            mHeight = get_y2(rect) - *mY;
-        }
-        if (rect.x < *mX) {
-            rect.x = *mX + 4;
-        }
-        if (rect.y < *mY) {
-            rect.y = *mY + 4;
-        }
+    if (*mX + mWidth < get_x2(rect)) {
+        mWidth = get_x2(rect) - *mX;
+    }
+    if (*mY + mHeight < get_y2(rect)) {
+        mHeight = get_y2(rect) - *mY;
+    }
+    if (rect.x < *mX) {
+        rect.x = *mX + 4;
+    }
+    if (rect.y < *mY) {
+        rect.y = *mY + 4;
     }
 }
 
