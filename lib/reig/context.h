@@ -6,6 +6,7 @@
 #include "keyboard.h"
 #include "text.h"
 #include "focus.h"
+#include "config.h"
 #include "stb_truetype.h"
 #include <vector>
 #include <any>
@@ -46,7 +47,11 @@ namespace reig {
      */
     class Context {
     public:
-        Context() = default;
+        Context();
+
+        explicit Context(const Config& config);
+
+        void set_config(const Config& config);
 
         using DrawData = std::vector<primitive::Figure>;
         using RenderHandler = void (*)(DrawData const&, std::any&);
@@ -146,6 +151,7 @@ namespace reig {
         detail::Font mFont;
         detail::Window mCurrentWindow;
         std::vector<primitive::Figure> mDrawData;
+        Config mConfig;
 
         RenderHandler mRenderHandler = nullptr;
         std::any mUserPtr;

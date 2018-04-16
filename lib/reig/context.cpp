@@ -12,6 +12,15 @@ using std::vector;
 using namespace reig::primitive;
 namespace internal = reig::internal;
 
+reig::Context::Context() : mConfig{Config::builder().build()} {}
+
+reig::Context::Context(const reig::Config& config)
+        : mConfig{config} {}
+
+void reig::Context::set_config(const reig::Config& config) {
+    mConfig = config;
+}
+
 void reig::Context::set_render_handler(RenderHandler renderHandler) {
     mRenderHandler = renderHandler;
 }
@@ -53,8 +62,8 @@ reig::Context::FontBitmap reig::Context::set_font(char const* fontFilePath, int 
 
     // We want all ASCII chars from space to backspace
     int const charsNum = 96;
-    int bitmapWidth = 512;
-    int bitmapHeight = 512;
+    int bitmapWidth = mConfig.mFontBitmapWidth;
+    int bitmapHeight = mConfig.mFontBitmapHeight;
 
     using std::data;
     auto bakedChars = std::vector<stbtt_bakedchar>(charsNum);
@@ -160,10 +169,18 @@ void reig::Context::end_window() {
     using namespace colors::literals;
     using namespace colors::operators;
 
-    render_rectangle(headerBox, colors::mediumGrey | 200_a);
+    if (mConfig.mWindowsTextured) {
+        render_rectangle(headerBox, mConfig.mTitleBackgroundTexture);
+    } else {
+        render_rectangle(headerBox, mConfig.mTitleBackgroundColor);
+    }
     render_triangle(headerTriangle, colors::lightGrey);
     render_text(mCurrentWindow.mTitle, titleBox);
-    render_rectangle(bodyBox, colors::mediumGrey | 100_a);
+    if (mConfig.mWindowsTextured) {
+        render_rectangle(bodyBox, mConfig.mWindowBackgroundTexture);
+    } else {
+        render_rectangle(bodyBox, mConfig.mWindowBackgroundColor);
+    }
 
     if (mouse.leftButton.is_pressed()
         && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), headerBox)
