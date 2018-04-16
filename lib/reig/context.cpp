@@ -263,7 +263,6 @@ float reig::Context::render_text(char const* text, const Rectangle rect, text::A
         }
         quad.x1 = internal::min(quad.x1, get_x2(rect));
         quad.y0 = internal::max(quad.y0, rect.y);
-        quad.y1 = internal::min(quad.y1, get_y2(rect));
 
         quads.push_back(quad);
     }
