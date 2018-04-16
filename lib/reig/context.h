@@ -119,7 +119,7 @@ namespace reig {
          * @param rect Text's bounding box
          * @return x coordinate after printing
          */
-        float render_text(char const* text, primitive::Rectangle rect, text::Alignment alignment = text::Alignment::CENTER);
+        float render_text(char const* text, primitive::Rectangle rect, text::Alignment alignment = text::Alignment::CENTER, float scale = 1.f);
 
         /**
          * @brief Schedules a rectangle drawing

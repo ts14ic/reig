@@ -2,6 +2,7 @@
 #define REIG_REFERENCE_WIDGET_H
 
 #include "fwd.h"
+#include "text.h"
 #include "primitive.h"
 
 namespace reig::reference_widget {
@@ -40,6 +41,9 @@ namespace reig::reference_widget {
     struct label {
         char const* mTitle = "";
         primitive::Rectangle mBoundingBox;
+        text::Alignment mAlignment = text::Alignment::CENTER;
+        float mFontScale = 1.f;
+
         /**
          * @brief Render a label, which will be enclosed in the current window, if any
          * @param text Text to be displayed

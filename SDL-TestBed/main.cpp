@@ -226,8 +226,11 @@ private:
         mGui.ctx.start_window(window.title.c_str(), window.x, window.y);
     }
 
+    float mFontScale = 1.0f;
+
     void draw_gui() {
-        widget::label{mFpsString.c_str(), {0, 0, 100, 32}}.use(mGui.ctx);
+        widget::slider{{0, 80, 300, 32}, colors::green, mFontScale, 0.0f, 2.0f, 0.05f}.use(mGui.ctx);
+        widget::label{mFpsString.c_str(), {0, 0, 200, 32}, reig::text::Alignment::CENTER, mFontScale}.use(mGui.ctx);
 
         draw_buttons();
         draw_checkboxes();

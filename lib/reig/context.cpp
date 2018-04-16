@@ -221,10 +221,8 @@ bool has_alignment(reig::text::Alignment container, reig::text::Alignment alignm
 float reig::Context::render_text(char const* text, Rectangle rect, text::Alignment alignment) {
     if (mFont.mBakedChars.empty() || !text) return rect.x;
 
-    rect.height -= mFont.mHeight * 0.125f;
-    float fontHeight = internal::min(mFont.mHeight, rect.height);
     float x = rect.x;
-    float y = rect.y + fontHeight;
+    float y = rect.y + rect.height;
 
     vector<stbtt_aligned_quad> quads;
     quads.reserve(20);
@@ -235,10 +233,17 @@ float reig::Context::render_text(char const* text, Rectangle rect, text::Alignme
     for (int ch = *text; *text; ch = *++text) {
         if (ch < from || ch > to) ch = to;
 
+        float previousX = x;
         stbtt_GetBakedQuad(
                 data(mFont.mBakedChars), mFont.mBitmapWidth, mFont.mBitmapHeight,
                 ch - from, &x, &y, &quad, true
         );
+
+        float scalingHorizontalOffset = (x - previousX) * (1 - scale);
+        x -= scalingHorizontalOffset;
+        quad.x1 = x;
+        quad.y0 += (quad.y1 - quad.y0) * (1 - scale);
+
         if (quad.x0 > get_x2(rect)) {
             break;
         }
