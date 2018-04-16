@@ -241,6 +241,9 @@ float reig::Context::render_text(char const* text, const Rectangle rect, text::A
     float x = rect.x;
     float y = rect.y + rect.height;
 
+    float minY = y;
+    float maxY = y;
+
     vector<stbtt_aligned_quad> quads;
     quads.reserve(20);
 
@@ -264,9 +267,13 @@ float reig::Context::render_text(char const* text, const Rectangle rect, text::A
         quad.x1 = internal::min(quad.x1, get_x2(rect));
         quad.y0 = internal::max(quad.y0, rect.y);
 
+        minY = internal::min(minY, quad.y0);
+        maxY = internal::max(maxY, quad.y1);
+
         quads.push_back(quad);
     }
 
+    float textHeight = maxY - minY;
     float textWidth = 0.0f;
     if (!quads.empty()) {
         textWidth = quads.back().x1 - quads.front().x0;
