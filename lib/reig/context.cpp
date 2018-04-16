@@ -228,7 +228,6 @@ float reig::Context::render_text(char const* text, Rectangle rect, text::Alignme
 
     vector<stbtt_aligned_quad> quads;
     quads.reserve(20);
-    float textWidth = 0.f;
 
     stbtt_aligned_quad quad;
     int from = ' ';
@@ -247,9 +246,12 @@ float reig::Context::render_text(char const* text, Rectangle rect, text::Alignme
         quad.y0 = internal::max(quad.y0, rect.y);
         quad.y1 = internal::min(quad.y1, get_y2(rect));
 
-        textWidth += mFont.mBakedChars[ch - from].xadvance;
-
         quads.push_back(quad);
+    }
+
+    float textWidth = 0.0f;
+    if (!quads.empty()) {
+        textWidth = quads.back().x1 - quads.front().x0;
     }
 
     float horizontalAlignment =
