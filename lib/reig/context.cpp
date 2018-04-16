@@ -218,7 +218,7 @@ bool has_alignment(reig::text::Alignment container, reig::text::Alignment alignm
     return (alignmentU & containerU) == alignmentU;
 }
 
-float reig::Context::render_text(char const* text, Rectangle rect, text::Alignment alignment) {
+float reig::Context::render_text(char const* text, const Rectangle rect, text::Alignment alignment, float scale) {
     if (mFont.mBakedChars.empty() || !text) return rect.x;
 
     float x = rect.x;
@@ -226,10 +226,9 @@ float reig::Context::render_text(char const* text, Rectangle rect, text::Alignme
 
     vector<stbtt_aligned_quad> quads;
     quads.reserve(20);
-
     stbtt_aligned_quad quad;
     int from = ' ';
-    int to = from + 95; // The empty box character
+    int to = from + 95; // The backspace character
     for (int ch = *text; *text; ch = *++text) {
         if (ch < from || ch > to) ch = to;
 
