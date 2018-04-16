@@ -43,7 +43,7 @@ vector<reig::uint8_t> read_font_into_buffer(char const* fontFilePath) {
     return ttfBuffer;
 }
 
-reig::Context::FontData reig::Context::set_font(char const* fontFilePath, int textureId, float fontHeightPx) {
+reig::Context::FontBitmap reig::Context::set_font(char const* fontFilePath, int textureId, float fontHeightPx) {
     using exception::FailedToLoadFontException;
 
     if (textureId == 0) throw FailedToLoadFontException::noTextureId(fontFilePath);
@@ -51,7 +51,7 @@ reig::Context::FontData reig::Context::set_font(char const* fontFilePath, int te
 
     auto ttfBuffer = read_font_into_buffer(fontFilePath);
 
-    // We want all ASCII chars from space to square
+    // We want all ASCII chars from space to backspace
     int const charsNum = 96;
     int bitmapWidth = 512;
     int bitmapHeight = 512;
@@ -59,30 +59,24 @@ reig::Context::FontData reig::Context::set_font(char const* fontFilePath, int te
     using std::data;
     auto bakedChars = std::vector<stbtt_bakedchar>(charsNum);
     auto bitmap = vector<uint8_t>(internal::integral_cast<size_t>(bitmapWidth * bitmapHeight));
-    auto height = stbtt_BakeFontBitmap(
-            ttfBuffer.data(), 0, fontHeightPx,
-            bitmap.data(), bitmapWidth, bitmapHeight, ' ', charsNum, data(bakedChars)
-    );
 
-    if (height < 0 || height > bitmapHeight) {
+    int bakedHeight = stbtt_BakeFontBitmap(ttfBuffer.data(), 0, fontHeightPx, bitmap.data(),
+                                           bitmapWidth, bitmapHeight, ' ', charsNum, data(bakedChars));
+    if (bakedHeight < 0 || bakedHeight > bitmapHeight) {
         throw FailedToLoadFontException::couldNotFitCharacters(fontFilePath, fontHeightPx, bitmapWidth, bitmapHeight);
+    } else {
+        bitmapHeight = bakedHeight;
     }
 
     using std::move;
-    // If all successfull, replace current font data
+    // If all successful, replace current font data
     mFont.mBakedChars = move(bakedChars);
     mFont.mTextureId = textureId;
     mFont.mBitmapWidth = bitmapWidth;
-    mFont.mBitmapHeight = height;
+    mFont.mBitmapHeight = bitmapHeight;
     mFont.mHeight = fontHeightPx;
 
-    // Return texture creation info
-    FontData ret;
-    ret.bitmap = bitmap;
-    ret.width = bitmapWidth;
-    ret.height = height;
-
-    return ret;
+    return FontBitmap{bitmap, bitmapWidth, bitmapHeight};
 }
 
 float reig::Context::get_font_size() const {
@@ -218,28 +212,49 @@ bool has_alignment(reig::text::Alignment container, reig::text::Alignment alignm
     return (alignmentU & containerU) == alignmentU;
 }
 
-float reig::Context::render_text(char const* text, Rectangle rect, text::Alignment alignment) {
+inline stbtt_aligned_quad get_char_quad(int charIndex, float& x, float& y, const reig::detail::Font& font) {
+    stbtt_aligned_quad quad;
+    stbtt_GetBakedQuad(data(font.mBakedChars), font.mBitmapWidth, font.mBitmapHeight, charIndex, &x, &y, &quad, true);
+    return quad;
+}
+
+inline Point scale_quad(stbtt_aligned_quad& quad, float scale, float x, float previousX) {
+    float antiScale = 1.0f - scale;
+
+    float scalingHorizontalOffset = (x - previousX) * antiScale;
+    quad.x1 -= scalingHorizontalOffset;
+    float scalingVerticalOffset = (quad.y1 - quad.y0) * antiScale;
+    quad.y0 += scalingVerticalOffset;
+
+    return Point{scalingHorizontalOffset, scalingVerticalOffset};
+}
+
+float reig::Context::render_text(char const* text, const Rectangle rect, text::Alignment alignment, float scale) {
     if (mFont.mBakedChars.empty() || !text) return rect.x;
 
-    rect.height -= mFont.mHeight * 0.125f;
-    float fontHeight = internal::min(mFont.mHeight, rect.height);
     float x = rect.x;
-    float y = rect.y + fontHeight;
+    float y = rect.y + rect.height;
+
+    float minY = y;
+    float maxY = y;
 
     vector<stbtt_aligned_quad> quads;
     quads.reserve(20);
-    float textWidth = 0.f;
 
-    stbtt_aligned_quad quad;
-    int from = ' ';
-    int to = from + 95; // The empty box character
-    for (int ch = *text; *text; ch = *++text) {
-        if (ch < from || ch > to) ch = to;
+    int fromChar = ' ';
+    int toChar = fromChar + 95;
+    int fallbackChar = toChar; // The backspace character
+    for (int ch = *text; ch != '\0'; ch = *++text) {
+        if (!(ch >= fromChar && ch <= toChar)) {
+            ch = fallbackChar;
+        }
 
-        stbtt_GetBakedQuad(
-                data(mFont.mBakedChars), mFont.mBitmapWidth, mFont.mBitmapHeight,
-                ch - from, &x, &y, &quad, true
-        );
+        float previousX = x;
+        auto quad = get_char_quad(ch - fromChar, x, y, mFont);
+
+        auto scalingOffsets = scale_quad(quad, scale, x, previousX);
+        x -= scalingOffsets.x;
+
         if (quad.x0 > get_x2(rect)) {
             break;
         }
@@ -247,9 +262,16 @@ float reig::Context::render_text(char const* text, Rectangle rect, text::Alignme
         quad.y0 = internal::max(quad.y0, rect.y);
         quad.y1 = internal::min(quad.y1, get_y2(rect));
 
-        textWidth += mFont.mBakedChars[ch - from].xadvance;
+        minY = internal::min(minY, quad.y0);
+        maxY = internal::max(maxY, quad.y1);
 
         quads.push_back(quad);
+    }
+
+    float textHeight = maxY - minY;
+    float textWidth = 0.0f;
+    if (!quads.empty()) {
+        textWidth = quads.back().x1 - quads.front().x0;
     }
 
     float horizontalAlignment =
@@ -257,9 +279,9 @@ float reig::Context::render_text(char const* text, Rectangle rect, text::Alignme
             has_alignment(alignment, text::Alignment::LEFT) ? 0.0f :
             (rect.width - textWidth) * 0.5f;
     float verticalAlignment =
-            has_alignment(alignment, text::Alignment::TOP) ? -(rect.height - fontHeight) :
+            has_alignment(alignment, text::Alignment::TOP) ? -(rect.height - textHeight) :
             has_alignment(alignment, text::Alignment::BOTTOM) ? 0.0f :
-            (rect.height - fontHeight) * -0.5f;
+            (rect.height - textHeight) * -0.5f;
 
     for (auto& q : quads) {
         vector<Vertex> vertices{

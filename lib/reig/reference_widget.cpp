@@ -72,7 +72,7 @@ bool reig::reference_widget::textured_button::use(reig::Context& ctx) const {
 void reig::reference_widget::label::use(reig::Context& ctx) const {
     Rectangle boundingBox = this->mBoundingBox;
     ctx.fit_rect_in_window(boundingBox);
-    ctx.render_text(mTitle, boundingBox);
+    ctx.render_text(mTitle, boundingBox, mAlignment, mFontScale);
 }
 
 struct CheckboxModel {
