@@ -218,6 +218,12 @@ bool has_alignment(reig::text::Alignment container, reig::text::Alignment alignm
     return (alignmentU & containerU) == alignmentU;
 }
 
+stbtt_aligned_quad get_char_quad(int charIndex, float& x, float& y, const reig::detail::Font& font) {
+    stbtt_aligned_quad quad;
+    stbtt_GetBakedQuad(data(font.mBakedChars), font.mBitmapWidth, font.mBitmapHeight, charIndex, &x, &y, &quad, true);
+    return quad;
+}
+
 float reig::Context::render_text(char const* text, const Rectangle rect, text::Alignment alignment, float scale) {
     if (mFont.mBakedChars.empty() || !text) return rect.x;
 
@@ -235,12 +241,8 @@ float reig::Context::render_text(char const* text, const Rectangle rect, text::A
             ch = fallbackChar;
         }
 
-        stbtt_aligned_quad quad;
         float previousX = x;
-        stbtt_GetBakedQuad(
-                data(mFont.mBakedChars), mFont.mBitmapWidth, mFont.mBitmapHeight,
-                ch - fromChar, &x, &y, &quad, true
-        );
+        auto quad = get_char_quad(ch - fromChar, x, y, mFont);
 
         float scalingHorizontalOffset = (x - previousX) * (1 - scale);
         x -= scalingHorizontalOffset;
