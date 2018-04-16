@@ -232,8 +232,10 @@ private:
         widget::label{mFpsString.c_str(), {0, 0, 128, 32}, reig::text::Alignment::CENTER}.use(mGui.ctx);
 
         widget::slider{{350, 680, 300, 20}, colors::green, mFontScale, 0.0f, 2.0f, 0.05f}.use(mGui.ctx);
-        widget::label{"The quick brown fox jumps over the lazy dog",
-                      {0, 700, 1000, 40}, reig::text::Alignment::CENTER, mFontScale}.use(mGui.ctx);
+        Rectangle rect{0, 700, 1000, 40};
+        mGui.ctx.render_rectangle(rect, colors::black);
+        widget::label{"The quick brown fox jumps over the lazy dog", rect,
+                      reig::text::Alignment::CENTER, mFontScale}.use(mGui.ctx);
 
         draw_buttons();
         draw_checkboxes();
