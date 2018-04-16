@@ -233,7 +233,6 @@ private:
 
         widget::slider{{350, 680, 300, 20}, colors::green, mFontScale, 0.0f, 2.0f, 0.05f}.use(mGui.ctx);
         Rectangle rect{0, 700, 1000, 40};
-        mGui.ctx.render_rectangle(rect, colors::black);
         widget::label{"The quick brown fox jumps over the lazy dog", rect,
                       reig::text::Alignment::CENTER, mFontScale}.use(mGui.ctx);
 
