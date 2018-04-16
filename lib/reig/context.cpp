@@ -284,9 +284,9 @@ float reig::Context::render_text(char const* text, const Rectangle rect, text::A
             has_alignment(alignment, text::Alignment::LEFT) ? 0.0f :
             (rect.width - textWidth) * 0.5f;
     float verticalAlignment =
-            has_alignment(alignment, text::Alignment::TOP) ? -(rect.height - fontHeight) :
+            has_alignment(alignment, text::Alignment::TOP) ? -(rect.height - textHeight) :
             has_alignment(alignment, text::Alignment::BOTTOM) ? 0.0f :
-            (rect.height - fontHeight) * -0.5f;
+            (rect.height - textHeight) * -0.5f;
 
     for (auto& q : quads) {
         vector<Vertex> vertices{
