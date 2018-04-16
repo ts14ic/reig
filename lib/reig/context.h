@@ -6,6 +6,7 @@
 #include "keyboard.h"
 #include "text.h"
 #include "focus.h"
+#include "config.h"
 #include "stb_truetype.h"
 #include <vector>
 #include <any>
@@ -39,14 +40,6 @@ namespace reig {
             void fit_rect(primitive::Rectangle& rect);
         };
     }
-
-    struct Config {
-        primitive::Color windowBackgroundColor = primitive::colors::mediumGrey;
-        uint8_t titleBarTransparency = 200;
-        uint8_t windowTransparency = 100;
-        int fontBitmapWidth = 512;
-        int fontBitmapHeight = 512;
-    };
 
     /**
      * @class Context
