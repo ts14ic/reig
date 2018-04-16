@@ -148,6 +148,8 @@ namespace reig {
         void render_triangle(primitive::Triangle const& triangle, primitive::Color const& color);
 
     private:
+        void render_windows();
+
         detail::Font mFont;
         std::vector<detail::Window> mWindows;
         std::vector<primitive::Figure> mDrawData;

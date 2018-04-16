@@ -102,12 +102,13 @@ void reig::Context::render_all() {
     }
     if (mWindows.back().mIsStarted) end_window();
 
-    // TODO: Draw all windows data
-//    if (!mCurrentWindow.mDrawData.empty()) {
-//        mRenderHandler(mCurrentWindow.mDrawData, mUserPtr);
-//    }
     if (!mDrawData.empty()) {
+        using std::move;
+        auto widgetDrawData = move(mDrawData);
+        mDrawData.clear();
+        render_windows();
         mRenderHandler(mDrawData, mUserPtr);
+        mRenderHandler(widgetDrawData, mUserPtr);
     }
 }
 
@@ -145,6 +146,42 @@ void reig::Context::start_window(char const* aTitle, float& aX, float& aY) {
     mWindows.push_back(currentWindow);
 }
 
+void reig::Context::render_windows() {
+    for(const auto& currentWindow : mWindows) {
+        Rectangle headerBox{
+                *currentWindow.mX, *currentWindow.mY,
+                currentWindow.mWidth, currentWindow.mTitleBarHeight
+        };
+        Triangle headerTriangle{
+                *currentWindow.mX + 3.f, *currentWindow.mY + 3.f,
+                *currentWindow.mX + 3.f + currentWindow.mTitleBarHeight, *currentWindow.mY + 3.f,
+                *currentWindow.mX + 3.f + currentWindow.mTitleBarHeight / 2.f,
+                *currentWindow.mY + currentWindow.mTitleBarHeight - 3.f
+        };
+        Rectangle titleBox{
+                *currentWindow.mX + currentWindow.mTitleBarHeight + 4, *currentWindow.mY + 4,
+                currentWindow.mWidth - currentWindow.mTitleBarHeight - 4, currentWindow.mTitleBarHeight - 4
+        };
+        Rectangle bodyBox{
+                *currentWindow.mX, *currentWindow.mY + currentWindow.mTitleBarHeight,
+                currentWindow.mWidth, currentWindow.mHeight - currentWindow.mTitleBarHeight
+        };
+
+        if (mConfig.mWindowsTextured) {
+            render_rectangle(headerBox, mConfig.mTitleBackgroundTexture);
+        } else {
+            render_rectangle(headerBox, mConfig.mTitleBackgroundColor);
+        }
+        render_triangle(headerTriangle, colors::lightGrey);
+        render_text(currentWindow.mTitle, titleBox);
+        if (mConfig.mWindowsTextured) {
+            render_rectangle(bodyBox, mConfig.mWindowBackgroundTexture);
+        } else {
+            render_rectangle(bodyBox, mConfig.mWindowBackgroundColor);
+        }
+    }
+}
+
 void reig::Context::end_window() {
     if (mWindows.empty() || !mWindows.back().mIsStarted) return;
 
@@ -159,36 +196,6 @@ void reig::Context::end_window() {
             *currentWindow.mX, *currentWindow.mY,
             currentWindow.mWidth, currentWindow.mTitleBarHeight
     };
-    Triangle headerTriangle{
-            *currentWindow.mX + 3.f, *currentWindow.mY + 3.f,
-            *currentWindow.mX + 3.f + currentWindow.mTitleBarHeight, *currentWindow.mY + 3.f,
-            *currentWindow.mX + 3.f + currentWindow.mTitleBarHeight / 2.f,
-            *currentWindow.mY + currentWindow.mTitleBarHeight - 3.f
-    };
-    Rectangle titleBox{
-            *currentWindow.mX + currentWindow.mTitleBarHeight + 4, *currentWindow.mY + 4,
-            currentWindow.mWidth - currentWindow.mTitleBarHeight - 4, currentWindow.mTitleBarHeight - 4
-    };
-    Rectangle bodyBox{
-            *currentWindow.mX, *currentWindow.mY + currentWindow.mTitleBarHeight,
-            currentWindow.mWidth, currentWindow.mHeight - currentWindow.mTitleBarHeight
-    };
-
-    using namespace colors::literals;
-    using namespace colors::operators;
-
-    if (mConfig.mWindowsTextured) {
-        render_rectangle(headerBox, mConfig.mTitleBackgroundTexture);
-    } else {
-        render_rectangle(headerBox, mConfig.mTitleBackgroundColor);
-    }
-    render_triangle(headerTriangle, colors::lightGrey);
-    render_text(currentWindow.mTitle, titleBox);
-    if (mConfig.mWindowsTextured) {
-        render_rectangle(bodyBox, mConfig.mWindowBackgroundTexture);
-    } else {
-        render_rectangle(bodyBox, mConfig.mWindowBackgroundColor);
-    }
 
     if (mouse.leftButton.is_pressed()
         && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), headerBox)
