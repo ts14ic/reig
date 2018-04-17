@@ -39,6 +39,11 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::use(reig::Cont
     {
         Rectangle listArea = mBoundingBox;
         ctx.fit_rect_in_window(listArea);
+
+        using namespace colors::operators;
+        using namespace colors::literals;
+        ctx.render_rectangle(listArea, internal::get_yiq_contrast(mBaseColor - 50_a));
+        ctx.render_rectangle(internal::decrease_rect(listArea, 2), mBaseColor - 50_a);
     }
 
     auto& scrolled = detail::get_scroll_value(mTitle);
