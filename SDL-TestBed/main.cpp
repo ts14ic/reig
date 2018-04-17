@@ -373,7 +373,7 @@ private:
                 }
         ).use(mGui.ctx);
 
-        rect = {rect.x, rect.y + rect.height + 10, rect.width - 40, 40};
+        rect = {rect.x, rect.y + rect.height + 10, rect.width - 120, 40};
         widget::entry("Add item", rect, colors::darkGrey, itemName, [](const std::string&) {}).use(mGui.ctx);
 
         rect = {rect.x + rect.width + 5, rect.y, 30, 40};
@@ -381,6 +381,16 @@ private:
             if (!itemName.empty()) {
                 foos.push_back(Foo{itemName});
             }
+        }
+
+        rect = {rect.x + rect.width + 5, rect.y, 35, 40};
+        if (widget::button{"Cl", rect, colors::violet}.use(mGui.ctx)) {
+            itemName.clear();
+        }
+
+        rect = {rect.x + rect.width + 5, rect.y, 35, 40};
+        if (widget::button{"+", rect, colors::yellow}.use(mGui.ctx)) {
+            foos.push_back(Foo{std::to_string(foos.size())});
         }
 
         rect = {0, rect.y + rect.height + 5, 280, 40};
