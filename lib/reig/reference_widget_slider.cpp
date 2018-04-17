@@ -114,10 +114,12 @@ SliderModel get_slider_model(reig::Context& ctx, const Slider& slider) {
 
 void size_scrollbar_cursor(float& coord, float& size, float step, int offset, float viewSize) {
     float scale = size / viewSize;
-    size *= scale;
-    if (size < 1) size = 1;
-    coord += offset * step * scale;
-    size = internal::min(size, viewSize);
+    if (scale <= 1.0f) {
+        size *= scale;
+        if (size < 1) size = 1;
+        coord += offset * step * scale;
+        size = internal::min(size, viewSize);
+    }
 }
 
 SliderValues prepare_scrollbar_values(float maxScroll, float value, float step) {
