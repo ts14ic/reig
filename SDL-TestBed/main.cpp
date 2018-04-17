@@ -244,12 +244,14 @@ private:
         draw_checkboxes();
         draw_sliders();
         draw_text_entries();
+        draw_list();
     }
 
     Window mButtonsWindow {"Buttons", 30, 30};
     Window mCheckboxesWindow {"Checkboxes", 200, 30};
     Window mSlidersWindow {"Sliders", 430, 30};
     Window mTextEntryWindow {"Text entry", 30, 250};
+    Window mListWindow {"List", 800, 30};
 
     void draw_buttons() {
         primitive::Rectangle rect{40, 0, 100, 30};
@@ -320,31 +322,13 @@ private:
             std::cout << "Slider 2: new value " << sliderValue2 << std::endl;
         }
 
-        rect = {0, 5, 30, 400};
+        rect = {0, 5, 30, 200};
         static float scrollValue0 = 0.0f;
         if (widget::scrollbar{rect, colors::black, scrollValue0, 1000.0f}.use(mGui.ctx)) {
             std::cout << "Scrolled: " << scrollValue0 << '\n';
         }
 
-        rect = {rect.x + rect.width + 20, 130, 280, 280};
-        struct Foo {
-            const std::string name;
-        };
-        static std::vector<Foo> foos {
-                {"Zero"}, {"One"}, {"Two"}, {"Three"}, {"Four"}, {"Five"},
-                {"Six"}, {"Seven"}, {"Eight"}, {"Nine"}, {"Ten"}
-        };
-        widget::list(
-                "Test", rect, colors::blue, foos,
-                [](const Foo& foo) {
-                    return foo.name.c_str();
-                },
-                [](int position, const Foo& foo) {
-                    std::cout << "Clicked on " << position << "th foo: " << foo.name << '\n';
-                }
-        ).use(mGui.ctx);
-
-        rect = {0, rect.y + rect.height + 20, rect.width + 50, 30};
+        rect = {rect.x + 50, rect.y + 150, rect.width + 250, 30};
         widget::scrollbar{rect, colors::black, scrollValue0, 1000.0f}.use(mGui.ctx);
     }
 
@@ -363,6 +347,48 @@ private:
         widget::entry("Entry 2", rect, colors::black, mTextEntryWindow.title, [](const std::string& input) {
             std::cout << "Entry 2: " << input << '\n';
         }).use(mGui.ctx);
+    }
+
+    void draw_list() {
+        // assume these are members
+        struct Foo {
+            const std::string name;
+        };
+        static std::vector<Foo> foos {
+                {"Zero"}, {"One"}, {"Two"}, {"Three"}, {"Four"}, {"Five"},
+                {"Six"}, {"Seven"}, {"Eight"}, {"Nine"}, {"Ten"}
+        };
+        static std::string itemName;
+
+        start_window(mListWindow);
+
+        primitive::Rectangle rect = {0, 0, 280, 280};
+        widget::list(
+                "Test", rect, colors::blue, foos,
+                [](const Foo& foo) {
+                    return foo.name.c_str();
+                },
+                [](int position, const Foo& foo) {
+                    std::cout << "Clicked on " << position << "th foo: " << foo.name << '\n';
+                }
+        ).use(mGui.ctx);
+
+        rect = {rect.x, rect.y + rect.height + 10, rect.width - 40, 40};
+        widget::entry("Add item", rect, colors::darkGrey, itemName, [](const std::string&) {}).use(mGui.ctx);
+
+        rect = {rect.x + rect.width + 5, rect.y, 30, 40};
+        if (widget::button{"+", rect, colors::green}.use(mGui.ctx)) {
+            if (!itemName.empty()) {
+                foos.push_back(Foo{itemName});
+            }
+        }
+
+        rect = {0, rect.y + rect.height + 5, 280, 40};
+        if (widget::button{"Remove last", rect, colors::red}.use(mGui.ctx)) {
+            if (!foos.empty()) {
+                foos.pop_back();
+            }
+        }
     }
 
     void render_frame(int& previousFrameTimestamp) {
