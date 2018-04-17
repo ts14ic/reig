@@ -120,6 +120,17 @@ void size_scrollbar_cursor(float& coord, float& size, float step, int offset, fl
     size = internal::min(size, viewSize);
 }
 
+SliderValues prepare_scrollbar_values(float maxScroll, float value, float step) {
+    float min = 0.0f;
+    float max = internal::max(0.f, maxScroll);
+    float clampedValue = internal::clamp(value, min, max);
+    return SliderValues{
+            min, max, clampedValue,
+            static_cast<int>((value - min) / step),
+            static_cast<int>((max - min) / step + 1)
+    };
+}
+
 template <typename Scrollbar>
 SliderModel get_scrollbar_model(reig::Context& ctx, const Scrollbar& scrollbar) {
     auto focusId = ctx.focus.create_id();
@@ -129,7 +140,7 @@ SliderModel get_scrollbar_model(reig::Context& ctx, const Scrollbar& scrollbar) 
     Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
 
     auto step = ctx.get_font_size() / 2.0f;
-    auto values = prepare_slider_values(0.0f, scrollbar.mViewSize - baseArea.height, scrollbar.mValueRef, step);
+    auto values = prepare_scrollbar_values(scrollbar.mViewSize - baseArea.height, scrollbar.mValueRef, step);
 
     SliderOrientation orientation = calculate_slider_orientation(baseArea);
 
