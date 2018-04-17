@@ -118,6 +118,7 @@ void size_scrollbar_cursor(float& coord, float& size, float step, int offset, fl
     size *= scale;
     if (size < 1) size = 1;
     coord += offset * step * scale;
+    size = internal::min(size, viewSize);
 }
 
 template <typename Scrollbar>
