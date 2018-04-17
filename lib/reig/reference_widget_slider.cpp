@@ -97,7 +97,6 @@ SliderModel get_slider_model(reig::Context& ctx, const Slider& slider) {
             }
         } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea)) {
             values.value += static_cast<int>(ctx.mouse.get_scrolled()) * slider.mStep;
-            values.value = internal::clamp(values.value, values.min, values.max);
         }
         if (holdingClickOnSlider) {
             cursorArea = internal::decrease_rect(cursorArea, 4);
@@ -106,7 +105,7 @@ SliderModel get_slider_model(reig::Context& ctx, const Slider& slider) {
 
     bool valueChanged = false;
     if (slider.mValueRef != values.value) {
-        slider.mValueRef = values.value;
+        slider.mValueRef = internal::clamp(values.value, values.min, values.max);
         valueChanged = true;
     }
 
@@ -159,7 +158,6 @@ SliderModel get_scrollbar_model(reig::Context& ctx, const Scrollbar& scrollbar) 
             }
         } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea)) {
             values.value += static_cast<int>(ctx.mouse.get_scrolled()) * step;
-            values.value = internal::clamp(values.value, values.min, values.max);
         }
         if (holdingClickOnSlider) {
             cursorArea = internal::decrease_rect(cursorArea, 4);
@@ -168,11 +166,11 @@ SliderModel get_scrollbar_model(reig::Context& ctx, const Scrollbar& scrollbar) 
 
     bool valueChanged = false;
     if (scrollbar.mValueRef != values.value) {
-        scrollbar.mValueRef = values.value;
+        scrollbar.mValueRef = internal::clamp(values.value, values.min, values.max);
         valueChanged = true;
     }
 
-    return {baseArea, outlineArea, cursorArea, hoveringOverCursor, holdingClickOnSlider, valueChanged};
+    return {baseArea, outlineArea, cursorArea, isFocused, hoveringOverCursor, holdingClickOnSlider, valueChanged};
 }
 
 template <typename Slider>
