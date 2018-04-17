@@ -28,6 +28,10 @@ namespace reig {
     }
 
     void Focus::reset_counter() {
+        // FIXME: I'm a dirty hack
+        if (mCurrentFocus.mId > mFocusCounter) {
+            mCurrentFocus = 0;
+        }
         mFocusCounter = 0;
     }
 

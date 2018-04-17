@@ -97,7 +97,6 @@ SliderModel get_slider_model(reig::Context& ctx, const Slider& slider) {
             }
         } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea)) {
             values.value += static_cast<int>(ctx.mouse.get_scrolled()) * slider.mStep;
-            values.value = internal::clamp(values.value, values.min, values.max);
         }
         if (holdingClickOnSlider) {
             cursorArea = internal::decrease_rect(cursorArea, 4);
@@ -106,7 +105,7 @@ SliderModel get_slider_model(reig::Context& ctx, const Slider& slider) {
 
     bool valueChanged = false;
     if (slider.mValueRef != values.value) {
-        slider.mValueRef = values.value;
+        slider.mValueRef = internal::clamp(values.value, values.min, values.max);
         valueChanged = true;
     }
 
@@ -115,9 +114,23 @@ SliderModel get_slider_model(reig::Context& ctx, const Slider& slider) {
 
 void size_scrollbar_cursor(float& coord, float& size, float step, int offset, float viewSize) {
     float scale = size / viewSize;
-    size *= scale;
-    if (size < 1) size = 1;
-    coord += offset * step * scale;
+    if (scale <= 1.0f) {
+        size *= scale;
+        if (size < 1) size = 1;
+        coord += offset * step * scale;
+        size = internal::min(size, viewSize);
+    }
+}
+
+SliderValues prepare_scrollbar_values(float maxScroll, float value, float step) {
+    float min = 0.0f;
+    float max = internal::max(0.f, maxScroll);
+    float clampedValue = internal::clamp(value, min, max);
+    return SliderValues{
+            min, max, clampedValue,
+            static_cast<int>((value - min) / step),
+            static_cast<int>((max - min) / step + 1)
+    };
 }
 
 template <typename Scrollbar>
@@ -129,7 +142,7 @@ SliderModel get_scrollbar_model(reig::Context& ctx, const Scrollbar& scrollbar) 
     Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
 
     auto step = ctx.get_font_size() / 2.0f;
-    auto values = prepare_slider_values(0.0f, scrollbar.mViewSize - baseArea.height, scrollbar.mValueRef, step);
+    auto values = prepare_scrollbar_values(scrollbar.mViewSize - baseArea.height, scrollbar.mValueRef, step);
 
     SliderOrientation orientation = calculate_slider_orientation(baseArea);
 
@@ -158,7 +171,6 @@ SliderModel get_scrollbar_model(reig::Context& ctx, const Scrollbar& scrollbar) 
             }
         } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea)) {
             values.value += static_cast<int>(ctx.mouse.get_scrolled()) * step;
-            values.value = internal::clamp(values.value, values.min, values.max);
         }
         if (holdingClickOnSlider) {
             cursorArea = internal::decrease_rect(cursorArea, 4);
@@ -167,11 +179,11 @@ SliderModel get_scrollbar_model(reig::Context& ctx, const Scrollbar& scrollbar) 
 
     bool valueChanged = false;
     if (scrollbar.mValueRef != values.value) {
-        scrollbar.mValueRef = values.value;
+        scrollbar.mValueRef = internal::clamp(values.value, values.min, values.max);
         valueChanged = true;
     }
 
-    return {baseArea, outlineArea, cursorArea, hoveringOverCursor, holdingClickOnSlider, valueChanged};
+    return {baseArea, outlineArea, cursorArea, isFocused, hoveringOverCursor, holdingClickOnSlider, valueChanged};
 }
 
 template <typename Slider>
