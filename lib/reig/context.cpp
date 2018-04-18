@@ -92,10 +92,6 @@ float reig::Context::get_font_size() const {
     return mFont.mHeight;
 }
 
-const char* reig::exception::NoRenderHandlerException::what() const noexcept {
-    return "No render handler specified";
-}
-
 void reig::Context::render_all() {
     if (!mRenderHandler) {
         throw exception::NoRenderHandlerException{};
