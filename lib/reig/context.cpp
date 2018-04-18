@@ -139,29 +139,27 @@ void reig::Context::handle_focus_callbacks() {
     int hoveringIdx = -1;
 
     // No callbacks are to be called on widgets, while a window is dragged
-    if (!mDraggedWindow) {
-        for (int i = 0; i < mFocusCallbacks.size(); ++i) {
-            auto& focusCallback = mFocusCallbacks[i];
+    for (int i = 0; i < mFocusCallbacks.size() && !mDraggedWindow; ++i) {
+        auto& focusCallback = mFocusCallbacks[i];
 
-            if (mouse.leftButton.is_clicked()
-                && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), focusCallback.rect)) {
-                clickedIdx = i;
-            }
+        if (mouse.leftButton.is_clicked()
+            && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), focusCallback.rect)) {
+            clickedIdx = i;
+        }
 
-            if (!mouse.leftButton.is_clicked()
-                && !mouse.leftButton.is_pressed()
-                && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), focusCallback.rect)) {
-                selectedIdx = i;
-            }
+        if (!mouse.leftButton.is_clicked()
+            && !mouse.leftButton.is_pressed()
+            && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), focusCallback.rect)) {
+            selectedIdx = i;
+        }
 
-            if (mouse.leftButton.is_pressed()
-                && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), focusCallback.rect)) {
-                holdingIdx = i;
-            }
+        if (mouse.leftButton.is_pressed()
+            && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), focusCallback.rect)) {
+            holdingIdx = i;
+        }
 
-            if (internal::is_boxed_in(mouse.get_cursor_pos(), focusCallback.rect)) {
-                hoveringIdx = i;
-            }
+        if (internal::is_boxed_in(mouse.get_cursor_pos(), focusCallback.rect)) {
+            hoveringIdx = i;
         }
     }
 
