@@ -134,8 +134,8 @@ public:
             double currentTime = glfwGetTime();
             deltaTime = currentTime - lastTime;
             lastTime = currentTime;
-            
-            ctx.start_new_frame();
+
+            ctx.start_frame();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
             glfwPollEvents();
@@ -155,15 +155,15 @@ public:
             widget::checkbox{{0, yline, 25, 25}, colors::darkGrey, check}.use(ctx);
             
             if(check) {
-                if(widget::button{"S", {31, yline, 60, 25}, colors::mediumGrey}.use(ctx)) {
+                widget::button{"S", {31, yline, 60, 25}, colors::mediumGrey}.use(ctx, []() {
                     scaling = 1.f;
-                }
-                if(widget::button{"R", {97, yline, 60, 25}, colors::mediumGrey}.use(ctx)) {
+                });
+                widget::button{"R", {97, yline, 60, 25}, colors::mediumGrey}.use(ctx, []() {
                     rotation[0] = rotation[1] = rotation[2] = 0.f;
-                }
-                if(widget::button{"C", {163, yline, 60, 25}, colors::mediumGrey}.use(ctx)) {
+                });
+                widget::button{"C", {163, yline, 60, 25}, colors::mediumGrey}.use(ctx, []() {
                     cubeColor[0] = cubeColor[1] = cubeColor[2] = 255.f;
-                }
+                });
                 
                 yline += step;
                 widget::label{"Scale:", {0, yline, 230, 25}}.use(ctx);
@@ -217,7 +217,7 @@ public:
             glBindVertexArray(0);
             shader.unuse();
 
-            ctx.render_all();
+            ctx.end_frame();
             
             glfwSwapBuffers(window);
         }
@@ -304,7 +304,7 @@ public:
         }
     }
     
-    static void render_handler(reig::Context::DrawData const& drawData, std::any& userPtr) {
+    static void render_handler(reig::DrawData const& drawData, std::any& userPtr) {
         Test* self = std::any_cast<Test*>(userPtr);
         
         struct {

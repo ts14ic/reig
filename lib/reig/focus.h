@@ -1,53 +1,25 @@
 #ifndef REIG_FOCUS_H
 #define REIG_FOCUS_H
 
-#include "fwd.h"
+#include "primitive.h"
+#include <functional>
 
 namespace reig {
-    class Focus {
-    public:
-        Focus() = default;
+    enum class Focus {
+        NONE,
+        HOVER,
+        CLICK,
+        SELECT,
+        HOLD,
+    };
 
-        Focus(const Focus& other) = delete;
+    using FocusAreaCallback_t = std::function<void(const Focus&)>;
 
-        Focus(Focus&& other) noexcept = delete;
+    struct FocusCallback {
+        FocusCallback(const primitive::Rectangle& zone, FocusAreaCallback_t callback);
 
-        Focus& operator=(const Focus& other) = delete;
-
-        Focus& operator=(Focus&& other) noexcept = delete;
-
-        struct FocusId;
-
-        FocusId create_id();
-
-        bool claim(const FocusId& focusId);
-
-        void release(const FocusId& focusId);
-
-        bool handle(const FocusId& focusId, bool claiming);
-
-        struct FocusId {
-        private:
-            /*implicit*/ FocusId(int id) { // NOLINT
-                mId = id;
-            };
-
-            friend Focus;
-            int mId;
-        };
-
-    private:
-        friend Context;
-
-        void reset_counter();
-
-        bool claim_for_window(const char* window);
-
-        void release_from_window(const char* window);
-
-        const char* mFocusedWindow = nullptr;
-        FocusId mCurrentFocus = 0;
-        int mFocusCounter = 0;
+        primitive::Rectangle rect;
+        FocusAreaCallback_t callback;
     };
 }
 

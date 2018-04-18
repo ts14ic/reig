@@ -9,6 +9,7 @@
 #include <SDL2_framerate.h>
 
 #include <iostream>
+#include <boost/format.hpp>
 #include <iomanip>
 
 using namespace std::string_literals;
@@ -47,7 +48,7 @@ public:
         int previousFrameTimestamp;
         while(true) {
             previousFrameTimestamp = SDL_GetTicks();
-            mGui.ctx.start_new_frame();
+            mGui.ctx.start_frame();
 
             if(!handle_input_events()) {
                 break;
@@ -81,8 +82,7 @@ private:
                                     .fontBitmapSizes(1024, 1024)
                                     .windowColors(colors::red | 200_a, colors::white | 50_a)
                                     .build());
-        mGui.ctx.set_render_handler(&gui_handler);
-        mGui.ctx.set_user_ptr(this);
+        mGui.ctx.set_render_handler([this](const reig::DrawData& data) { gui_handler(data); });
 
         mGui.font.data = mGui.ctx.set_font("/usr/share/fonts/TTF/impact.ttf", mGui.font.id, 20.f);
         auto* surf = SDL_CreateRGBSurfaceFrom(
@@ -108,9 +108,8 @@ private:
         }
     }
 
-    static void gui_handler(const reig::DrawData& drawData, std::any& userPtr) {
+    void gui_handler(const reig::DrawData& drawData) {
         namespace colors = reig::primitive::colors;
-        auto* self = std::any_cast<Main*>(userPtr);
 
         for(auto const& fig : drawData) {
             auto const& vertices = fig.vertices();
@@ -124,7 +123,7 @@ private:
             if(fig.texture() == 0) {
                 for(auto i = 0ul; i < number; i += 3) {
                     filledTrigonColor(
-                        self->mSdl.renderer,
+                        mSdl.renderer,
                         vertices[indices[i  ]].position.x,
                         vertices[indices[i  ]].position.y,
                         vertices[indices[i+1]].position.x,
@@ -135,18 +134,18 @@ private:
                     );
                 }
             }
-            else if(fig.texture() == self->mGui.font.id) {
+            else if(fig.texture() == mGui.font.id) {
                 SDL_Rect src;
-                src.x = vertices[0].texCoord.x * self->mGui.font.data.width;
-                src.y = vertices[0].texCoord.y * self->mGui.font.data.height;
-                src.w = vertices[2].texCoord.x * self->mGui.font.data.width  - src.x;
-                src.h = vertices[2].texCoord.y * self->mGui.font.data.height - src.y;
+                src.x = vertices[0].texCoord.x * mGui.font.data.width;
+                src.y = vertices[0].texCoord.y * mGui.font.data.height;
+                src.w = vertices[2].texCoord.x * mGui.font.data.width  - src.x;
+                src.h = vertices[2].texCoord.y * mGui.font.data.height - src.y;
                 SDL_Rect dst;
                 dst.x = vertices[0].position.x;
                 dst.y = vertices[0].position.y;
                 dst.w = vertices[2].position.x - dst.x;
                 dst.h = vertices[2].position.y - dst.y;
-                SDL_RenderCopy(self->mSdl.renderer, self->mGui.font.tex, &src, &dst);
+                SDL_RenderCopy(mSdl.renderer, mGui.font.tex, &src, &dst);
             }
         }
     }
@@ -259,14 +258,14 @@ private:
 
         start_window(mButtonsWindow);
         for (int i = 0; i < 4; ++i) {
-            rect.x -= 10;
-            rect.y = 40 * i;
+            rect = {rect.x - 10, 10.0f * i, rect.width, rect.height};
             color = color + 25_r + 25_g;
-            std::string title = "some  " + std::to_string(i + 1);
-//            if(widget::textured_button{title.c_str(), rect, mGui.font.id, 0}.use(mGui.ctx)) {
-            if (widget::button{title.c_str(), rect, color}.use(mGui.ctx)) {
-                std::cout << "Button " << (i + 1) << ": pressed" << std::endl;
-            }
+
+            std::string title = boost::str(boost::format("some %d") % (i + 1));
+
+            widget::button{title, rect, color}.use(mGui.ctx, [title]() {
+                std::cout << boost::format("Button {%s} pressed\n") % title;
+            });
         }
     }
 
@@ -277,24 +276,24 @@ private:
         primitive::Rectangle rect = {0, 0, 40, 20};
 
         static bool checkBox1 = false;
-        if(widget::checkbox{rect, color, checkBox1}.use(mGui.ctx)) {
 //        if(widget::textured_checkbox{rect, 0, mGui.font.id, checkBox1}.use(mGui.ctx)) {
+        widget::checkbox{rect, color, checkBox1}.use(mGui.ctx, []() {
             std::cout << "Checkbox 1: new value " << checkBox1 << std::endl;
-        }
+        });
 
         color = color - 100_r + 100_g + 100_b;
         rect = {rect.x + 80, rect.y + 50, 50, 50};
         static bool checkBox2 = true;
-        if(widget::checkbox{rect, color, checkBox2}.use(mGui.ctx)) {
+        widget::checkbox{rect, color, checkBox2}.use(mGui.ctx, []() {
             std::cout << "Checkbox 2: new value " << checkBox2 << std::endl;
-        }
+        });
 
         color = colors::white;
         rect = {rect.x + 80, rect.y - 50, 25, 25};
         static bool checkBox3 = false;
-        if(widget::checkbox{rect, color, checkBox3}.use(mGui.ctx)) {
+        widget::checkbox{rect, color, checkBox3}.use(mGui.ctx, []() {
             std::cout << "Checkbox 3: new value " << checkBox3 << std::endl;
-        }
+        });
     }
 
     void draw_sliders() {
@@ -304,29 +303,28 @@ private:
         primitive::Color color{120_r, 150_g, 150_b};
 
         static float sliderValue0 = 20;
-        if (widget::slider{rect, color, sliderValue0, 20, 40, 5}.use(mGui.ctx)) {
 //        if (widget::textured_slider{rect, 0, mGui.font.id, sliderValue0, 20, 40, 5}.use(mGui.ctx)) {
-            std::cout << "Slider 1: new value " << sliderValue0 << std::endl;
-        }
+        widget::slider{rect, color, sliderValue0, 20, 40, 5}.use(mGui.ctx, []() {
+            std::cout << boost::format("Slider 0: new value %.2f") % sliderValue0 << std::endl;
+        });
 
         rect = {rect.x, rect.y + 40, rect.width + 50, rect.height};
         color = color + 50_g;
         static float sliderValue1 = 5.4f;
-        if (widget::slider{rect, color, sliderValue1, 3, 7, 0.1f}.use(mGui.ctx)) {
-            std::cout << "Slider 2: new value " << sliderValue1 << std::endl;
-        }
+        widget::slider{rect, color, sliderValue1, 3, 7, 0.1f}.use(mGui.ctx, [](){
+            std::cout << "Slider 1: new value " << sliderValue1 << std::endl;
+        });
 
         rect = {rect.x, rect.y + 40, rect.width + 80, rect.height + 10};
         static float sliderValue2 = 0.3f;
-        if (widget::slider{rect, {220_r, 200_g, 150_b}, sliderValue2, 0.1f, 0.5f, 0.05f}.use(mGui.ctx)) {
+        widget::slider{rect, {220_r, 200_g, 150_b}, sliderValue2, 0.1f, 0.5f, 0.05f}.use(mGui.ctx, [](){
             std::cout << "Slider 2: new value " << sliderValue2 << std::endl;
-        }
+        });
+
+        static float scrollValue0 = 0.0f;
 
         rect = {0, 5, 30, 200};
-        static float scrollValue0 = 0.0f;
-        if (widget::scrollbar{rect, colors::black, scrollValue0, 1000.0f}.use(mGui.ctx)) {
-            std::cout << "Scrolled: " << scrollValue0 << '\n';
-        }
+        widget::scrollbar{rect, colors::black, scrollValue0, 1000.0f}.use(mGui.ctx);
 
         rect = {rect.x + 50, rect.y + 150, rect.width + 250, 30};
         widget::scrollbar{rect, colors::black, scrollValue0, 1000.0f}.use(mGui.ctx);
@@ -377,28 +375,28 @@ private:
         widget::entry("Add item", rect, colors::darkGrey, itemName, [](const std::string&) {}).use(mGui.ctx);
 
         rect = {rect.x + rect.width + 5, rect.y, 30, 40};
-        if (widget::button{"+", rect, colors::green}.use(mGui.ctx)) {
+        widget::button{"+", rect, colors::green}.use(mGui.ctx, []() {
             if (!itemName.empty()) {
                 foos.push_back(Foo{itemName});
             }
-        }
+        });
 
         rect = {rect.x + rect.width + 5, rect.y, 35, 40};
-        if (widget::button{"Cl", rect, colors::violet}.use(mGui.ctx)) {
+        widget::button{"Cl", rect, colors::violet}.use(mGui.ctx, []() {
             itemName.clear();
-        }
+        });
 
         rect = {rect.x + rect.width + 5, rect.y, 35, 40};
-        if (widget::button{"+", rect, colors::yellow}.use(mGui.ctx)) {
+        widget::button{"+", rect, colors::yellow}.use(mGui.ctx, []() {
             foos.push_back(Foo{std::to_string(foos.size())});
-        }
+        });
 
         rect = {0, rect.y + rect.height + 5, 280, 40};
-        if (widget::button{"Remove last", rect, colors::red}.use(mGui.ctx)) {
+        widget::button{"Remove last", rect, colors::red}.use(mGui.ctx, []() {
             if (!foos.empty()) {
                 foos.pop_back();
             }
-        }
+        });
     }
 
     void render_frame(int& previousFrameTimestamp) {
@@ -410,7 +408,7 @@ private:
             ticks = 1000 / ticks;
             mFpsString = std::to_string(ticks) + " FPS";
         }
-        mGui.ctx.render_all();
+        mGui.ctx.end_frame();
 
         int mx, my;
         int state = SDL_GetMouseState(&mx, &my);

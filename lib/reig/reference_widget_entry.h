@@ -9,7 +9,7 @@ namespace reig::reference_widget {
         template <typename Char, typename Action>
         struct ref_entry {
             const char* const mTitle;
-            const Rectangle& mBoundingArea;
+            const Rectangle mBoundingArea;
             const Color& mPrimaryColor;
             std::basic_string<Char>& mValueRef;
             Action& mAction;

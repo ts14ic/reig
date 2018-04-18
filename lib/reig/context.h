@@ -9,11 +9,10 @@
 #include "config.h"
 #include "stb_truetype.h"
 #include <vector>
-#include <any>
 
 namespace reig {
     using DrawData = std::vector<primitive::Figure>;
-    using RenderHandler = void (*)(const DrawData&, std::any&);
+    using RenderHandler = std::function<void(const DrawData&)>;
 
     namespace detail {
         struct Font {
@@ -61,18 +60,6 @@ namespace reig {
          */
         void set_render_handler(RenderHandler handler);
 
-        /**
-         * @brief Set a user pointer to store in the context.
-         * @param ptr A user data pointer.
-         * The pointer is then automatically passed to callbacks.
-         */
-        void set_user_ptr(std::any ptr);
-
-        /**
-         * @brief Gets the stored user pointer
-         */
-        const std::any& get_user_ptr() const;
-
         struct FontBitmap {
             std::vector<uint8_t> bitmap;
             int width = 0;
@@ -94,19 +81,20 @@ namespace reig {
         /**
          * @brief Resets draw data and inputs
          */
-        void start_new_frame();
+        void start_frame();
 
         unsigned get_frame_counter() const;
 
         /**
          * @brief Uses stored drawData and draws everything using the user handler
          */
-        void render_all();
+        void end_frame();
 
         // Inputs
         detail::Mouse mouse;
         detail::Keyboard keyboard;
-        Focus focus;
+
+        void with_focus(const primitive::Rectangle& zone, FocusAreaCallback_t callback);
 
         // Widget renders
         void start_window(char const* title, float& x, float& y);
@@ -146,18 +134,23 @@ namespace reig {
         void render_triangle(const primitive::Triangle& triangle, const primitive::Color& color);
 
     private:
+        void handle_focus_callbacks();
+
+        bool handle_window_focus(const char* window, bool claiming);
+
         void render_text_quads(const std::vector<stbtt_aligned_quad>& quads,
                                float horizontalAlignment, float verticalAlignment);
 
         void render_windows();
 
+        std::vector<FocusCallback> mFocusCallbacks;
+        const char* mDraggedWindow = nullptr;
         detail::Font mFont;
         std::vector<detail::Window> mWindows;
         std::vector<primitive::Figure> mDrawData;
         Config mConfig;
 
-        RenderHandler mRenderHandler = nullptr;
-        std::any mUserPtr;
+        RenderHandler mRenderHandler;
         unsigned mFrameCounter = 0;
     };
 }

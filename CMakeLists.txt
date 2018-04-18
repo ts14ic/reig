@@ -43,11 +43,13 @@ target_link_libraries(sdl_bed
         SDL2_gfx
         ${SDL2_LIBRARY}
         ${SDL2_IMAGE_LIBRARIES})
+find_package(Boost)
 target_include_directories(sdl_bed
         PUBLIC
         ${PROJECT_SOURCE_DIR}/lib
         ${SDL2_INCLUDE_DIR}
-        ${SDL2_IMAGE_INCLUDE_DIRS})
+        ${SDL2_IMAGE_INCLUDE_DIRS}
+        ${Boost_INCLUDE_DIRS})
 
 # Open GL 3 test bed
 # TODO: Link opengl

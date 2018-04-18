@@ -55,18 +55,63 @@ namespace reig::reference_widget {
         Rectangle baseArea;
         Rectangle outlineArea;
         Rectangle cursorArea;
-        bool isFocused = false;
         bool hoveringOverCursor = false;
         bool holdingClickOnSlider = false;
         bool valueChanged = false;
     };
 
-    template <typename Slider>
-    SliderModel get_slider_model(Context& ctx, const Slider& slider) {
-        auto focusId = ctx.focus.create_id();
-        Rectangle outlineArea = slider.mBoundingBox;
-        ctx.fit_rect_in_window(outlineArea);
+    template <typename S>
+    SliderModel get_slider_base_model(Context& ctx, const S& slider, SliderValues& values, float step,
+                                      SliderOrientation orientation, const Rectangle& outlineArea,
+                                      const Rectangle& baseArea, const Rectangle& cursorArea,
+                                      const Focus& focus) {
+        SliderModel model;
+        model.outlineArea = outlineArea;
+        model.baseArea = baseArea;
+        model.cursorArea = cursorArea;
 
+        switch (focus) {
+            case Focus::HOVER: {
+                model.hoveringOverCursor = true;
+                break;
+            }
+
+            case Focus::HOLD: {
+                model.holdingClickOnSlider = true;
+                break;
+            }
+
+            default: {
+                break;
+            }
+        }
+
+        if (model.holdingClickOnSlider) {
+            if (orientation == SliderOrientation::HORIZONTAL) {
+                progress_slider_value(ctx.mouse.get_cursor_pos().x, model.cursorArea.width, model.cursorArea.x,
+                                      values.min, values.max, step, values.value);
+            } else {
+                progress_slider_value(ctx.mouse.get_cursor_pos().y, model.cursorArea.height, model.cursorArea.y,
+                                      values.min, values.max, step, values.value);
+            }
+        } else if (ctx.mouse.get_scrolled() != 0 && model.hoveringOverCursor) {
+            values.value += static_cast<int>(ctx.mouse.get_scrolled()) * step;
+        }
+        if (model.holdingClickOnSlider) {
+            model.baseArea = internal::decrease_rect(model.baseArea, 2);
+            model.cursorArea = internal::decrease_rect(model.cursorArea, 4);
+        }
+
+        if (slider.mValueRef != values.value) {
+            slider.mValueRef = internal::clamp(values.value, values.min, values.max);
+            model.valueChanged = true;
+        }
+
+        return model;
+    }
+
+    template <typename Slider>
+    SliderModel get_slider_model(Context& ctx, const Slider& slider, const Rectangle& outlineArea, const Focus& focus) {
         Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
 
         auto values = prepare_slider_values(slider.mMin, slider.mMax, slider.mValueRef, slider.mStep);
@@ -80,37 +125,7 @@ namespace reig::reference_widget {
             size_slider_cursor(cursorArea.y, cursorArea.height, values.valuesNum, values.offset);
         }
 
-        bool hoveringOverCursor = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), cursorArea);
-        bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), outlineArea);
-        bool holdingClick = ctx.mouse.leftButton.is_pressed()
-                            && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
-        bool isFocused = ctx.focus.handle(focusId, holdingClick || hoveringOverArea);
-        bool holdingClickOnSlider = ctx.mouse.leftButton.is_pressed()
-                                    && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea);
-        if (isFocused) {
-            if (holdingClick) {
-                if (orientation == SliderOrientation::HORIZONTAL) {
-                    progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorArea.width, cursorArea.x,
-                                          values.min, values.max, slider.mStep, values.value);
-                } else {
-                    progress_slider_value(ctx.mouse.get_cursor_pos().y, cursorArea.height, cursorArea.y,
-                                          values.min, values.max, slider.mStep, values.value);
-                }
-            } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea)) {
-                values.value += static_cast<int>(ctx.mouse.get_scrolled()) * slider.mStep;
-            }
-            if (holdingClickOnSlider) {
-                cursorArea = internal::decrease_rect(cursorArea, 4);
-            }
-        }
-
-        bool valueChanged = false;
-        if (slider.mValueRef != values.value) {
-            slider.mValueRef = internal::clamp(values.value, values.min, values.max);
-            valueChanged = true;
-        }
-
-        return {baseArea, outlineArea, cursorArea, isFocused, hoveringOverCursor, holdingClickOnSlider, valueChanged};
+        return get_slider_base_model(ctx, slider, values, slider.mStep, orientation, outlineArea, baseArea, cursorArea, focus);
     }
 
     void size_scrollbar_cursor(float& coord, float& size, float step, int offset, float viewSize) {
@@ -135,11 +150,7 @@ namespace reig::reference_widget {
     }
 
     template <typename Scrollbar>
-    SliderModel get_scrollbar_model(Context& ctx, const Scrollbar& scrollbar) {
-        auto focusId = ctx.focus.create_id();
-        Rectangle outlineArea = scrollbar.mBoundingBox;
-        ctx.fit_rect_in_window(outlineArea);
-
+    SliderModel get_scrollbar_model(Context& ctx, const Scrollbar& scrollbar, const Rectangle& outlineArea, const Focus& focus) {
         Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
 
         auto step = ctx.get_font_size() / 2.0f;
@@ -154,37 +165,7 @@ namespace reig::reference_widget {
             size_scrollbar_cursor(cursorArea.y, cursorArea.height, step, values.offset, scrollbar.mViewSize);
         }
 
-        bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), outlineArea);
-        bool hoveringOverCursor = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), cursorArea);
-        bool holdingClick = ctx.mouse.leftButton.is_pressed()
-                            && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
-        bool isFocused = ctx.focus.handle(focusId, holdingClick || hoveringOverArea);
-        bool holdingClickOnSlider = ctx.mouse.leftButton.is_pressed()
-                                    && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea);
-        if (isFocused) {
-            if (holdingClick) {
-                if (orientation == SliderOrientation::HORIZONTAL) {
-                    progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorArea.width, cursorArea.x,
-                                          values.min, values.max, step, values.value);
-                } else {
-                    progress_slider_value(ctx.mouse.get_cursor_pos().y, cursorArea.height, cursorArea.y,
-                                          values.min, values.max, step, values.value);
-                }
-            } else if (ctx.mouse.get_scrolled() != 0 && internal::is_boxed_in(ctx.mouse.get_cursor_pos(), baseArea)) {
-                values.value += static_cast<int>(ctx.mouse.get_scrolled()) * step;
-            }
-            if (holdingClickOnSlider) {
-                cursorArea = internal::decrease_rect(cursorArea, 4);
-            }
-        }
-
-        bool valueChanged = false;
-        if (scrollbar.mValueRef != values.value) {
-            scrollbar.mValueRef = internal::clamp(values.value, values.min, values.max);
-            valueChanged = true;
-        }
-
-        return {baseArea, outlineArea, cursorArea, isFocused, hoveringOverCursor, holdingClickOnSlider, valueChanged};
+        return get_slider_base_model(ctx, scrollbar, values, step, orientation, outlineArea, baseArea, cursorArea, focus);
     }
 
     template <typename Slider>
@@ -202,28 +183,49 @@ namespace reig::reference_widget {
         ctx.render_rectangle(model.cursorArea, frameColor);
     }
 
-    bool slider::use(Context& ctx) const {
-        auto model = get_slider_model(ctx, *this);
+    void slider::use(Context& ctx, std::function<void()> callback) const {
+        Rectangle outlineArea = mBoundingBox;
+        ctx.fit_rect_in_window(outlineArea);
 
-        draw_slider_model(ctx, model, *this);
+        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus& focus) {
+            auto model = get_slider_model(ctx, *this, outlineArea, focus);
 
-        return model.valueChanged;
+            if (model.valueChanged) {
+                callback();
+            }
+
+            draw_slider_model(ctx, model, *this);
+        });
     }
 
-    bool textured_slider::use(Context& ctx) const {
-        auto model = get_slider_model(ctx, *this);
+    void scrollbar::use(Context& ctx, std::function<void()> callback) const {
+        Rectangle outlineArea = mBoundingBox;
+        ctx.fit_rect_in_window(outlineArea);
 
-        ctx.render_rectangle(model.outlineArea, mBaseTexture);
-        ctx.render_rectangle(model.cursorArea, mCursorTexture);
+        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus& focus) {
+            auto model = get_scrollbar_model(ctx, *this, outlineArea, focus);
 
-        return model.valueChanged;
+            if (model.valueChanged) {
+                callback();
+            }
+
+            draw_slider_model(ctx, model, *this);
+        });
     }
 
-    bool scrollbar::use(Context& ctx) const {
-        auto model = get_scrollbar_model(ctx, *this);
+    void textured_slider::use(Context& ctx, std::function<void()> callback) const {
+        Rectangle outlineArea = mBoundingBox;
+        ctx.fit_rect_in_window(outlineArea);
 
-        draw_slider_model(ctx, model, *this);
+        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus& focus) {
+            auto model = get_slider_model(ctx, *this, mBoundingBox, Focus::NONE);
 
-        return model.valueChanged;
+            if (model.valueChanged) {
+                callback();
+            }
+
+            ctx.render_rectangle(model.outlineArea, mBaseTexture);
+            ctx.render_rectangle(model.cursorArea, mCursorTexture);
+        });
     }
 }
