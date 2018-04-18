@@ -69,6 +69,8 @@ namespace reig::reference_widget {
          * @param step The discrete portion by which the value can change
          * @return True if value changed
          */
+        void use(Context& ctx, std::function<void()> callback) const;
+
         bool use(Context& ctx) const;
     };
 

@@ -55,7 +55,6 @@ namespace reig::reference_widget {
         Rectangle baseArea;
         Rectangle outlineArea;
         Rectangle cursorArea;
-        bool isFocused = false;
         bool hoveringOverCursor = false;
         bool holdingClickOnSlider = false;
         bool valueChanged = false;
@@ -80,8 +79,8 @@ namespace reig::reference_widget {
             size_slider_cursor(cursorArea.y, cursorArea.height, values.valuesNum, values.offset);
         }
 
-        bool hoveringOverCursor = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), cursorArea);
         bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), outlineArea);
+        bool hoveringOverCursor = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), cursorArea);
         bool holdingClick = ctx.mouse.leftButton.is_pressed()
                             && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
         bool isFocused = ctx.focus.handle(focusId, holdingClick || hoveringOverArea);
@@ -110,7 +109,7 @@ namespace reig::reference_widget {
             valueChanged = true;
         }
 
-        return {baseArea, outlineArea, cursorArea, isFocused, hoveringOverCursor, holdingClickOnSlider, valueChanged};
+        return {baseArea, outlineArea, cursorArea, hoveringOverCursor, holdingClickOnSlider, valueChanged};
     }
 
     void size_scrollbar_cursor(float& coord, float& size, float step, int offset, float viewSize) {
@@ -184,7 +183,7 @@ namespace reig::reference_widget {
             valueChanged = true;
         }
 
-        return {baseArea, outlineArea, cursorArea, isFocused, hoveringOverCursor, holdingClickOnSlider, valueChanged};
+        return {baseArea, outlineArea, cursorArea, hoveringOverCursor, holdingClickOnSlider, valueChanged};
     }
 
     template <typename Slider>
@@ -208,6 +207,10 @@ namespace reig::reference_widget {
         draw_slider_model(ctx, model, *this);
 
         return model.valueChanged;
+    }
+
+    void slider::use(Context& ctx, std::function<void()> callback) const {
+
     }
 
     bool textured_slider::use(Context& ctx) const {
