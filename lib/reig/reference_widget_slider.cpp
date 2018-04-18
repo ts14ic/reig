@@ -201,20 +201,27 @@ namespace reig::reference_widget {
         });
     }
 
-    bool textured_slider::use(Context& ctx) const {
-        auto model = get_slider_model(ctx, *this, mBoundingBox, Focus2::NONE);
-
-        ctx.render_rectangle(model.outlineArea, mBaseTexture);
-        ctx.render_rectangle(model.cursorArea, mCursorTexture);
-
-        return model.valueChanged;
-    }
-
     bool scrollbar::use(Context& ctx) const {
         auto model = get_scrollbar_model(ctx, *this);
 
         draw_slider_model(ctx, model, *this);
 
         return model.valueChanged;
+    }
+
+    void textured_slider::use(Context& ctx, std::function<void()> callback) const {
+        Rectangle outlineArea = mBoundingBox;
+        ctx.fit_rect_in_window(outlineArea);
+
+        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus2& focus) {
+            auto model = get_slider_model(ctx, *this, mBoundingBox, Focus2::NONE);
+
+            if (model.valueChanged) {
+                callback();
+            }
+
+            ctx.render_rectangle(model.outlineArea, mBaseTexture);
+            ctx.render_rectangle(model.cursorArea, mCursorTexture);
+        });
     }
 }
