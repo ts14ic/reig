@@ -164,9 +164,14 @@ namespace reig::reference_widget {
         Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
 
         auto step = ctx.get_font_size();
-        auto values = prepare_scrollbar_values(scrollbar.mViewSize - baseArea.height, scrollbar.mValueRef, step);
 
         SliderOrientation orientation = calculate_slider_orientation(baseArea);
+        SliderValues values;
+        if (orientation == SliderOrientation::VERTICAL) {
+            values = prepare_scrollbar_values(scrollbar.mViewSize - baseArea.height, scrollbar.mValueRef, step);
+        } else {
+            values = prepare_scrollbar_values(scrollbar.mViewSize - baseArea.width, scrollbar.mValueRef, step);
+        }
 
         auto cursorArea = internal::decrease_rect(baseArea, 4);
         if (orientation == SliderOrientation::HORIZONTAL) {
