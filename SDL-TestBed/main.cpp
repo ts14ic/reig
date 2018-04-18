@@ -378,28 +378,28 @@ private:
         widget::entry("Add item", rect, colors::darkGrey, itemName, [](const std::string&) {}).use(mGui.ctx);
 
         rect = {rect.x + rect.width + 5, rect.y, 30, 40};
-        if (widget::button{"+", rect, colors::green}.use(mGui.ctx)) {
+        widget::button{"+", rect, colors::green}.use(mGui.ctx, []() {
             if (!itemName.empty()) {
                 foos.push_back(Foo{itemName});
             }
-        }
+        });
 
         rect = {rect.x + rect.width + 5, rect.y, 35, 40};
-        if (widget::button{"Cl", rect, colors::violet}.use(mGui.ctx)) {
+        widget::button{"Cl", rect, colors::violet}.use(mGui.ctx, []() {
             itemName.clear();
-        }
+        });
 
         rect = {rect.x + rect.width + 5, rect.y, 35, 40};
-        if (widget::button{"+", rect, colors::yellow}.use(mGui.ctx)) {
+        widget::button{"+", rect, colors::yellow}.use(mGui.ctx, []() {
             foos.push_back(Foo{std::to_string(foos.size())});
-        }
+        });
 
         rect = {0, rect.y + rect.height + 5, 280, 40};
-        if (widget::button{"Remove last", rect, colors::red}.use(mGui.ctx)) {
+        widget::button{"Remove last", rect, colors::red}.use(mGui.ctx, []() {
             if (!foos.empty()) {
                 foos.pop_back();
             }
-        }
+        });
     }
 
     void render_frame(int& previousFrameTimestamp) {

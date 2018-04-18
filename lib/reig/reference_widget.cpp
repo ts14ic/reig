@@ -13,62 +13,6 @@ namespace reig::reference_widget {
         bool holdingClick = false;
     };
 
-    template <typename Button>
-    [[deprecated("uses old focus system")]]
-    ButtonModel get_button_model(Context& ctx, const Button& button) {
-        auto focusId = ctx.focus.create_id();
-        Rectangle outlineArea = button.mBoundingBox;
-        ctx.fit_rect_in_window(outlineArea);
-
-        Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
-        bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), outlineArea);
-        bool isFocused = ctx.focus.handle(focusId, hoveringOverArea);
-
-        bool justClicked = false;
-        bool holdingClick = false;
-        if (isFocused) {
-            bool clickedInArea = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), outlineArea);
-            justClicked = ctx.mouse.leftButton.is_clicked() && clickedInArea;
-            holdingClick = ctx.mouse.leftButton.is_pressed() && clickedInArea;
-
-            if (holdingClick) {
-                baseArea = internal::decrease_rect(baseArea, 4);
-            }
-        }
-
-        return {outlineArea, baseArea, hoveringOverArea, justClicked, holdingClick};
-    }
-
-    bool button::use(Context& ctx) const {
-        auto model = get_button_model(ctx, *this);
-
-        Color innerColor{mBaseColor};
-        if (model.hoveringOverArea) {
-            innerColor = internal::lighten_color_by(innerColor, 30);
-        }
-        if (model.holdingClick) {
-            innerColor = internal::lighten_color_by(innerColor, 30);
-        }
-        ctx.render_rectangle(model.outlineArea, internal::get_yiq_contrast(mBaseColor));
-        ctx.render_rectangle(model.baseArea, innerColor);
-        ctx.render_text(mTitle.c_str(), model.baseArea);
-
-        return model.justClicked;
-    }
-
-    bool textured_button::use(Context& ctx) const {
-        auto model = get_button_model(ctx, *this);
-
-        int texture = mBaseTexture;
-        if (model.holdingClick || model.hoveringOverArea) {
-            texture = mHoverTexture;
-        }
-        ctx.render_rectangle(model.outlineArea, texture);
-        ctx.render_text(mTitle.c_str(), model.outlineArea);
-
-        return model.justClicked;
-    }
-
     template <typename B>
     ButtonModel get_button_model(Context& ctx, const B& button, const Rectangle& outlineArea, const Focus2& focus) {
         Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
