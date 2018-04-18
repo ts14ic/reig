@@ -46,7 +46,7 @@ namespace reig::reference_widget {
         return model;
     }
 
-    void button::use(reig::Context& ctx, const std::function<void()>& callback) const {
+    void button::use(reig::Context& ctx, std::function<void()> callback) const {
         Rectangle outlineArea = mBoundingBox;
         ctx.fit_rect_in_window(outlineArea);
 
@@ -70,7 +70,7 @@ namespace reig::reference_widget {
         });
     }
 
-    void textured_button::use(Context& ctx, const std::function<void()>& callback) const {
+    void textured_button::use(Context& ctx, std::function<void()> callback) const {
         Rectangle outlineArea = mBoundingBox;
         ctx.fit_rect_in_window(outlineArea);
 
