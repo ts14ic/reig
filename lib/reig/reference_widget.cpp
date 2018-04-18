@@ -64,7 +64,7 @@ namespace reig::reference_widget {
         if (model.holdingClick) {
             innerColor = internal::lighten_color_by(innerColor, 30);
         }
-        ctx.render_rectangle(model.outlineArea, internal::get_yiq_contrast(primaryColor));
+        ctx.render_rectangle(model.outlineArea, internal::get_yiq_contrast(innerColor));
         ctx.render_rectangle(model.baseArea, innerColor);
         ctx.render_text(model.title, model.baseArea);
     }
