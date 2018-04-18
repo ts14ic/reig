@@ -304,9 +304,7 @@ public:
         }
     }
     
-    static void render_handler(reig::DrawData const& drawData, std::any& userPtr) {
-        Test* self = std::any_cast<Test*>(userPtr);
-        
+    void render_handler(reig::DrawData const& drawData) {
         struct {
             GLint shader, vao, vbo, ebo, texture, blendsrc, blenddst;
             GLboolean depthtest, stenciltest, blend;
@@ -322,9 +320,9 @@ public:
         glGetBooleanv(GL_STENCIL_TEST, &last.stenciltest);
         glGetBooleanv(GL_BLEND, &last.blend);
         
-        self->gui.shader.use();
-        glBindVertexArray(self->gui.vao);
-        glBindBuffer(GL_ARRAY_BUFFER, self->gui.vbo);
+        gui.shader.use();
+        glBindVertexArray(gui.vao);
+        glBindBuffer(GL_ARRAY_BUFFER, gui.vbo);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(reig::primitive::Vertex), nullptr);
         glEnableVertexAttribArray(1);
@@ -332,7 +330,7 @@ public:
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(reig::primitive::Vertex), (void*)(offsetof(reig::primitive::Vertex, color)));
         
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self->gui.ebo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gui.ebo);
         
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_STENCIL_TEST);
@@ -345,7 +343,7 @@ public:
             auto vnumber = figure.vertices().size();
             auto inumber = figure.indices().size();
             
-            glUniform1ui(self->gui.shader.uniform("fragTexId"), figure.texture());
+            glUniform1ui(gui.shader.uniform("fragTexId"), figure.texture());
             glBindTexture(GL_TEXTURE_2D, figure.texture());
             
             glBufferData(GL_ARRAY_BUFFER, sizeof(vertices[0]) * vnumber, vertices, GL_STATIC_DRAW);
@@ -365,8 +363,14 @@ public:
     }
     
     void reig_init() {
-        ctx.set_user_ptr(this);
-        ctx.set_render_handler(&render_handler);
+        namespace colors = reig::primitive::colors;
+        using namespace reig::primitive::colors::literals;
+        using namespace reig::primitive::colors::operators;
+        ctx.set_config(reig::Config::builder()
+                               .windowColors(colors::darkGrey | 200_a, colors::blue | 100_a)
+                               .fontBitmapSizes(1024, 1024)
+                               .build());
+        ctx.set_render_handler([this](const reig::DrawData& data) { render_handler(data); });
         
         glGenTextures(1, &font.tex);
         auto f = ctx.set_font("/usr/share/fonts/TTF/impact.ttf", font.tex, 20.f);
