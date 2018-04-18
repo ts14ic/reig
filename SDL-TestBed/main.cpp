@@ -260,13 +260,12 @@ private:
 
         start_window(mButtonsWindow);
         for (int i = 0; i < 4; ++i) {
-            rect.x -= 10;
-            rect.y = 10 * i;
+            rect = {rect.x - 10, 10.0f * i, rect.width, rect.height};
             color = color + 25_r + 25_g;
 
             std::string title = boost::str(boost::format("some %d") % (i + 1));
 
-            widget::button{title, rect, color}.use(mGui.ctx, [=]() {
+            widget::button{title, rect, color}.use(mGui.ctx, [title]() {
                 std::cout << boost::format("Button {%s} pressed\n") % title;
             });
         }

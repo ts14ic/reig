@@ -21,13 +21,14 @@ namespace reig::reference_widget {
          *
          * @return True if the button was clicked, false otherwise
          */
+        [[deprecated("uses old focus system")]]
         bool use(Context& ctx) const;
 
-        void use(Context& ctx, std::function<void()> callback);
+        void use(Context& ctx, std::function<void()> callback) const;
     };
 
     struct textured_button {
-        char const* mTitle = "";
+        const std::string mTitle;
         primitive::Rectangle mBoundingBox;
         int mHoverTexture = 0, mBaseTexture = 0;
 
@@ -38,7 +39,10 @@ namespace reig::reference_widget {
          * @param hoverTexture Button's texture index, when button is hoverred
          * @return True if the button was clicked, false otherwise
          */
+        [[deprecated("uses old focus system")]]
         bool use(Context& ctx) const;
+
+        void use(Context& ctx, const std::function<void()>& callback) const;
     };
 
     struct label {

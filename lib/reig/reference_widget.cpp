@@ -14,6 +14,7 @@ namespace reig::reference_widget {
     };
 
     template <typename Button>
+    [[deprecated("uses old focus system")]]
     ButtonModel get_button_model(Context& ctx, const Button& button) {
         auto focusId = ctx.focus.create_id();
         Rectangle outlineArea = button.mBoundingBox;
@@ -55,6 +56,19 @@ namespace reig::reference_widget {
         return model.justClicked;
     }
 
+    bool textured_button::use(Context& ctx) const {
+        auto model = get_button_model(ctx, *this);
+
+        int texture = mBaseTexture;
+        if (model.holdingClick || model.hoveringOverArea) {
+            texture = mHoverTexture;
+        }
+        ctx.render_rectangle(model.outlineArea, texture);
+        ctx.render_text(mTitle.c_str(), model.outlineArea);
+
+        return model.justClicked;
+    }
+
     template <typename B>
     ButtonModel get_button_model(Context& ctx, const B& button, const Rectangle& outlineArea, const Focus2& focus) {
         Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
@@ -88,27 +102,23 @@ namespace reig::reference_widget {
         return model;
     }
 
-    void render_colored_button(Context& ctx, const ButtonModel& model, const button& button) {
-        Color innerColor{button.mBaseColor};
-        if (model.hoveringOverArea) {
-            innerColor = internal::lighten_color_by(innerColor, 30);
-        }
-        if (model.holdingClick) {
-            innerColor = internal::lighten_color_by(innerColor, 30);
-        }
-        ctx.render_rectangle(model.outlineArea, internal::get_yiq_contrast(innerColor));
-        ctx.render_rectangle(model.baseArea, innerColor);
-        ctx.render_text(button.mTitle.c_str(), model.baseArea);
-    }
-
-    void button::use(reig::Context& ctx, std::function<void()> callback) {
+    void button::use(reig::Context& ctx, std::function<void()> callback) const {
         Rectangle outlineArea = mBoundingBox;
         ctx.fit_rect_in_window(outlineArea);
 
         ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus2& focus) {
             auto model = get_button_model(ctx, *this, outlineArea, focus);
 
-            render_colored_button(ctx, model, *this);
+            Color innerColor{mBaseColor};
+            if (model.hoveringOverArea) {
+                innerColor = internal::lighten_color_by(innerColor, 30);
+            }
+            if (model.holdingClick) {
+                innerColor = internal::lighten_color_by(innerColor, 30);
+            }
+            ctx.render_rectangle(model.outlineArea, internal::get_yiq_contrast(innerColor));
+            ctx.render_rectangle(model.baseArea, innerColor);
+            ctx.render_text(mTitle.c_str(), model.baseArea);;
 
             if (model.justClicked) {
                 callback();
@@ -116,17 +126,24 @@ namespace reig::reference_widget {
         });
     }
 
-    bool textured_button::use(Context& ctx) const {
-        auto model = get_button_model(ctx, *this);
+    void textured_button::use(Context& ctx, const std::function<void()>& callback) const {
+        Rectangle outlineArea = mBoundingBox;
+        ctx.fit_rect_in_window(outlineArea);
 
-        int texture = mBaseTexture;
-        if (model.holdingClick || model.hoveringOverArea) {
-            texture = mHoverTexture;
-        }
-        ctx.render_rectangle(model.outlineArea, texture);
-        ctx.render_text(mTitle, model.outlineArea);
+        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus2& focus) {
+            auto model = get_button_model(ctx, *this, outlineArea, focus);
 
-        return model.justClicked;
+            int texture = mBaseTexture;
+            if (model.holdingClick || model.hoveringOverArea) {
+                texture = mHoverTexture;
+            }
+            ctx.render_rectangle(model.outlineArea, texture);
+            ctx.render_text(mTitle.c_str(), model.outlineArea);
+
+            if (model.justClicked) {
+                callback();
+            }
+        });
     }
 
     void label::use(Context& ctx) const {
