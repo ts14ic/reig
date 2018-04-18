@@ -70,11 +70,6 @@ namespace reig {
          */
         void set_user_ptr(std::any ptr);
 
-        /**
-         * @brief Gets the stored user pointer
-         */
-        const std::any& get_user_ptr() const;
-
         struct FontBitmap {
             std::vector<uint8_t> bitmap;
             int width = 0;

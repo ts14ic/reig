@@ -29,10 +29,6 @@ namespace reig {
         mUserPtr = move(ptr);
     }
 
-    const std::any& Context::get_user_ptr() const {
-        return mUserPtr;
-    }
-
     vector<uint8_t> read_font_into_buffer(char const* fontFilePath) {
         using exception::FailedToLoadFontException;
 
