@@ -139,6 +139,7 @@ namespace reig {
 
             if (!mouse.leftButton.is_clicked()
                 && !mouse.leftButton.is_pressed()
+                && mouse.get_scrolled() == 0.0f
                 && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), focusCallback.rect)) {
                 selectedIdx = i;
             }
@@ -158,10 +159,10 @@ namespace reig {
 
             if (i == clickedIdx) {
                 cb.callback(Focus::CLICK);
-            } else if (i == selectedIdx) {
-                cb.callback(Focus::SELECT);
             } else if (i == holdingIdx) {
                 cb.callback(Focus::HOLD);
+            } else if (i == selectedIdx) {
+                cb.callback(Focus::SELECT);
             } else if (i == hoveringIdx) {
                 cb.callback(Focus::HOVER);
             } else {
