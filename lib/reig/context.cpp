@@ -30,7 +30,7 @@ void reig::Context::set_user_ptr(std::any ptr) {
     mUserPtr = move(ptr);
 }
 
-std::any const& reig::Context::get_user_ptr() const {
+const std::any& reig::Context::get_user_ptr() const {
     return mUserPtr;
 }
 
@@ -325,7 +325,7 @@ float reig::Context::render_text(char const* text, const Rectangle rect, text::A
     return x;
 }
 
-void reig::Context::render_triangle(Triangle const& aTri, Color const& aColor) {
+void reig::Context::render_triangle(const Triangle& aTri, const Color& aColor) {
     vector<Vertex> vertices{
             {{aTri.pos0}, {}, aColor},
             {{aTri.pos1}, {}, aColor},
@@ -338,7 +338,7 @@ void reig::Context::render_triangle(Triangle const& aTri, Color const& aColor) {
     mDrawData.push_back(fig);
 }
 
-void reig::Context::render_rectangle(Rectangle const& rect, int textureId) {
+void reig::Context::render_rectangle(const Rectangle& rect, int textureId) {
     vector<Vertex> vertices{
             {{rect.x,       rect.y},       {0.f, 0.f}, {}},
             {{get_x2(rect), rect.y},       {1.f, 0.f}, {}},
@@ -352,7 +352,7 @@ void reig::Context::render_rectangle(Rectangle const& rect, int textureId) {
     mDrawData.push_back(fig);
 }
 
-void reig::Context::render_rectangle(Rectangle const& rect, Color const& color) {
+void reig::Context::render_rectangle(const Rectangle& rect, const Color& color) {
     vector<Vertex> vertices{
             {{rect.x,       rect.y},       {}, color},
             {{get_x2(rect), rect.y},       {}, color},

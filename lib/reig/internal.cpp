@@ -2,7 +2,7 @@
 #include "context.h"
 
 namespace reig::internal {
-    bool is_boxed_in(Point const& pt, Rectangle const& rect) {
+    bool is_boxed_in(const Point& pt, const Rectangle& rect) {
         return is_between(pt.x, rect.x, get_x2(rect)) && is_between(pt.y, rect.y, get_y2(rect));
     }
 

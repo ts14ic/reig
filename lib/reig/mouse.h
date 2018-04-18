@@ -9,11 +9,11 @@ namespace reig::detail {
     public:
         MouseButton() = default;
 
-        MouseButton(MouseButton const&) = delete;
+        MouseButton(const MouseButton&) = delete;
 
         MouseButton(MouseButton&&) = delete;
 
-        MouseButton& operator=(MouseButton const&) = delete;
+        MouseButton& operator=(const MouseButton&) = delete;
 
         MouseButton& operator=(MouseButton&&) = delete;
 
@@ -47,11 +47,11 @@ namespace reig::detail {
     public:
         Mouse() = default;
 
-        Mouse(Mouse const&) = delete;
+        Mouse(const Mouse&) = delete;
 
         Mouse(Mouse&&) = delete;
 
-        Mouse& operator=(Mouse const&) = delete;
+        Mouse& operator=(const Mouse&) = delete;
 
         Mouse& operator=(Mouse&&) = delete;
 

@@ -63,8 +63,8 @@ namespace reig::primitive {
 
         constexpr Color() = default;
 
-        constexpr Color(Red const& red, Green const& green, Blue const& blue,
-                        Alpha const& alpha = Alpha{0xFFu}) noexcept
+        constexpr Color(const Red& red, const Green& green, const Blue& blue,
+                        const Alpha& alpha = Alpha{0xFFu}) noexcept
                 : red{red}, green{green}, blue{blue}, alpha{alpha} {}
 
         Red red;
@@ -74,7 +74,7 @@ namespace reig::primitive {
     };
 
     namespace colors {
-        uint32_t to_uint(Color const& from);
+        uint32_t to_uint(const Color& from);
 
         Color from_uint(uint32_t rgba);
 
@@ -105,7 +105,7 @@ namespace reig::primitive {
                                                              std::is_same_v<Comp, Color::Alpha>;
 
                 template <typename Comp, typename = std::enable_if_t<is_color_component_v<Comp>>>
-                Comp const& get_comp(Color const& color) {
+                const Comp& get_comp(const Color& color) {
                     if constexpr (std::is_same_v<Comp, Color::Red>) return color.red;
                     else if constexpr (std::is_same_v<Comp, Color::Green>) return color.green;
                     else if constexpr (std::is_same_v<Comp, Color::Blue>) return color.blue;
@@ -122,21 +122,21 @@ namespace reig::primitive {
             }
 
             template <typename Comp, typename = std::enable_if_t<detail::is_color_component_v<Comp>>>
-            Color operator|(Color const& left, Comp const& right) {
+            Color operator|(const Color& left, const Comp& right) {
                 Color ret = left;
                 detail::get_comp<Comp>(ret) = right;
                 return ret;
             };
 
             template <typename Comp, typename = std::enable_if_t<detail::is_color_component_v<Comp>>>
-            Color operator+(Color const& left, Comp const& right) {
+            Color operator+(const Color& left, const Comp& right) {
                 Color ret = left;
                 detail::get_comp<Comp>(ret).val += right.val;
                 return ret;
             };
 
             template <typename Comp, typename = std::enable_if_t<detail::is_color_component_v<Comp>>>
-            Color operator-(Color const& left, Comp const& right) {
+            Color operator-(const Color& left, const Comp& right) {
                 Color ret = left;
                 detail::get_comp<Comp>(ret).val -= right.val;
                 return ret;
@@ -179,12 +179,12 @@ namespace reig::primitive {
         /**
          * @brief Returns figure's read-only vertices
          */
-        std::vector<Vertex> const& vertices() const;
+        const std::vector<Vertex>& vertices() const;
 
         /**
          * @brief Returns figure's read-only indices
          */
-        std::vector<int> const& indices() const;
+        const std::vector<int>& indices() const;
 
         /**
          * @brief Return figure's texture index

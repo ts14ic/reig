@@ -3,7 +3,7 @@
 namespace reig::primitive {
     using std::vector;
 
-    uint32_t colors::to_uint(Color const& color) {
+    uint32_t colors::to_uint(const Color& color) {
         return (color.alpha.val << 24)
                + (color.blue.val << 16)
                + (color.green.val << 8)
@@ -25,11 +25,11 @@ namespace reig::primitive {
         mTextureId = id;
     }
 
-    vector<Vertex> const& Figure::vertices() const {
+    const vector<Vertex>& Figure::vertices() const {
         return mVertices;
     }
 
-    vector<int> const& Figure::indices() const {
+    const vector<int>& Figure::indices() const {
         return mIndices;
     }
 

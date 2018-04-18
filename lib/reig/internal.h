@@ -12,7 +12,7 @@ namespace reig::internal {
         return val > min && val < max;
     }
 
-    bool is_boxed_in(Point const& pt, Rectangle const& rect);
+    bool is_boxed_in(const Point& pt, const Rectangle& rect);
 
     template <typename T>
     T clamp(T val, T min, T max) {

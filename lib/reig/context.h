@@ -52,12 +52,12 @@ namespace reig {
         void set_config(const Config& config);
 
         using DrawData = std::vector<primitive::Figure>;
-        using RenderHandler = void (*)(DrawData const&, std::any&);
+        using RenderHandler = void (*)(const DrawData&, std::any&);
 
         /**
          * @brief Set's a user function, which will draw the gui, based
          * @param handler A C function pointer to a rendering callback
-         * The handler should return void and take in DrawData const& and void*
+         * The handler should return void and take in const DrawData& and void*
          */
         void set_render_handler(RenderHandler handler);
 
@@ -71,7 +71,7 @@ namespace reig {
         /**
          * @brief Gets the stored user pointer
          */
-        std::any const& get_user_ptr() const;
+        const std::any& get_user_ptr() const;
 
         struct FontBitmap {
             std::vector<uint8_t> bitmap;
@@ -129,21 +129,21 @@ namespace reig {
          * @param rect Position and size
          * @param color Color
          */
-        void render_rectangle(primitive::Rectangle const& rect, primitive::Color const& color);
+        void render_rectangle(const primitive::Rectangle& rect, const primitive::Color& color);
 
         /**
          * @brief Schedules a textured rectangle drawing (the texture is stretched)
          * @param rect Position and size
          * @param textureId Index to the texture
          */
-        void render_rectangle(primitive::Rectangle const& rect, int textureId);
+        void render_rectangle(const primitive::Rectangle& rect, int textureId);
 
         /**
          * @brief Schedules a triangle drawing
          * @param triangle Position and size
          * @param color Color
          */
-        void render_triangle(primitive::Triangle const& triangle, primitive::Color const& color);
+        void render_triangle(const primitive::Triangle& triangle, const primitive::Color& color);
 
     private:
         void render_windows();
