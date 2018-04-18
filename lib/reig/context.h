@@ -151,7 +151,9 @@ namespace reig {
         void render_triangle(const primitive::Triangle& triangle, const primitive::Color& color);
 
     private:
-        void process_focus_callbacks();
+        void handle_focus_callbacks();
+
+        bool handle_window_focus(const char* window, bool claiming);
 
         void render_text_quads(const std::vector<stbtt_aligned_quad>& quads,
                                float horizontalAlignment, float verticalAlignment);
@@ -159,6 +161,7 @@ namespace reig {
         void render_windows();
 
         std::vector<FocusCallback> mFocusCallbacks;
+        const char* mDraggedWindow = nullptr;
         detail::Font mFont;
         std::vector<detail::Window> mWindows;
         std::vector<primitive::Figure> mDrawData;

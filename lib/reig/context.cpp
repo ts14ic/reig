@@ -98,7 +98,7 @@ void reig::Context::end_frame() {
     }
     end_window();
 
-    process_focus_callbacks();
+    handle_focus_callbacks();
 
     if (!mDrawData.empty()) {
         using std::move;
@@ -115,7 +115,21 @@ void reig::Context::with_focus(const Rectangle& zone, FocusAreaCallback_t callba
     mFocusCallbacks.emplace_back(zone, move(callback));
 }
 
-void reig::Context::process_focus_callbacks() {
+bool reig::Context::handle_window_focus(const char* const window, bool claiming) {
+    if (claiming) {
+        if (!mDraggedWindow) {
+            mDraggedWindow = window;
+        }
+        return mDraggedWindow == window;
+    } else {
+        if (mDraggedWindow == window) {
+            mDraggedWindow = nullptr;
+        }
+        return mDraggedWindow != window;
+    }
+}
+
+void reig::Context::handle_focus_callbacks() {
     using std::begin;
     using std::end;
 
@@ -124,27 +138,30 @@ void reig::Context::process_focus_callbacks() {
     int holdingIdx = -1;
     int hoveringIdx = -1;
 
-    for (int i = 0; i < mFocusCallbacks.size(); ++i) {
-        auto& focusCallback = mFocusCallbacks[i];
+    // No callbacks are to be called on widgets, while a window is dragged
+    if (!mDraggedWindow) {
+        for (int i = 0; i < mFocusCallbacks.size(); ++i) {
+            auto& focusCallback = mFocusCallbacks[i];
 
-        if (mouse.leftButton.is_clicked()
-            && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), focusCallback.rect)) {
-            clickedIdx = i;
-        }
+            if (mouse.leftButton.is_clicked()
+                && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), focusCallback.rect)) {
+                clickedIdx = i;
+            }
 
-        if (!mouse.leftButton.is_clicked()
-            && !mouse.leftButton.is_pressed()
-            && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), focusCallback.rect)) {
-            selectedIdx = i;
-        }
+            if (!mouse.leftButton.is_clicked()
+                && !mouse.leftButton.is_pressed()
+                && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), focusCallback.rect)) {
+                selectedIdx = i;
+            }
 
-        if (mouse.leftButton.is_pressed()
-            && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), focusCallback.rect)) {
-            holdingIdx = i;
-        }
+            if (mouse.leftButton.is_pressed()
+                && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), focusCallback.rect)) {
+                holdingIdx = i;
+            }
 
-        if (internal::is_boxed_in(mouse.get_cursor_pos(), focusCallback.rect)) {
-            hoveringIdx = i;
+            if (internal::is_boxed_in(mouse.get_cursor_pos(), focusCallback.rect)) {
+                hoveringIdx = i;
+            }
         }
     }
 
@@ -249,7 +266,7 @@ void reig::Context::end_window() {
 
     if (mouse.leftButton.is_pressed()
         && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), headerBox)
-        && focus.claim_for_window(currentWindow.mTitle)) {
+        && handle_window_focus(currentWindow.mTitle, true)) {
         Point moved{
                 mouse.get_cursor_pos().x - mouse.leftButton.get_clicked_pos().x,
                 mouse.get_cursor_pos().y - mouse.leftButton.get_clicked_pos().y
@@ -260,7 +277,7 @@ void reig::Context::end_window() {
         mouse.leftButton.mClickedPos.x += moved.x;
         mouse.leftButton.mClickedPos.y += moved.y;
     } else {
-        focus.release_from_window(currentWindow.mTitle);
+        handle_window_focus(currentWindow.mTitle, false);
     }
 }
 
