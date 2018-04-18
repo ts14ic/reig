@@ -9,6 +9,7 @@
 #include <SDL2_framerate.h>
 
 #include <iostream>
+#include <boost/format.hpp>
 #include <iomanip>
 
 using namespace std::string_literals;
@@ -47,7 +48,7 @@ public:
         int previousFrameTimestamp;
         while(true) {
             previousFrameTimestamp = SDL_GetTicks();
-            mGui.ctx.start_new_frame();
+            mGui.ctx.start_frame();
 
             if(!handle_input_events()) {
                 break;
@@ -260,13 +261,14 @@ private:
         start_window(mButtonsWindow);
         for (int i = 0; i < 4; ++i) {
             rect.x -= 10;
-            rect.y = 40 * i;
+            rect.y = 10 * i;
             color = color + 25_r + 25_g;
-            std::string title = "some  " + std::to_string(i + 1);
-//            if(widget::textured_button{title.c_str(), rect, mGui.font.id, 0}.use(mGui.ctx)) {
-            if (widget::button{title.c_str(), rect, color}.use(mGui.ctx)) {
-                std::cout << "Button " << (i + 1) << ": pressed" << std::endl;
-            }
+
+            std::string title = boost::str(boost::format("some %d") % (i + 1));
+
+            widget::button{title, rect, color}.use(mGui.ctx, [=]() {
+                std::cout << boost::format("Button {%s} pressed\n") % title;
+            });
         }
     }
 
@@ -410,7 +412,7 @@ private:
             ticks = 1000 / ticks;
             mFpsString = std::to_string(ticks) + " FPS";
         }
-        mGui.ctx.render_all();
+        mGui.ctx.end_frame();
 
         int mx, my;
         int state = SDL_GetMouseState(&mx, &my);

@@ -23,6 +23,7 @@ add_library(reig_lib
         lib/reig/reference_widget_slider.cpp
         lib/reig/reference_widget_entry.h lib/reig/reference_widget_entry.tcc
         lib/reig/focus.h lib/reig/focus.cpp
+        lib/reig/focus2.h
         lib/reig/config.h lib/reig/config.cpp
         )
 add_library(my::reig_lib ALIAS reig_lib)
@@ -43,11 +44,13 @@ target_link_libraries(sdl_bed
         SDL2_gfx
         ${SDL2_LIBRARY}
         ${SDL2_IMAGE_LIBRARIES})
+find_package(Boost)
 target_include_directories(sdl_bed
         PUBLIC
         ${PROJECT_SOURCE_DIR}/lib
         ${SDL2_INCLUDE_DIR}
-        ${SDL2_IMAGE_INCLUDE_DIRS})
+        ${SDL2_IMAGE_INCLUDE_DIRS}
+        ${Boost_INCLUDE_DIRS})
 
 # Open GL 3 test bed
 # TODO: Link opengl

@@ -8,8 +8,10 @@
 #include "focus.h"
 #include "config.h"
 #include "stb_truetype.h"
+#include "focus2.h"
 #include <vector>
 #include <any>
+#include <functional>
 
 namespace reig {
     using DrawData = std::vector<primitive::Figure>;
@@ -94,19 +96,21 @@ namespace reig {
         /**
          * @brief Resets draw data and inputs
          */
-        void start_new_frame();
+        void start_frame();
 
         unsigned get_frame_counter() const;
 
         /**
          * @brief Uses stored drawData and draws everything using the user handler
          */
-        void render_all();
+        void end_frame();
 
         // Inputs
         detail::Mouse mouse;
         detail::Keyboard keyboard;
         Focus focus;
+
+        void with_focus(const primitive::Rectangle& zone, FocusAreaCallback_t callback);
 
         // Widget renders
         void start_window(char const* title, float& x, float& y);
@@ -146,11 +150,14 @@ namespace reig {
         void render_triangle(const primitive::Triangle& triangle, const primitive::Color& color);
 
     private:
+        void process_focus_callbacks();
+
         void render_text_quads(const std::vector<stbtt_aligned_quad>& quads,
                                float horizontalAlignment, float verticalAlignment);
 
         void render_windows();
 
+        std::vector<FocusCallback> mFocusCallbacks;
         detail::Font mFont;
         std::vector<detail::Window> mWindows;
         std::vector<primitive::Figure> mDrawData;

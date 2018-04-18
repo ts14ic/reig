@@ -92,11 +92,13 @@ float reig::Context::get_font_size() const {
     return mFont.mHeight;
 }
 
-void reig::Context::render_all() {
+void reig::Context::end_frame() {
     if (!mRenderHandler) {
         throw exception::NoRenderHandlerException{};
     }
     end_window();
+
+    process_focus_callbacks();
 
     if (!mDrawData.empty()) {
         using std::move;
@@ -108,7 +110,52 @@ void reig::Context::render_all() {
     }
 }
 
-void reig::Context::start_new_frame() {
+void reig::Context::with_focus(const Rectangle& zone, FocusAreaCallback_t callback) {
+    using std::move;
+    mFocusCallbacks.emplace_back(zone, move(callback));
+}
+
+void reig::Context::process_focus_callbacks() {
+    using std::begin;
+    using std::end;
+
+    int clickedIdx = -1;
+    int holdingIdx = -1;
+    int hoveringIdx = -1;
+
+    for (int i = 0; i < mFocusCallbacks.size(); ++i) {
+        auto& focusCallback = mFocusCallbacks[i];
+
+        if (mouse.leftButton.is_clicked()
+            && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), focusCallback.rect)) {
+            clickedIdx = i;
+        }
+        if (mouse.leftButton.is_pressed()
+            && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), focusCallback.rect)) {
+            holdingIdx = i;
+        }
+
+        if (internal::is_boxed_in(mouse.get_cursor_pos(), focusCallback.rect)) {
+            hoveringIdx = i;
+        }
+    }
+
+    for (int i = 0; i < mFocusCallbacks.size(); ++i) {
+        auto& cb = mFocusCallbacks[i];
+
+        if (i == clickedIdx) {
+            cb.callback(Focus2::CLICK);
+        } else if (i == holdingIdx) {
+            cb.callback(Focus2::HOLD);
+        } else if (i == hoveringIdx) {
+            cb.callback(Focus2::HOVER);
+        } else {
+            cb.callback(Focus2::NONE);
+        }
+    }
+}
+
+void reig::Context::start_frame() {
     mWindows.clear();
     mDrawData.clear();
 
@@ -117,6 +164,7 @@ void reig::Context::start_new_frame() {
 
     keyboard.reset();
 
+    mFocusCallbacks.clear();
     focus.reset_counter();
 
     ++mFrameCounter;

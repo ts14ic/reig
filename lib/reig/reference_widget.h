@@ -4,12 +4,13 @@
 #include "fwd.h"
 #include "text.h"
 #include "primitive.h"
+#include <functional>
 
 namespace reig::reference_widget {
     struct button {
-        char const* mTitle = "";
-        primitive::Rectangle mBoundingBox;
-        primitive::Color mBaseColor;
+        const std::string mTitle;
+        const primitive::Rectangle mBoundingBox;
+        const primitive::Color mBaseColor;
 
         /**
          * @brief Render a titled button
@@ -21,6 +22,8 @@ namespace reig::reference_widget {
          * @return True if the button was clicked, false otherwise
          */
         bool use(Context& ctx) const;
+
+        void use(Context& ctx, std::function<void()> callback);
     };
 
     struct textured_button {

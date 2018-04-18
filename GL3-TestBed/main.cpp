@@ -134,8 +134,8 @@ public:
             double currentTime = glfwGetTime();
             deltaTime = currentTime - lastTime;
             lastTime = currentTime;
-            
-            ctx.start_new_frame();
+
+            ctx.start_frame();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
             glfwPollEvents();
@@ -217,7 +217,7 @@ public:
             glBindVertexArray(0);
             shader.unuse();
 
-            ctx.render_all();
+            ctx.end_frame();
             
             glfwSwapBuffers(window);
         }
