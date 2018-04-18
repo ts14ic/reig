@@ -30,14 +30,14 @@ namespace reig::reference_widget {
         coord += offset * size;
     }
 
-    void progress_slider_value(float mouseCursorCoord, float cursorSize, float cursorCoord,
-                               float min, float max, float step, float& value) {
+    void progress_slider_value(float mouseCursorCoord, float cursorSize,
+                               float sliderCursorCoord, float step, float& value) {
         auto halfCursorSize = cursorSize / 2;
-        auto distanceToMouseCoord = mouseCursorCoord - cursorCoord - halfCursorSize;
+        sliderCursorCoord += halfCursorSize;
+        auto distanceToMouseCoord = mouseCursorCoord - sliderCursorCoord;
 
         if (internal::abs(distanceToMouseCoord) > halfCursorSize) {
             value += static_cast<int>(distanceToMouseCoord / cursorSize) * step;
-            value = internal::clamp(value, min, max);
         }
     }
 
@@ -89,10 +89,10 @@ namespace reig::reference_widget {
         if (model.holdingClickOnSlider) {
             if (orientation == SliderOrientation::HORIZONTAL) {
                 progress_slider_value(ctx.mouse.get_cursor_pos().x, model.cursorArea.width, model.cursorArea.x,
-                                      values.min, values.max, step, values.value);
+                                      step, values.value);
             } else {
                 progress_slider_value(ctx.mouse.get_cursor_pos().y, model.cursorArea.height, model.cursorArea.y,
-                                      values.min, values.max, step, values.value);
+                                      step, values.value);
             }
         } else if (ctx.mouse.get_scrolled() != 0 && model.hoveringOverCursor) {
             values.value += static_cast<int>(ctx.mouse.get_scrolled()) * step;
@@ -131,9 +131,8 @@ namespace reig::reference_widget {
     void size_scrollbar_cursor(float& coord, float& size, float step, int offset, float viewSize) {
         float scale = size / viewSize;
         if (scale <= 1.0f) {
-            size *= scale;
-            if (size < 1) size = 1;
             coord += offset * step * scale;
+            size = internal::max(1.0f, scale * size);
             size = internal::min(size, viewSize);
         }
     }
