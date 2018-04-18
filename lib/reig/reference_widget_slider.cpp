@@ -30,14 +30,17 @@ namespace reig::reference_widget {
         coord += offset * size;
     }
 
-    void progress_slider_value(float mouseCursorCoord, float cursorSize,
-                               float sliderCursorCoord, float step, float& value) {
+    float get_distance_to_slider(float mouseCursorCoord, float cursorSize, float sliderCursorCoord) {
         auto halfCursorSize = cursorSize / 2;
         sliderCursorCoord += halfCursorSize;
-        auto distanceToMouseCoord = mouseCursorCoord - sliderCursorCoord;
-
-        if (internal::abs(distanceToMouseCoord) > halfCursorSize) {
-            value += static_cast<int>(distanceToMouseCoord / cursorSize) * step;
+        return mouseCursorCoord - sliderCursorCoord;
+    }
+    
+    void progress_slider_value(float mouseCursorCoord, float cursorSize,
+                               float sliderCursorCoord, float step, float& value) {
+        float distance = get_distance_to_slider(mouseCursorCoord, cursorSize, sliderCursorCoord);
+        if (internal::abs(distance) > cursorSize / 2) {
+            value += static_cast<int>(distance / cursorSize) * step;
         }
     }
 
@@ -61,10 +64,9 @@ namespace reig::reference_widget {
     };
 
     template <typename S>
-    SliderModel get_slider_base_model(Context& ctx, const S& slider, SliderValues& values, float step,
-                                      SliderOrientation orientation, const Rectangle& outlineArea,
-                                      const Rectangle& baseArea, const Rectangle& cursorArea,
-                                      const Focus& focus) {
+    SliderModel get_slider_base_model(Context& ctx, const S& slider, SliderValues& values,
+                                      const Rectangle& outlineArea, const Rectangle& baseArea,
+                                      const Rectangle& cursorArea, const Focus& focus) {
         SliderModel model;
         model.outlineArea = outlineArea;
         model.baseArea = baseArea;
@@ -86,17 +88,6 @@ namespace reig::reference_widget {
             }
         }
 
-        if (model.holdingClickOnSlider) {
-            if (orientation == SliderOrientation::HORIZONTAL) {
-                progress_slider_value(ctx.mouse.get_cursor_pos().x, model.cursorArea.width, model.cursorArea.x,
-                                      step, values.value);
-            } else {
-                progress_slider_value(ctx.mouse.get_cursor_pos().y, model.cursorArea.height, model.cursorArea.y,
-                                      step, values.value);
-            }
-        } else if (ctx.mouse.get_scrolled() != 0 && model.hoveringOverCursor) {
-            values.value += static_cast<int>(ctx.mouse.get_scrolled()) * step;
-        }
         if (model.holdingClickOnSlider) {
             model.baseArea = internal::decrease_rect(model.baseArea, 2);
             model.cursorArea = internal::decrease_rect(model.cursorArea, 4);
@@ -125,7 +116,19 @@ namespace reig::reference_widget {
             size_slider_cursor(cursorArea.y, cursorArea.height, values.valuesNum, values.offset);
         }
 
-        return get_slider_base_model(ctx, slider, values, slider.mStep, orientation, outlineArea, baseArea, cursorArea, focus);
+        if (focus == Focus::HOLD) {
+            if (orientation == SliderOrientation::HORIZONTAL) {
+                progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorArea.width, cursorArea.x,
+                                      slider.mStep, values.value);
+            } else {
+                progress_slider_value(ctx.mouse.get_cursor_pos().y, cursorArea.height, cursorArea.y,
+                                      slider.mStep, values.value);
+            }
+        } else if (ctx.mouse.get_scrolled() != 0 && focus == Focus::HOVER) {
+            values.value += static_cast<int>(ctx.mouse.get_scrolled()) * slider.mStep;
+        }
+        return get_slider_base_model(ctx, slider, values, outlineArea, baseArea,
+                                     cursorArea, focus);
     }
 
     void size_scrollbar_cursor(float& coord, float& size, float step, int offset, float viewSize) {
@@ -148,11 +151,19 @@ namespace reig::reference_widget {
         };
     }
 
+    void progress_scrollbar_value(float mouseCursorCoord, float cursorSize,
+                                  float sliderCursorCoord, float step, float& value) {
+        float distance = get_distance_to_slider(mouseCursorCoord, cursorSize, sliderCursorCoord);
+        if (internal::abs(distance) > cursorSize / 2) {
+            value += static_cast<int>(distance * step) / cursorSize;
+        }
+    }
+
     template <typename Scrollbar>
     SliderModel get_scrollbar_model(Context& ctx, const Scrollbar& scrollbar, const Rectangle& outlineArea, const Focus& focus) {
         Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
 
-        auto step = ctx.get_font_size() / 2.0f;
+        auto step = ctx.get_font_size();
         auto values = prepare_scrollbar_values(scrollbar.mViewSize - baseArea.height, scrollbar.mValueRef, step);
 
         SliderOrientation orientation = calculate_slider_orientation(baseArea);
@@ -164,7 +175,19 @@ namespace reig::reference_widget {
             size_scrollbar_cursor(cursorArea.y, cursorArea.height, step, values.offset, scrollbar.mViewSize);
         }
 
-        return get_slider_base_model(ctx, scrollbar, values, step, orientation, outlineArea, baseArea, cursorArea, focus);
+        if (focus == Focus::HOLD) {
+            if (orientation == SliderOrientation::HORIZONTAL) {
+                progress_scrollbar_value(ctx.mouse.get_cursor_pos().x, cursorArea.width, cursorArea.x,
+                                         step, values.value);
+            } else {
+                progress_scrollbar_value(ctx.mouse.get_cursor_pos().y, cursorArea.height, cursorArea.y,
+                                         step, values.value);
+            }
+        } else if (ctx.mouse.get_scrolled() != 0 && focus == Focus::HOVER) {
+            values.value += static_cast<int>(ctx.mouse.get_scrolled()) * step;
+        }
+        return get_slider_base_model(ctx, scrollbar, values, outlineArea, baseArea,
+                                     cursorArea, focus);
     }
 
     template <typename Slider>
