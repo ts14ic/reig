@@ -9,6 +9,7 @@ namespace reig {
         NONE,
         HOVER,
         CLICK,
+        SELECT,
         HOLD,
     };
 

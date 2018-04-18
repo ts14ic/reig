@@ -108,6 +108,7 @@ namespace reig {
         // Inputs
         detail::Mouse mouse;
         detail::Keyboard keyboard;
+        [[deprecated]]
         Focus focus;
 
         void with_focus(const primitive::Rectangle& zone, FocusAreaCallback_t callback);

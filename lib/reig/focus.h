@@ -4,30 +4,41 @@
 #include "fwd.h"
 
 namespace reig {
-    class Focus {
+    class [[deprecated]] Focus {
     public:
+        [[deprecated]]
         Focus() = default;
 
+        [[deprecated]]
         Focus(const Focus& other) = delete;
 
+        [[deprecated]]
         Focus(Focus&& other) noexcept = delete;
 
+        [[deprecated]]
         Focus& operator=(const Focus& other) = delete;
 
+        [[deprecated]]
         Focus& operator=(Focus&& other) noexcept = delete;
 
+        [[deprecated]]
         struct FocusId;
 
+        [[deprecated]]
         FocusId create_id();
 
+        [[deprecated]]
         bool claim(const FocusId& focusId);
 
+        [[deprecated]]
         void release(const FocusId& focusId);
 
+        [[deprecated]]
         bool handle(const FocusId& focusId, bool claiming);
 
         struct FocusId {
         private:
+            [[deprecated]]
             /*implicit*/ FocusId(int id) { // NOLINT
                 mId = id;
             };

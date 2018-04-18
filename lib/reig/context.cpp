@@ -120,6 +120,7 @@ void reig::Context::process_focus_callbacks() {
     using std::end;
 
     int clickedIdx = -1;
+    int selectedIdx = -1;
     int holdingIdx = -1;
     int hoveringIdx = -1;
 
@@ -130,6 +131,13 @@ void reig::Context::process_focus_callbacks() {
             && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), focusCallback.rect)) {
             clickedIdx = i;
         }
+
+        if (!mouse.leftButton.is_clicked()
+            && !mouse.leftButton.is_pressed()
+            && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), focusCallback.rect)) {
+            selectedIdx = i;
+        }
+
         if (mouse.leftButton.is_pressed()
             && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), focusCallback.rect)) {
             holdingIdx = i;
@@ -145,6 +153,8 @@ void reig::Context::process_focus_callbacks() {
 
         if (i == clickedIdx) {
             cb.callback(Focus2::CLICK);
+        } else if (i == selectedIdx) {
+            cb.callback(Focus2::SELECT);
         } else if (i == holdingIdx) {
             cb.callback(Focus2::HOLD);
         } else if (i == hoveringIdx) {
