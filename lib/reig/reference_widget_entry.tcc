@@ -26,16 +26,16 @@ namespace reig::reference_widget {
         ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus2& focus) {
             Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
             Rectangle caretArea {0, baseArea.y, 0, baseArea.height};
-            bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), outlineArea);
-            bool clickedInArea = internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
+            bool hoveringOverArea = focus == Focus2::HOVER;
+            bool isSelected = focus == Focus2::SELECT;
 
             bool isInputModified = false;
-            if (focus == Focus2::SELECT) {
+            if (isSelected) {
                 baseArea = internal::decrease_rect(baseArea, 4);
 
                 if ((ctx.get_frame_counter() / 30) % 2 == 0) {
                     caretArea = internal::decrease_rect(caretArea, 10);
-                    caretArea.width = 5;
+                    caretArea.width = 2;
                 }
 
                 Key keyType = ctx.keyboard.get_pressed_key_type();
@@ -68,7 +68,7 @@ namespace reig::reference_widget {
                 }
             }
 
-            EntryModel model{outlineArea, baseArea, caretArea, clickedInArea, hoveringOverArea};
+            EntryModel model{outlineArea, baseArea, caretArea, isSelected, hoveringOverArea};
 
             display_entry_model(ctx, model, *this);
 

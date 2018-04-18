@@ -106,7 +106,7 @@ namespace reig::reference_widget {
 
     template <typename Checkbox>
     CheckboxModel get_checkbox_model(Context& ctx, const Checkbox& checkbox, const Rectangle& outlineArea, const Focus2& focus) {
-        bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), outlineArea);
+        bool hoveringOverArea = focus == Focus2::HOVER;
 
         Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
         Rectangle checkArea = internal::decrease_rect(baseArea, 4);
