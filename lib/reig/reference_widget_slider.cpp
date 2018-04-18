@@ -150,10 +150,7 @@ namespace reig::reference_widget {
     }
 
     template <typename Scrollbar>
-    SliderModel get_scrollbar_model(Context& ctx, const Scrollbar& scrollbar) {
-        Rectangle outlineArea = scrollbar.mBoundingBox;
-        ctx.fit_rect_in_window(outlineArea);
-
+    SliderModel get_scrollbar_model(Context& ctx, const Scrollbar& scrollbar, const Rectangle& outlineArea, const Focus2& focus) {
         Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
 
         auto step = ctx.get_font_size() / 2.0f;
@@ -168,7 +165,7 @@ namespace reig::reference_widget {
             size_scrollbar_cursor(cursorArea.y, cursorArea.height, step, values.offset, scrollbar.mViewSize);
         }
 
-        return get_slider_base_model(ctx, scrollbar, values, step, orientation, outlineArea, baseArea, cursorArea, Focus2::NONE);
+        return get_slider_base_model(ctx, scrollbar, values, step, orientation, outlineArea, baseArea, cursorArea, focus);
     }
 
     template <typename Slider>
@@ -201,12 +198,19 @@ namespace reig::reference_widget {
         });
     }
 
-    bool scrollbar::use(Context& ctx) const {
-        auto model = get_scrollbar_model(ctx, *this);
+    void scrollbar::use(Context& ctx, std::function<void()> callback) const {
+        Rectangle outlineArea = mBoundingBox;
+        ctx.fit_rect_in_window(outlineArea);
 
-        draw_slider_model(ctx, model, *this);
+        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus2& focus) {
+            auto model = get_scrollbar_model(ctx, *this, outlineArea, focus);
 
-        return model.valueChanged;
+            if (model.valueChanged) {
+                callback();
+            }
+
+            draw_slider_model(ctx, model, *this);
+        });
     }
 
     void textured_slider::use(Context& ctx, std::function<void()> callback) const {

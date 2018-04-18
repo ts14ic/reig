@@ -323,11 +323,10 @@ private:
             std::cout << "Slider 2: new value " << sliderValue2 << std::endl;
         });
 
-        rect = {0, 5, 30, 200};
         static float scrollValue0 = 0.0f;
-        if (widget::scrollbar{rect, colors::black, scrollValue0, 1000.0f}.use(mGui.ctx)) {
-            std::cout << "Scrolled: " << scrollValue0 << '\n';
-        }
+
+        rect = {0, 5, 30, 200};
+        widget::scrollbar{rect, colors::black, scrollValue0, 1000.0f}.use(mGui.ctx);
 
         rect = {rect.x + 50, rect.y + 150, rect.width + 250, 30};
         widget::scrollbar{rect, colors::black, scrollValue0, 1000.0f}.use(mGui.ctx);
