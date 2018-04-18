@@ -146,6 +146,9 @@ namespace reig {
         void render_triangle(const primitive::Triangle& triangle, const primitive::Color& color);
 
     private:
+        void render_text_quads(const std::vector<stbtt_aligned_quad>& quads,
+                               float horizontalAlignment, float verticalAlignment);
+
         void render_windows();
 
         detail::Font mFont;

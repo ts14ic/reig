@@ -308,6 +308,13 @@ float reig::Context::render_text(char const* text, const Rectangle rect, text::A
             has_alignment(alignment, text::Alignment::BOTTOM) ? 0.0f :
             (rect.height - textHeight) * -0.5f;
 
+    render_text_quads(quads, horizontalAlignment, verticalAlignment);
+
+    return x;
+}
+
+void reig::Context::render_text_quads(const std::vector<stbtt_aligned_quad>& quads,
+                                      float horizontalAlignment, float verticalAlignment) {
     for (auto& q : quads) {
         vector<Vertex> vertices{
                 {{q.x0 + horizontalAlignment, q.y0 + verticalAlignment}, {q.s0, q.t0}, {}},
@@ -321,8 +328,6 @@ float reig::Context::render_text(char const* text, const Rectangle rect, text::A
         fig.form(vertices, indices, mFont.mTextureId);
         mDrawData.push_back(fig);
     }
-
-    return x;
 }
 
 void reig::Context::render_triangle(const Triangle& aTri, const Color& aColor) {
