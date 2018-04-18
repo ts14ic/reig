@@ -108,7 +108,7 @@ private:
         }
     }
 
-    static void gui_handler(reig::Context::DrawData const& drawData, std::any& userPtr) {
+    static void gui_handler(const reig::DrawData& drawData, std::any& userPtr) {
         namespace colors = reig::primitive::colors;
         auto* self = std::any_cast<Main*>(userPtr);
 

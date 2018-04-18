@@ -12,6 +12,9 @@
 #include <any>
 
 namespace reig {
+    using DrawData = std::vector<primitive::Figure>;
+    using RenderHandler = void (*)(const DrawData&, std::any&);
+
     namespace detail {
         struct Font {
             std::vector<stbtt_bakedchar> mBakedChars;
@@ -50,9 +53,6 @@ namespace reig {
         explicit Context(const Config& config);
 
         void set_config(const Config& config);
-
-        using DrawData = std::vector<primitive::Figure>;
-        using RenderHandler = void (*)(const DrawData&, std::any&);
 
         /**
          * @brief Set's a user function, which will draw the gui, based
