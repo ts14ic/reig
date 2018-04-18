@@ -8,7 +8,6 @@
 #include "focus.h"
 #include "config.h"
 #include "stb_truetype.h"
-#include "focus2.h"
 #include <vector>
 
 namespace reig {
@@ -94,8 +93,6 @@ namespace reig {
         // Inputs
         detail::Mouse mouse;
         detail::Keyboard keyboard;
-        [[deprecated]]
-        Focus focus;
 
         void with_focus(const primitive::Rectangle& zone, FocusAreaCallback_t callback);
 

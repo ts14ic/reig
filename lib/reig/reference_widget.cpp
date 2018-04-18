@@ -14,7 +14,7 @@ namespace reig::reference_widget {
     };
 
     template <typename B>
-    ButtonModel get_button_model(Context& ctx, const B& button, const Rectangle& outlineArea, const Focus2& focus) {
+    ButtonModel get_button_model(Context& ctx, const B& button, const Rectangle& outlineArea, const Focus& focus) {
         Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
 
         ButtonModel model;
@@ -22,17 +22,17 @@ namespace reig::reference_widget {
         model.baseArea = baseArea;
 
         switch (focus) {
-            case Focus2::HOVER: {
+            case Focus::HOVER: {
                 model.hoveringOverArea = true;
                 break;
             }
 
-            case Focus2::CLICK: {
+            case Focus::CLICK: {
                 model.justClicked = true;
                 break;
             }
 
-            case Focus2::HOLD: {
+            case Focus::HOLD: {
                 model.holdingClick = true;
                 model.baseArea = internal::decrease_rect(baseArea, 2);
                 break;
@@ -50,7 +50,7 @@ namespace reig::reference_widget {
         Rectangle outlineArea = mBoundingBox;
         ctx.fit_rect_in_window(outlineArea);
 
-        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus2& focus) {
+        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus& focus) {
             auto model = get_button_model(ctx, *this, outlineArea, focus);
 
             Color innerColor{mBaseColor};
@@ -74,7 +74,7 @@ namespace reig::reference_widget {
         Rectangle outlineArea = mBoundingBox;
         ctx.fit_rect_in_window(outlineArea);
 
-        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus2& focus) {
+        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus& focus) {
             auto model = get_button_model(ctx, *this, outlineArea, focus);
 
             int texture = mBaseTexture;
@@ -105,18 +105,18 @@ namespace reig::reference_widget {
     };
 
     template <typename Checkbox>
-    CheckboxModel get_checkbox_model(Context& ctx, const Checkbox& checkbox, const Rectangle& outlineArea, const Focus2& focus) {
-        bool hoveringOverArea = focus == Focus2::HOVER;
+    CheckboxModel get_checkbox_model(Context& ctx, const Checkbox& checkbox, const Rectangle& outlineArea, const Focus& focus) {
+        bool hoveringOverArea = focus == Focus::HOVER;
 
         Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
         Rectangle checkArea = internal::decrease_rect(baseArea, 4);
 
-        bool justClicked = focus == Focus2::CLICK;
+        bool justClicked = focus == Focus::CLICK;
         if (justClicked) {
             checkbox.mValueRef = !checkbox.mValueRef;
         }
 
-        bool holdingClick = focus == Focus2::HOLD;
+        bool holdingClick = focus == Focus::HOLD;
         if (holdingClick) {
             baseArea = internal::decrease_rect(baseArea, 4);
             checkArea = internal::decrease_rect(checkArea, 4);
@@ -129,7 +129,7 @@ namespace reig::reference_widget {
         Rectangle outlineArea = mBoundingBox;
         ctx.fit_rect_in_window(outlineArea);
 
-        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus2& focus) {
+        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus& focus) {
             auto model = get_checkbox_model(ctx, *this, outlineArea, focus);
 
             Color secondaryColor = internal::get_yiq_contrast(mBaseColor);
@@ -153,7 +153,7 @@ namespace reig::reference_widget {
         Rectangle outlineArea = mBoundingBox;
         ctx.fit_rect_in_window(outlineArea);
 
-        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus2& focus2) {
+        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus& focus2) {
             auto model = get_checkbox_model(ctx, *this, outlineArea, focus2);
 
             ctx.render_rectangle(model.outlineArea, mBaseTexture);

@@ -157,15 +157,15 @@ namespace reig {
             auto& cb = mFocusCallbacks[i];
 
             if (i == clickedIdx) {
-                cb.callback(Focus2::CLICK);
+                cb.callback(Focus::CLICK);
             } else if (i == selectedIdx) {
-                cb.callback(Focus2::SELECT);
+                cb.callback(Focus::SELECT);
             } else if (i == holdingIdx) {
-                cb.callback(Focus2::HOLD);
+                cb.callback(Focus::HOLD);
             } else if (i == hoveringIdx) {
-                cb.callback(Focus2::HOVER);
+                cb.callback(Focus::HOVER);
             } else {
-                cb.callback(Focus2::NONE);
+                cb.callback(Focus::NONE);
             }
         }
     }

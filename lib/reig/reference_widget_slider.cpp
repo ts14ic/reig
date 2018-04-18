@@ -64,19 +64,19 @@ namespace reig::reference_widget {
     SliderModel get_slider_base_model(Context& ctx, const S& slider, SliderValues& values, float step,
                                       SliderOrientation orientation, const Rectangle& outlineArea,
                                       const Rectangle& baseArea, const Rectangle& cursorArea,
-                                      const Focus2& focus) {
+                                      const Focus& focus) {
         SliderModel model;
         model.outlineArea = outlineArea;
         model.baseArea = baseArea;
         model.cursorArea = cursorArea;
 
         switch (focus) {
-            case Focus2::HOVER: {
+            case Focus::HOVER: {
                 model.hoveringOverCursor = true;
                 break;
             }
 
-            case Focus2::HOLD: {
+            case Focus::HOLD: {
                 model.holdingClickOnSlider = true;
                 break;
             }
@@ -111,7 +111,7 @@ namespace reig::reference_widget {
     }
 
     template <typename Slider>
-    SliderModel get_slider_model(Context& ctx, const Slider& slider, const Rectangle& outlineArea, const Focus2& focus) {
+    SliderModel get_slider_model(Context& ctx, const Slider& slider, const Rectangle& outlineArea, const Focus& focus) {
         Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
 
         auto values = prepare_slider_values(slider.mMin, slider.mMax, slider.mValueRef, slider.mStep);
@@ -150,7 +150,7 @@ namespace reig::reference_widget {
     }
 
     template <typename Scrollbar>
-    SliderModel get_scrollbar_model(Context& ctx, const Scrollbar& scrollbar, const Rectangle& outlineArea, const Focus2& focus) {
+    SliderModel get_scrollbar_model(Context& ctx, const Scrollbar& scrollbar, const Rectangle& outlineArea, const Focus& focus) {
         Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
 
         auto step = ctx.get_font_size() / 2.0f;
@@ -187,7 +187,7 @@ namespace reig::reference_widget {
         Rectangle outlineArea = mBoundingBox;
         ctx.fit_rect_in_window(outlineArea);
 
-        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus2& focus) {
+        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus& focus) {
             auto model = get_slider_model(ctx, *this, outlineArea, focus);
 
             if (model.valueChanged) {
@@ -202,7 +202,7 @@ namespace reig::reference_widget {
         Rectangle outlineArea = mBoundingBox;
         ctx.fit_rect_in_window(outlineArea);
 
-        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus2& focus) {
+        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus& focus) {
             auto model = get_scrollbar_model(ctx, *this, outlineArea, focus);
 
             if (model.valueChanged) {
@@ -217,8 +217,8 @@ namespace reig::reference_widget {
         Rectangle outlineArea = mBoundingBox;
         ctx.fit_rect_in_window(outlineArea);
 
-        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus2& focus) {
-            auto model = get_slider_model(ctx, *this, mBoundingBox, Focus2::NONE);
+        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus& focus) {
+            auto model = get_slider_model(ctx, *this, mBoundingBox, Focus::NONE);
 
             if (model.valueChanged) {
                 callback();

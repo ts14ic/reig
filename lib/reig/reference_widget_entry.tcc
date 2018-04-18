@@ -23,11 +23,11 @@ namespace reig::reference_widget {
         Rectangle outlineArea = mBoundingArea;
         ctx.fit_rect_in_window(outlineArea);
 
-        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus2& focus) {
+        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus& focus) {
             Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
             Rectangle caretArea {0, baseArea.y, 0, baseArea.height};
-            bool hoveringOverArea = focus == Focus2::HOVER;
-            bool isSelected = focus == Focus2::SELECT;
+            bool hoveringOverArea = focus == Focus::HOVER;
+            bool isSelected = focus == Focus::SELECT;
 
             bool isInputModified = false;
             if (isSelected) {
