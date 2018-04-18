@@ -278,24 +278,24 @@ private:
         primitive::Rectangle rect = {0, 0, 40, 20};
 
         static bool checkBox1 = false;
-        if(widget::checkbox{rect, color, checkBox1}.use(mGui.ctx)) {
 //        if(widget::textured_checkbox{rect, 0, mGui.font.id, checkBox1}.use(mGui.ctx)) {
+        widget::checkbox{rect, color, checkBox1}.use(mGui.ctx, []() {
             std::cout << "Checkbox 1: new value " << checkBox1 << std::endl;
-        }
+        });
 
         color = color - 100_r + 100_g + 100_b;
         rect = {rect.x + 80, rect.y + 50, 50, 50};
         static bool checkBox2 = true;
-        if(widget::checkbox{rect, color, checkBox2}.use(mGui.ctx)) {
+        widget::checkbox{rect, color, checkBox2}.use(mGui.ctx, []() {
             std::cout << "Checkbox 2: new value " << checkBox2 << std::endl;
-        }
+        });
 
         color = colors::white;
         rect = {rect.x + 80, rect.y - 50, 25, 25};
         static bool checkBox3 = false;
-        if(widget::checkbox{rect, color, checkBox3}.use(mGui.ctx)) {
+        widget::checkbox{rect, color, checkBox3}.use(mGui.ctx, []() {
             std::cout << "Checkbox 3: new value " << checkBox3 << std::endl;
-        }
+        });
     }
 
     void draw_sliders() {

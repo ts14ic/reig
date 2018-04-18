@@ -175,7 +175,6 @@ void reig::Context::start_frame() {
     keyboard.reset();
 
     mFocusCallbacks.clear();
-    focus.reset_counter();
 
     ++mFrameCounter;
 }

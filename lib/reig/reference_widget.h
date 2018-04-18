@@ -120,7 +120,7 @@ namespace reig::reference_widget {
          * @param value A reference to the bool to be changed
          * @return True if value changed
          */
-        bool use(Context& ctx) const;
+        void use(Context& ctx, std::function<void()> callback = [](){}) const;
     };
 
     struct textured_checkbox {
@@ -136,7 +136,7 @@ namespace reig::reference_widget {
          * @param value A reference to the bool to be changed
          * @return True if value changed
          */
-        bool use(Context& ctx) const;
+        void use(Context& ctx, std::function<void()> callback = [](){}) const;
     };
 }
 

@@ -100,67 +100,72 @@ namespace reig::reference_widget {
         Rectangle baseArea;
         Rectangle outlineArea;
         Rectangle checkArea;
-        bool isFocused = false;
         bool hoveringOverArea = false;
         bool valueChanged = false;
     };
 
     template <typename Checkbox>
-    CheckboxModel get_checkbox_model(Context& ctx, const Checkbox& checkbox) {
-        auto focusId = ctx.focus.create_id();
-        Rectangle outlineArea = checkbox.mBoundingBox;
-        ctx.fit_rect_in_window(outlineArea);
-
+    CheckboxModel get_checkbox_model(Context& ctx, const Checkbox& checkbox, const Rectangle& outlineArea, const Focus2& focus) {
         bool hoveringOverArea = internal::is_boxed_in(ctx.mouse.get_cursor_pos(), outlineArea);
-        bool isFocused = ctx.focus.handle(focusId, hoveringOverArea);
 
         Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
         Rectangle checkArea = internal::decrease_rect(baseArea, 4);
 
-        bool justClicked = ctx.mouse.leftButton.is_clicked()
-                           && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
-        if (isFocused) {
-            if (justClicked) {
-                checkbox.mValueRef = !checkbox.mValueRef;
-            }
-
-            bool holdingClick = ctx.mouse.leftButton.is_pressed()
-                                && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
-            if (holdingClick) {
-                baseArea = internal::decrease_rect(baseArea, 4);
-                checkArea = internal::decrease_rect(checkArea, 4);
-            }
+        bool justClicked = focus == Focus2::CLICK;
+        if (justClicked) {
+            checkbox.mValueRef = !checkbox.mValueRef;
         }
 
-        return {baseArea, outlineArea, checkArea, isFocused, hoveringOverArea, justClicked};
+        bool holdingClick = ctx.mouse.leftButton.is_pressed()
+                            && internal::is_boxed_in(ctx.mouse.leftButton.get_clicked_pos(), baseArea);
+        if (holdingClick) {
+            baseArea = internal::decrease_rect(baseArea, 4);
+            checkArea = internal::decrease_rect(checkArea, 4);
+        }
+
+        return {baseArea, outlineArea, checkArea, hoveringOverArea, justClicked};
     }
 
-    bool checkbox::use(Context& ctx) const {
-        auto model = get_checkbox_model(ctx, *this);
+    void checkbox::use(Context& ctx, std::function<void()> callback) const {
+        Rectangle outlineArea = mBoundingBox;
+        ctx.fit_rect_in_window(outlineArea);
 
-        Color secondaryColor = internal::get_yiq_contrast(mBaseColor);
-        ctx.render_rectangle(model.outlineArea, secondaryColor);
-        ctx.render_rectangle(model.baseArea,
-                             model.hoveringOverArea && model.isFocused
-                             ? internal::lighten_color_by(mBaseColor, 30)
-                             : mBaseColor);
+        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus2& focus) {
+            auto model = get_checkbox_model(ctx, *this, outlineArea, focus);
 
-        if (mValueRef) {
-            ctx.render_rectangle(model.checkArea, secondaryColor);
-        }
+            Color secondaryColor = internal::get_yiq_contrast(mBaseColor);
+            ctx.render_rectangle(model.outlineArea, secondaryColor);
+            ctx.render_rectangle(model.baseArea,
+                                 model.hoveringOverArea
+                                 ? internal::lighten_color_by(mBaseColor, 30)
+                                 : mBaseColor);
 
-        return model.valueChanged;
+            if (mValueRef) {
+                ctx.render_rectangle(model.checkArea, secondaryColor);
+            }
+
+            if (model.valueChanged) {
+                callback();
+            }
+        });
     }
 
-    bool textured_checkbox::use(Context& ctx) const {
-        auto model = get_checkbox_model(ctx, *this);
+    void textured_checkbox::use(Context& ctx, std::function<void()> callback) const {
+        Rectangle outlineArea = mBoundingBox;
+        ctx.fit_rect_in_window(outlineArea);
 
-        ctx.render_rectangle(model.outlineArea, mBaseTexture);
+        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus2& focus2) {
+            auto model = get_checkbox_model(ctx, *this, outlineArea, focus2);
 
-        if (mValueRef) {
-            ctx.render_rectangle(model.checkArea, mCheckTexture);
-        }
+            ctx.render_rectangle(model.outlineArea, mBaseTexture);
 
-        return model.valueChanged;
+            if (mValueRef) {
+                ctx.render_rectangle(model.checkArea, mCheckTexture);
+            }
+
+            if (model.valueChanged) {
+                callback();
+            }
+        });
     }
 }
