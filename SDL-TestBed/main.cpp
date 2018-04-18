@@ -82,8 +82,7 @@ private:
                                     .fontBitmapSizes(1024, 1024)
                                     .windowColors(colors::red | 200_a, colors::white | 50_a)
                                     .build());
-        mGui.ctx.set_render_handler(&gui_handler);
-        mGui.ctx.set_user_ptr(this);
+        mGui.ctx.set_render_handler([this](const reig::DrawData& data) { gui_handler(data); });
 
         mGui.font.data = mGui.ctx.set_font("/usr/share/fonts/TTF/impact.ttf", mGui.font.id, 20.f);
         auto* surf = SDL_CreateRGBSurfaceFrom(
@@ -109,9 +108,8 @@ private:
         }
     }
 
-    static void gui_handler(const reig::DrawData& drawData, std::any& userPtr) {
+    void gui_handler(const reig::DrawData& drawData) {
         namespace colors = reig::primitive::colors;
-        auto* self = std::any_cast<Main*>(userPtr);
 
         for(auto const& fig : drawData) {
             auto const& vertices = fig.vertices();
@@ -125,7 +123,7 @@ private:
             if(fig.texture() == 0) {
                 for(auto i = 0ul; i < number; i += 3) {
                     filledTrigonColor(
-                        self->mSdl.renderer,
+                        mSdl.renderer,
                         vertices[indices[i  ]].position.x,
                         vertices[indices[i  ]].position.y,
                         vertices[indices[i+1]].position.x,
@@ -136,18 +134,18 @@ private:
                     );
                 }
             }
-            else if(fig.texture() == self->mGui.font.id) {
+            else if(fig.texture() == mGui.font.id) {
                 SDL_Rect src;
-                src.x = vertices[0].texCoord.x * self->mGui.font.data.width;
-                src.y = vertices[0].texCoord.y * self->mGui.font.data.height;
-                src.w = vertices[2].texCoord.x * self->mGui.font.data.width  - src.x;
-                src.h = vertices[2].texCoord.y * self->mGui.font.data.height - src.y;
+                src.x = vertices[0].texCoord.x * mGui.font.data.width;
+                src.y = vertices[0].texCoord.y * mGui.font.data.height;
+                src.w = vertices[2].texCoord.x * mGui.font.data.width  - src.x;
+                src.h = vertices[2].texCoord.y * mGui.font.data.height - src.y;
                 SDL_Rect dst;
                 dst.x = vertices[0].position.x;
                 dst.y = vertices[0].position.y;
                 dst.w = vertices[2].position.x - dst.x;
                 dst.h = vertices[2].position.y - dst.y;
-                SDL_RenderCopy(self->mSdl.renderer, self->mGui.font.tex, &src, &dst);
+                SDL_RenderCopy(mSdl.renderer, mGui.font.tex, &src, &dst);
             }
         }
     }

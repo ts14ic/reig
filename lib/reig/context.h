@@ -10,12 +10,10 @@
 #include "stb_truetype.h"
 #include "focus2.h"
 #include <vector>
-#include <any>
-#include <functional>
 
 namespace reig {
     using DrawData = std::vector<primitive::Figure>;
-    using RenderHandler = void (*)(const DrawData&, std::any&);
+    using RenderHandler = std::function<void(const DrawData&)>;
 
     namespace detail {
         struct Font {
@@ -62,13 +60,6 @@ namespace reig {
          * The handler should return void and take in const DrawData& and void*
          */
         void set_render_handler(RenderHandler handler);
-
-        /**
-         * @brief Set a user pointer to store in the context.
-         * @param ptr A user data pointer.
-         * The pointer is then automatically passed to callbacks.
-         */
-        void set_user_ptr(std::any ptr);
 
         struct FontBitmap {
             std::vector<uint8_t> bitmap;
@@ -162,8 +153,7 @@ namespace reig {
         std::vector<primitive::Figure> mDrawData;
         Config mConfig;
 
-        RenderHandler mRenderHandler = nullptr;
-        std::any mUserPtr;
+        RenderHandler mRenderHandler;
         unsigned mFrameCounter = 0;
     };
 }

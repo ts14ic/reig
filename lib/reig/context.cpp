@@ -24,11 +24,6 @@ namespace reig {
         mRenderHandler = renderHandler;
     }
 
-    void Context::set_user_ptr(std::any ptr) {
-        using std::move;
-        mUserPtr = move(ptr);
-    }
-
     vector<uint8_t> read_font_into_buffer(char const* fontFilePath) {
         using exception::FailedToLoadFontException;
 
@@ -100,8 +95,8 @@ namespace reig {
             auto widgetDrawData = move(mDrawData);
             mDrawData.clear();
             render_windows();
-            mRenderHandler(mDrawData, mUserPtr);
-            mRenderHandler(widgetDrawData, mUserPtr);
+            mRenderHandler(mDrawData);
+            mRenderHandler(widgetDrawData);
         }
     }
 
