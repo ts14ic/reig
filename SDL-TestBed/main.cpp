@@ -305,23 +305,23 @@ private:
         primitive::Color color{120_r, 150_g, 150_b};
 
         static float sliderValue0 = 20;
-        if (widget::slider{rect, color, sliderValue0, 20, 40, 5}.use(mGui.ctx)) {
 //        if (widget::textured_slider{rect, 0, mGui.font.id, sliderValue0, 20, 40, 5}.use(mGui.ctx)) {
-            std::cout << "Slider 1: new value " << sliderValue0 << std::endl;
-        }
+        widget::slider{rect, color, sliderValue0, 20, 40, 5}.use(mGui.ctx, []() {
+            std::cout << boost::format("Slider 0: new value %.2f") % sliderValue0 << std::endl;
+        });
 
         rect = {rect.x, rect.y + 40, rect.width + 50, rect.height};
         color = color + 50_g;
         static float sliderValue1 = 5.4f;
-        if (widget::slider{rect, color, sliderValue1, 3, 7, 0.1f}.use(mGui.ctx)) {
-            std::cout << "Slider 2: new value " << sliderValue1 << std::endl;
-        }
+        widget::slider{rect, color, sliderValue1, 3, 7, 0.1f}.use(mGui.ctx, [](){
+            std::cout << "Slider 1: new value " << sliderValue1 << std::endl;
+        });
 
         rect = {rect.x, rect.y + 40, rect.width + 80, rect.height + 10};
         static float sliderValue2 = 0.3f;
-        if (widget::slider{rect, {220_r, 200_g, 150_b}, sliderValue2, 0.1f, 0.5f, 0.05f}.use(mGui.ctx)) {
+        widget::slider{rect, {220_r, 200_g, 150_b}, sliderValue2, 0.1f, 0.5f, 0.05f}.use(mGui.ctx, [](){
             std::cout << "Slider 2: new value " << sliderValue2 << std::endl;
-        }
+        });
 
         rect = {0, 5, 30, 200};
         static float scrollValue0 = 0.0f;

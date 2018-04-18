@@ -21,7 +21,7 @@ namespace reig::reference_widget {
          *
          * @return True if the button was clicked, false otherwise
          */
-        void use(Context& ctx, std::function<void()> callback) const;
+        void use(Context& ctx, std::function<void()> callback = [](){}) const;
     };
 
     struct textured_button {
@@ -69,9 +69,7 @@ namespace reig::reference_widget {
          * @param step The discrete portion by which the value can change
          * @return True if value changed
          */
-        void use(Context& ctx, std::function<void()> callback) const;
-
-        bool use(Context& ctx) const;
+        void use(Context& ctx, std::function<void()> callback = [](){}) const;
     };
 
     struct textured_slider {
