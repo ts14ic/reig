@@ -6,7 +6,6 @@ namespace reig::reference_widget {
     using namespace primitive;
 
     struct ButtonModel {
-        const char* title = nullptr;
         Rectangle outlineArea;
         Rectangle baseArea;
         bool hoveringOverArea = false;
@@ -36,7 +35,7 @@ namespace reig::reference_widget {
             }
         }
 
-        return {nullptr, outlineArea, baseArea, hoveringOverArea, justClicked, holdingClick};
+        return {outlineArea, baseArea, hoveringOverArea, justClicked, holdingClick};
     }
 
     bool button::use(Context& ctx) const {
@@ -56,8 +55,41 @@ namespace reig::reference_widget {
         return model.justClicked;
     }
 
-    void render_colored_button(Context& ctx, const ButtonModel& model, const Color& primaryColor) {
-        Color innerColor{primaryColor};
+    template <typename B>
+    ButtonModel get_button_model(Context& ctx, const B& button, const Rectangle& outlineArea, const Focus2& focus) {
+        Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
+
+        ButtonModel model;
+        model.outlineArea = outlineArea;
+        model.baseArea = baseArea;
+
+        switch (focus) {
+            case Focus2::HOVER: {
+                model.hoveringOverArea = true;
+                break;
+            }
+
+            case Focus2::CLICK: {
+                model.justClicked = true;
+                break;
+            }
+
+            case Focus2::HOLD: {
+                model.holdingClick = true;
+                model.baseArea = internal::decrease_rect(baseArea, 2);
+                break;
+            }
+
+            default: {
+                break;
+            }
+        }
+
+        return model;
+    }
+
+    void render_colored_button(Context& ctx, const ButtonModel& model, const button& button) {
+        Color innerColor{button.mBaseColor};
         if (model.hoveringOverArea) {
             innerColor = internal::lighten_color_by(innerColor, 30);
         }
@@ -66,7 +98,7 @@ namespace reig::reference_widget {
         }
         ctx.render_rectangle(model.outlineArea, internal::get_yiq_contrast(innerColor));
         ctx.render_rectangle(model.baseArea, innerColor);
-        ctx.render_text(model.title, model.baseArea);
+        ctx.render_text(button.mTitle.c_str(), model.baseArea);
     }
 
     void button::use(reig::Context& ctx, std::function<void()> callback) {
@@ -74,36 +106,9 @@ namespace reig::reference_widget {
         ctx.fit_rect_in_window(outlineArea);
 
         ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus2& focus) {
-            Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
+            auto model = get_button_model(ctx, *this, outlineArea, focus);
 
-            ButtonModel model;
-            model.title = mTitle.c_str();
-            model.outlineArea = outlineArea;
-            model.baseArea = baseArea;
-
-            switch (focus) {
-                case Focus2::HOVER: {
-                    model.hoveringOverArea = true;
-                    break;
-                }
-
-                case Focus2::CLICK: {
-                    model.justClicked = true;
-                    break;
-                }
-
-                case Focus2::HOLD: {
-                    model.holdingClick = true;
-                    model.baseArea = internal::decrease_rect(baseArea, 2);
-                    break;
-                }
-
-                default: {
-                    break;
-                }
-            }
-
-            render_colored_button(ctx, model, mBaseColor);
+            render_colored_button(ctx, model, *this);
 
             if (model.justClicked) {
                 callback();
