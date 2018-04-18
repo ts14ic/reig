@@ -8,7 +8,7 @@
 namespace reig::reference_widget {
     namespace detail {
         // FIXME: This cache can't be dropped
-        float& get_scroll_value(const char* title);
+        float& get_scroll_value(const void* scrollbar);
 
         template <typename Iter, typename Adapter, typename Action>
         struct list {
@@ -46,7 +46,7 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::use(reig::Cont
         ctx.render_rectangle(internal::decrease_rect(listArea, 2), mBaseColor - 50_a);
     }
 
-    auto& scrolled = detail::get_scroll_value(mTitle);
+    auto& scrolled = detail::get_scroll_value(this);
     float fontHeight = ctx.get_font_size();
     auto skippedItemCount = static_cast<int>(scrolled / fontHeight);
 

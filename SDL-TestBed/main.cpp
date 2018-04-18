@@ -326,7 +326,7 @@ private:
         rect = {0, 5, 30, 200};
         widget::scrollbar{rect, colors::black, scrollValue0, 1000.0f}.use(mGui.ctx);
 
-        rect = {rect.x + 50, rect.y + 150, rect.width + 250, 30};
+        rect = {rect.x + 50, rect.y + 150, rect.height, rect.width};
         widget::scrollbar{rect, colors::black, scrollValue0, 1000.0f}.use(mGui.ctx);
     }
 
