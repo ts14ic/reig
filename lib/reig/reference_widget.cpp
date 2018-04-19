@@ -113,6 +113,8 @@ namespace reig::reference_widget {
 
         bool justClicked = focus == Focus::CLICK;
         if (justClicked) {
+            baseArea = internal::decrease_rect(baseArea, 4);
+            checkArea = internal::decrease_rect(checkArea, 4);
             checkbox.mValueRef = !checkbox.mValueRef;
         }
 
