@@ -1,6 +1,7 @@
 #ifndef REIG_KEYBOARD_H
 #define REIG_KEYBOARD_H
 
+#include "fwd.h"
 #include <vector>
 
 namespace reig {
@@ -44,8 +45,6 @@ namespace reig {
 
             void press_modifier(KeyModifier modifier);
 
-            void reset();
-
             bool is_modifier_pressed(KeyModifier modifier) const;
 
             Key get_pressed_key_type() const;
@@ -53,6 +52,9 @@ namespace reig {
             int get_pressed_char() const;
 
         private:
+            friend ::reig::Context;
+            void reset();
+
             std::vector<KeyModifier> mModifiers;
             Key mSpecialKey = Key::NONE;
             int mKeyCode = 0;
