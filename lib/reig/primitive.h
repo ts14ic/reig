@@ -144,23 +144,23 @@ namespace reig::primitive {
         }
 
         // @formatter:off
-            #pragma clang diagnostic push
-            #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
-            Color constexpr transparent{Color::Red{},    Color::Green{},    Color::Blue{},    Color::Alpha{}};
-            Color constexpr red        {Color::Red{239}, Color::Green{41},  Color::Blue{41}};
-            Color constexpr orange     {Color::Red{252}, Color::Green{175}, Color::Blue{62}};
-            Color constexpr yellow     {Color::Red{252}, Color::Green{233}, Color::Blue{79}};
-            Color constexpr green      {Color::Red{138}, Color::Green{226}, Color::Blue{52}};
-            Color constexpr blue       {Color::Red{114}, Color::Green{159}, Color::Blue{207}};
-            Color constexpr violet     {Color::Red{173}, Color::Green{127}, Color::Blue{168}};
-            Color constexpr brown      {Color::Red{143}, Color::Green{89},  Color::Blue{2}};
-            Color constexpr white      {Color::Red{255}, Color::Green{255}, Color::Blue{255}};
-            Color constexpr lightGrey  {Color::Red{186}, Color::Green{189}, Color::Blue{182}};
-            Color constexpr mediumGrey {Color::Red{136}, Color::Green{138}, Color::Blue{133}};
-            Color constexpr darkGrey   {Color::Red{46},  Color::Green{52},  Color::Blue{54}};
-            Color constexpr black      {Color::Red{0},   Color::Green{0},   Color::Blue{0}};
-            #pragma clang diagnostic pop
-            // @formatter:on
+        #pragma clang diagnostic push
+        #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
+        Color constexpr transparent{Color::Red{},    Color::Green{},    Color::Blue{},    Color::Alpha{}};
+        Color constexpr red        {Color::Red{239}, Color::Green{41},  Color::Blue{41}};
+        Color constexpr orange     {Color::Red{252}, Color::Green{175}, Color::Blue{62}};
+        Color constexpr yellow     {Color::Red{252}, Color::Green{233}, Color::Blue{79}};
+        Color constexpr green      {Color::Red{138}, Color::Green{226}, Color::Blue{52}};
+        Color constexpr blue       {Color::Red{114}, Color::Green{159}, Color::Blue{207}};
+        Color constexpr violet     {Color::Red{173}, Color::Green{127}, Color::Blue{168}};
+        Color constexpr brown      {Color::Red{143}, Color::Green{89},  Color::Blue{2}};
+        Color constexpr white      {Color::Red{255}, Color::Green{255}, Color::Blue{255}};
+        Color constexpr lightGrey  {Color::Red{186}, Color::Green{189}, Color::Blue{182}};
+        Color constexpr mediumGrey {Color::Red{136}, Color::Green{138}, Color::Blue{133}};
+        Color constexpr darkGrey   {Color::Red{46},  Color::Green{52},  Color::Blue{54}};
+        Color constexpr black      {Color::Red{0},   Color::Green{0},   Color::Blue{0}};
+        #pragma clang diagnostic pop
+        // @formatter:on
     }
 
     struct Vertex {
