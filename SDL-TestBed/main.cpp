@@ -242,14 +242,14 @@ private:
                       reig::text::Alignment::CENTER, mFontScale}.use(mGui.ctx);
 
         draw_buttons();
-//        draw_checkboxes();
+        draw_checkboxes();
         draw_sliders();
 //        draw_text_entries();
 //        draw_list();
     }
 
     Window mButtonsWindow {"Buttons", 30, 30};
-//    Window mCheckboxesWindow {"Checkboxes", 200, 30};
+    Window mCheckboxesWindow {"Checkboxes", 200, 30};
     Window mSlidersWindow {"Sliders", 430, 30};
 //    Window mTextEntryWindow {"Text entry", 30, 250};
 //    Window mListWindow {"List", 800, 30};
@@ -271,32 +271,32 @@ private:
         }
     }
 
-//    void draw_checkboxes() {
-//        start_window(mCheckboxesWindow);
-//
-//        primitive::Color color{150_r, 115_g, 140_b};
-//        primitive::Rectangle rect = {0, 0, 40, 20};
-//
-//        static bool checkBox1 = false;
-////        if(widget::textured_checkbox{rect, 0, mGui.font.id, checkBox1}.use(mGui.ctx)) {
-//        widget::checkbox{rect, color, checkBox1}.use(mGui.ctx, []() {
-//            std::cout << "Checkbox 1: new value " << checkBox1 << std::endl;
-//        });
-//
-//        color = color - 100_r + 100_g + 100_b;
-//        rect = {rect.x + 80, rect.y + 50, 50, 50};
-//        static bool checkBox2 = true;
-//        widget::checkbox{rect, color, checkBox2}.use(mGui.ctx, []() {
-//            std::cout << "Checkbox 2: new value " << checkBox2 << std::endl;
-//        });
-//
-//        color = colors::white;
-//        rect = {rect.x + 80, rect.y - 50, 25, 25};
-//        static bool checkBox3 = false;
-//        widget::checkbox{rect, color, checkBox3}.use(mGui.ctx, []() {
-//            std::cout << "Checkbox 3: new value " << checkBox3 << std::endl;
-//        });
-//    }
+    void draw_checkboxes() {
+        start_window(mCheckboxesWindow);
+
+        primitive::Color color{150_r, 115_g, 140_b};
+        primitive::Rectangle rect = {0, 0, 40, 20};
+
+        static bool checkBox1 = false;
+//        if(widget::textured_checkbox{rect, 0, mGui.font.id, checkBox1}.use(mGui.ctx)) {
+        if (widget::checkbox{rect, color, checkBox1}.use(mGui.ctx)) {
+            std::cout << "Checkbox 1: new value " << checkBox1 << std::endl;
+        }
+
+        color = color - 100_r + 100_g + 100_b;
+        rect = {rect.x + 80, rect.y + 50, 50, 50};
+        static bool checkBox2 = true;
+        if (widget::checkbox{rect, color, checkBox2}.use(mGui.ctx)) {
+            std::cout << "Checkbox 2: new value " << checkBox2 << std::endl;
+        }
+
+        color = colors::white;
+        rect = {rect.x + 80, rect.y - 50, 25, 25};
+        static bool checkBox3 = false;
+        if (widget::checkbox{rect, color, checkBox3}.use(mGui.ctx)) {
+            std::cout << "Checkbox 3: new value " << checkBox3 << std::endl;
+        }
+    }
 
     void draw_sliders() {
         start_window(mSlidersWindow);

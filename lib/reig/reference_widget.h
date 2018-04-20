@@ -108,35 +108,35 @@ namespace reig::reference_widget {
         bool use(Context& ctx) const;
     };
 
-//    struct checkbox {
-//        primitive::Rectangle mBoundingBox;
-//        primitive::Color mBaseColor;
-//        bool& mValueRef;
-//        /**
-//         * @brief Renders a checkbox
-//         * @param box Checkbox's position and size
-//         * @param color Checkbox's base color
-//         * @param value A reference to the bool to be changed
-//         * @return True if value changed
-//         */
-//        void use(Context& ctx, std::function<void()> callback = [](){}) const;
-//    };
-//
-//    struct textured_checkbox {
-//        primitive::Rectangle mBoundingBox;
-//        int mBaseTexture = 0, mCheckTexture = 0;
-//        bool& mValueRef;
-//
-//        /**
-//         * @brief Renders a textured checkbox
-//         * @param box Checkbox's position and size
-//         * @param baseTexture Checkbox's base texture
-//         * @param tickTexture Checkbox's tick texture
-//         * @param value A reference to the bool to be changed
-//         * @return True if value changed
-//         */
-//        void use(Context& ctx, std::function<void()> callback = [](){}) const;
-//    };
+    struct checkbox {
+        primitive::Rectangle mBoundingBox;
+        primitive::Color mBaseColor;
+        bool& mValueRef;
+        /**
+         * @brief Renders a checkbox
+         * @param box Checkbox's position and size
+         * @param color Checkbox's base color
+         * @param value A reference to the bool to be changed
+         * @return True if value changed
+         */
+        bool use(Context& ctx) const;
+    };
+
+    struct textured_checkbox {
+        primitive::Rectangle mBoundingBox;
+        int mBaseTexture = 0, mCheckTexture = 0;
+        bool& mValueRef;
+
+        /**
+         * @brief Renders a textured checkbox
+         * @param box Checkbox's position and size
+         * @param baseTexture Checkbox's base texture
+         * @param tickTexture Checkbox's tick texture
+         * @param value A reference to the bool to be changed
+         * @return True if value changed
+         */
+        bool use(Context& ctx) const;
+    };
 }
 
 #endif //REIG_REFERENCE_WIDGET_H
