@@ -155,15 +155,15 @@ public:
             widget::checkbox{{0, yline, 25, 25}, colors::darkGrey, check}.use(ctx);
             
             if(check) {
-                widget::button{"S", {31, yline, 60, 25}, colors::mediumGrey}.use(ctx, []() {
+                if (widget::button{"S", {31, yline, 60, 25}, colors::mediumGrey}.use(ctx)) {
                     scaling = 1.f;
-                });
-                widget::button{"R", {97, yline, 60, 25}, colors::mediumGrey}.use(ctx, []() {
+                }
+                if (widget::button{"R", {97, yline, 60, 25}, colors::mediumGrey}.use(ctx)) {
                     rotation[0] = rotation[1] = rotation[2] = 0.f;
-                });
-                widget::button{"C", {163, yline, 60, 25}, colors::mediumGrey}.use(ctx, []() {
+                }
+                if (widget::button{"C", {163, yline, 60, 25}, colors::mediumGrey}.use(ctx)) {
                     cubeColor[0] = cubeColor[1] = cubeColor[2] = 255.f;
-                });
+                }
                 
                 yline += step;
                 widget::label{"Scale:", {0, yline, 230, 25}}.use(ctx);
@@ -304,7 +304,8 @@ public:
         }
     }
     
-    void render_handler(reig::DrawData const& drawData) {
+    static void render_handler(reig::DrawData const& drawData, std::any userPtr) {
+        auto* self = std::any_cast<Test*>(userPtr);
         struct {
             GLint shader, vao, vbo, ebo, texture, blendsrc, blenddst;
             GLboolean depthtest, stenciltest, blend;
@@ -320,9 +321,9 @@ public:
         glGetBooleanv(GL_STENCIL_TEST, &last.stenciltest);
         glGetBooleanv(GL_BLEND, &last.blend);
         
-        gui.shader.use();
-        glBindVertexArray(gui.vao);
-        glBindBuffer(GL_ARRAY_BUFFER, gui.vbo);
+        self->gui.shader.use();
+        glBindVertexArray(self->gui.vao);
+        glBindBuffer(GL_ARRAY_BUFFER, self->gui.vbo);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(reig::primitive::Vertex), nullptr);
         glEnableVertexAttribArray(1);
@@ -330,7 +331,7 @@ public:
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(reig::primitive::Vertex), (void*)(offsetof(reig::primitive::Vertex, color)));
         
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gui.ebo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self->gui.ebo);
         
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_STENCIL_TEST);
@@ -343,7 +344,7 @@ public:
             auto vnumber = figure.vertices().size();
             auto inumber = figure.indices().size();
             
-            glUniform1ui(gui.shader.uniform("fragTexId"), figure.texture());
+            glUniform1ui(self->gui.shader.uniform("fragTexId"), figure.texture());
             glBindTexture(GL_TEXTURE_2D, figure.texture());
             
             glBufferData(GL_ARRAY_BUFFER, sizeof(vertices[0]) * vnumber, vertices, GL_STATIC_DRAW);
@@ -370,7 +371,8 @@ public:
                                .windowColors(colors::darkGrey | 200_a, colors::blue | 100_a)
                                .fontBitmapSizes(1024, 1024)
                                .build());
-        ctx.set_render_handler([this](const reig::DrawData& data) { render_handler(data); });
+        ctx.set_render_handler(&render_handler);
+        ctx.set_user_ptr(this);
         
         glGenTextures(1, &font.tex);
         auto f = ctx.set_font("/usr/share/fonts/TTF/impact.ttf", font.tex, 20.f);
