@@ -244,14 +244,14 @@ private:
         draw_buttons();
         draw_checkboxes();
         draw_sliders();
-//        draw_text_entries();
+        draw_text_entries();
 //        draw_list();
     }
 
     Window mButtonsWindow {"Buttons", 30, 30};
     Window mCheckboxesWindow {"Checkboxes", 200, 30};
     Window mSlidersWindow {"Sliders", 430, 30};
-//    Window mTextEntryWindow {"Text entry", 30, 250};
+    Window mTextEntryWindow {"Text entry", 30, 250};
 //    Window mListWindow {"List", 800, 30};
 
     void draw_buttons() {
@@ -332,23 +332,23 @@ private:
         widget::scrollbar{rect, colors::black, scrollValue0, 1000.0f}.use(mGui.ctx);
     }
 
-//    void draw_text_entries() {
-//        start_window(mTextEntryWindow);
-//        primitive::Rectangle rect {0, 0, 300, 40};
-//        primitive::Color color {120_r, 100_g, 150_b};
-//
-//        static std::string entry1;
-//        widget::entry("Entry 1", rect, colors::violet, entry1, [](const std::string& input) {
-//            std::cout << "Entry 1: " << input << '\n';
-//        }).use(mGui.ctx);
-//
-//        rect.y += 50;
-//        static std::string entry2;
-//        widget::entry("Entry 2", rect, colors::black, mTextEntryWindow.title, [](const std::string& input) {
-//            std::cout << "Entry 2: " << input << '\n';
-//        }).use(mGui.ctx);
-//    }
-//
+    void draw_text_entries() {
+        start_window(mTextEntryWindow);
+        primitive::Rectangle rect {0, 0, 300, 40};
+        primitive::Color color {120_r, 100_g, 150_b};
+
+        static std::string entry1;
+        widget::entry("Entry 1", rect, colors::violet, entry1, [](const std::string& input) {
+            std::cout << "Entry 1: " << input << '\n';
+        }).use(mGui.ctx);
+
+        rect.y += 50;
+        static std::string entry2;
+        widget::entry("Entry 2", rect, colors::black, mTextEntryWindow.title, [](const std::string& input) {
+            std::cout << "Entry 2: " << input << '\n';
+        }).use(mGui.ctx);
+    }
+
 //    void draw_list() {
 //        // assume these are members
 //        struct Foo {
