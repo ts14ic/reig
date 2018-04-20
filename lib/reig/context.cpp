@@ -7,11 +7,12 @@
 #include <memory>
 #include <algorithm>
 
-namespace reig {
-    using namespace primitive;
-    using std::unique_ptr;
-    using std::vector;
+using namespace reig::primitive;
+using std::unique_ptr;
+using std::reference_wrapper;
+using std::vector;
 
+namespace reig {
     Context::Context() : Context{Config::builder().build()} {}
 
     Context::Context(const Config& config)
@@ -103,17 +104,9 @@ namespace reig {
             mRenderHandler(widgetDrawData, mUserPtr);
         }
 
-        //{{{ Remove non rendered windows from previous
-        auto previousBegin = begin(mPreviousWindows);
-        auto previousEnd = end(mPreviousWindows);
-        auto queuedBegin = begin(mQueuedWindows);
-        auto queuedEnd = end(mQueuedWindows);
-        auto removeFrom = std::remove_if(previousBegin, previousEnd, [&](const std::string& previous) {
-            return std::find_if(queuedBegin, queuedEnd, [&](const detail::Window& queued){
-                return queued.mTitle == previous;
-            }) == queuedEnd;
-        });
-        mPreviousWindows.erase(removeFrom, previousEnd);
+        //{{{ persist previous windows
+        mPreviousWindows = move(mQueuedWindows);
+        std::reverse(begin(mPreviousWindows), end(mPreviousWindows));
         //}}}
     }
 
@@ -147,6 +140,14 @@ namespace reig {
         return mFrameCounter;
     }
 
+    detail::Window* Context::get_current_window() {
+        if (!mQueuedWindows.empty()) {
+            return &mQueuedWindows.back();
+        } else {
+            return nullptr;
+        }
+    }
+
     void Context::start_window(const std::string& aTitle, float& aX, float& aY) {
         if (!mQueuedWindows.empty()) end_window();
 
@@ -160,14 +161,6 @@ namespace reig {
         currentWindow.mTitleBarHeight = 8 + mFont.mHeight;
 
         mQueuedWindows.push_back(currentWindow);
-
-        //{{{ Add to previous windows
-        auto previousBegin = std::begin(mPreviousWindows);
-        auto previousEnd = std::end(mPreviousWindows);
-        if (std::find(previousBegin, previousEnd, aTitle) == previousEnd) {
-            mPreviousWindows.push_back(aTitle);
-        }
-        //}}}
     }
 
     void Context::render_windows() {
@@ -252,6 +245,10 @@ namespace reig {
         if (rect.y < *mY) {
             rect.y = *mY + 4;
         }
+    }
+
+    primitive::Rectangle detail::as_rect(const Window& window) {
+        return {*window.mX, *window.mY, window.mWidth, window.mHeight};
     }
 
     void Context::fit_rect_in_window(Rectangle& rect) {

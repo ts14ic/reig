@@ -40,6 +40,8 @@ namespace reig {
              */
             void fit_rect(primitive::Rectangle& rect);
         };
+
+        primitive::Rectangle as_rect(const Window& window);
     }
 
     /**
@@ -146,8 +148,10 @@ namespace reig {
         friend reig::detail::Mouse;
         friend reig::detail::MouseButton;
 
+        detail::Window* get_current_window();
+
         std::string* mDraggedWindow = nullptr;
-        std::vector<std::string> mPreviousWindows;
+        std::vector<detail::Window> mPreviousWindows;
         std::vector<detail::Window> mQueuedWindows;
         std::vector<primitive::Figure> mDrawData;
 

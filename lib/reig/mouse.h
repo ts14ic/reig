@@ -38,11 +38,11 @@ namespace reig::detail {
         bool is_held() const;
     private:
         friend class ::reig::Context;
+        friend class ::reig::detail::Mouse;
+
         const primitive::Point& get_clicked_pos() const;
 
         bool is_clicked() const;
-
-        friend class ::reig::detail::Mouse;
 
         Mouse& mMouse;
         primitive::Point mClickedPos;
@@ -90,9 +90,10 @@ namespace reig::detail {
         float get_scrolled() const;
 
     private:
-        const primitive::Point& get_cursor_pos() const;
-
         friend class ::reig::Context;
+        friend class ::reig::detail::MouseButton;
+
+        const primitive::Point& get_cursor_pos() const;
 
         Context& mContext;
         primitive::Point mCursorPos;
