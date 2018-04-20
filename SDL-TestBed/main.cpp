@@ -82,7 +82,8 @@ private:
                                     .fontBitmapSizes(1024, 1024)
                                     .windowColors(colors::red | 200_a, colors::white | 50_a)
                                     .build());
-        mGui.ctx.set_render_handler([this](const reig::DrawData& data) { gui_handler(data); });
+        mGui.ctx.set_render_handler(&gui_handler);
+        mGui.ctx.set_user_ptr(this);
 
         mGui.font.data = mGui.ctx.set_font("/usr/share/fonts/TTF/impact.ttf", mGui.font.id, 20.f);
         auto* surf = SDL_CreateRGBSurfaceFrom(
@@ -108,7 +109,8 @@ private:
         }
     }
 
-    void gui_handler(const reig::DrawData& drawData) {
+    void static gui_handler(const reig::DrawData& drawData, std::any userPtr) {
+        auto* self = std::any_cast<Main*>(userPtr);
         namespace colors = reig::primitive::colors;
 
         for(auto const& fig : drawData) {
@@ -123,7 +125,7 @@ private:
             if(fig.texture() == 0) {
                 for(auto i = 0ul; i < number; i += 3) {
                     filledTrigonColor(
-                        mSdl.renderer,
+                        self->mSdl.renderer,
                         vertices[indices[i  ]].position.x,
                         vertices[indices[i  ]].position.y,
                         vertices[indices[i+1]].position.x,
@@ -134,18 +136,18 @@ private:
                     );
                 }
             }
-            else if(fig.texture() == mGui.font.id) {
+            else if(fig.texture() == self->mGui.font.id) {
                 SDL_Rect src;
-                src.x = vertices[0].texCoord.x * mGui.font.data.width;
-                src.y = vertices[0].texCoord.y * mGui.font.data.height;
-                src.w = vertices[2].texCoord.x * mGui.font.data.width  - src.x;
-                src.h = vertices[2].texCoord.y * mGui.font.data.height - src.y;
+                src.x = vertices[0].texCoord.x * self->mGui.font.data.width;
+                src.y = vertices[0].texCoord.y * self->mGui.font.data.height;
+                src.w = vertices[2].texCoord.x * self->mGui.font.data.width  - src.x;
+                src.h = vertices[2].texCoord.y * self->mGui.font.data.height - src.y;
                 SDL_Rect dst;
                 dst.x = vertices[0].position.x;
                 dst.y = vertices[0].position.y;
                 dst.w = vertices[2].position.x - dst.x;
                 dst.h = vertices[2].position.y - dst.y;
-                SDL_RenderCopy(mSdl.renderer, mGui.font.tex, &src, &dst);
+                SDL_RenderCopy(self->mSdl.renderer, self->mGui.font.tex, &src, &dst);
             }
         }
     }
@@ -263,9 +265,9 @@ private:
 
             std::string title = boost::str(boost::format("some %d") % (i + 1));
 
-            widget::button{title, rect, color}.use(mGui.ctx, [title]() {
+            if (widget::button{title.c_str(), rect, color}.use(mGui.ctx)) {
                 std::cout << boost::format("Button {%s} pressed\n") % title;
-            });
+            }
         }
     }
 
@@ -277,23 +279,23 @@ private:
 
         static bool checkBox1 = false;
 //        if(widget::textured_checkbox{rect, 0, mGui.font.id, checkBox1}.use(mGui.ctx)) {
-        widget::checkbox{rect, color, checkBox1}.use(mGui.ctx, []() {
+        if (widget::checkbox{rect, color, checkBox1}.use(mGui.ctx)) {
             std::cout << "Checkbox 1: new value " << checkBox1 << std::endl;
-        });
+        }
 
         color = color - 100_r + 100_g + 100_b;
         rect = {rect.x + 80, rect.y + 50, 50, 50};
         static bool checkBox2 = true;
-        widget::checkbox{rect, color, checkBox2}.use(mGui.ctx, []() {
+        if (widget::checkbox{rect, color, checkBox2}.use(mGui.ctx)) {
             std::cout << "Checkbox 2: new value " << checkBox2 << std::endl;
-        });
+        }
 
         color = colors::white;
         rect = {rect.x + 80, rect.y - 50, 25, 25};
         static bool checkBox3 = false;
-        widget::checkbox{rect, color, checkBox3}.use(mGui.ctx, []() {
+        if (widget::checkbox{rect, color, checkBox3}.use(mGui.ctx)) {
             std::cout << "Checkbox 3: new value " << checkBox3 << std::endl;
-        });
+        }
     }
 
     void draw_sliders() {
@@ -304,22 +306,22 @@ private:
 
         static float sliderValue0 = 20;
 //        if (widget::textured_slider{rect, 0, mGui.font.id, sliderValue0, 20, 40, 5}.use(mGui.ctx)) {
-        widget::slider{rect, color, sliderValue0, 20, 40, 5}.use(mGui.ctx, []() {
-            std::cout << boost::format("Slider 0: new value %.2f") % sliderValue0 << std::endl;
-        });
+        if (widget::slider{rect, color, sliderValue0, 20, 40, 5}.use(mGui.ctx)) {
+            std::cout << boost::format("Slider 0: new value %.2f\n") % sliderValue0;
+        }
 
         rect = {rect.x, rect.y + 40, rect.width + 50, rect.height};
         color = color + 50_g;
         static float sliderValue1 = 5.4f;
-        widget::slider{rect, color, sliderValue1, 3, 7, 0.1f}.use(mGui.ctx, [](){
+        if (widget::slider{rect, color, sliderValue1, 3, 7, 0.1f}.use(mGui.ctx)) {
             std::cout << "Slider 1: new value " << sliderValue1 << std::endl;
-        });
+        }
 
         rect = {rect.x, rect.y + 40, rect.width + 80, rect.height + 10};
         static float sliderValue2 = 0.3f;
-        widget::slider{rect, {220_r, 200_g, 150_b}, sliderValue2, 0.1f, 0.5f, 0.05f}.use(mGui.ctx, [](){
+        if (widget::slider{rect, {220_r, 200_g, 150_b}, sliderValue2, 0.1f, 0.5f, 0.05f}.use(mGui.ctx)) {
             std::cout << "Slider 2: new value " << sliderValue2 << std::endl;
-        });
+        }
 
         static float scrollValue0 = 0.0f;
 
@@ -375,28 +377,28 @@ private:
         widget::entry("Add item", rect, colors::darkGrey, itemName, [](const std::string&) {}).use(mGui.ctx);
 
         rect = {rect.x + rect.width + 5, rect.y, 30, 40};
-        widget::button{"+", rect, colors::green}.use(mGui.ctx, []() {
+        if (widget::button{"+", rect, colors::green}.use(mGui.ctx)) {
             if (!itemName.empty()) {
                 foos.push_back(Foo{itemName});
             }
-        });
+        }
 
         rect = {rect.x + rect.width + 5, rect.y, 35, 40};
-        widget::button{"Cl", rect, colors::violet}.use(mGui.ctx, []() {
+        if (widget::button{"Cl", rect, colors::violet}.use(mGui.ctx)) {
             itemName.clear();
-        });
+        }
 
         rect = {rect.x + rect.width + 5, rect.y, 35, 40};
-        widget::button{"+", rect, colors::yellow}.use(mGui.ctx, []() {
+        if (widget::button{"+", rect, colors::yellow}.use(mGui.ctx)) {
             foos.push_back(Foo{std::to_string(foos.size())});
-        });
+        }
 
         rect = {0, rect.y + rect.height + 5, 280, 40};
-        widget::button{"Remove last", rect, colors::red}.use(mGui.ctx, []() {
+        if (widget::button{"Remove last", rect, colors::red}.use(mGui.ctx)) {
             if (!foos.empty()) {
                 foos.pop_back();
             }
-        });
+        }
     }
 
     void render_frame(int& previousFrameTimestamp) {

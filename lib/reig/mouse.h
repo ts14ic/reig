@@ -5,9 +5,11 @@
 #include "fwd.h"
 
 namespace reig::detail {
+    class Mouse;
+
     class MouseButton {
     public:
-        MouseButton() = default;
+        explicit MouseButton(Mouse& mouse);
 
         MouseButton(const MouseButton&) = delete;
 
@@ -29,15 +31,20 @@ namespace reig::detail {
          */
         void release();
 
-        const primitive::Point& get_clicked_pos() const;
+        bool clicked_in_rect(const primitive::Rectangle& rect) const;
 
-        bool is_pressed() const;
+        bool just_clicked_in_rect(const primitive::Rectangle& rect) const;
+
+        bool is_held() const;
+    private:
+        friend class ::reig::Context;
+        friend class ::reig::detail::Mouse;
+
+        const primitive::Point& get_clicked_pos() const;
 
         bool is_clicked() const;
 
-    private:
-        friend class ::reig::Context;
-
+        Mouse& mMouse;
         primitive::Point mClickedPos;
         bool mIsPressed = false;
         bool mIsClicked = false;
@@ -45,7 +52,7 @@ namespace reig::detail {
 
     class Mouse {
     public:
-        Mouse() = default;
+        explicit Mouse(reig::Context& context);
 
         Mouse(const Mouse&) = delete;
 
@@ -78,13 +85,17 @@ namespace reig::detail {
          */
         void scroll(float dy);
 
+        bool is_hovering_over_rect(const primitive::Rectangle& rect) const;
+
         const primitive::Point& get_cursor_pos() const;
 
         float get_scrolled() const;
 
     private:
         friend class ::reig::Context;
+        friend class ::reig::detail::MouseButton;
 
+        Context& mContext;
         primitive::Point mCursorPos;
         float mScrolled = 0.0f;
     };

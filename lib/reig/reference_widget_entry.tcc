@@ -11,7 +11,7 @@ namespace reig::reference_widget {
             const Rectangle baseArea;
             const Rectangle caretArea;
             const bool isSelected = false;
-            const bool isHoveringOverArea = false;
+            const bool holdingClick = false;
         };
 
         template <typename E>
@@ -23,59 +23,59 @@ namespace reig::reference_widget {
         Rectangle outlineArea = mBoundingArea;
         ctx.fit_rect_in_window(outlineArea);
 
-        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus& focus) {
-            Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
-            Rectangle caretArea {0, baseArea.y, 0, baseArea.height};
-            bool hoveringOverArea = focus == Focus::HOVER;
-            bool isSelected = focus == Focus::SELECT;
+        Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
+        Rectangle caretArea {0, baseArea.y, 0, baseArea.height};
+        bool isSelected = ctx.mouse.leftButton.clicked_in_rect(outlineArea);
+        bool holdingClick = isSelected && ctx.mouse.leftButton.is_held();
 
-            bool isInputModified = false;
-            if (isSelected) {
-                baseArea = internal::decrease_rect(baseArea, 4);
+        if (holdingClick) {
+            baseArea = internal::decrease_rect(baseArea, 4);
+        }
 
-                if ((ctx.get_frame_counter() / 30) % 2 == 0) {
-                    caretArea = internal::decrease_rect(caretArea, 10);
-                    caretArea.width = 2;
+        bool isInputModified = false;
+        if (isSelected) {
+            if ((ctx.get_frame_counter() / 30) % 2 == 0) {
+                caretArea = internal::decrease_rect(caretArea, 10);
+                caretArea.width = 2;
+            }
+
+            Key keyType = ctx.keyboard.get_pressed_key_type();
+            switch (keyType) {
+                case Key::CHAR: {
+                    mValueRef += ctx.keyboard.get_pressed_char();
+                    isInputModified = true;
+                    break;
                 }
 
-                Key keyType = ctx.keyboard.get_pressed_key_type();
-                switch (keyType) {
-                    case Key::CHAR: {
-                        mValueRef += ctx.keyboard.get_pressed_char();
+                case Key::BACKSPACE: {
+                    using std::empty;
+                    if (!empty(mValueRef)) {
+                        mValueRef.pop_back();
                         isInputModified = true;
-                        break;
                     }
+                    break;
+                }
 
-                    case Key::BACKSPACE: {
-                        using std::empty;
-                        if (!empty(mValueRef)) {
-                            mValueRef.pop_back();
-                            isInputModified = true;
-                        }
-                        break;
-                    }
+                case Key::RETURN:
+                case Key::ESCAPE: {
+                    ctx.mouse.leftButton.press(outlineArea.x, outlineArea.y);
+                    ctx.mouse.leftButton.release();
+                    break;
+                }
 
-                    case Key::RETURN:
-                    case Key::ESCAPE: {
-                        ctx.mouse.leftButton.press(outlineArea.x, outlineArea.y);
-                        ctx.mouse.leftButton.release();
-                        break;
-                    }
-
-                    default: {
-                        break;
-                    }
+                default: {
+                    break;
                 }
             }
+        }
 
-            EntryModel model{outlineArea, baseArea, caretArea, isSelected, hoveringOverArea};
+        EntryModel model{outlineArea, baseArea, caretArea, isSelected, holdingClick};
 
-            display_entry_model(ctx, model, *this);
+        display_entry_model(ctx, model, *this);
 
-            if (isInputModified) {
-                mAction(mValueRef);
-            }
-        });
+        if (isInputModified) {
+            mAction(mValueRef);
+        }
     }
 
     template <typename E>
@@ -84,7 +84,7 @@ namespace reig::reference_widget {
 
         ctx.render_rectangle(model.outlineArea, secondaryColor);
         auto primaryColor = entry.mPrimaryColor;
-        if (model.isHoveringOverArea) {
+        if (model.holdingClick) {
             primaryColor = internal::lighten_color_by(primaryColor, 30);
         }
         ctx.render_rectangle(model.baseArea, primaryColor);

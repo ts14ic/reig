@@ -4,11 +4,10 @@
 #include "fwd.h"
 #include "text.h"
 #include "primitive.h"
-#include <functional>
 
 namespace reig::reference_widget {
     struct button {
-        const std::string mTitle;
+        const char* const mTitle;
         const primitive::Rectangle mBoundingBox;
         const primitive::Color mBaseColor;
 
@@ -21,13 +20,13 @@ namespace reig::reference_widget {
          *
          * @return True if the button was clicked, false otherwise
          */
-        void use(Context& ctx, std::function<void()> callback = [](){}) const;
+        bool use(Context& ctx) const;
     };
 
     struct textured_button {
-        const std::string mTitle;
-        primitive::Rectangle mBoundingBox;
-        int mHoverTexture = 0, mBaseTexture = 0;
+        const char* const mTitle;
+        const primitive::Rectangle mBoundingBox;
+        const int mHoverTexture = 0, mBaseTexture = 0;
 
         /**
          * @brief Render a titled textured button
@@ -36,7 +35,7 @@ namespace reig::reference_widget {
          * @param hoverTexture Button's texture index, when button is hoverred
          * @return True if the button was clicked, false otherwise
          */
-        void use(Context& ctx, std::function<void()> callback = [](){}) const;
+        bool use(Context& ctx) const;
     };
 
     struct label {
@@ -69,7 +68,7 @@ namespace reig::reference_widget {
          * @param step The discrete portion by which the value can change
          * @return True if value changed
          */
-        void use(Context& ctx, std::function<void()> callback = [](){}) const;
+        bool use(Context& ctx) const;
     };
 
     struct textured_slider {
@@ -90,7 +89,7 @@ namespace reig::reference_widget {
          * @param step The discrete portion by which the value can change
          * @return True if value changed
          */
-        void use(Context& ctx, std::function<void()> callback = [](){}) const;
+        bool use(Context& ctx) const;
     };
 
     struct scrollbar {
@@ -106,7 +105,7 @@ namespace reig::reference_widget {
          * @param value A reference to the float to be changed
          * @return True if value changed
          */
-        void use(Context& ctx, std::function<void()> callback = [](){}) const;
+        bool use(Context& ctx) const;
     };
 
     struct checkbox {
@@ -120,7 +119,7 @@ namespace reig::reference_widget {
          * @param value A reference to the bool to be changed
          * @return True if value changed
          */
-        void use(Context& ctx, std::function<void()> callback = [](){}) const;
+        bool use(Context& ctx) const;
     };
 
     struct textured_checkbox {
@@ -136,7 +135,7 @@ namespace reig::reference_widget {
          * @param value A reference to the bool to be changed
          * @return True if value changed
          */
-        void use(Context& ctx, std::function<void()> callback = [](){}) const;
+        bool use(Context& ctx) const;
     };
 }
 

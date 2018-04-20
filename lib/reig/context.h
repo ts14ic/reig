@@ -5,14 +5,15 @@
 #include "mouse.h"
 #include "keyboard.h"
 #include "text.h"
-#include "focus.h"
 #include "config.h"
 #include "stb_truetype.h"
 #include <vector>
+#include <any>
+#include <string>
 
 namespace reig {
     using DrawData = std::vector<primitive::Figure>;
-    using RenderHandler = std::function<void(const DrawData&)>;
+    using RenderHandler = void(*)(const DrawData&, std::any userPtr);
 
     namespace detail {
         struct Font {
@@ -24,7 +25,7 @@ namespace reig {
         };
 
         struct Window {
-            char const* mTitle = nullptr;
+            std::string mTitle;
             float* mX = nullptr;
             float* mY = nullptr;
             float mWidth = 0.f;
@@ -39,6 +40,8 @@ namespace reig {
              */
             void fit_rect(primitive::Rectangle& rect);
         };
+
+        primitive::Rectangle as_rect(const Window& window);
     }
 
     /**
@@ -60,6 +63,8 @@ namespace reig {
          */
         void set_render_handler(RenderHandler handler);
 
+        void set_user_ptr(std::any userPtr);
+
         struct FontBitmap {
             std::vector<uint8_t> bitmap;
             int width = 0;
@@ -74,7 +79,7 @@ namespace reig {
          * @return Returns the bitmap, which is used to create a texture by user.
          * Set returned bitmap field to nullptr, to avoid deletion
          */
-        FontBitmap set_font(char const* fontFilePath, int textureId, float fontHeightPx);
+        FontBitmap set_font(const char* fontFilePath, int textureId, float fontHeightPx);
 
         float get_font_size() const;
 
@@ -94,10 +99,8 @@ namespace reig {
         detail::Mouse mouse;
         detail::Keyboard keyboard;
 
-        void with_focus(const primitive::Rectangle& zone, FocusAreaCallback_t callback);
-
         // Widget renders
-        void start_window(char const* title, float& x, float& y);
+        void start_window(const std::string& title, float& x, float& y);
 
         void end_window();
 
@@ -110,7 +113,7 @@ namespace reig {
          * @param rect Text's bounding box
          * @return x coordinate after printing
          */
-        float render_text(char const* text, primitive::Rectangle rect, text::Alignment alignment = text::Alignment::CENTER, float scale = 1.f);
+        float render_text(const char* text, primitive::Rectangle rect, text::Alignment alignment = text::Alignment::CENTER, float scale = 1.f);
 
         /**
          * @brief Schedules a rectangle drawing
@@ -134,23 +137,29 @@ namespace reig {
         void render_triangle(const primitive::Triangle& triangle, const primitive::Color& color);
 
     private:
-        void handle_focus_callbacks();
-
-        bool handle_window_focus(const char* window, bool claiming);
+        bool handle_window_focus(std::string& window, bool claiming);
 
         void render_text_quads(const std::vector<stbtt_aligned_quad>& quads,
                                float horizontalAlignment, float verticalAlignment);
 
         void render_windows();
 
-        std::vector<FocusCallback> mFocusCallbacks;
-        const char* mDraggedWindow = nullptr;
-        detail::Font mFont;
-        std::vector<detail::Window> mWindows;
+    private:
+        friend reig::detail::Mouse;
+        friend reig::detail::MouseButton;
+
+        detail::Window* get_current_window();
+
+        std::string* mDraggedWindow = nullptr;
+        std::vector<detail::Window> mPreviousWindows;
+        std::vector<detail::Window> mQueuedWindows;
         std::vector<primitive::Figure> mDrawData;
+
+        detail::Font mFont;
         Config mConfig;
 
-        RenderHandler mRenderHandler;
+        RenderHandler mRenderHandler = nullptr;
+        std::any mUserPtr;
         unsigned mFrameCounter = 0;
     };
 }

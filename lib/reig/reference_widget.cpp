@@ -13,81 +13,52 @@ namespace reig::reference_widget {
         bool holdingClick = false;
     };
 
-    template <typename B>
-    ButtonModel get_button_model(Context& ctx, const B& button, const Rectangle& outlineArea, const Focus& focus) {
-        Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
+    ButtonModel get_button_model(Context& ctx, Rectangle outlineArea) {
+        ctx.fit_rect_in_window(outlineArea);
 
         ButtonModel model;
+        model.hoveringOverArea = ctx.mouse.is_hovering_over_rect(outlineArea);
+        model.justClicked = ctx.mouse.leftButton.just_clicked_in_rect(outlineArea);
+        model.holdingClick = model.hoveringOverArea
+                             && ctx.mouse.leftButton.clicked_in_rect(outlineArea)
+                             && ctx.mouse.leftButton.is_held();
+
         model.outlineArea = outlineArea;
-        model.baseArea = baseArea;
-
-        switch (focus) {
-            case Focus::HOVER: {
-                model.hoveringOverArea = true;
-                break;
-            }
-
-            case Focus::CLICK: {
-                model.justClicked = true;
-                break;
-            }
-
-            case Focus::HOLD: {
-                model.holdingClick = true;
-                model.baseArea = internal::decrease_rect(baseArea, 2);
-                break;
-            }
-
-            default: {
-                break;
-            }
-        }
+        model.baseArea = model.holdingClick
+                         ? internal::decrease_rect(outlineArea, 6)
+                         : internal::decrease_rect(outlineArea, 4);
 
         return model;
     }
 
-    void button::use(reig::Context& ctx, std::function<void()> callback) const {
-        Rectangle outlineArea = mBoundingBox;
-        ctx.fit_rect_in_window(outlineArea);
+    bool button::use(reig::Context& ctx) const {
+        auto model = get_button_model(ctx, mBoundingBox);
 
-        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus& focus) {
-            auto model = get_button_model(ctx, *this, outlineArea, focus);
+        Color innerColor{mBaseColor};
+        if (model.hoveringOverArea) {
+            innerColor = internal::lighten_color_by(innerColor, 30);
+        }
+        if (model.holdingClick) {
+            innerColor = internal::lighten_color_by(innerColor, 30);
+        }
+        ctx.render_rectangle(model.outlineArea, internal::get_yiq_contrast(innerColor));
+        ctx.render_rectangle(model.baseArea, innerColor);
+        ctx.render_text(mTitle, model.baseArea);
 
-            Color innerColor{mBaseColor};
-            if (model.hoveringOverArea) {
-                innerColor = internal::lighten_color_by(innerColor, 30);
-            }
-            if (model.holdingClick) {
-                innerColor = internal::lighten_color_by(innerColor, 30);
-            }
-            ctx.render_rectangle(model.outlineArea, internal::get_yiq_contrast(innerColor));
-            ctx.render_rectangle(model.baseArea, innerColor);
-            ctx.render_text(mTitle.c_str(), model.baseArea);;
-
-            if (model.justClicked) {
-                callback();
-            }
-        });
+        return model.justClicked;
     }
 
-    void textured_button::use(Context& ctx, std::function<void()> callback) const {
-        Rectangle outlineArea = mBoundingBox;
-        ctx.fit_rect_in_window(outlineArea);
+    bool textured_button::use(Context& ctx) const {
+        auto model = get_button_model(ctx, mBoundingBox);
 
-        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus& focus) {
-            auto model = get_button_model(ctx, *this, outlineArea, focus);
+        int texture = mBaseTexture;
+        if (model.holdingClick || model.hoveringOverArea) {
+            texture = mHoverTexture;
+        }
+        ctx.render_rectangle(model.outlineArea, texture);
+        ctx.render_text(mTitle, model.outlineArea);
 
-            int texture = mBaseTexture;
-            if (model.holdingClick || model.hoveringOverArea) {
-                texture = mHoverTexture;
-            }
-            ctx.render_rectangle(model.outlineArea, texture);
-            ctx.render_text(mTitle.c_str(), model.outlineArea);
-
-            if (model.justClicked) {
-                callback();
-            }
-        });
+        return model.justClicked;
     }
 
     void label::use(Context& ctx) const {
@@ -104,21 +75,21 @@ namespace reig::reference_widget {
         bool valueChanged = false;
     };
 
-    template <typename Checkbox>
-    CheckboxModel get_checkbox_model(Context& ctx, const Checkbox& checkbox, const Rectangle& outlineArea, const Focus& focus) {
-        bool hoveringOverArea = focus == Focus::HOVER;
+    CheckboxModel get_checkbox_model(Context& ctx, Rectangle outlineArea, bool& aValueRef) {
+        ctx.fit_rect_in_window(outlineArea);
+        bool hoveringOverArea = ctx.mouse.is_hovering_over_rect(outlineArea);
 
         Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
         Rectangle checkArea = internal::decrease_rect(baseArea, 4);
 
-        bool justClicked = focus == Focus::CLICK;
+        bool justClicked = ctx.mouse.leftButton.just_clicked_in_rect(outlineArea);
         if (justClicked) {
             baseArea = internal::decrease_rect(baseArea, 4);
             checkArea = internal::decrease_rect(checkArea, 4);
-            checkbox.mValueRef = !checkbox.mValueRef;
+            aValueRef = !aValueRef;
         }
 
-        bool holdingClick = focus == Focus::HOLD;
+        bool holdingClick = ctx.mouse.leftButton.clicked_in_rect(outlineArea) && ctx.mouse.leftButton.is_held();
         if (holdingClick) {
             baseArea = internal::decrease_rect(baseArea, 4);
             checkArea = internal::decrease_rect(checkArea, 4);
@@ -127,46 +98,32 @@ namespace reig::reference_widget {
         return {baseArea, outlineArea, checkArea, hoveringOverArea, justClicked};
     }
 
-    void checkbox::use(Context& ctx, std::function<void()> callback) const {
-        Rectangle outlineArea = mBoundingBox;
-        ctx.fit_rect_in_window(outlineArea);
+    bool checkbox::use(Context& ctx) const {
+        auto model = get_checkbox_model(ctx, mBoundingBox, mValueRef);
 
-        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus& focus) {
-            auto model = get_checkbox_model(ctx, *this, outlineArea, focus);
+        Color secondaryColor = internal::get_yiq_contrast(mBaseColor);
+        ctx.render_rectangle(model.outlineArea, secondaryColor);
+        ctx.render_rectangle(model.baseArea,
+                             model.hoveringOverArea
+                             ? internal::lighten_color_by(mBaseColor, 30)
+                             : mBaseColor);
 
-            Color secondaryColor = internal::get_yiq_contrast(mBaseColor);
-            ctx.render_rectangle(model.outlineArea, secondaryColor);
-            ctx.render_rectangle(model.baseArea,
-                                 model.hoveringOverArea
-                                 ? internal::lighten_color_by(mBaseColor, 30)
-                                 : mBaseColor);
+        if (mValueRef) {
+            ctx.render_rectangle(model.checkArea, secondaryColor);
+        }
 
-            if (mValueRef) {
-                ctx.render_rectangle(model.checkArea, secondaryColor);
-            }
-
-            if (model.valueChanged) {
-                callback();
-            }
-        });
+        return model.valueChanged;
     }
 
-    void textured_checkbox::use(Context& ctx, std::function<void()> callback) const {
-        Rectangle outlineArea = mBoundingBox;
-        ctx.fit_rect_in_window(outlineArea);
+    bool textured_checkbox::use(Context& ctx) const {
+        auto model = get_checkbox_model(ctx, mBoundingBox, mValueRef);
 
-        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus& focus2) {
-            auto model = get_checkbox_model(ctx, *this, outlineArea, focus2);
+        ctx.render_rectangle(model.outlineArea, mBaseTexture);
 
-            ctx.render_rectangle(model.outlineArea, mBaseTexture);
+        if (mValueRef) {
+            ctx.render_rectangle(model.checkArea, mCheckTexture);
+        }
 
-            if (mValueRef) {
-                ctx.render_rectangle(model.checkArea, mCheckTexture);
-            }
-
-            if (model.valueChanged) {
-                callback();
-            }
-        });
+        return model.valueChanged;
     }
 }

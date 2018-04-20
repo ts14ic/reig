@@ -57,9 +57,9 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::use(reig::Cont
         Rectangle itemFrameBox = {mBoundingBox.x + scrollbarWidth, y, mBoundingBox.width, fontHeight};
         internal::trim_rect_in_other(itemFrameBox, mBoundingBox);
 
-        button{mAdapter(*it), itemFrameBox, mBaseColor}.use(ctx, [*this, it]() {
+        if (button{mAdapter(*it), itemFrameBox, mBaseColor}.use(ctx)) {
             mAction(it - mBegin, *it);
-        });
+        }
     }
 
     auto itemCount = mEnd - mBegin;
