@@ -22,7 +22,6 @@ add_library(reig_lib
         lib/reig/reference_widget_list.h lib/reig/reference_widget_list.cpp
         lib/reig/reference_widget_slider.cpp
         lib/reig/reference_widget_entry.h lib/reig/reference_widget_entry.tcc
-        lib/reig/focus.h lib/reig/focus.cpp
         lib/reig/config.h lib/reig/config.cpp
         )
 add_library(my::reig_lib ALIAS reig_lib)

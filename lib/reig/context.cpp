@@ -24,6 +24,10 @@ namespace reig {
         mRenderHandler = renderHandler;
     }
 
+    void Context::set_user_ptr(std::any userPtr) {
+        mUserPtr = userPtr;
+    }
+
     vector<uint8_t> read_font_into_buffer(char const* fontFilePath) {
         using exception::FailedToLoadFontException;
 
@@ -88,21 +92,14 @@ namespace reig {
         }
         end_window();
 
-        handle_focus_callbacks();
-
         if (!mDrawData.empty()) {
             using std::move;
             auto widgetDrawData = move(mDrawData);
             mDrawData.clear();
             render_windows();
-            mRenderHandler(mDrawData);
-            mRenderHandler(widgetDrawData);
+            mRenderHandler(mDrawData, mUserPtr);
+            mRenderHandler(widgetDrawData, mUserPtr);
         }
-    }
-
-    void Context::with_focus(const Rectangle& zone, FocusAreaCallback_t callback) {
-        using std::move;
-        mFocusCallbacks.emplace_back(zone, move(callback));
     }
 
     bool Context::handle_window_focus(const char* const window, bool claiming) {
@@ -119,58 +116,6 @@ namespace reig {
         }
     }
 
-    void Context::handle_focus_callbacks() {
-        using std::begin;
-        using std::end;
-
-        int clickedIdx = -1;
-        int selectedIdx = -1;
-        int holdingIdx = -1;
-        int hoveringIdx = -1;
-
-        // No callbacks are to be called on widgets, while a window is dragged
-        for (int i = 0; i < mFocusCallbacks.size() && !mDraggedWindow; ++i) {
-            auto& focusCallback = mFocusCallbacks[i];
-
-            if (mouse.leftButton.is_clicked()
-                && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), focusCallback.rect)) {
-                clickedIdx = i;
-            }
-
-            if (!mouse.leftButton.is_clicked()
-                && !mouse.leftButton.is_pressed()
-                && mouse.get_scrolled() == 0.0f
-                && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), focusCallback.rect)) {
-                selectedIdx = i;
-            }
-
-            if (mouse.leftButton.is_pressed()
-                && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), focusCallback.rect)) {
-                holdingIdx = i;
-            }
-
-            if (internal::is_boxed_in(mouse.get_cursor_pos(), focusCallback.rect)) {
-                hoveringIdx = i;
-            }
-        }
-
-        for (int i = 0; i < mFocusCallbacks.size(); ++i) {
-            auto& cb = mFocusCallbacks[i];
-
-            if (i == clickedIdx) {
-                cb.callback(Focus::CLICK);
-            } else if (i == holdingIdx) {
-                cb.callback(Focus::HOLD);
-            } else if (i == selectedIdx) {
-                cb.callback(Focus::SELECT);
-            } else if (i == hoveringIdx) {
-                cb.callback(Focus::HOVER);
-            } else {
-                cb.callback(Focus::NONE);
-            }
-        }
-    }
-
     void Context::start_frame() {
         mWindows.clear();
         mDrawData.clear();
@@ -179,8 +124,6 @@ namespace reig {
         mouse.mScrolled = 0.f;
 
         keyboard.reset();
-
-        mFocusCallbacks.clear();
 
         ++mFrameCounter;
     }

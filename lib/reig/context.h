@@ -5,14 +5,14 @@
 #include "mouse.h"
 #include "keyboard.h"
 #include "text.h"
-#include "focus.h"
 #include "config.h"
 #include "stb_truetype.h"
 #include <vector>
+#include <any>
 
 namespace reig {
     using DrawData = std::vector<primitive::Figure>;
-    using RenderHandler = std::function<void(const DrawData&)>;
+    using RenderHandler = void(*)(const DrawData&, std::any userPtr);
 
     namespace detail {
         struct Font {
@@ -60,6 +60,8 @@ namespace reig {
          */
         void set_render_handler(RenderHandler handler);
 
+        void set_user_ptr(std::any userPtr);
+
         struct FontBitmap {
             std::vector<uint8_t> bitmap;
             int width = 0;
@@ -93,8 +95,6 @@ namespace reig {
         // Inputs
         detail::Mouse mouse;
         detail::Keyboard keyboard;
-
-        void with_focus(const primitive::Rectangle& zone, FocusAreaCallback_t callback);
 
         // Widget renders
         void start_window(char const* title, float& x, float& y);
@@ -134,8 +134,6 @@ namespace reig {
         void render_triangle(const primitive::Triangle& triangle, const primitive::Color& color);
 
     private:
-        void handle_focus_callbacks();
-
         bool handle_window_focus(const char* window, bool claiming);
 
         void render_text_quads(const std::vector<stbtt_aligned_quad>& quads,
@@ -143,14 +141,14 @@ namespace reig {
 
         void render_windows();
 
-        std::vector<FocusCallback> mFocusCallbacks;
         const char* mDraggedWindow = nullptr;
         detail::Font mFont;
         std::vector<detail::Window> mWindows;
         std::vector<primitive::Figure> mDrawData;
         Config mConfig;
 
-        RenderHandler mRenderHandler;
+        RenderHandler mRenderHandler = nullptr;
+        std::any mUserPtr;
         unsigned mFrameCounter = 0;
     };
 }
