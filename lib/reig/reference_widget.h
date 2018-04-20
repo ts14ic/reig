@@ -92,22 +92,22 @@ namespace reig::reference_widget {
         bool use(Context& ctx) const;
     };
 
-//    struct scrollbar {
-//        primitive::Rectangle mBoundingBox;
-//        primitive::Color mBaseColor;
-//        float& mValueRef;
-//        float mViewSize = 0.0f;
-//
-//        /**
-//         * @brief Renders a vertical scrollbar
-//         * @param box Scrollbar's position and size
-//         * @param color Checkbox's base color
-//         * @param value A reference to the float to be changed
-//         * @return True if value changed
-//         */
-//        void use(Context& ctx, std::function<void()> callback = [](){}) const;
-//    };
-//
+    struct scrollbar {
+        primitive::Rectangle mBoundingBox;
+        primitive::Color mBaseColor;
+        float& mValueRef;
+        float mViewSize = 0.0f;
+
+        /**
+         * @brief Renders a vertical scrollbar
+         * @param box Scrollbar's position and size
+         * @param color Checkbox's base color
+         * @param value A reference to the float to be changed
+         * @return True if value changed
+         */
+        bool use(Context& ctx) const;
+    };
+
 //    struct checkbox {
 //        primitive::Rectangle mBoundingBox;
 //        primitive::Color mBaseColor;

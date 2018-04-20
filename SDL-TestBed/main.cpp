@@ -243,14 +243,14 @@ private:
 
         draw_buttons();
 //        draw_checkboxes();
-//        draw_sliders();
+        draw_sliders();
 //        draw_text_entries();
 //        draw_list();
     }
 
     Window mButtonsWindow {"Buttons", 30, 30};
 //    Window mCheckboxesWindow {"Checkboxes", 200, 30};
-//    Window mSlidersWindow {"Sliders", 430, 30};
+    Window mSlidersWindow {"Sliders", 430, 30};
 //    Window mTextEntryWindow {"Text entry", 30, 250};
 //    Window mListWindow {"List", 800, 30};
 
@@ -297,41 +297,41 @@ private:
 //            std::cout << "Checkbox 3: new value " << checkBox3 << std::endl;
 //        });
 //    }
-//
-//    void draw_sliders() {
-//        start_window(mSlidersWindow);
-//
-//        primitive::Rectangle rect{50, 0, 150, 30};
-//        primitive::Color color{120_r, 150_g, 150_b};
-//
-//        static float sliderValue0 = 20;
-////        if (widget::textured_slider{rect, 0, mGui.font.id, sliderValue0, 20, 40, 5}.use(mGui.ctx)) {
-//        widget::slider{rect, color, sliderValue0, 20, 40, 5}.use(mGui.ctx, []() {
-//            std::cout << boost::format("Slider 0: new value %.2f") % sliderValue0 << std::endl;
-//        });
-//
-//        rect = {rect.x, rect.y + 40, rect.width + 50, rect.height};
-//        color = color + 50_g;
-//        static float sliderValue1 = 5.4f;
-//        widget::slider{rect, color, sliderValue1, 3, 7, 0.1f}.use(mGui.ctx, [](){
-//            std::cout << "Slider 1: new value " << sliderValue1 << std::endl;
-//        });
-//
-//        rect = {rect.x, rect.y + 40, rect.width + 80, rect.height + 10};
-//        static float sliderValue2 = 0.3f;
-//        widget::slider{rect, {220_r, 200_g, 150_b}, sliderValue2, 0.1f, 0.5f, 0.05f}.use(mGui.ctx, [](){
-//            std::cout << "Slider 2: new value " << sliderValue2 << std::endl;
-//        });
-//
-//        static float scrollValue0 = 0.0f;
-//
-//        rect = {0, 5, 30, 200};
-//        widget::scrollbar{rect, colors::black, scrollValue0, 1000.0f}.use(mGui.ctx);
-//
-//        rect = {rect.x + 50, rect.y + 150, rect.height, rect.width};
-//        widget::scrollbar{rect, colors::black, scrollValue0, 1000.0f}.use(mGui.ctx);
-//    }
-//
+
+    void draw_sliders() {
+        start_window(mSlidersWindow);
+
+        primitive::Rectangle rect{50, 0, 150, 30};
+        primitive::Color color{120_r, 150_g, 150_b};
+
+        static float sliderValue0 = 20;
+//        if (widget::textured_slider{rect, 0, mGui.font.id, sliderValue0, 20, 40, 5}.use(mGui.ctx)) {
+        if (widget::slider{rect, color, sliderValue0, 20, 40, 5}.use(mGui.ctx)) {
+            std::cout << boost::format("Slider 0: new value %.2f\n") % sliderValue0;
+        }
+
+        rect = {rect.x, rect.y + 40, rect.width + 50, rect.height};
+        color = color + 50_g;
+        static float sliderValue1 = 5.4f;
+        if (widget::slider{rect, color, sliderValue1, 3, 7, 0.1f}.use(mGui.ctx)) {
+            std::cout << "Slider 1: new value " << sliderValue1 << std::endl;
+        }
+
+        rect = {rect.x, rect.y + 40, rect.width + 80, rect.height + 10};
+        static float sliderValue2 = 0.3f;
+        if (widget::slider{rect, {220_r, 200_g, 150_b}, sliderValue2, 0.1f, 0.5f, 0.05f}.use(mGui.ctx)) {
+            std::cout << "Slider 2: new value " << sliderValue2 << std::endl;
+        }
+
+        static float scrollValue0 = 0.0f;
+
+        rect = {0, 5, 30, 200};
+        widget::scrollbar{rect, colors::black, scrollValue0, 1000.0f}.use(mGui.ctx);
+
+        rect = {rect.x + 50, rect.y + 150, rect.height, rect.width};
+        widget::scrollbar{rect, colors::black, scrollValue0, 1000.0f}.use(mGui.ctx);
+    }
+
 //    void draw_text_entries() {
 //        start_window(mTextEntryWindow);
 //        primitive::Rectangle rect {0, 0, 300, 40};

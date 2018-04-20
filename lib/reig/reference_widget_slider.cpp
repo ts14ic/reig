@@ -117,70 +117,73 @@ namespace reig::reference_widget {
         return tweak_slider_model(ctx, aValueRef, values, outlineArea, baseArea, cursorArea);
     }
 
-//    void size_scrollbar_cursor(float& coord, float& size, float step, int offset, float viewSize) {
-//        float scale = size / viewSize;
-//        if (scale <= 1.0f) {
-//            coord += offset * step * scale;
-//            size = internal::max(1.0f, scale * size);
-//            size = internal::min(size, viewSize);
-//        }
-//    }
-//
-//    SliderValues prepare_scrollbar_values(float maxScroll, float value, float step) {
-//        float min = 0.0f;
-//        float max = internal::max(0.f, maxScroll);
-//        float clampedValue = internal::clamp(value, min, max);
-//        return SliderValues{
-//                min, max, clampedValue,
-//                static_cast<int>((value - min) / step),
-//                static_cast<int>((max - min) / step + 1)
-//        };
-//    }
-//
-//    void progress_scrollbar_value(float mouseCursorCoord, float cursorSize,
-//                                  float sliderCursorCoord, float step, float& value) {
-//        float distance = get_distance_to_slider(mouseCursorCoord, cursorSize, sliderCursorCoord);
-//        if (internal::abs(distance) > cursorSize / 2) {
-//            value += static_cast<int>(distance * step) / cursorSize;
-//        }
-//    }
-//
-//    template <typename Scrollbar>
-//    SliderModel get_scrollbar_model(Context& ctx, const Scrollbar& scrollbar, const Rectangle& outlineArea, const Focus& focus) {
-//        Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
-//
-//        auto step = ctx.get_font_size();
-//
-//        SliderOrientation orientation = calculate_slider_orientation(baseArea);
-//        SliderValues values;
-//        if (orientation == SliderOrientation::VERTICAL) {
-//            values = prepare_scrollbar_values(scrollbar.mViewSize - baseArea.height, scrollbar.mValueRef, step);
-//        } else {
-//            values = prepare_scrollbar_values(scrollbar.mViewSize - baseArea.width, scrollbar.mValueRef, step);
-//        }
-//
-//        auto cursorArea = internal::decrease_rect(baseArea, 4);
-//        if (orientation == SliderOrientation::HORIZONTAL) {
-//            size_scrollbar_cursor(cursorArea.x, cursorArea.width, step, values.offset, scrollbar.mViewSize);
-//        } else {
-//            size_scrollbar_cursor(cursorArea.y, cursorArea.height, step, values.offset, scrollbar.mViewSize);
-//        }
-//
-//        if (focus == Focus::HOLD) {
-//            if (orientation == SliderOrientation::HORIZONTAL) {
-//                progress_scrollbar_value(ctx.mouse.get_cursor_pos().x, cursorArea.width, cursorArea.x,
-//                                         step, values.value);
-//            } else {
-//                progress_scrollbar_value(ctx.mouse.get_cursor_pos().y, cursorArea.height, cursorArea.y,
-//                                         step, values.value);
-//            }
-//        } else if (ctx.mouse.get_scrolled() != 0 && focus == Focus::HOVER) {
-//            values.value += static_cast<int>(ctx.mouse.get_scrolled()) * step;
-//        }
-//        return tweak_slider_model(ctx, scrollbar, values, outlineArea, baseArea,
-//                                     cursorArea, focus);
-//    }
-//
+    void size_scrollbar_cursor(float& coord, float& size, float step, int offset, float viewSize) {
+        float scale = size / viewSize;
+        if (scale <= 1.0f) {
+            coord += offset * step * scale;
+            size = internal::max(1.0f, scale * size);
+            size = internal::min(size, viewSize);
+        }
+    }
+
+    SliderValues prepare_scrollbar_values(float maxScroll, float value, float step) {
+        float min = 0.0f;
+        float max = internal::max(0.f, maxScroll);
+        float clampedValue = internal::clamp(value, min, max);
+        return SliderValues{
+                min, max, clampedValue,
+                static_cast<int>((value - min) / step),
+                static_cast<int>((max - min) / step + 1)
+        };
+    }
+
+    void progress_scrollbar_value(float mouseCursorCoord, float cursorSize,
+                                  float sliderCursorCoord, float step, float& value) {
+        float distance = get_distance_to_slider(mouseCursorCoord, cursorSize, sliderCursorCoord);
+        if (internal::abs(distance) > cursorSize / 2) {
+            value += static_cast<int>(distance * step) / cursorSize;
+        }
+    }
+
+    SliderModel get_scrollbar_model(Context& ctx, Rectangle outlineArea, float viewSize, float& aValueRef) {
+        ctx.fit_rect_in_window(outlineArea);
+        Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
+
+        auto step = ctx.get_font_size();
+
+        SliderOrientation orientation = calculate_slider_orientation(baseArea);
+        SliderValues values;
+        if (orientation == SliderOrientation::VERTICAL) {
+            values = prepare_scrollbar_values(viewSize - baseArea.height, aValueRef, step);
+        } else {
+            values = prepare_scrollbar_values(viewSize - baseArea.width, aValueRef, step);
+        }
+
+        auto cursorArea = internal::decrease_rect(baseArea, 4);
+        if (orientation == SliderOrientation::HORIZONTAL) {
+            size_scrollbar_cursor(cursorArea.x, cursorArea.width, step, values.offset, viewSize);
+        } else {
+            size_scrollbar_cursor(cursorArea.y, cursorArea.height, step, values.offset, viewSize);
+        }
+
+        bool hoveringOverCursor = ctx.mouse.is_hovering_over_rect(outlineArea);
+        bool holdingClickOnSlider = ctx.mouse.leftButton.clicked_in_rect(outlineArea)
+                                    && ctx.mouse.leftButton.is_held();
+
+        if (holdingClickOnSlider) {
+            if (orientation == SliderOrientation::HORIZONTAL) {
+                progress_scrollbar_value(ctx.mouse.get_cursor_pos().x, cursorArea.width, cursorArea.x,
+                                         step, values.value);
+            } else {
+                progress_scrollbar_value(ctx.mouse.get_cursor_pos().y, cursorArea.height, cursorArea.y,
+                                         step, values.value);
+            }
+        } else if (ctx.mouse.get_scrolled() != 0 && hoveringOverCursor) {
+            values.value += static_cast<int>(ctx.mouse.get_scrolled()) * step;
+        }
+        return tweak_slider_model(ctx, aValueRef, values, outlineArea, baseArea, cursorArea);
+    }
+
     void draw_slider_model(Context& ctx, const SliderModel& model, const Color& baseColor) {
         Color frameColor = internal::get_yiq_contrast(baseColor);
         ctx.render_rectangle(model.outlineArea, frameColor);
@@ -203,20 +206,13 @@ namespace reig::reference_widget {
         return model.valueChanged;
     }
 
-//    void scrollbar::use(Context& ctx, std::function<void()> callback) const {
-//        Rectangle outlineArea = mBoundingBox;
-//        ctx.fit_rect_in_window(outlineArea);
-//
-//        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus& focus) {
-//            auto model = get_scrollbar_model(ctx, *this, outlineArea, focus);
-//
-//            if (model.valueChanged) {
-//                callback();
-//            }
-//
-//            draw_slider_model(ctx, model, *this);
-//        });
-//    }
+    bool scrollbar::use(Context& ctx) const {
+        auto model = get_scrollbar_model(ctx, mBoundingBox, mViewSize, mValueRef);
+
+        draw_slider_model(ctx, model, mBaseColor);
+
+        return model.valueChanged;
+    }
 
     bool textured_slider::use(Context& ctx) const {
         auto model = get_slider_model(ctx, mBoundingBox, mValueRef, mMin, mMax, mStep);
