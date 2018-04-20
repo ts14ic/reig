@@ -48,25 +48,18 @@ namespace reig::reference_widget {
         return model.justClicked;
     }
 
-//    void textured_button::use(Context& ctx, std::function<void()> callback) const {
-//        Rectangle outlineArea = mBoundingBox;
-//        ctx.fit_rect_in_window(outlineArea);
-//
-//        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus& focus) {
-//            auto model = get_button_model(ctx, *this, outlineArea, focus);
-//
-//            int texture = mBaseTexture;
-//            if (model.holdingClick || model.hoveringOverArea) {
-//                texture = mHoverTexture;
-//            }
-//            ctx.render_rectangle(model.outlineArea, texture);
-//            ctx.render_text(mTitle.c_str(), model.outlineArea);
-//
-//            if (model.justClicked) {
-//                callback();
-//            }
-//        });
-//    }
+    bool textured_button::use(Context& ctx) const {
+        auto model = get_button_model(ctx, mBoundingBox);
+
+        int texture = mBaseTexture;
+        if (model.holdingClick || model.hoveringOverArea) {
+            texture = mHoverTexture;
+        }
+        ctx.render_rectangle(model.outlineArea, texture);
+        ctx.render_text(mTitle, model.outlineArea);
+
+        return model.justClicked;
+    }
 
     void label::use(Context& ctx) const {
         Rectangle boundingBox = this->mBoundingBox;

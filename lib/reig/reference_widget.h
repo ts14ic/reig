@@ -23,21 +23,21 @@ namespace reig::reference_widget {
         bool use(Context& ctx) const;
     };
 
-//    struct textured_button {
-//        const char* const mTitle;
-//        const primitive::Rectangle mBoundingBox;
-//        const int mHoverTexture = 0, mBaseTexture = 0;
-//
-//        /**
-//         * @brief Render a titled textured button
-//         * @param box Button's bouding box
-//         * @param baseTexture Button's texture index, when idle
-//         * @param hoverTexture Button's texture index, when button is hoverred
-//         * @return True if the button was clicked, false otherwise
-//         */
-//        void use(Context& ctx, std::function<void()> callback = [](){}) const;
-//    };
-//
+    struct textured_button {
+        const char* const mTitle;
+        const primitive::Rectangle mBoundingBox;
+        const int mHoverTexture = 0, mBaseTexture = 0;
+
+        /**
+         * @brief Render a titled textured button
+         * @param box Button's bouding box
+         * @param baseTexture Button's texture index, when idle
+         * @param hoverTexture Button's texture index, when button is hoverred
+         * @return True if the button was clicked, false otherwise
+         */
+        bool use(Context& ctx) const;
+    };
+
     struct label {
         char const* mTitle = "";
         primitive::Rectangle mBoundingBox;
