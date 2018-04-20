@@ -1,8 +1,6 @@
 #include "mouse.h"
 #include "internal.h"
 #include "context.h"
-#include <algorithm>
-#include <functional>
 
 using std::vector;
 using std::reference_wrapper;
@@ -35,7 +33,7 @@ namespace reig::detail {
 
     bool Mouse::is_hovering_over_rect(const Rectangle& rect) const {
         bool hoveringOverRect = internal::is_boxed_in(mCursorPos, rect);
-        if (!hoveringOverRect) return false;
+        if (mContext.mDraggedWindow || !hoveringOverRect) return false;
 
         auto* currentWindow = mContext.get_current_window();
         auto& mPreviousWindows = mContext.mPreviousWindows;
@@ -81,7 +79,7 @@ namespace reig::detail {
 
     bool MouseButton::clicked_in_rect(const primitive::Rectangle& rect) const {
         bool clickedInRect = internal::is_boxed_in(mClickedPos, rect);
-        if (!clickedInRect) return false;
+        if (mMouse.mContext.mDraggedWindow || !clickedInRect) return false;
 
         auto* currentWindow = mMouse.mContext.get_current_window();
         auto& mPreviousWindows = mMouse.mContext.mPreviousWindows;
@@ -101,7 +99,7 @@ namespace reig::detail {
 
     bool MouseButton::just_clicked_in_rect(const primitive::Rectangle& rect) const {
         bool justClickedInRect = mIsClicked && clicked_in_rect(rect);
-        if (!justClickedInRect) return false;
+        if (mMouse.mContext.mDraggedWindow || !justClickedInRect) return false;
 
         auto* currentWindow = mMouse.mContext.get_current_window();
         auto& mPreviousWindows = mMouse.mContext.mPreviousWindows;
