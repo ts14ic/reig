@@ -243,7 +243,7 @@ namespace reig {
     void Context::end_window() {
         if (mWindows.empty()) return;
 
-        detail::Window currentWindow = mWindows.back();
+        auto& currentWindow = mWindows.back();
 
         currentWindow.mWidth += 4;
         currentWindow.mHeight += 4;
