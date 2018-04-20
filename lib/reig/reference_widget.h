@@ -71,27 +71,27 @@ namespace reig::reference_widget {
         bool use(Context& ctx) const;
     };
 
-//    struct textured_slider {
-//        primitive::Rectangle mBoundingBox;
-//        int mBaseTexture = 0, mCursorTexture = 0;
-//        float& mValueRef;
-//        float mMin = 0.0f, mMax = 0.0f, mStep = 0.0f;
-//
-//        /**
-//         * @brief
-//         * @brief Renders a slider.
-//         * @param box Slider's bounding box
-//         * @param baseTexture Slider's base texture index
-//         * @param cursorTexture Slider's cursor texture index
-//         * @param value A reference to the value to be represented and changed
-//         * @param min The lowest represantable value
-//         * @param max The highest represantable value
-//         * @param step The discrete portion by which the value can change
-//         * @return True if value changed
-//         */
-//        void use(Context& ctx, std::function<void()> callback = [](){}) const;
-//    };
-//
+    struct textured_slider {
+        primitive::Rectangle mBoundingBox;
+        int mBaseTexture = 0, mCursorTexture = 0;
+        float& mValueRef;
+        float mMin = 0.0f, mMax = 0.0f, mStep = 0.0f;
+
+        /**
+         * @brief
+         * @brief Renders a slider.
+         * @param box Slider's bounding box
+         * @param baseTexture Slider's base texture index
+         * @param cursorTexture Slider's cursor texture index
+         * @param value A reference to the value to be represented and changed
+         * @param min The lowest represantable value
+         * @param max The highest represantable value
+         * @param step The discrete portion by which the value can change
+         * @return True if value changed
+         */
+        bool use(Context& ctx) const;
+    };
+
 //    struct scrollbar {
 //        primitive::Rectangle mBoundingBox;
 //        primitive::Color mBaseColor;

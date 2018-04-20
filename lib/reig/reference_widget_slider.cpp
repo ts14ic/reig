@@ -63,7 +63,7 @@ namespace reig::reference_widget {
         bool valueChanged = false;
     };
 
-    SliderModel tweak_slider_model(Context& ctx, float& aValueRef, SliderValues& values,
+    SliderModel tweak_slider_model(Context& ctx, float& aValueRef, const SliderValues& values,
                                    Rectangle outlineArea, Rectangle baseArea, Rectangle cursorArea) {
         bool hoveringOverCursor = ctx.mouse.is_hovering_over_rect(outlineArea);
         bool holdingClickOnSlider = ctx.mouse.leftButton.clicked_in_rect(outlineArea)
@@ -103,7 +103,6 @@ namespace reig::reference_widget {
         bool holdingClickOnSlider = ctx.mouse.leftButton.clicked_in_rect(outlineArea)
                                     && ctx.mouse.leftButton.is_held();
 
-
         if (holdingClickOnSlider) {
             if (orientation == SliderOrientation::HORIZONTAL) {
                 progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorArea.width, cursorArea.x,
@@ -117,7 +116,7 @@ namespace reig::reference_widget {
         }
         return tweak_slider_model(ctx, aValueRef, values, outlineArea, baseArea, cursorArea);
     }
-//
+
 //    void size_scrollbar_cursor(float& coord, float& size, float step, int offset, float viewSize) {
 //        float scale = size / viewSize;
 //        if (scale <= 1.0f) {
@@ -218,20 +217,13 @@ namespace reig::reference_widget {
 //            draw_slider_model(ctx, model, *this);
 //        });
 //    }
-//
-//    void textured_slider::use(Context& ctx, std::function<void()> callback) const {
-//        Rectangle outlineArea = mBoundingBox;
-//        ctx.fit_rect_in_window(outlineArea);
-//
-//        ctx.with_focus(outlineArea, [=, *this, &ctx](const Focus& focus) {
-//            auto model = get_slider_model(ctx, *this, mBoundingBox, Focus::NONE);
-//
-//            if (model.valueChanged) {
-//                callback();
-//            }
-//
-//            ctx.render_rectangle(model.outlineArea, mBaseTexture);
-//            ctx.render_rectangle(model.cursorArea, mCursorTexture);
-//        });
-//    }
+
+    bool textured_slider::use(Context& ctx) const {
+        auto model = get_slider_model(ctx, mBoundingBox, mValueRef, mMin, mMax, mStep);
+
+        ctx.render_rectangle(model.outlineArea, mBaseTexture);
+        ctx.render_rectangle(model.cursorArea, mCursorTexture);
+
+        return model.valueChanged;
+    }
 }
