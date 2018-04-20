@@ -146,9 +146,10 @@ namespace reig {
         friend reig::detail::MouseButton;
 
         const char* mDraggedWindow = nullptr;
-        detail::Font mFont;
         std::vector<detail::Window> mWindows;
         std::vector<primitive::Figure> mDrawData;
+
+        detail::Font mFont;
         Config mConfig;
 
         RenderHandler mRenderHandler = nullptr;
