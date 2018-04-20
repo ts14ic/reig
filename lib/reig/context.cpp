@@ -29,7 +29,7 @@ namespace reig {
         mUserPtr = move(userPtr);
     }
 
-    vector<uint8_t> read_font_into_buffer(char const* fontFilePath) {
+    vector<uint8_t> read_font_into_buffer(const char* fontFilePath) {
         using exception::FailedToLoadFontException;
 
         auto file = std::unique_ptr<FILE, decltype(&std::fclose)>(std::fopen(fontFilePath, "rb"), &std::fclose);
@@ -47,7 +47,7 @@ namespace reig {
         return ttfBuffer;
     }
 
-    Context::FontBitmap Context::set_font(char const* fontFilePath, int textureId, float fontHeightPx) {
+    Context::FontBitmap Context::set_font(const char* fontFilePath, int textureId, float fontHeightPx) {
         using exception::FailedToLoadFontException;
 
         if (textureId == 0) throw FailedToLoadFontException::noTextureId(fontFilePath);
@@ -103,22 +103,22 @@ namespace reig {
         }
     }
 
-    bool Context::handle_window_focus(const char* const window, bool claiming) {
+    bool Context::handle_window_focus(std::string& window, bool claiming) {
         if (claiming) {
             if (!mDraggedWindow) {
-                mDraggedWindow = window;
+                mDraggedWindow = &window;
             }
-            return mDraggedWindow == window;
+            return mDraggedWindow == &window;
         } else {
-            if (mDraggedWindow == window) {
+            if (mDraggedWindow == &window) {
                 mDraggedWindow = nullptr;
             }
-            return mDraggedWindow != window;
+            return mDraggedWindow != &window;
         }
     }
 
     void Context::start_frame() {
-        mWindows.clear();
+        mQueuedWindows.clear();
         mDrawData.clear();
 
         mouse.leftButton.mIsClicked = false;
@@ -133,23 +133,23 @@ namespace reig {
         return mFrameCounter;
     }
 
-    void Context::start_window(char const* aTitle, float& aX, float& aY) {
-        if (!mWindows.empty()) end_window();
+    void Context::start_window(const std::string& aTitle, float& aX, float& aY) {
+        if (!mQueuedWindows.empty()) end_window();
 
         detail::Window currentWindow;
 
-        currentWindow.mTitle = aTitle;
+        currentWindow.mTitle = move(aTitle);
         currentWindow.mX = &aX;
         currentWindow.mY = &aY;
         currentWindow.mWidth = 0;
         currentWindow.mHeight = 0;
         currentWindow.mTitleBarHeight = 8 + mFont.mHeight;
 
-        mWindows.push_back(currentWindow);
+        mQueuedWindows.push_back(currentWindow);
     }
 
     void Context::render_windows() {
-        for(const auto& currentWindow : mWindows) {
+        for(const auto& currentWindow : mQueuedWindows) {
             Rectangle headerBox{
                     *currentWindow.mX, *currentWindow.mY,
                     currentWindow.mWidth, currentWindow.mTitleBarHeight
@@ -175,7 +175,7 @@ namespace reig {
                 render_rectangle(headerBox, mConfig.mTitleBackgroundColor);
             }
             render_triangle(headerTriangle, colors::lightGrey);
-            render_text(currentWindow.mTitle, titleBox);
+            render_text(currentWindow.mTitle.c_str(), titleBox);
             if (mConfig.mWindowsTextured) {
                 render_rectangle(bodyBox, mConfig.mWindowBackgroundTexture);
             } else {
@@ -185,9 +185,9 @@ namespace reig {
     }
 
     void Context::end_window() {
-        if (mWindows.empty()) return;
+        if (mQueuedWindows.empty()) return;
 
-        auto& currentWindow = mWindows.back();
+        auto& currentWindow = mQueuedWindows.back();
 
         currentWindow.mWidth += 4;
         currentWindow.mHeight += 4;
@@ -233,8 +233,8 @@ namespace reig {
     }
 
     void Context::fit_rect_in_window(Rectangle& rect) {
-        if (!mWindows.empty()) {
-            mWindows.back().fit_rect(rect);
+        if (!mQueuedWindows.empty()) {
+            mQueuedWindows.back().fit_rect(rect);
         }
     }
 
@@ -261,7 +261,7 @@ namespace reig {
         return Point{scalingHorizontalOffset, scalingVerticalOffset};
     }
 
-    float Context::render_text(char const* text, const Rectangle rect, text::Alignment alignment, float scale) {
+    float Context::render_text(const char* text, const Rectangle rect, text::Alignment alignment, float scale) {
         if (mFont.mBakedChars.empty() || !text) return rect.x;
 
         float x = rect.x;
