@@ -87,13 +87,13 @@ namespace reig::detail {
 
         bool is_hovering_over_rect(const primitive::Rectangle& rect) const;
 
+        const primitive::Point& get_cursor_pos() const;
+
         float get_scrolled() const;
 
     private:
         friend class ::reig::Context;
         friend class ::reig::detail::MouseButton;
-
-        const primitive::Point& get_cursor_pos() const;
 
         Context& mContext;
         primitive::Point mCursorPos;
