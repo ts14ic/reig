@@ -1,8 +1,10 @@
 #include "mouse.h"
-
+#include "internal.h"
 
 namespace reig::detail {
     using namespace reig::primitive;
+
+    Mouse::Mouse(reig::Context& context) : mContext{context}, leftButton{*this}, rightButton{*this} {}
 
     void Mouse::move(float difx, float dify) {
         mCursorPos.x += difx;
@@ -26,6 +28,12 @@ namespace reig::detail {
         return mScrolled;
     }
 
+    bool Mouse::is_hovering_over_rect(const Rectangle& rect) const {
+        return internal::is_boxed_in(mCursorPos, rect);
+    }
+
+    MouseButton::MouseButton(Mouse& mouse) : mMouse{mouse} {}
+
     void MouseButton::press(float x, float y) {
         if (!mIsPressed) {
             mIsPressed = true;
@@ -42,11 +50,19 @@ namespace reig::detail {
         return mClickedPos;
     }
 
-    bool MouseButton::is_pressed() const {
+    bool MouseButton::is_held() const {
         return mIsPressed;
     }
 
     bool MouseButton::is_clicked() const {
         return mIsClicked;
+    }
+
+    bool MouseButton::clicked_in_rect(const primitive::Rectangle& rect) const {
+        return internal::is_boxed_in(mClickedPos, rect);
+    }
+
+    bool MouseButton::just_clicked_in_rect(const primitive::Rectangle& rect) const {
+        return mIsClicked && clicked_in_rect(rect);
     }
 }

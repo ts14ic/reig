@@ -11,10 +11,10 @@ namespace reig {
     using std::unique_ptr;
     using std::vector;
 
-    Context::Context() : mConfig{Config::builder().build()} {}
+    Context::Context() : Context{Config::builder().build()} {}
 
     Context::Context(const Config& config)
-            : mConfig{config} {}
+            : mConfig{config}, mouse{*this} {}
 
     void Context::set_config(const Config& config) {
         mConfig = config;
@@ -25,7 +25,8 @@ namespace reig {
     }
 
     void Context::set_user_ptr(std::any userPtr) {
-        mUserPtr = userPtr;
+        using std::move;
+        mUserPtr = move(userPtr);
     }
 
     vector<uint8_t> read_font_into_buffer(char const* fontFilePath) {
@@ -196,7 +197,7 @@ namespace reig {
                 currentWindow.mWidth, currentWindow.mTitleBarHeight
         };
 
-        if (mouse.leftButton.is_pressed()
+        if (mouse.leftButton.is_held()
             && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), headerBox)
             && handle_window_focus(currentWindow.mTitle, true)) {
             Point moved{

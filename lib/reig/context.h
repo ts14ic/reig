@@ -141,6 +141,10 @@ namespace reig {
 
         void render_windows();
 
+    private:
+        friend reig::detail::Mouse;
+        friend reig::detail::MouseButton;
+
         const char* mDraggedWindow = nullptr;
         detail::Font mFont;
         std::vector<detail::Window> mWindows;

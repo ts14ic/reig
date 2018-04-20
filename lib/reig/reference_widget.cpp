@@ -16,33 +16,17 @@ namespace reig::reference_widget {
     ButtonModel get_button_model(Context& ctx, Rectangle outlineArea) {
         ctx.fit_rect_in_window(outlineArea);
 
-        Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
-
         ButtonModel model;
-        model.outlineArea = outlineArea;
-        model.baseArea = baseArea;
+        model.hoveringOverArea = ctx.mouse.is_hovering_over_rect(outlineArea);
+        model.justClicked = ctx.mouse.leftButton.just_clicked_in_rect(outlineArea);
+        model.holdingClick = model.hoveringOverArea
+                             && ctx.mouse.leftButton.clicked_in_rect(outlineArea)
+                             && ctx.mouse.leftButton.is_held();
 
-//        switch (focus) {
-//            case Focus::HOVER: {
-//                model.hoveringOverArea = true;
-//                break;
-//            }
-//
-//            case Focus::CLICK: {
-//                model.justClicked = true;
-//                break;
-//            }
-//
-//            case Focus::HOLD: {
-//                model.holdingClick = true;
-//                model.baseArea = internal::decrease_rect(baseArea, 2);
-//                break;
-//            }
-//
-//            default: {
-//                break;
-//            }
-//        }
+        model.outlineArea = outlineArea;
+        model.baseArea = model.holdingClick
+                         ? internal::decrease_rect(outlineArea, 6)
+                         : internal::decrease_rect(outlineArea, 4);
 
         return model;
     }
