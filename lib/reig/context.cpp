@@ -5,6 +5,7 @@
 #include "internal.h"
 #include "exception.h"
 #include <memory>
+#include <algorithm>
 
 namespace reig {
     using namespace primitive;
@@ -101,6 +102,19 @@ namespace reig {
             mRenderHandler(mDrawData, mUserPtr);
             mRenderHandler(widgetDrawData, mUserPtr);
         }
+
+        //{{{ Remove non rendered windows from previous
+        auto previousBegin = begin(mPreviousWindows);
+        auto previousEnd = end(mPreviousWindows);
+        auto queuedBegin = begin(mQueuedWindows);
+        auto queuedEnd = end(mQueuedWindows);
+        auto removeFrom = std::remove_if(previousBegin, previousEnd, [&](const std::string& previous) {
+            return std::find_if(queuedBegin, queuedEnd, [&](const detail::Window& queued){
+                return queued.mTitle == previous;
+            }) == queuedEnd;
+        });
+        mPreviousWindows.erase(removeFrom, previousEnd);
+        //}}}
     }
 
     bool Context::handle_window_focus(std::string& window, bool claiming) {
@@ -138,7 +152,7 @@ namespace reig {
 
         detail::Window currentWindow;
 
-        currentWindow.mTitle = move(aTitle);
+        currentWindow.mTitle = aTitle;
         currentWindow.mX = &aX;
         currentWindow.mY = &aY;
         currentWindow.mWidth = 0;
@@ -146,6 +160,14 @@ namespace reig {
         currentWindow.mTitleBarHeight = 8 + mFont.mHeight;
 
         mQueuedWindows.push_back(currentWindow);
+
+        //{{{ Add to previous windows
+        auto previousBegin = std::begin(mPreviousWindows);
+        auto previousEnd = std::end(mPreviousWindows);
+        if (std::find(previousBegin, previousEnd, aTitle) == previousEnd) {
+            mPreviousWindows.push_back(aTitle);
+        }
+        //}}}
     }
 
     void Context::render_windows() {
