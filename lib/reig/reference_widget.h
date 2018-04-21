@@ -78,7 +78,7 @@ namespace reig::reference_widget {
      * @param box Checkbox's position and size
      * @param color Checkbox's base color
      * @param value A reference to the bool to be changed
-     * @return True if value changed
+     * @return True if value is true
      */
     bool checkbox(Context& ctx, primitive::Rectangle boundingBox, primitive::Color baseColor, bool& valueRef);
 
@@ -88,7 +88,7 @@ namespace reig::reference_widget {
      * @param baseTexture Checkbox's base texture
      * @param tickTexture Checkbox's tick texture
      * @param value A reference to the bool to be changed
-     * @return True if value changed
+     * @return True if value is true
      */
     bool textured_checkbox(Context& ctx, primitive::Rectangle boundingBox, int baseTexture, int checkTexture,
                            bool& valueRef);

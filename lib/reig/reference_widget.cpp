@@ -112,7 +112,7 @@ namespace reig::reference_widget {
             ctx.render_rectangle(model.checkArea, secondaryColor);
         }
 
-        return model.valueChanged;
+        return valueRef;
     }
 
     bool textured_checkbox(Context& ctx, primitive::Rectangle boundingBox, int baseTexture, int checkTexture,
@@ -125,6 +125,6 @@ namespace reig::reference_widget {
             ctx.render_rectangle(model.checkArea, checkTexture);
         }
 
-        return model.valueChanged;
+        return valueRef;
     }
 }
