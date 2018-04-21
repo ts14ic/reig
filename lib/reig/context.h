@@ -34,15 +34,15 @@ namespace reig {
             float mWidth = 0.f;
             float mHeight = 0.f;
             float mTitleBarHeight = 0.f;
-
-            /**
-             * Increase the window's width and height to fit rect's bottom right point
-             * Shift rect's y down to accommodate window's title bar
-             * Reset rect's position if it's top left corner can't be fitted
-             * @param rect The rectangle to accommodate
-             */
-            void fit_rect(primitive::Rectangle& rect);
         };
+
+        /**
+         * Increase the window's width and height to fit rect's bottom right point
+         * Shift rect's y down to accommodate window's title bar
+         * Reset rect's position if it's top left corner can't be fitted
+         * @param rect The rectangle to accommodate
+         */
+        void fit_rect_in_window(primitive::Rectangle& rect, Window& window);
 
         primitive::Rectangle as_rect(const Window& window);
     }

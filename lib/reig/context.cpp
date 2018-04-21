@@ -229,21 +229,21 @@ namespace reig {
         }
     }
 
-    void detail::Window::fit_rect(Rectangle& rect) {
-        rect.x += *mX + 4;
-        rect.y += *mY + mTitleBarHeight + 4;
+    void detail::fit_rect_in_window(reig::primitive::Rectangle& rect, reig::detail::Window& window) {
+        rect.x += *window.mX + 4;
+        rect.y += *window.mY + window.mTitleBarHeight + 4;
 
-        if (*mX + mWidth < get_x2(rect)) {
-            mWidth = get_x2(rect) - *mX;
+        if (*window.mX + window.mWidth < get_x2(rect)) {
+            window.mWidth = get_x2(rect) - *window.mX;
         }
-        if (*mY + mHeight < get_y2(rect)) {
-            mHeight = get_y2(rect) - *mY;
+        if (*window.mY + window.mHeight < get_y2(rect)) {
+            window.mHeight = get_y2(rect) - *window.mY;
         }
-        if (rect.x < *mX) {
-            rect.x = *mX + 4;
+        if (rect.x < *window.mX) {
+            rect.x = *window.mX + 4;
         }
-        if (rect.y < *mY) {
-            rect.y = *mY + 4;
+        if (rect.y < *window.mY) {
+            rect.y = *window.mY + 4;
         }
     }
 
@@ -253,7 +253,7 @@ namespace reig {
 
     void Context::fit_rect_in_window(Rectangle& rect) {
         if (!mQueuedWindows.empty()) {
-            mQueuedWindows.back().fit_rect(rect);
+            detail::fit_rect_in_window(rect, mQueuedWindows.back());
         }
     }
 
