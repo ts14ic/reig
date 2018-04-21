@@ -100,6 +100,7 @@ namespace reig {
 
         //{{{ persist previous windows
         mPreviousWindows = move(mQueuedWindows);
+        mQueuedWindows.clear();
         std::reverse(begin(mPreviousWindows), end(mPreviousWindows));
         //}}}
     }
@@ -151,6 +152,7 @@ namespace reig {
     void Context::render_windows() {
         for(auto& currentWindow : mQueuedWindows) {
             auto currentWidgetData = move(currentWindow.drawData);
+            currentWindow.drawData.clear();
 
             Rectangle headerBox{
                     *currentWindow.x, *currentWindow.y,
@@ -183,7 +185,10 @@ namespace reig {
             } else {
                 render_rectangle(currentWindow.drawData, bodyBox, mConfig.mWindowBackgroundColor);
             }
+
             mRenderHandler(currentWindow.drawData, mUserPtr);
+            currentWindow.drawData.clear();
+
             mRenderHandler(currentWidgetData, mUserPtr);
         }
     }
