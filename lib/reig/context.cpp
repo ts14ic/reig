@@ -8,6 +8,7 @@
 #include <algorithm>
 
 using namespace reig::primitive;
+using reig::detail::Window;
 using std::unique_ptr;
 using std::reference_wrapper;
 using std::vector;
@@ -99,11 +100,49 @@ namespace reig {
         mFreeDrawData.clear();
         render_windows();
 
-        //{{{ persist previous windows
-        mPreviousWindows = move(mQueuedWindows);
+        update_previous_windows();
+        cleanup_previous_windows();
         mQueuedWindows.clear();
-        std::reverse(begin(mPreviousWindows), end(mPreviousWindows));
-        //}}}
+
+    }
+
+    void Context::update_previous_windows() {
+        for (auto it = mQueuedWindows.rbegin(); it != mQueuedWindows.rend(); ++it) {
+            auto& queuedWindow = *it;
+            auto previousWindow = std::find_if(mPreviousWindows.begin(), mPreviousWindows.end(),
+                                               [&queuedWindow](const Window& window) {
+                                                   return queuedWindow.title == window.title;
+                                               });
+
+            if (previousWindow != mPreviousWindows.end()) {
+                (*previousWindow).width = queuedWindow.width;
+                (*previousWindow).height = queuedWindow.height;
+            } else {
+                mPreviousWindows.insert(mPreviousWindows.end(), queuedWindow);
+            }
+        }
+
+        if (!mouse.leftButton.is_clicked()) return;
+
+        for (auto it = mPreviousWindows.begin(); it != mPreviousWindows.end(); ++it) {
+            auto& previousWindow = *it; // TODO: Remove DEBUG stmt
+            if (mouse.leftButton.just_clicked_in_rect_ignore_windows(detail::as_rect(previousWindow))) {
+                auto& swappedWindow = *(mPreviousWindows.end() - 1); // TODO: Remove DEBUG stmt
+                std::iter_swap(it, mPreviousWindows.begin());
+                break;
+            }
+        }
+    }
+
+    void Context::cleanup_previous_windows() {
+        auto removeFrom = std::remove_if(mPreviousWindows.begin(), mPreviousWindows.end(),
+                                         [this](const Window& previousWindow) {
+                                             return std::find_if(mQueuedWindows.begin(), mQueuedWindows.end(),
+                                                                 [&previousWindow](const Window& window) {
+                                                                     return window.title == previousWindow.title;
+                                                                 }) == mQueuedWindows.end();
+                                         });
+        mPreviousWindows.erase(removeFrom, mPreviousWindows.end());
     }
 
     bool Context::handle_window_focus(const char* window, bool claiming) {
@@ -210,7 +249,7 @@ namespace reig {
         };
 
         if (mouse.leftButton.is_held()
-            && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), headerBox)
+            && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), headerBox) // TODO: check if window visible
             && handle_window_focus(window.title, true)) {
             Point moved{
                     mouse.get_cursor_pos().x - mouse.leftButton.get_clicked_pos().x,

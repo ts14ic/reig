@@ -116,4 +116,8 @@ namespace reig::detail {
 
         return justClickedInRect && isRectVisible;
     }
+
+    bool MouseButton::just_clicked_in_rect_ignore_windows(const primitive::Rectangle& rect) const {
+        return mIsClicked && internal::is_boxed_in(mClickedPos, rect);
+    }
 }

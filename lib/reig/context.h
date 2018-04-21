@@ -163,6 +163,10 @@ namespace reig {
 
         void render_windows();
 
+        void update_previous_windows();
+
+        void cleanup_previous_windows();
+
         bool handle_window_focus(const char* window, bool claiming);
 
         void handle_window_input(detail::Window& window);
