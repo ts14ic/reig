@@ -7,7 +7,7 @@ using std::reference_wrapper;
 using namespace reig::primitive;
 
 namespace reig::detail {
-    Mouse::Mouse(reig::Context& context) : mContext{context}, leftButton{*this}, rightButton{*this} {}
+    Mouse::Mouse(reig::Context& context) : leftButton{*this}, rightButton{*this}, mContext{context} {}
 
     void Mouse::move(float difx, float dify) {
         mCursorPos.x += difx;

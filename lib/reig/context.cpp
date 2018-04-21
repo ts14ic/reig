@@ -16,7 +16,7 @@ namespace reig {
     Context::Context() : Context{Config::builder().build()} {}
 
     Context::Context(const Config& config)
-            : mConfig{config}, mouse{*this} {}
+            : mouse{*this}, mConfig{config} {}
 
     void Context::set_config(const Config& config) {
         mConfig = config;
@@ -170,10 +170,10 @@ namespace reig {
                     currentWindow.mWidth, currentWindow.mTitleBarHeight
             };
             Triangle headerTriangle{
-                    *currentWindow.mX + 3.f, *currentWindow.mY + 3.f,
-                    *currentWindow.mX + 3.f + currentWindow.mTitleBarHeight, *currentWindow.mY + 3.f,
-                    *currentWindow.mX + 3.f + currentWindow.mTitleBarHeight / 2.f,
-                    *currentWindow.mY + currentWindow.mTitleBarHeight - 3.f
+                    {*currentWindow.mX + 3.f, *currentWindow.mY + 3.f},
+                    {*currentWindow.mX + 3.f + currentWindow.mTitleBarHeight, *currentWindow.mY + 3.f},
+                    {*currentWindow.mX + 3.f + currentWindow.mTitleBarHeight / 2.f,
+                     *currentWindow.mY + currentWindow.mTitleBarHeight - 3.f}
             };
             Rectangle titleBox{
                     *currentWindow.mX + currentWindow.mTitleBarHeight + 4, *currentWindow.mY + 4,

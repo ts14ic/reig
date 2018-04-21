@@ -6,7 +6,10 @@
 #include "keyboard.h"
 #include "text.h"
 #include "config.h"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 #include "stb_truetype.h"
+#pragma GCC diagnostic pop
 #include <vector>
 #include <any>
 #include <string>
