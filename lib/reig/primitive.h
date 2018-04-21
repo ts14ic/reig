@@ -144,6 +144,9 @@ namespace reig::primitive {
         }
 
         // @formatter:off
+        #pragma GCC diagnostic push
+        #pragma GCC diagnostic ignored "-Wunused-variable"
+        #pragma GCC diagnostic ignored "-Wunknown-pragmas"
         #pragma clang diagnostic push
         #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
         Color constexpr transparent{Color::Red{},    Color::Green{},    Color::Blue{},    Color::Alpha{}};
@@ -160,6 +163,7 @@ namespace reig::primitive {
         Color constexpr darkGrey   {Color::Red{46},  Color::Green{52},  Color::Blue{54}};
         Color constexpr black      {Color::Red{0},   Color::Green{0},   Color::Blue{0}};
         #pragma clang diagnostic pop
+        #pragma GCC diagnostic pop
         // @formatter:on
     }
 
