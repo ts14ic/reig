@@ -110,17 +110,17 @@ namespace reig {
         //}}}
     }
 
-    bool Context::handle_window_focus(std::string& window, bool claiming) {
+    bool Context::handle_window_focus(const char* window, bool claiming) {
         if (claiming) {
             if (!mDraggedWindow) {
-                mDraggedWindow = &window;
+                mDraggedWindow = window;
             }
-            return mDraggedWindow == &window;
+            return mDraggedWindow == window;
         } else {
-            if (mDraggedWindow == &window) {
+            if (mDraggedWindow == window) {
                 mDraggedWindow = nullptr;
             }
-            return mDraggedWindow != &window;
+            return mDraggedWindow != window;
         }
     }
 
@@ -148,7 +148,7 @@ namespace reig {
         }
     }
 
-    void Context::start_window(const std::string& aTitle, float& aX, float& aY) {
+    void Context::start_window(const char* aTitle, float& aX, float& aY) {
         if (!mQueuedWindows.empty()) end_window();
 
         detail::Window currentWindow;
@@ -190,7 +190,7 @@ namespace reig {
                 render_rectangle(headerBox, mConfig.mTitleBackgroundColor);
             }
             render_triangle(headerTriangle, colors::lightGrey);
-            render_text(currentWindow.mTitle.c_str(), titleBox);
+            render_text(currentWindow.mTitle, titleBox);
             if (mConfig.mWindowsTextured) {
                 render_rectangle(bodyBox, mConfig.mWindowBackgroundTexture);
             } else {

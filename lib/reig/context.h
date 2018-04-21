@@ -25,7 +25,7 @@ namespace reig {
         };
 
         struct Window {
-            std::string mTitle;
+            const char* mTitle = "";
             float* mX = nullptr;
             float* mY = nullptr;
             float mWidth = 0.f;
@@ -100,7 +100,7 @@ namespace reig {
         detail::Keyboard keyboard;
 
         // Widget renders
-        void start_window(const std::string& title, float& x, float& y);
+        void start_window(const char* title, float& x, float& y);
 
         void end_window();
 
@@ -137,7 +137,7 @@ namespace reig {
         void render_triangle(const primitive::Triangle& triangle, const primitive::Color& color);
 
     private:
-        bool handle_window_focus(std::string& window, bool claiming);
+        bool handle_window_focus(const char* window, bool claiming);
 
         void render_text_quads(const std::vector<stbtt_aligned_quad>& quads,
                                float horizontalAlignment, float verticalAlignment);
@@ -150,7 +150,7 @@ namespace reig {
 
         detail::Window* get_current_window();
 
-        std::string* mDraggedWindow = nullptr;
+        const char* mDraggedWindow = nullptr;
         std::vector<detail::Window> mPreviousWindows;
         std::vector<detail::Window> mQueuedWindows;
         std::vector<primitive::Figure> mDrawData;
