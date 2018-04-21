@@ -145,8 +145,21 @@ namespace reig {
         void render_triangle(const primitive::Triangle& triangle, const primitive::Color& color);
 
     private:
-        void render_text_quads(const std::vector<stbtt_aligned_quad>& quads,
-                               float horizontalAlignment, float verticalAlignment);
+        DrawData& get_current_draw_data_buffer();
+
+        float render_text(DrawData& drawData, const char* text, primitive::Rectangle rect,
+                          text::Alignment alignment = text::Alignment::CENTER, float scale = 1.0f);
+
+        static void render_rectangle(DrawData& drawData, const primitive::Rectangle& rect,
+                                     const primitive::Color& color);
+
+        static void render_rectangle(DrawData& drawData, const primitive::Rectangle& rect, int textureId);
+
+        static void render_triangle(DrawData& drawData, const primitive::Triangle& triangle,
+                                    const primitive::Color& color);
+
+        static void render_text_quads(DrawData& drawData, const std::vector<stbtt_aligned_quad>& quads,
+                                      float horizontalAlignment, float verticalAlignment, int fontTextureId);
 
         void render_windows();
 
@@ -162,7 +175,7 @@ namespace reig {
         const char* mDraggedWindow = nullptr;
         std::vector<detail::Window> mPreviousWindows;
         std::vector<detail::Window> mQueuedWindows;
-        std::vector<primitive::Figure> mDrawData;
+        DrawData mFreeDrawData;
 
         detail::Font mFont;
         Config mConfig;

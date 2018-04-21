@@ -95,14 +95,8 @@ namespace reig {
         }
         end_window();
 
-        if (!mDrawData.empty()) {
-            using std::move;
-            auto widgetDrawData = move(mDrawData);
-            mDrawData.clear();
-            render_windows();
-            mRenderHandler(mDrawData, mUserPtr);
-            mRenderHandler(widgetDrawData, mUserPtr);
-        }
+        mRenderHandler(mFreeDrawData, mUserPtr);
+        render_windows();
 
         //{{{ persist previous windows
         mPreviousWindows = move(mQueuedWindows);
@@ -126,7 +120,7 @@ namespace reig {
 
     void Context::start_frame() {
         mQueuedWindows.clear();
-        mDrawData.clear();
+        mFreeDrawData.clear();
 
         mouse.leftButton.mIsClicked = false;
         mouse.mScrolled = 0.f;
@@ -155,7 +149,9 @@ namespace reig {
     }
 
     void Context::render_windows() {
-        for(const auto& currentWindow : mQueuedWindows) {
+        for(auto& currentWindow : mQueuedWindows) {
+            auto currentWidgetData = move(currentWindow.drawData);
+
             Rectangle headerBox{
                     *currentWindow.x, *currentWindow.y,
                     currentWindow.width, currentWindow.titleBarHeight
@@ -176,17 +172,19 @@ namespace reig {
             };
 
             if (mConfig.mWindowsTextured) {
-                render_rectangle(headerBox, mConfig.mTitleBackgroundTexture);
+                render_rectangle(currentWindow.drawData, headerBox, mConfig.mTitleBackgroundTexture);
             } else {
-                render_rectangle(headerBox, mConfig.mTitleBackgroundColor);
+                render_rectangle(currentWindow.drawData, headerBox, mConfig.mTitleBackgroundColor);
             }
-            render_triangle(headerTriangle, colors::lightGrey);
-            render_text(currentWindow.title, titleBox);
+            render_triangle(currentWindow.drawData, headerTriangle, colors::lightGrey);
+            render_text(currentWindow.drawData, currentWindow.title, titleBox);
             if (mConfig.mWindowsTextured) {
-                render_rectangle(bodyBox, mConfig.mWindowBackgroundTexture);
+                render_rectangle(currentWindow.drawData, bodyBox, mConfig.mWindowBackgroundTexture);
             } else {
-                render_rectangle(bodyBox, mConfig.mWindowBackgroundColor);
+                render_rectangle(currentWindow.drawData, bodyBox, mConfig.mWindowBackgroundColor);
             }
+            mRenderHandler(currentWindow.drawData, mUserPtr);
+            mRenderHandler(currentWidgetData, mUserPtr);
         }
     }
 
@@ -277,6 +275,11 @@ namespace reig {
     }
 
     float Context::render_text(const char* text, const Rectangle rect, text::Alignment alignment, float scale) {
+        return render_text(get_current_draw_data_buffer(), text, rect, alignment, scale);
+    }
+
+    float Context::render_text(DrawData& drawData, const char* text, Rectangle rect, text::Alignment alignment,
+                               float scale) {
         if (mFont.mBakedChars.empty() || !text) return rect.x;
 
         float x = rect.x;
@@ -330,56 +333,29 @@ namespace reig {
                 has_alignment(alignment, text::Alignment::BOTTOM) ? 0.0f :
                 (rect.height - textHeight) * -0.5f;
 
-        render_text_quads(quads, horizontalAlignment, verticalAlignment);
+        render_text_quads(drawData, quads, horizontalAlignment, verticalAlignment, mFont.mTextureId);
 
         return x;
     }
 
-    void Context::render_text_quads(const std::vector<stbtt_aligned_quad>& quads,
-                                          float horizontalAlignment, float verticalAlignment) {
-        for (auto& q : quads) {
-            vector<Vertex> vertices{
-                    {{q.x0 + horizontalAlignment, q.y0 + verticalAlignment}, {q.s0, q.t0}, {}},
-                    {{q.x1 + horizontalAlignment, q.y0 + verticalAlignment}, {q.s1, q.t0}, {}},
-                    {{q.x1 + horizontalAlignment, q.y1 + verticalAlignment}, {q.s1, q.t1}, {}},
-                    {{q.x0 + horizontalAlignment, q.y1 + verticalAlignment}, {q.s0, q.t1}, {}}
-            };
-            vector<int> indices{0, 1, 2, 2, 3, 0};
-
-            Figure fig;
-            fig.form(vertices, indices, mFont.mTextureId);
-            mDrawData.push_back(fig);
-        }
-    }
-
-    void Context::render_triangle(const Triangle& aTri, const Color& aColor) {
-        vector<Vertex> vertices{
-                {{aTri.pos0}, {}, aColor},
-                {{aTri.pos1}, {}, aColor},
-                {{aTri.pos2}, {}, aColor}
-        };
-        vector<int> indices = {0, 1, 2};
-
-        Figure fig;
-        fig.form(vertices, indices);
-        mDrawData.push_back(fig);
-    }
-
-    void Context::render_rectangle(const Rectangle& rect, int textureId) {
-        vector<Vertex> vertices{
-                {{rect.x,       rect.y},       {0.f, 0.f}, {}},
-                {{get_x2(rect), rect.y},       {1.f, 0.f}, {}},
-                {{get_x2(rect), get_y2(rect)}, {1.f, 1.f}, {}},
-                {{rect.x,       get_y2(rect)}, {0.f, 1.f}, {}}
-        };
-        vector<int> indices{0, 1, 2, 2, 3, 0};
-
-        Figure fig;
-        fig.form(vertices, indices, textureId);
-        mDrawData.push_back(fig);
+    DrawData& Context::get_current_draw_data_buffer() {
+        auto* currentWindow = get_current_window();
+        return currentWindow ? currentWindow->drawData : mFreeDrawData;
     }
 
     void Context::render_rectangle(const Rectangle& rect, const Color& color) {
+        render_rectangle(get_current_draw_data_buffer(), rect, color);
+    }
+
+    void Context::render_rectangle(const Rectangle& rect, int textureId) {
+        render_rectangle(get_current_draw_data_buffer(), rect, textureId);
+    }
+
+    void Context::render_triangle(const Triangle& triangle, const Color& color) {
+        render_triangle(get_current_draw_data_buffer(), triangle, color);
+    }
+
+    void Context::render_rectangle(DrawData& drawData, const Rectangle& rect, const Color& color) {
         vector<Vertex> vertices{
                 {{rect.x,       rect.y},       {}, color},
                 {{get_x2(rect), rect.y},       {}, color},
@@ -390,6 +366,50 @@ namespace reig {
 
         Figure fig;
         fig.form(vertices, indices);
-        mDrawData.push_back(fig);
+        drawData.push_back(fig);
+    }
+
+    void Context::render_rectangle(DrawData& drawData, const Rectangle& rect, int textureId) {
+        vector<Vertex> vertices{
+                {{rect.x,       rect.y},       {0.f, 0.f}, {}},
+                {{get_x2(rect), rect.y},       {1.f, 0.f}, {}},
+                {{get_x2(rect), get_y2(rect)}, {1.f, 1.f}, {}},
+                {{rect.x,       get_y2(rect)}, {0.f, 1.f}, {}}
+        };
+        vector<int> indices{0, 1, 2, 2, 3, 0};
+
+        Figure fig;
+        fig.form(vertices, indices, textureId);
+        drawData.push_back(fig);
+    }
+
+    void Context::render_triangle(DrawData& drawData, const Triangle& triangle, const Color& color) {
+        vector<Vertex> vertices{
+                {{triangle.pos0}, {}, color},
+                {{triangle.pos1}, {}, color},
+                {{triangle.pos2}, {}, color}
+        };
+        vector<int> indices = {0, 1, 2};
+
+        Figure fig;
+        fig.form(vertices, indices);
+        drawData.push_back(fig);
+    }
+
+    void Context::render_text_quads(DrawData& drawData, const std::vector<stbtt_aligned_quad>& quads,
+                                    float horizontalAlignment, float verticalAlignment, int fontTextureId) {
+        for (auto& q : quads) {
+            vector<Vertex> vertices{
+                    {{q.x0 + horizontalAlignment, q.y0 + verticalAlignment}, {q.s0, q.t0}, {}},
+                    {{q.x1 + horizontalAlignment, q.y0 + verticalAlignment}, {q.s1, q.t0}, {}},
+                    {{q.x1 + horizontalAlignment, q.y1 + verticalAlignment}, {q.s1, q.t1}, {}},
+                    {{q.x0 + horizontalAlignment, q.y1 + verticalAlignment}, {q.s0, q.t1}, {}}
+            };
+            vector<int> indices{0, 1, 2, 2, 3, 0};
+
+            Figure fig;
+            fig.form(vertices, indices, fontTextureId);
+            drawData.push_back(fig);
+        }
     }
 }
