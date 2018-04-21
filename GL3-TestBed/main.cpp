@@ -142,7 +142,7 @@ public:
             move_camera();
             
             static float winX = 10, winY = 10;
-            static bool check = true;
+            static bool windowShown = true;
             static float scaling = 1.0f;
             static float cubeColor[3] {255.f, 255.f, 255.f};
             static float rotation[3] { 0.f, 0.f, 0.f };
@@ -152,9 +152,8 @@ public:
 
             float yline = 0; float step = 28;
             ctx.start_window("Cube manipulation", winX, winY);
-            widget::checkbox(ctx, {0, yline, 25, 25}, colors::darkGrey, check);
             
-            if(check) {
+            if(widget::checkbox(ctx, {0, yline, 25, 25}, colors::darkGrey, windowShown)) {
                 if (widget::button(ctx, "S", {31, yline, 60, 25}, colors::mediumGrey)) {
                     scaling = 1.f;
                 }
