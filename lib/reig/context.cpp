@@ -96,6 +96,7 @@ namespace reig {
         end_window();
 
         mRenderHandler(mFreeDrawData, mUserPtr);
+        mFreeDrawData.clear();
         render_windows();
 
         //{{{ persist previous windows
@@ -120,9 +121,6 @@ namespace reig {
     }
 
     void Context::start_frame() {
-        mQueuedWindows.clear();
-        mFreeDrawData.clear();
-
         mouse.leftButton.mIsClicked = false;
         mouse.mScrolled = 0.f;
 
