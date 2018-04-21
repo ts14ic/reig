@@ -5,7 +5,7 @@
 #include "primitive.h"
 
 namespace reig {
-    struct ConfigBuilder;
+    class ConfigBuilder;
 
     struct Config {
     public:
