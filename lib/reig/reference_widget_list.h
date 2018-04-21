@@ -57,14 +57,14 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::use(reig::Cont
         Rectangle itemFrameBox = {mBoundingBox.x + scrollbarWidth, y, mBoundingBox.width, fontHeight};
         internal::trim_rect_in_other(itemFrameBox, mBoundingBox);
 
-        if (button{mAdapter(*it), itemFrameBox, mBaseColor}.use(ctx)) {
+        if (button(ctx, mAdapter(*it), itemFrameBox, mBaseColor)) {
             mAction(it - mBegin, *it);
         }
     }
 
     auto itemCount = mEnd - mBegin;
     Rectangle scrollbarArea {mBoundingBox.x, mBoundingBox.y, scrollbarWidth, mBoundingBox.height};
-    scrollbar{scrollbarArea, mBaseColor, scrolled, itemCount * fontHeight}.use(ctx);
+    scrollbar(ctx, scrollbarArea, mBaseColor, scrolled, itemCount * fontHeight);
 }
 
 #endif //REIG_REFERENCE_WIDGET_LIST_H

@@ -31,10 +31,10 @@ namespace reig::reference_widget {
         return model;
     }
 
-    bool button::use(reig::Context& ctx) const {
-        auto model = get_button_model(ctx, mBoundingBox);
+    bool button(Context& ctx, const char* aTitle, Rectangle boundingBox, Color baseColor) {
+        auto model = get_button_model(ctx, boundingBox);
 
-        Color innerColor{mBaseColor};
+        Color innerColor{baseColor};
         if (model.hoveringOverArea) {
             innerColor = internal::lighten_color_by(innerColor, 30);
         }
@@ -43,28 +43,28 @@ namespace reig::reference_widget {
         }
         ctx.render_rectangle(model.outlineArea, internal::get_yiq_contrast(innerColor));
         ctx.render_rectangle(model.baseArea, innerColor);
-        ctx.render_text(mTitle, model.baseArea);
+        ctx.render_text(aTitle, model.baseArea);
 
         return model.justClicked;
     }
 
-    bool textured_button::use(Context& ctx) const {
-        auto model = get_button_model(ctx, mBoundingBox);
+    bool textured_button(Context& ctx, const char* title, Rectangle boundingBox,
+                         int mHoverTexture, int mBaseTexture) {
+        auto model = get_button_model(ctx, boundingBox);
 
         int texture = mBaseTexture;
         if (model.holdingClick || model.hoveringOverArea) {
             texture = mHoverTexture;
         }
         ctx.render_rectangle(model.outlineArea, texture);
-        ctx.render_text(mTitle, model.outlineArea);
+        ctx.render_text(title, model.outlineArea);
 
         return model.justClicked;
     }
 
-    void label::use(Context& ctx) const {
-        Rectangle boundingBox = this->mBoundingBox;
+    void label(Context& ctx, char const* title, Rectangle boundingBox, text::Alignment alignment, float fontScale) {
         ctx.fit_rect_in_window(boundingBox);
-        ctx.render_text(mTitle, boundingBox, mAlignment, mFontScale);
+        ctx.render_text(title, boundingBox, alignment, fontScale);
     }
 
     struct CheckboxModel {
@@ -98,30 +98,31 @@ namespace reig::reference_widget {
         return {baseArea, outlineArea, checkArea, hoveringOverArea, justClicked};
     }
 
-    bool checkbox::use(Context& ctx) const {
-        auto model = get_checkbox_model(ctx, mBoundingBox, mValueRef);
+    bool checkbox(Context& ctx, Rectangle boundingBox, Color baseColor, bool& valueRef) {
+        auto model = get_checkbox_model(ctx, boundingBox, valueRef);
 
-        Color secondaryColor = internal::get_yiq_contrast(mBaseColor);
+        Color secondaryColor = internal::get_yiq_contrast(baseColor);
         ctx.render_rectangle(model.outlineArea, secondaryColor);
         ctx.render_rectangle(model.baseArea,
                              model.hoveringOverArea
-                             ? internal::lighten_color_by(mBaseColor, 30)
-                             : mBaseColor);
+                             ? internal::lighten_color_by(baseColor, 30)
+                             : baseColor);
 
-        if (mValueRef) {
+        if (valueRef) {
             ctx.render_rectangle(model.checkArea, secondaryColor);
         }
 
         return model.valueChanged;
     }
 
-    bool textured_checkbox::use(Context& ctx) const {
-        auto model = get_checkbox_model(ctx, mBoundingBox, mValueRef);
+    bool textured_checkbox(Context& ctx, primitive::Rectangle boundingBox, int baseTexture, int checkTexture,
+                                bool& valueRef) {
+        auto model = get_checkbox_model(ctx, boundingBox, valueRef);
 
-        ctx.render_rectangle(model.outlineArea, mBaseTexture);
+        ctx.render_rectangle(model.outlineArea, baseTexture);
 
-        if (mValueRef) {
-            ctx.render_rectangle(model.checkArea, mCheckTexture);
+        if (valueRef) {
+            ctx.render_rectangle(model.checkArea, checkTexture);
         }
 
         return model.valueChanged;

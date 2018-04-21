@@ -198,27 +198,30 @@ namespace reig::reference_widget {
         ctx.render_rectangle(model.cursorArea, frameColor);
     }
 
-    bool slider::use(Context& ctx) const {
-        auto model = get_slider_model(ctx, mBoundingBox, mValueRef, mMin, mMax, mStep);
+    bool slider(Context& ctx, Rectangle boundingBox, Color baseColor,
+                float& valueRef, float min, float max, float step) {
+        auto model = get_slider_model(ctx, boundingBox, valueRef, min, max, step);
 
-        draw_slider_model(ctx, model, mBaseColor);
-
-        return model.valueChanged;
-    }
-
-    bool scrollbar::use(Context& ctx) const {
-        auto model = get_scrollbar_model(ctx, mBoundingBox, mViewSize, mValueRef);
-
-        draw_slider_model(ctx, model, mBaseColor);
+        draw_slider_model(ctx, model, baseColor);
 
         return model.valueChanged;
     }
 
-    bool textured_slider::use(Context& ctx) const {
-        auto model = get_slider_model(ctx, mBoundingBox, mValueRef, mMin, mMax, mStep);
+    bool scrollbar(Context& ctx, Rectangle boundingBox, Color baseColor,
+                   float& valueRef, float viewSize) {
+        auto model = get_scrollbar_model(ctx, boundingBox, viewSize, valueRef);
 
-        ctx.render_rectangle(model.outlineArea, mBaseTexture);
-        ctx.render_rectangle(model.cursorArea, mCursorTexture);
+        draw_slider_model(ctx, model, baseColor);
+
+        return model.valueChanged;
+    }
+
+    bool textured_slider(Context& ctx, Rectangle boundingBox, int baseTexture, int cursorTexture,
+                              float& valueRef, float min, float max, float step) {
+        auto model = get_slider_model(ctx, boundingBox, valueRef, min, max, step);
+
+        ctx.render_rectangle(model.outlineArea, baseTexture);
+        ctx.render_rectangle(model.cursorArea, cursorTexture);
 
         return model.valueChanged;
     }

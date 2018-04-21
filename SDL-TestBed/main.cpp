@@ -234,12 +234,12 @@ private:
     float mFontScale = 1.0f;
 
     void draw_gui() {
-        widget::label{mFpsString.c_str(), {0, 0, 128, 32}, reig::text::Alignment::CENTER}.use(mGui.ctx);
+        widget::label(mGui.ctx, mFpsString.c_str(), {0, 0, 128, 32}, reig::text::Alignment::CENTER);
 
-        widget::slider{{350, 680, 300, 20}, colors::green, mFontScale, 0.0f, 2.0f, 0.05f}.use(mGui.ctx);
+        widget::slider(mGui.ctx, {350, 680, 300, 20}, colors::green, mFontScale, 0.0f, 2.0f, 0.05f);
         Rectangle rect{0, 700, 1000, 40};
-        widget::label{"The quick brown fox jumps over the lazy dog", rect,
-                      reig::text::Alignment::CENTER, mFontScale}.use(mGui.ctx);
+        widget::label(mGui.ctx, "The quick brown fox jumps over the lazy dog", rect,
+                      reig::text::Alignment::CENTER, mFontScale);
 
         draw_buttons();
         draw_checkboxes();
@@ -265,7 +265,7 @@ private:
 
             std::string title = boost::str(boost::format("some %d") % (i + 1));
 
-            if (widget::button{title.c_str(), rect, color}.use(mGui.ctx)) {
+            if (widget::button(mGui.ctx, title.c_str(), rect, color)) {
                 std::cout << boost::format("Button {%s} pressed\n") % title;
             }
         }
@@ -279,21 +279,21 @@ private:
 
         static bool checkBox1 = false;
 //        if(widget::textured_checkbox{rect, 0, mGui.font.id, checkBox1}.use(mGui.ctx)) {
-        if (widget::checkbox{rect, color, checkBox1}.use(mGui.ctx)) {
+        if (widget::checkbox(mGui.ctx, rect, color, checkBox1)) {
             std::cout << "Checkbox 1: new value " << checkBox1 << std::endl;
         }
 
         color = color - 100_r + 100_g + 100_b;
         rect = {rect.x + 80, rect.y + 50, 50, 50};
         static bool checkBox2 = true;
-        if (widget::checkbox{rect, color, checkBox2}.use(mGui.ctx)) {
+        if (widget::checkbox(mGui.ctx, rect, color, checkBox2)) {
             std::cout << "Checkbox 2: new value " << checkBox2 << std::endl;
         }
 
         color = colors::white;
         rect = {rect.x + 80, rect.y - 50, 25, 25};
         static bool checkBox3 = false;
-        if (widget::checkbox{rect, color, checkBox3}.use(mGui.ctx)) {
+        if (widget::checkbox(mGui.ctx, rect, color, checkBox3)) {
             std::cout << "Checkbox 3: new value " << checkBox3 << std::endl;
         }
     }
@@ -306,30 +306,30 @@ private:
 
         static float sliderValue0 = 20;
 //        if (widget::textured_slider{rect, 0, mGui.font.id, sliderValue0, 20, 40, 5}.use(mGui.ctx)) {
-        if (widget::slider{rect, color, sliderValue0, 20, 40, 5}.use(mGui.ctx)) {
+        if (widget::slider(mGui.ctx, rect, color, sliderValue0, 20, 40, 5)) {
             std::cout << boost::format("Slider 0: new value %.2f\n") % sliderValue0;
         }
 
         rect = {rect.x, rect.y + 40, rect.width + 50, rect.height};
         color = color + 50_g;
         static float sliderValue1 = 5.4f;
-        if (widget::slider{rect, color, sliderValue1, 3, 7, 0.1f}.use(mGui.ctx)) {
+        if (widget::slider(mGui.ctx, rect, color, sliderValue1, 3, 7, 0.1f)) {
             std::cout << "Slider 1: new value " << sliderValue1 << std::endl;
         }
 
         rect = {rect.x, rect.y + 40, rect.width + 80, rect.height + 10};
         static float sliderValue2 = 0.3f;
-        if (widget::slider{rect, {220_r, 200_g, 150_b}, sliderValue2, 0.1f, 0.5f, 0.05f}.use(mGui.ctx)) {
+        if (widget::slider(mGui.ctx, rect, {220_r, 200_g, 150_b}, sliderValue2, 0.1f, 0.5f, 0.05f)) {
             std::cout << "Slider 2: new value " << sliderValue2 << std::endl;
         }
 
         static float scrollValue0 = 0.0f;
 
         rect = {0, 5, 30, 200};
-        widget::scrollbar{rect, colors::black, scrollValue0, 1000.0f}.use(mGui.ctx);
+        widget::scrollbar(mGui.ctx, rect, colors::black, scrollValue0, 1000.0f);
 
         rect = {rect.x + 50, rect.y + 150, rect.height, rect.width};
-        widget::scrollbar{rect, colors::black, scrollValue0, 1000.0f}.use(mGui.ctx);
+        widget::scrollbar(mGui.ctx, rect, colors::black, scrollValue0, 1000.0f);
     }
 
     void draw_text_entries() {
@@ -377,24 +377,24 @@ private:
         widget::entry("Add item", rect, colors::darkGrey, itemName, [](const std::string&) {}).use(mGui.ctx);
 
         rect = {rect.x + rect.width + 5, rect.y, 30, 40};
-        if (widget::button{"+", rect, colors::green}.use(mGui.ctx)) {
+        if (widget::button(mGui.ctx, "+", rect, colors::green)) {
             if (!itemName.empty()) {
                 foos.push_back(Foo{itemName});
             }
         }
 
         rect = {rect.x + rect.width + 5, rect.y, 35, 40};
-        if (widget::button{"Cl", rect, colors::violet}.use(mGui.ctx)) {
+        if (widget::button(mGui.ctx, "Cl", rect, colors::violet)) {
             itemName.clear();
         }
 
         rect = {rect.x + rect.width + 5, rect.y, 35, 40};
-        if (widget::button{"+", rect, colors::yellow}.use(mGui.ctx)) {
+        if (widget::button(mGui.ctx, "+", rect, colors::yellow)) {
             foos.push_back(Foo{std::to_string(foos.size())});
         }
 
         rect = {0, rect.y + rect.height + 5, 280, 40};
-        if (widget::button{"Remove last", rect, colors::red}.use(mGui.ctx)) {
+        if (widget::button(mGui.ctx, "Remove last", rect, colors::red)) {
             if (!foos.empty()) {
                 foos.pop_back();
             }

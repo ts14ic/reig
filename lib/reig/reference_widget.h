@@ -6,137 +6,92 @@
 #include "primitive.h"
 
 namespace reig::reference_widget {
-    struct button {
-        const char* const mTitle;
-        const primitive::Rectangle mBoundingBox;
-        const primitive::Color mBaseColor;
+    /**
+     * @brief Render a titled button
+     *
+     * @param title Text to be displayed on button
+     * @param box Button's bounding box
+     * @param color Button's base color
+     *
+     * @return True if the button was clicked, false otherwise
+     */
+    bool button(reig::Context& ctx, const char* title, primitive::Rectangle boundingBox, primitive::Color baseColor);
 
-        /**
-         * @brief Render a titled button
-         *
-         * @param title Text to be displayed on button
-         * @param box Button's bounding box
-         * @param color Button's base color
-         *
-         * @return True if the button was clicked, false otherwise
-         */
-        bool use(Context& ctx) const;
-    };
+    /**
+     * @brief Render a titled textured button
+     * @param box Button's bouding box
+     * @param baseTexture Button's texture index, when idle
+     * @param hoverTexture Button's texture index, when button is hoverred
+     * @return True if the button was clicked, false otherwise
+     */
+    bool textured_button(Context& ctx, const char* title, primitive::Rectangle boundingBox,
+                         int mHoverTexture, int mBaseTexture);
 
-    struct textured_button {
-        const char* const mTitle;
-        const primitive::Rectangle mBoundingBox;
-        const int mHoverTexture = 0, mBaseTexture = 0;
+    /**
+     * @brief Render a label, which will be enclosed in the current window, if any
+     * @param text Text to be displayed
+     * @param boundingBox Text's bounding box
+     */
+    void label(Context& ctx, char const* title, primitive::Rectangle boundingBox,
+               text::Alignment alignment = text::Alignment::CENTER, float fontScale = 1.f);
 
-        /**
-         * @brief Render a titled textured button
-         * @param box Button's bouding box
-         * @param baseTexture Button's texture index, when idle
-         * @param hoverTexture Button's texture index, when button is hoverred
-         * @return True if the button was clicked, false otherwise
-         */
-        bool use(Context& ctx) const;
-    };
+    /**
+     * @brief Renders a slider.
+     * @param box Slider's bounding box
+     * @param color Slider's base color
+     * @param value A reference to the value to be represented and changed
+     * @param min The lowest represantable value
+     * @param max The highest represantable value
+     * @param step The discrete portion by which the value can change
+     * @return True if value changed
+     */
+    bool slider(Context& ctx, primitive::Rectangle boundingBox, primitive::Color baseColor,
+                float& valueRef, float min, float max, float step);
 
-    struct label {
-        char const* mTitle = "";
-        primitive::Rectangle mBoundingBox;
-        text::Alignment mAlignment = text::Alignment::CENTER;
-        float mFontScale = 1.f;
+    /**
+     * @brief
+     * @brief Renders a slider.
+     * @param box Slider's bounding box
+     * @param baseTexture Slider's base texture index
+     * @param cursorTexture Slider's cursor texture index
+     * @param value A reference to the value to be represented and changed
+     * @param min The lowest represantable value
+     * @param max The highest represantable value
+     * @param step The discrete portion by which the value can change
+     * @return True if value changed
+     */
+    bool textured_slider(Context& ctx, primitive::Rectangle boundingBox, int baseTexture, int cursorTexture,
+                         float& valueRef, float min, float max, float step);
 
-        /**
-         * @brief Render a label, which will be enclosed in the current window, if any
-         * @param text Text to be displayed
-         * @param box Text's bounding box
-         */
-        void use(Context& ctx) const;
-    };
+    /**
+     * @brief Renders a vertical scrollbar
+     * @param box Scrollbar's position and size
+     * @param color Checkbox's base color
+     * @param value A reference to the float to be changed
+     * @return True if value changed
+     */
+    bool scrollbar(Context& ctx, primitive::Rectangle boundingBox, primitive::Color baseColor,
+                   float& valueRef, float viewSize);
 
-    struct slider {
-        primitive::Rectangle mBoundingBox;
-        primitive::Color mBaseColor;
-        float& mValueRef;
-        float mMin = 0.0f, mMax = 0.0f, mStep = 0.0f;
+    /**
+     * @brief Renders a checkbox
+     * @param box Checkbox's position and size
+     * @param color Checkbox's base color
+     * @param value A reference to the bool to be changed
+     * @return True if value changed
+     */
+    bool checkbox(Context& ctx, primitive::Rectangle boundingBox, primitive::Color baseColor, bool& valueRef);
 
-        /**
-         * @brief Renders a slider.
-         * @param box Slider's bounding box
-         * @param color Slider's base color
-         * @param value A reference to the value to be represented and changed
-         * @param min The lowest represantable value
-         * @param max The highest represantable value
-         * @param step The discrete portion by which the value can change
-         * @return True if value changed
-         */
-        bool use(Context& ctx) const;
-    };
-
-    struct textured_slider {
-        primitive::Rectangle mBoundingBox;
-        int mBaseTexture = 0, mCursorTexture = 0;
-        float& mValueRef;
-        float mMin = 0.0f, mMax = 0.0f, mStep = 0.0f;
-
-        /**
-         * @brief
-         * @brief Renders a slider.
-         * @param box Slider's bounding box
-         * @param baseTexture Slider's base texture index
-         * @param cursorTexture Slider's cursor texture index
-         * @param value A reference to the value to be represented and changed
-         * @param min The lowest represantable value
-         * @param max The highest represantable value
-         * @param step The discrete portion by which the value can change
-         * @return True if value changed
-         */
-        bool use(Context& ctx) const;
-    };
-
-    struct scrollbar {
-        primitive::Rectangle mBoundingBox;
-        primitive::Color mBaseColor;
-        float& mValueRef;
-        float mViewSize = 0.0f;
-
-        /**
-         * @brief Renders a vertical scrollbar
-         * @param box Scrollbar's position and size
-         * @param color Checkbox's base color
-         * @param value A reference to the float to be changed
-         * @return True if value changed
-         */
-        bool use(Context& ctx) const;
-    };
-
-    struct checkbox {
-        primitive::Rectangle mBoundingBox;
-        primitive::Color mBaseColor;
-        bool& mValueRef;
-        /**
-         * @brief Renders a checkbox
-         * @param box Checkbox's position and size
-         * @param color Checkbox's base color
-         * @param value A reference to the bool to be changed
-         * @return True if value changed
-         */
-        bool use(Context& ctx) const;
-    };
-
-    struct textured_checkbox {
-        primitive::Rectangle mBoundingBox;
-        int mBaseTexture = 0, mCheckTexture = 0;
-        bool& mValueRef;
-
-        /**
-         * @brief Renders a textured checkbox
-         * @param box Checkbox's position and size
-         * @param baseTexture Checkbox's base texture
-         * @param tickTexture Checkbox's tick texture
-         * @param value A reference to the bool to be changed
-         * @return True if value changed
-         */
-        bool use(Context& ctx) const;
-    };
+    /**
+     * @brief Renders a textured checkbox
+     * @param box Checkbox's position and size
+     * @param baseTexture Checkbox's base texture
+     * @param tickTexture Checkbox's tick texture
+     * @param value A reference to the bool to be changed
+     * @return True if value changed
+     */
+    bool textured_checkbox(Context& ctx, primitive::Rectangle boundingBox, int baseTexture, int checkTexture,
+                           bool& valueRef);
 }
 
 #endif //REIG_REFERENCE_WIDGET_H
