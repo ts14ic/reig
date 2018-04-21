@@ -141,7 +141,7 @@ namespace reig {
     }
 
     detail::Window* Context::get_current_window() {
-        if (!mQueuedWindows.empty()) {
+        if (!mQueuedWindows.empty() && !mQueuedWindows.back().isFinished) {
             return &mQueuedWindows.back();
         } else {
             return nullptr;
