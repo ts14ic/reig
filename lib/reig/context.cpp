@@ -96,14 +96,14 @@ namespace reig {
         }
         end_window();
 
+        update_previous_windows();
+        cleanup_previous_windows();
+
         mRenderHandler(mFreeDrawData, mUserPtr);
         mFreeDrawData.clear();
         render_windows();
 
-        update_previous_windows();
-        cleanup_previous_windows();
         mQueuedWindows.clear();
-
     }
 
     void Context::update_previous_windows() {
@@ -187,7 +187,19 @@ namespace reig {
     }
 
     void Context::render_windows() {
-        for(auto& currentWindow : mQueuedWindows) {
+        vector<reference_wrapper<Window>> orderedWindows;
+        for (auto pit = mPreviousWindows.rbegin(); pit != mPreviousWindows.rend(); ++pit) {
+            auto& previousWindow = *pit;
+            auto qit = std::find_if(mQueuedWindows.begin(), mQueuedWindows.end(),
+                                   [&previousWindow](const Window& window) {
+                                       return previousWindow.title == window.title;
+                                   });
+            orderedWindows.push_back(std::ref(*qit));
+        }
+
+        for(auto& currentWindowRef : orderedWindows) {
+            auto& currentWindow = currentWindowRef.get();
+
             auto currentWidgetData = move(currentWindow.drawData);
             currentWindow.drawData.clear();
 
