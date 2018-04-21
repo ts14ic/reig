@@ -14,13 +14,15 @@ namespace reig::reference_widget {
             const bool holdingClick = false;
         };
 
-        template <typename E>
-        void display_entry_model(Context& ctx, const EntryModel& model, const E& entry);
+        template <typename C>
+        void display_entry_model(Context& ctx, const EntryModel& model,
+                                 Color primaryColor, const std::basic_string<C>& valueRef, const char* title);
     }
 
-    template <typename Char, typename Action>
-    void detail::ref_entry<Char, Action>::use(reig::Context& ctx) const {
-        Rectangle outlineArea = mBoundingArea;
+    template <typename C>
+    EntryOuput entry(reig::Context& ctx, const char* title, const Rectangle& boundingArea,
+                     const Color& primaryColor, std::basic_string<C>& value) {
+        Rectangle outlineArea = boundingArea;
         ctx.fit_rect_in_window(outlineArea);
 
         Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
@@ -32,7 +34,7 @@ namespace reig::reference_widget {
             baseArea = internal::decrease_rect(baseArea, 4);
         }
 
-        bool isInputModified = false;
+        EntryOuput output = EntryOuput::textUntouched;
         if (isSelected) {
             if ((ctx.get_frame_counter() / 30) % 2 == 0) {
                 caretArea = internal::decrease_rect(caretArea, 10);
@@ -42,24 +44,29 @@ namespace reig::reference_widget {
             Key keyType = ctx.keyboard.get_pressed_key_type();
             switch (keyType) {
                 case Key::CHAR: {
-                    mValueRef += ctx.keyboard.get_pressed_char();
-                    isInputModified = true;
+                    value += ctx.keyboard.get_pressed_char();
+                    output = EntryOuput::textModified;
                     break;
                 }
 
                 case Key::BACKSPACE: {
                     using std::empty;
-                    if (!empty(mValueRef)) {
-                        mValueRef.pop_back();
-                        isInputModified = true;
+                    if (!empty(value)) {
+                        value.pop_back();
+                        output = EntryOuput::textModified;
                     }
                     break;
                 }
 
-                case Key::RETURN:
+                case Key::RETURN: {
+                    output = EntryOuput::textSubmitted;
+                    break;
+                }
+
                 case Key::ESCAPE: {
                     ctx.mouse.leftButton.press(outlineArea.x, outlineArea.y);
                     ctx.mouse.leftButton.release();
+                    output = EntryOuput::textCancelled;
                     break;
                 }
 
@@ -69,34 +76,32 @@ namespace reig::reference_widget {
             }
         }
 
-        EntryModel model{outlineArea, baseArea, caretArea, isSelected, holdingClick};
+        detail::EntryModel model{outlineArea, baseArea, caretArea, isSelected, holdingClick};
 
-        display_entry_model(ctx, model, *this);
+        display_entry_model(ctx, model, primaryColor, value, title);
 
-        if (isInputModified) {
-            mAction(mValueRef);
-        }
+        return output;
     }
 
-    template <typename E>
-    void detail::display_entry_model(reig::Context& ctx, const reig::reference_widget::detail::EntryModel& model, const E& entry) {
-        Color secondaryColor = internal::get_yiq_contrast(entry.mPrimaryColor);
+    template <typename C>
+    void detail::display_entry_model(Context& ctx, const EntryModel& model,
+                                     Color primaryColor, const std::basic_string<C>& valueRef, const char* title) {
+        Color secondaryColor = internal::get_yiq_contrast(primaryColor);
 
         ctx.render_rectangle(model.outlineArea, secondaryColor);
-        auto primaryColor = entry.mPrimaryColor;
         if (model.holdingClick) {
             primaryColor = internal::lighten_color_by(primaryColor, 30);
         }
         ctx.render_rectangle(model.baseArea, primaryColor);
         if (model.isSelected) {
-            float caretX = ctx.render_text(entry.mValueRef.c_str(), model.baseArea, text::Alignment::LEFT);
+            float caretX = ctx.render_text(valueRef.c_str(), model.baseArea, text::Alignment::LEFT);
 
             Rectangle caretArea = model.caretArea;
             caretArea.x = caretX;
             internal::trim_rect_in_other(caretArea, model.baseArea);
             ctx.render_rectangle(caretArea, secondaryColor);
         } else {
-            ctx.render_text(entry.mValueRef.empty() ? entry.mTitle : entry.mValueRef.c_str(), model.baseArea, text::Alignment::LEFT);
+            ctx.render_text(valueRef.empty() ? title : valueRef.c_str(), model.baseArea, text::Alignment::LEFT);
         }
     }
 }

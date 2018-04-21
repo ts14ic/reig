@@ -337,16 +337,18 @@ private:
         primitive::Rectangle rect {0, 0, 300, 40};
         primitive::Color color {120_r, 100_g, 150_b};
 
-        static std::string entry1;
-        widget::entry("Entry 1", rect, colors::violet, entry1, [](const std::string& input) {
-            std::cout << "Entry 1: " << input << '\n';
-        }).use(mGui.ctx);
+        using reig::reference_widget::EntryOuput;
+
+        static std::string entry1;;
+        if (widget::entry(mGui.ctx, "Entry 1", rect, colors::violet, entry1) == EntryOuput::textModified) {
+            std::cout << "Entry 1: " << entry1 << '\n';
+        }
 
         rect.y += 50;
         static std::string entry2;
-        widget::entry("Entry 2", rect, colors::black, mTextEntryWindow.title, [](const std::string& input) {
-            std::cout << "Entry 2: " << input << '\n';
-        }).use(mGui.ctx);
+        if (widget::entry(mGui.ctx, "Entry 2", rect, colors::black, mTextEntryWindow.title) == EntryOuput::textModified) {
+            std::cout << "Entry 2: " << entry2 << '\n';
+        }
     }
 
     void draw_list() {
@@ -373,19 +375,22 @@ private:
                 }
         ).use(mGui.ctx);
 
+        using reig::reference_widget::EntryOuput;
+
         rect = {rect.x, rect.y + rect.height + 10, rect.width - 120, 40};
-        widget::entry("Add item", rect, colors::darkGrey, itemName, [](const std::string&) {}).use(mGui.ctx);
-
-        rect = {rect.x + rect.width + 5, rect.y, 30, 40};
-        if (widget::button(mGui.ctx, "+", rect, colors::green)) {
-            if (!itemName.empty()) {
+        switch (widget::entry(mGui.ctx, "Add item", rect, colors::darkGrey, itemName)) {
+            case EntryOuput::textSubmitted: {
                 foos.push_back(Foo{itemName});
+                break;
             }
-        }
 
-        rect = {rect.x + rect.width + 5, rect.y, 35, 40};
-        if (widget::button(mGui.ctx, "Cl", rect, colors::violet)) {
-            itemName.clear();
+            case EntryOuput::textCancelled: {
+                itemName.clear();
+                break;
+            }
+
+            default:
+                break;
         }
 
         rect = {rect.x + rect.width + 5, rect.y, 35, 40};
