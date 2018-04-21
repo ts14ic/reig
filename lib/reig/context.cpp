@@ -232,7 +232,15 @@ namespace reig {
             if (mConfig.mWindowsTextured) {
                 render_rectangle(currentWindow.drawData, bodyBox, mConfig.mWindowBackgroundTexture);
             } else {
-                render_rectangle(currentWindow.drawData, bodyBox, mConfig.mWindowBackgroundColor);
+                int thickness = 1;
+                render_rectangle(currentWindow.drawData, internal::decrease_rect(bodyBox, thickness),
+                                 mConfig.mWindowBackgroundColor);
+
+                auto frameColor = mConfig.mTitleBackgroundColor;
+                auto frameRectangles = internal::get_rect_frame(bodyBox, thickness);
+                for (const auto& frameRect : frameRectangles) {
+                    render_rectangle(currentWindow.drawData, frameRect, frameColor);
+                }
             }
 
             mRenderHandler(currentWindow.drawData, mUserPtr);
