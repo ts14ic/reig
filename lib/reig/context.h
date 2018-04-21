@@ -145,18 +145,17 @@ namespace reig {
         void render_triangle(const primitive::Triangle& triangle, const primitive::Color& color);
 
     private:
-        bool handle_window_focus(const char* window, bool claiming);
-
         void render_text_quads(const std::vector<stbtt_aligned_quad>& quads,
                                float horizontalAlignment, float verticalAlignment);
 
         void render_windows();
 
-    private:
+        bool handle_window_focus(const char* window, bool claiming);
+
         void handle_window_input(detail::Window& window);
 
-        friend reig::detail::Mouse;
-        friend reig::detail::MouseButton;
+        friend ::reig::detail::Mouse;
+        friend ::reig::detail::MouseButton;
 
         detail::Window* get_current_window();
 
