@@ -28,12 +28,17 @@ namespace reig {
         };
 
         struct Window {
-            const char* mTitle = "";
-            float* mX = nullptr;
-            float* mY = nullptr;
-            float mWidth = 0.f;
-            float mHeight = 0.f;
-            float mTitleBarHeight = 0.f;
+            Window(const char* title, float& x, float& y, float width, float height, float titleBarHeight)
+                    : title{title}, x{&x}, y{&y}, width{width}, height{height}, titleBarHeight{titleBarHeight} {}
+
+            DrawData drawData;
+            const char* title = "";
+            float* x = nullptr;
+            float* y = nullptr;
+            float width = 0.f;
+            float height = 0.f;
+            float titleBarHeight = 0.f;
+            bool isFinished = false;
         };
 
         /**
@@ -148,6 +153,8 @@ namespace reig {
         void render_windows();
 
     private:
+        void handle_window_input(detail::Window& window);
+
         friend reig::detail::Mouse;
         friend reig::detail::MouseButton;
 

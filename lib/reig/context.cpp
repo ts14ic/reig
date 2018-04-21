@@ -151,37 +151,28 @@ namespace reig {
     void Context::start_window(const char* aTitle, float& aX, float& aY) {
         if (!mQueuedWindows.empty()) end_window();
 
-        detail::Window currentWindow;
-
-        currentWindow.mTitle = aTitle;
-        currentWindow.mX = &aX;
-        currentWindow.mY = &aY;
-        currentWindow.mWidth = 0;
-        currentWindow.mHeight = 0;
-        currentWindow.mTitleBarHeight = 8 + mFont.mHeight;
-
-        mQueuedWindows.push_back(currentWindow);
+        mQueuedWindows.emplace_back(aTitle, aX, aY, 0, 0, mFont.mHeight + 8);
     }
 
     void Context::render_windows() {
         for(const auto& currentWindow : mQueuedWindows) {
             Rectangle headerBox{
-                    *currentWindow.mX, *currentWindow.mY,
-                    currentWindow.mWidth, currentWindow.mTitleBarHeight
+                    *currentWindow.x, *currentWindow.y,
+                    currentWindow.width, currentWindow.titleBarHeight
             };
             Triangle headerTriangle{
-                    {*currentWindow.mX + 3.f, *currentWindow.mY + 3.f},
-                    {*currentWindow.mX + 3.f + currentWindow.mTitleBarHeight, *currentWindow.mY + 3.f},
-                    {*currentWindow.mX + 3.f + currentWindow.mTitleBarHeight / 2.f,
-                     *currentWindow.mY + currentWindow.mTitleBarHeight - 3.f}
+                    {*currentWindow.x + 3.f, *currentWindow.y + 3.f},
+                    {*currentWindow.x + 3.f + currentWindow.titleBarHeight, *currentWindow.y + 3.f},
+                    {*currentWindow.x + 3.f + currentWindow.titleBarHeight / 2.f,
+                     *currentWindow.y + currentWindow.titleBarHeight - 3.f}
             };
             Rectangle titleBox{
-                    *currentWindow.mX + currentWindow.mTitleBarHeight + 4, *currentWindow.mY + 4,
-                    currentWindow.mWidth - currentWindow.mTitleBarHeight - 4, currentWindow.mTitleBarHeight - 4
+                    *currentWindow.x + currentWindow.titleBarHeight + 4, *currentWindow.y + 4,
+                    currentWindow.width - currentWindow.titleBarHeight - 4, currentWindow.titleBarHeight - 4
             };
             Rectangle bodyBox{
-                    *currentWindow.mX, *currentWindow.mY + currentWindow.mTitleBarHeight,
-                    currentWindow.mWidth, currentWindow.mHeight - currentWindow.mTitleBarHeight
+                    *currentWindow.x, *currentWindow.y + currentWindow.titleBarHeight,
+                    currentWindow.width, currentWindow.height - currentWindow.titleBarHeight
             };
 
             if (mConfig.mWindowsTextured) {
@@ -190,7 +181,7 @@ namespace reig {
                 render_rectangle(headerBox, mConfig.mTitleBackgroundColor);
             }
             render_triangle(headerTriangle, colors::lightGrey);
-            render_text(currentWindow.mTitle, titleBox);
+            render_text(currentWindow.title, titleBox);
             if (mConfig.mWindowsTextured) {
                 render_rectangle(bodyBox, mConfig.mWindowBackgroundTexture);
             } else {
@@ -202,53 +193,58 @@ namespace reig {
     void Context::end_window() {
         if (mQueuedWindows.empty()) return;
 
-        auto& currentWindow = mQueuedWindows.back();
+        auto& currentWindow = *get_current_window();
 
-        currentWindow.mWidth += 4;
-        currentWindow.mHeight += 4;
+        currentWindow.isFinished = true;
+        currentWindow.width += 4;
+        currentWindow.height += 4;
 
+        handle_window_input(currentWindow);
+    }
+
+    void Context::handle_window_input(detail::Window& window) {
         Rectangle headerBox{
-                *currentWindow.mX, *currentWindow.mY,
-                currentWindow.mWidth, currentWindow.mTitleBarHeight
+                *window.x, *window.y,
+                window.width, window.titleBarHeight
         };
 
         if (mouse.leftButton.is_held()
             && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), headerBox)
-            && handle_window_focus(currentWindow.mTitle, true)) {
+            && handle_window_focus(window.title, true)) {
             Point moved{
                     mouse.get_cursor_pos().x - mouse.leftButton.get_clicked_pos().x,
                     mouse.get_cursor_pos().y - mouse.leftButton.get_clicked_pos().y
             };
 
-            *currentWindow.mX += moved.x;
-            *currentWindow.mY += moved.y;
+            *window.x += moved.x;
+            *window.y += moved.y;
             mouse.leftButton.mClickedPos.x += moved.x;
             mouse.leftButton.mClickedPos.y += moved.y;
         } else {
-            handle_window_focus(currentWindow.mTitle, false);
+            handle_window_focus(window.title, false);
         }
     }
 
     void detail::fit_rect_in_window(reig::primitive::Rectangle& rect, reig::detail::Window& window) {
-        rect.x += *window.mX + 4;
-        rect.y += *window.mY + window.mTitleBarHeight + 4;
+        rect.x += *window.x + 4;
+        rect.y += *window.y + window.titleBarHeight + 4;
 
-        if (*window.mX + window.mWidth < get_x2(rect)) {
-            window.mWidth = get_x2(rect) - *window.mX;
+        if (*window.x + window.width < get_x2(rect)) {
+            window.width = get_x2(rect) - *window.x;
         }
-        if (*window.mY + window.mHeight < get_y2(rect)) {
-            window.mHeight = get_y2(rect) - *window.mY;
+        if (*window.y + window.height < get_y2(rect)) {
+            window.height = get_y2(rect) - *window.y;
         }
-        if (rect.x < *window.mX) {
-            rect.x = *window.mX + 4;
+        if (rect.x < *window.x) {
+            rect.x = *window.x + 4;
         }
-        if (rect.y < *window.mY) {
-            rect.y = *window.mY + 4;
+        if (rect.y < *window.y) {
+            rect.y = *window.y + 4;
         }
     }
 
     primitive::Rectangle detail::as_rect(const Window& window) {
-        return {*window.mX, *window.mY, window.mWidth, window.mHeight};
+        return {*window.x, *window.y, window.width, window.height};
     }
 
     void Context::fit_rect_in_window(Rectangle& rect) {
