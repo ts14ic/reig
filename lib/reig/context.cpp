@@ -95,17 +95,13 @@ namespace reig {
         }
         end_window();
 
-        if (!mDrawData.empty()) {
-            using std::move;
-            auto widgetDrawData = move(mDrawData);
-            mDrawData.clear();
-            render_windows();
-            mRenderHandler(mDrawData, mUserPtr);
-            mRenderHandler(widgetDrawData, mUserPtr);
-        }
+        mRenderHandler(mFreeDrawData, mUserPtr);
+        mFreeDrawData.clear();
+        render_windows();
 
         //{{{ persist previous windows
         mPreviousWindows = move(mQueuedWindows);
+        mQueuedWindows.clear();
         std::reverse(begin(mPreviousWindows), end(mPreviousWindows));
         //}}}
     }
@@ -125,9 +121,6 @@ namespace reig {
     }
 
     void Context::start_frame() {
-        mQueuedWindows.clear();
-        mDrawData.clear();
-
         mouse.leftButton.mIsClicked = false;
         mouse.mScrolled = 0.f;
 
@@ -141,7 +134,7 @@ namespace reig {
     }
 
     detail::Window* Context::get_current_window() {
-        if (!mQueuedWindows.empty()) {
+        if (!mQueuedWindows.empty() && !mQueuedWindows.back().isFinished) {
             return &mQueuedWindows.back();
         } else {
             return nullptr;
@@ -151,104 +144,108 @@ namespace reig {
     void Context::start_window(const char* aTitle, float& aX, float& aY) {
         if (!mQueuedWindows.empty()) end_window();
 
-        detail::Window currentWindow;
-
-        currentWindow.mTitle = aTitle;
-        currentWindow.mX = &aX;
-        currentWindow.mY = &aY;
-        currentWindow.mWidth = 0;
-        currentWindow.mHeight = 0;
-        currentWindow.mTitleBarHeight = 8 + mFont.mHeight;
-
-        mQueuedWindows.push_back(currentWindow);
+        mQueuedWindows.emplace_back(aTitle, aX, aY, 0, 0, mFont.mHeight + 8);
     }
 
     void Context::render_windows() {
-        for(const auto& currentWindow : mQueuedWindows) {
+        for(auto& currentWindow : mQueuedWindows) {
+            auto currentWidgetData = move(currentWindow.drawData);
+            currentWindow.drawData.clear();
+
             Rectangle headerBox{
-                    *currentWindow.mX, *currentWindow.mY,
-                    currentWindow.mWidth, currentWindow.mTitleBarHeight
+                    *currentWindow.x, *currentWindow.y,
+                    currentWindow.width, currentWindow.titleBarHeight
             };
             Triangle headerTriangle{
-                    {*currentWindow.mX + 3.f, *currentWindow.mY + 3.f},
-                    {*currentWindow.mX + 3.f + currentWindow.mTitleBarHeight, *currentWindow.mY + 3.f},
-                    {*currentWindow.mX + 3.f + currentWindow.mTitleBarHeight / 2.f,
-                     *currentWindow.mY + currentWindow.mTitleBarHeight - 3.f}
+                    {*currentWindow.x + 3.f, *currentWindow.y + 3.f},
+                    {*currentWindow.x + 3.f + currentWindow.titleBarHeight, *currentWindow.y + 3.f},
+                    {*currentWindow.x + 3.f + currentWindow.titleBarHeight / 2.f,
+                     *currentWindow.y + currentWindow.titleBarHeight - 3.f}
             };
             Rectangle titleBox{
-                    *currentWindow.mX + currentWindow.mTitleBarHeight + 4, *currentWindow.mY + 4,
-                    currentWindow.mWidth - currentWindow.mTitleBarHeight - 4, currentWindow.mTitleBarHeight - 4
+                    *currentWindow.x + currentWindow.titleBarHeight + 4, *currentWindow.y + 4,
+                    currentWindow.width - currentWindow.titleBarHeight - 4, currentWindow.titleBarHeight - 4
             };
             Rectangle bodyBox{
-                    *currentWindow.mX, *currentWindow.mY + currentWindow.mTitleBarHeight,
-                    currentWindow.mWidth, currentWindow.mHeight - currentWindow.mTitleBarHeight
+                    *currentWindow.x, *currentWindow.y + currentWindow.titleBarHeight,
+                    currentWindow.width, currentWindow.height - currentWindow.titleBarHeight
             };
 
             if (mConfig.mWindowsTextured) {
-                render_rectangle(headerBox, mConfig.mTitleBackgroundTexture);
+                render_rectangle(currentWindow.drawData, headerBox, mConfig.mTitleBackgroundTexture);
             } else {
-                render_rectangle(headerBox, mConfig.mTitleBackgroundColor);
+                render_rectangle(currentWindow.drawData, headerBox, mConfig.mTitleBackgroundColor);
             }
-            render_triangle(headerTriangle, colors::lightGrey);
-            render_text(currentWindow.mTitle, titleBox);
+            render_triangle(currentWindow.drawData, headerTriangle, colors::lightGrey);
+            render_text(currentWindow.drawData, currentWindow.title, titleBox);
             if (mConfig.mWindowsTextured) {
-                render_rectangle(bodyBox, mConfig.mWindowBackgroundTexture);
+                render_rectangle(currentWindow.drawData, bodyBox, mConfig.mWindowBackgroundTexture);
             } else {
-                render_rectangle(bodyBox, mConfig.mWindowBackgroundColor);
+                render_rectangle(currentWindow.drawData, bodyBox, mConfig.mWindowBackgroundColor);
             }
+
+            mRenderHandler(currentWindow.drawData, mUserPtr);
+            currentWindow.drawData.clear();
+
+            mRenderHandler(currentWidgetData, mUserPtr);
         }
     }
 
     void Context::end_window() {
         if (mQueuedWindows.empty()) return;
 
-        auto& currentWindow = mQueuedWindows.back();
+        auto& currentWindow = *get_current_window();
 
-        currentWindow.mWidth += 4;
-        currentWindow.mHeight += 4;
+        currentWindow.isFinished = true;
+        currentWindow.width += 4;
+        currentWindow.height += 4;
 
+        handle_window_input(currentWindow);
+    }
+
+    void Context::handle_window_input(detail::Window& window) {
         Rectangle headerBox{
-                *currentWindow.mX, *currentWindow.mY,
-                currentWindow.mWidth, currentWindow.mTitleBarHeight
+                *window.x, *window.y,
+                window.width, window.titleBarHeight
         };
 
         if (mouse.leftButton.is_held()
             && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), headerBox)
-            && handle_window_focus(currentWindow.mTitle, true)) {
+            && handle_window_focus(window.title, true)) {
             Point moved{
                     mouse.get_cursor_pos().x - mouse.leftButton.get_clicked_pos().x,
                     mouse.get_cursor_pos().y - mouse.leftButton.get_clicked_pos().y
             };
 
-            *currentWindow.mX += moved.x;
-            *currentWindow.mY += moved.y;
+            *window.x += moved.x;
+            *window.y += moved.y;
             mouse.leftButton.mClickedPos.x += moved.x;
             mouse.leftButton.mClickedPos.y += moved.y;
         } else {
-            handle_window_focus(currentWindow.mTitle, false);
+            handle_window_focus(window.title, false);
         }
     }
 
     void detail::fit_rect_in_window(reig::primitive::Rectangle& rect, reig::detail::Window& window) {
-        rect.x += *window.mX + 4;
-        rect.y += *window.mY + window.mTitleBarHeight + 4;
+        rect.x += *window.x + 4;
+        rect.y += *window.y + window.titleBarHeight + 4;
 
-        if (*window.mX + window.mWidth < get_x2(rect)) {
-            window.mWidth = get_x2(rect) - *window.mX;
+        if (*window.x + window.width < get_x2(rect)) {
+            window.width = get_x2(rect) - *window.x;
         }
-        if (*window.mY + window.mHeight < get_y2(rect)) {
-            window.mHeight = get_y2(rect) - *window.mY;
+        if (*window.y + window.height < get_y2(rect)) {
+            window.height = get_y2(rect) - *window.y;
         }
-        if (rect.x < *window.mX) {
-            rect.x = *window.mX + 4;
+        if (rect.x < *window.x) {
+            rect.x = *window.x + 4;
         }
-        if (rect.y < *window.mY) {
-            rect.y = *window.mY + 4;
+        if (rect.y < *window.y) {
+            rect.y = *window.y + 4;
         }
     }
 
     primitive::Rectangle detail::as_rect(const Window& window) {
-        return {*window.mX, *window.mY, window.mWidth, window.mHeight};
+        return {*window.x, *window.y, window.width, window.height};
     }
 
     void Context::fit_rect_in_window(Rectangle& rect) {
@@ -281,6 +278,11 @@ namespace reig {
     }
 
     float Context::render_text(const char* text, const Rectangle rect, text::Alignment alignment, float scale) {
+        return render_text(get_current_draw_data_buffer(), text, rect, alignment, scale);
+    }
+
+    float Context::render_text(DrawData& drawData, const char* text, Rectangle rect, text::Alignment alignment,
+                               float scale) {
         if (mFont.mBakedChars.empty() || !text) return rect.x;
 
         float x = rect.x;
@@ -334,56 +336,29 @@ namespace reig {
                 has_alignment(alignment, text::Alignment::BOTTOM) ? 0.0f :
                 (rect.height - textHeight) * -0.5f;
 
-        render_text_quads(quads, horizontalAlignment, verticalAlignment);
+        render_text_quads(drawData, quads, horizontalAlignment, verticalAlignment, mFont.mTextureId);
 
         return x;
     }
 
-    void Context::render_text_quads(const std::vector<stbtt_aligned_quad>& quads,
-                                          float horizontalAlignment, float verticalAlignment) {
-        for (auto& q : quads) {
-            vector<Vertex> vertices{
-                    {{q.x0 + horizontalAlignment, q.y0 + verticalAlignment}, {q.s0, q.t0}, {}},
-                    {{q.x1 + horizontalAlignment, q.y0 + verticalAlignment}, {q.s1, q.t0}, {}},
-                    {{q.x1 + horizontalAlignment, q.y1 + verticalAlignment}, {q.s1, q.t1}, {}},
-                    {{q.x0 + horizontalAlignment, q.y1 + verticalAlignment}, {q.s0, q.t1}, {}}
-            };
-            vector<int> indices{0, 1, 2, 2, 3, 0};
-
-            Figure fig;
-            fig.form(vertices, indices, mFont.mTextureId);
-            mDrawData.push_back(fig);
-        }
-    }
-
-    void Context::render_triangle(const Triangle& aTri, const Color& aColor) {
-        vector<Vertex> vertices{
-                {{aTri.pos0}, {}, aColor},
-                {{aTri.pos1}, {}, aColor},
-                {{aTri.pos2}, {}, aColor}
-        };
-        vector<int> indices = {0, 1, 2};
-
-        Figure fig;
-        fig.form(vertices, indices);
-        mDrawData.push_back(fig);
-    }
-
-    void Context::render_rectangle(const Rectangle& rect, int textureId) {
-        vector<Vertex> vertices{
-                {{rect.x,       rect.y},       {0.f, 0.f}, {}},
-                {{get_x2(rect), rect.y},       {1.f, 0.f}, {}},
-                {{get_x2(rect), get_y2(rect)}, {1.f, 1.f}, {}},
-                {{rect.x,       get_y2(rect)}, {0.f, 1.f}, {}}
-        };
-        vector<int> indices{0, 1, 2, 2, 3, 0};
-
-        Figure fig;
-        fig.form(vertices, indices, textureId);
-        mDrawData.push_back(fig);
+    DrawData& Context::get_current_draw_data_buffer() {
+        auto* currentWindow = get_current_window();
+        return currentWindow ? currentWindow->drawData : mFreeDrawData;
     }
 
     void Context::render_rectangle(const Rectangle& rect, const Color& color) {
+        render_rectangle(get_current_draw_data_buffer(), rect, color);
+    }
+
+    void Context::render_rectangle(const Rectangle& rect, int textureId) {
+        render_rectangle(get_current_draw_data_buffer(), rect, textureId);
+    }
+
+    void Context::render_triangle(const Triangle& triangle, const Color& color) {
+        render_triangle(get_current_draw_data_buffer(), triangle, color);
+    }
+
+    void Context::render_rectangle(DrawData& drawData, const Rectangle& rect, const Color& color) {
         vector<Vertex> vertices{
                 {{rect.x,       rect.y},       {}, color},
                 {{get_x2(rect), rect.y},       {}, color},
@@ -394,6 +369,50 @@ namespace reig {
 
         Figure fig;
         fig.form(vertices, indices);
-        mDrawData.push_back(fig);
+        drawData.push_back(fig);
+    }
+
+    void Context::render_rectangle(DrawData& drawData, const Rectangle& rect, int textureId) {
+        vector<Vertex> vertices{
+                {{rect.x,       rect.y},       {0.f, 0.f}, {}},
+                {{get_x2(rect), rect.y},       {1.f, 0.f}, {}},
+                {{get_x2(rect), get_y2(rect)}, {1.f, 1.f}, {}},
+                {{rect.x,       get_y2(rect)}, {0.f, 1.f}, {}}
+        };
+        vector<int> indices{0, 1, 2, 2, 3, 0};
+
+        Figure fig;
+        fig.form(vertices, indices, textureId);
+        drawData.push_back(fig);
+    }
+
+    void Context::render_triangle(DrawData& drawData, const Triangle& triangle, const Color& color) {
+        vector<Vertex> vertices{
+                {{triangle.pos0}, {}, color},
+                {{triangle.pos1}, {}, color},
+                {{triangle.pos2}, {}, color}
+        };
+        vector<int> indices = {0, 1, 2};
+
+        Figure fig;
+        fig.form(vertices, indices);
+        drawData.push_back(fig);
+    }
+
+    void Context::render_text_quads(DrawData& drawData, const std::vector<stbtt_aligned_quad>& quads,
+                                    float horizontalAlignment, float verticalAlignment, int fontTextureId) {
+        for (auto& q : quads) {
+            vector<Vertex> vertices{
+                    {{q.x0 + horizontalAlignment, q.y0 + verticalAlignment}, {q.s0, q.t0}, {}},
+                    {{q.x1 + horizontalAlignment, q.y0 + verticalAlignment}, {q.s1, q.t0}, {}},
+                    {{q.x1 + horizontalAlignment, q.y1 + verticalAlignment}, {q.s1, q.t1}, {}},
+                    {{q.x0 + horizontalAlignment, q.y1 + verticalAlignment}, {q.s0, q.t1}, {}}
+            };
+            vector<int> indices{0, 1, 2, 2, 3, 0};
+
+            Figure fig;
+            fig.form(vertices, indices, fontTextureId);
+            drawData.push_back(fig);
+        }
     }
 }

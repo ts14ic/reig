@@ -28,12 +28,17 @@ namespace reig {
         };
 
         struct Window {
-            const char* mTitle = "";
-            float* mX = nullptr;
-            float* mY = nullptr;
-            float mWidth = 0.f;
-            float mHeight = 0.f;
-            float mTitleBarHeight = 0.f;
+            Window(const char* title, float& x, float& y, float width, float height, float titleBarHeight)
+                    : title{title}, x{&x}, y{&y}, width{width}, height{height}, titleBarHeight{titleBarHeight} {}
+
+            DrawData drawData;
+            const char* title = "";
+            float* x = nullptr;
+            float* y = nullptr;
+            float width = 0.f;
+            float height = 0.f;
+            float titleBarHeight = 0.f;
+            bool isFinished = false;
         };
 
         /**
@@ -140,23 +145,37 @@ namespace reig {
         void render_triangle(const primitive::Triangle& triangle, const primitive::Color& color);
 
     private:
-        bool handle_window_focus(const char* window, bool claiming);
+        DrawData& get_current_draw_data_buffer();
 
-        void render_text_quads(const std::vector<stbtt_aligned_quad>& quads,
-                               float horizontalAlignment, float verticalAlignment);
+        float render_text(DrawData& drawData, const char* text, primitive::Rectangle rect,
+                          text::Alignment alignment = text::Alignment::CENTER, float scale = 1.0f);
+
+        static void render_rectangle(DrawData& drawData, const primitive::Rectangle& rect,
+                                     const primitive::Color& color);
+
+        static void render_rectangle(DrawData& drawData, const primitive::Rectangle& rect, int textureId);
+
+        static void render_triangle(DrawData& drawData, const primitive::Triangle& triangle,
+                                    const primitive::Color& color);
+
+        static void render_text_quads(DrawData& drawData, const std::vector<stbtt_aligned_quad>& quads,
+                                      float horizontalAlignment, float verticalAlignment, int fontTextureId);
 
         void render_windows();
 
-    private:
-        friend reig::detail::Mouse;
-        friend reig::detail::MouseButton;
+        bool handle_window_focus(const char* window, bool claiming);
+
+        void handle_window_input(detail::Window& window);
+
+        friend ::reig::detail::Mouse;
+        friend ::reig::detail::MouseButton;
 
         detail::Window* get_current_window();
 
         const char* mDraggedWindow = nullptr;
         std::vector<detail::Window> mPreviousWindows;
         std::vector<detail::Window> mQueuedWindows;
-        std::vector<primitive::Figure> mDrawData;
+        DrawData mFreeDrawData;
 
         detail::Font mFont;
         Config mConfig;

@@ -41,7 +41,7 @@ namespace reig::detail {
         for (auto& previousWindow : mPreviousWindows) {
             if (internal::is_boxed_in(mCursorPos, as_rect(previousWindow))) {
                 if (currentWindow) {
-                    return currentWindow->mTitle == previousWindow.mTitle;
+                    return currentWindow->title == previousWindow.title;
                 } else {
                     return false;
                 }
@@ -87,7 +87,7 @@ namespace reig::detail {
         for (auto& previousWindow : mPreviousWindows) {
             if (internal::is_boxed_in(mClickedPos, as_rect(previousWindow))) {
                 if (currentWindow) {
-                    return currentWindow->mTitle == previousWindow.mTitle;
+                    return currentWindow->title == previousWindow.title;
                 } else {
                     return false;
                 }
@@ -107,7 +107,7 @@ namespace reig::detail {
         for (auto& previousWindow : mPreviousWindows) {
             if (clicked_in_rect(as_rect(previousWindow))) {
                 if (currentWindow) {
-                    return currentWindow->mTitle == previousWindow.mTitle;
+                    return currentWindow->title == previousWindow.title;
                 } else {
                     return false;
                 }
