@@ -50,6 +50,6 @@ namespace reig::exception {
     }
 
     IntegralCastException::IntegralCastException(long long val, const char* srcType, const char* destType)
-            : std::range_error{"Bad integral cast from "s + srcType + +"(" + std::to_string(val) + ") to " + destType} {
+            : std::range_error{"Bad integral cast from "s + srcType + " (" + std::to_string(val) + ") to " + destType} {
     }
 }
