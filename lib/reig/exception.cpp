@@ -2,6 +2,8 @@
 
 #include <sstream>
 
+using namespace std::string_literals;
+
 namespace reig::exception {
     FailedToLoadFontException::FailedToLoadFontException(std::string message)
             : message{move(message)} {}
@@ -45,5 +47,9 @@ namespace reig::exception {
 
     const char* NoRenderHandlerException::what() const noexcept {
         return "No render handler specified";
+    }
+
+    IntegralCastException::IntegralCastException(long long val, const char* srcType, const char* destType)
+            : std::range_error{"Bad integral cast from "s + srcType + " (" + std::to_string(val) + ") to " + destType} {
     }
 }

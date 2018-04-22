@@ -1,5 +1,5 @@
 #include "mouse.h"
-#include "internal.h"
+#include "maths.h"
 #include "context.h"
 
 using std::vector;
@@ -32,11 +32,11 @@ namespace reig::detail {
     }
 
     bool Mouse::is_hovering_over_rect(const Rectangle& rect) const {
-        bool hoveringOverRect = internal::is_boxed_in(mCursorPos, rect);
+        bool hoveringOverRect = is_point_in_rect(mCursorPos, rect);
         if (mContext.mDraggedWindow || !hoveringOverRect) return false;
 
         bool isRectVisible = mContext.if_on_top([this](Window* currentWindow, Window& previousWindow) {
-            return internal::is_boxed_in(mCursorPos, as_rect(previousWindow));
+            return is_point_in_rect(mCursorPos, as_rect(previousWindow));
         });
 
         return hoveringOverRect && isRectVisible;
@@ -69,11 +69,11 @@ namespace reig::detail {
     }
 
     bool MouseButton::clicked_in_rect(const primitive::Rectangle& rect) const {
-        bool clickedInRect = internal::is_boxed_in(mClickedPos, rect);
+        bool clickedInRect = is_point_in_rect(mClickedPos, rect);
         if (mMouse.mContext.mDraggedWindow || !clickedInRect) return false;
 
         bool isRectVisible = mMouse.mContext.if_on_top([this](Window* currentWindow, Window& previousWindow) {
-            return internal::is_boxed_in(mClickedPos, as_rect(previousWindow));
+            return is_point_in_rect(mClickedPos, as_rect(previousWindow));
         });
 
         return clickedInRect && isRectVisible;
@@ -91,6 +91,6 @@ namespace reig::detail {
     }
 
     bool MouseButton::just_clicked_in_rect_ignore_windows(const primitive::Rectangle& rect) const {
-        return mIsClicked && internal::is_boxed_in(mClickedPos, rect);
+        return mIsClicked && is_point_in_rect(mClickedPos, rect);
     }
 }

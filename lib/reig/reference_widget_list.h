@@ -2,7 +2,6 @@
 #define REIG_REFERENCE_WIDGET_LIST_H
 
 #include "context.h"
-#include "internal.h"
 #include "reference_widget.h"
 
 namespace reig::reference_widget {
@@ -13,8 +12,8 @@ namespace reig::reference_widget {
         template <typename Iter, typename Adapter, typename Action>
         struct list {
             const char* mTitle = "";
-            Rectangle mBoundingBox;
-            Color mBaseColor;
+            primitive::Rectangle mBoundingBox;
+            primitive::Color mBaseColor;
             Iter mBegin;
             Iter mEnd;
             Adapter& mAdapter;
@@ -25,7 +24,7 @@ namespace reig::reference_widget {
     }
 
     template <typename Range, typename Adapter, typename Action>
-    auto list(const char* title, const Rectangle& rectangle, const Color& baseColor,
+    auto list(const char* title, const primitive::Rectangle& rectangle, const primitive::Color& baseColor,
               Range&& range, Adapter&& adapter, Action&& action) {
         using std::begin;
         using std::end;
@@ -36,14 +35,15 @@ namespace reig::reference_widget {
 
 template <typename Iter, typename Adapter, typename Action>
 void reig::reference_widget::detail::list<Iter, Adapter, Action>::use(reig::Context& ctx) const {
+    using namespace primitive;
     {
         Rectangle listArea = mBoundingBox;
         ctx.fit_rect_in_window(listArea);
 
         using namespace colors::operators;
         using namespace colors::literals;
-        ctx.render_rectangle(listArea, internal::get_yiq_contrast(mBaseColor - 50_a));
-        ctx.render_rectangle(internal::decrease_rect(listArea, 2), mBaseColor - 50_a);
+        ctx.render_rectangle(listArea, colors::get_yiq_contrast(mBaseColor - 50_a));
+        ctx.render_rectangle(decrease_rect(listArea, 2), mBaseColor - 50_a);
     }
 
     auto& scrolled = detail::get_scroll_value(this);
@@ -55,7 +55,7 @@ void reig::reference_widget::detail::list<Iter, Adapter, Action>::use(reig::Cont
     float scrollbarWidth = 30.0f;
     for (auto it = mBegin + skippedItemCount; it != mEnd && y < maxY; ++it, y += fontHeight) {
         Rectangle itemFrameBox = {mBoundingBox.x + scrollbarWidth, y, mBoundingBox.width, fontHeight};
-        internal::trim_rect_in_other(itemFrameBox, mBoundingBox);
+        trim_rect_in_other(itemFrameBox, mBoundingBox);
 
         if (button(ctx, mAdapter(*it), itemFrameBox, mBaseColor)) {
             mAction(it - mBegin, *it);
