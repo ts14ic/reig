@@ -146,6 +146,8 @@ namespace reig {
 
         void handle_window_input(detail::Window& window);
 
+        bool if_visible_window(detail::Window& window, bool condition);
+
         template <typename C>
         bool if_on_top(C&& condition);
 

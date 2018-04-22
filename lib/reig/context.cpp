@@ -270,7 +270,7 @@ namespace reig {
         };
 
         if (mouse.leftButton.is_held()
-            && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), headerBox) // TODO: check if window visible
+            && if_visible_window(window, internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), headerBox))
             && handle_window_focus(window.title, true)) {
             Point moved{
                     mouse.get_cursor_pos().x - mouse.leftButton.get_clicked_pos().x,
@@ -284,6 +284,15 @@ namespace reig {
         } else {
             handle_window_focus(window.title, false);
         }
+    }
+
+    bool Context::if_visible_window(detail::Window& window, bool condition) {
+        for (auto& previousWindow : mPreviousWindows) {
+            if (condition) {
+                return window.title == previousWindow.title;
+            }
+        }
+        return false;
     }
 
     void Context::fit_rect_in_window(Rectangle& rect) {
