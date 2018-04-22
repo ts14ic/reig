@@ -1,8 +1,8 @@
 #ifndef REIG_MATH_H
 #define REIG_MATH_H
 
+#include "exception.h"
 #include <type_traits>
-#include <sstream>
 
 namespace reig::math {
     template <typename T>
@@ -43,10 +43,7 @@ namespace reig::math {
     R integral_cast(T t) {
         auto r = static_cast<R>(t);
         if (r != t || (std::is_signed_v<T> != std::is_signed_v<R> && ((t < T{}) != r < R{}))) {
-            // TODO: make a custom exception for this to hide the sstream dependency
-            std::stringstream ss;
-            ss << "Bad integral cast from " << typeid(T).name() << "(" << t << ") to type " << typeid(R).name();
-            throw std::range_error(ss.str());
+            throw exception::IntegralCastException{t, typeid(T).name(), typeid(R).name()};
         }
         return r;
     };

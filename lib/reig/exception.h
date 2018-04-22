@@ -2,6 +2,7 @@
 #define REIG_EXCEPTION_H
 
 #include <string>
+#include <stdexcept>
 
 namespace reig::exception {
     struct FailedToLoadFontException : std::exception {
@@ -20,6 +21,10 @@ namespace reig::exception {
 
     struct NoRenderHandlerException : std::exception {
         const char* what() const noexcept override;
+    };
+
+    struct IntegralCastException : std::range_error {
+        IntegralCastException(long long val, const char* srcType, const char* destType);
     };
 }
 
