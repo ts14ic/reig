@@ -1,5 +1,5 @@
 #include "reference_widget.h"
-#include "internal.h"
+#include "maths.h"
 #include "context.h"
 
 
@@ -15,10 +15,10 @@ namespace reig::reference_widget {
     };
 
     SliderValues prepare_slider_values(float aMin, float aMax, float aValue, float aStep) {
-        float min = internal::min(aMin, aMax);
-        float max = internal::max(aMin, aMax);
+        float min = math::min(aMin, aMax);
+        float max = math::max(aMin, aMax);
         return SliderValues{
-                min, max, internal::clamp(aValue, min, max),
+                min, max, math::clamp(aValue, min, max),
                 static_cast<int>((aValue - min) / aStep),
                 static_cast<int>((max - min) / aStep + 1)
         };
@@ -39,7 +39,7 @@ namespace reig::reference_widget {
     void progress_slider_value(float mouseCursorCoord, float cursorSize,
                                float sliderCursorCoord, float step, float& value) {
         float distance = get_distance_to_slider(mouseCursorCoord, cursorSize, sliderCursorCoord);
-        if (internal::abs(distance) > cursorSize / 2) {
+        if (math::abs(distance) > cursorSize / 2) {
             value += static_cast<int>(distance / cursorSize) * step;
         }
     }
@@ -70,13 +70,13 @@ namespace reig::reference_widget {
                                     && ctx.mouse.leftButton.is_held();
 
         if (holdingClickOnSlider) {
-            baseArea = internal::decrease_rect(baseArea, 2);
-            cursorArea = internal::decrease_rect(cursorArea, 4);
+            baseArea = decrease_rect(baseArea, 2);
+            cursorArea = decrease_rect(cursorArea, 4);
         }
 
         bool valueChanged = false;
         if (aValueRef != values.value) {
-            aValueRef = internal::clamp(values.value, values.min, values.max);
+            aValueRef = math::clamp(values.value, values.min, values.max);
             valueChanged = true;
         }
 
@@ -86,13 +86,13 @@ namespace reig::reference_widget {
     SliderModel get_slider_model(Context& ctx, Rectangle outlineArea, float& aValueRef, float aMin, float aMax, float aStep) {
         ctx.fit_rect_in_window(outlineArea);
 
-        Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
+        Rectangle baseArea = decrease_rect(outlineArea, 4);
 
         auto values = prepare_slider_values(aMin, aMax, aValueRef, aStep);
 
         SliderOrientation orientation = calculate_slider_orientation(baseArea);
 
-        auto cursorArea = internal::decrease_rect(baseArea, 4);
+        auto cursorArea = decrease_rect(baseArea, 4);
         if (orientation == SliderOrientation::HORIZONTAL) {
             size_slider_cursor(cursorArea.x, cursorArea.width, values.valuesNum, values.offset);
         } else {
@@ -121,15 +121,15 @@ namespace reig::reference_widget {
         float scale = size / viewSize;
         if (scale <= 1.0f) {
             coord += offset * step * scale;
-            size = internal::max(1.0f, scale * size);
-            size = internal::min(size, viewSize);
+            size = math::max(1.0f, scale * size);
+            size = math::min(size, viewSize);
         }
     }
 
     SliderValues prepare_scrollbar_values(float maxScroll, float value, float step) {
         float min = 0.0f;
-        float max = internal::max(0.f, maxScroll);
-        float clampedValue = internal::clamp(value, min, max);
+        float max = math::max(0.f, maxScroll);
+        float clampedValue = math::clamp(value, min, max);
         return SliderValues{
                 min, max, clampedValue,
                 static_cast<int>((value - min) / step),
@@ -140,14 +140,14 @@ namespace reig::reference_widget {
     void progress_scrollbar_value(float mouseCursorCoord, float cursorSize,
                                   float sliderCursorCoord, float step, float& value) {
         float distance = get_distance_to_slider(mouseCursorCoord, cursorSize, sliderCursorCoord);
-        if (internal::abs(distance) > cursorSize / 2) {
+        if (math::abs(distance) > cursorSize / 2) {
             value += static_cast<int>(distance * step) / cursorSize;
         }
     }
 
     SliderModel get_scrollbar_model(Context& ctx, Rectangle outlineArea, float viewSize, float& aValueRef) {
         ctx.fit_rect_in_window(outlineArea);
-        Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
+        Rectangle baseArea = decrease_rect(outlineArea, 4);
 
         auto step = ctx.get_font_size();
 
@@ -159,7 +159,7 @@ namespace reig::reference_widget {
             values = prepare_scrollbar_values(viewSize - baseArea.width, aValueRef, step);
         }
 
-        auto cursorArea = internal::decrease_rect(baseArea, 4);
+        auto cursorArea = decrease_rect(baseArea, 4);
         if (orientation == SliderOrientation::HORIZONTAL) {
             size_scrollbar_cursor(cursorArea.x, cursorArea.width, step, values.offset, viewSize);
         } else {
@@ -185,15 +185,15 @@ namespace reig::reference_widget {
     }
 
     void draw_slider_model(Context& ctx, const SliderModel& model, const Color& baseColor) {
-        Color frameColor = internal::get_yiq_contrast(baseColor);
+        Color frameColor = colors::get_yiq_contrast(baseColor);
         ctx.render_rectangle(model.outlineArea, frameColor);
         ctx.render_rectangle(model.baseArea, baseColor);
 
         if (model.hoveringOverCursor) {
-            frameColor = internal::lighten_color_by(frameColor, 30);
+            frameColor = colors::lighten_color_by(frameColor, 30);
         }
         if (model.holdingClickOnSlider) {
-            frameColor = internal::lighten_color_by(frameColor, 30);
+            frameColor = colors::lighten_color_by(frameColor, 30);
         }
         ctx.render_rectangle(model.cursorArea, frameColor);
     }

@@ -15,7 +15,7 @@ add_library(reig_lib
         lib/reig/keyboard.h lib/reig/keyboard.cpp
         lib/reig/keyboard_shifted.cpp
         lib/reig/exception.h lib/reig/exception.cpp
-        lib/reig/internal.h lib/reig/internal.cpp
+        lib/reig/maths.h
         lib/reig/text.h
         lib/reig/drawdata.h
         lib/reig/context.h lib/reig/context.cpp

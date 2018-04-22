@@ -4,6 +4,7 @@
 #include "defs.h"
 #include "fwd.h"
 #include <vector>
+#include <array>
 
 namespace reig::primitive {
     struct Point {
@@ -25,6 +26,14 @@ namespace reig::primitive {
     inline float get_y2(const Rectangle& rect) {
         return rect.y + rect.height;
     }
+
+    bool is_boxed_in(const Point& pt, const Rectangle& rect);
+
+    Rectangle decrease_rect(Rectangle aRect, int by);
+
+    std::array<Rectangle, 4> get_rect_frame(const Rectangle& rect, float thickness);
+
+    void trim_rect_in_other(Rectangle& fitted, const Rectangle& container);
 
     struct Triangle {
         Point pos0;
@@ -77,6 +86,12 @@ namespace reig::primitive {
         uint32_t to_uint(const Color& from);
 
         Color from_uint(uint32_t rgba);
+
+        Color get_yiq_contrast(Color color);
+
+        Color lighten_color_by(Color color, uint8_t delta);
+
+        Color dim_color_by(Color color, uint8_t delta);
 
         namespace literals {
             constexpr Color::Red operator "" _r(unsigned long long val) noexcept {

@@ -1,10 +1,9 @@
 #include "reference_widget.h"
-#include "internal.h"
 #include "context.h"
 
-namespace reig::reference_widget {
-    using namespace primitive;
+using namespace reig::primitive;
 
+namespace reig::reference_widget {
     struct ButtonModel {
         Rectangle outlineArea;
         Rectangle baseArea;
@@ -25,8 +24,8 @@ namespace reig::reference_widget {
 
         model.outlineArea = outlineArea;
         model.baseArea = model.holdingClick
-                         ? internal::decrease_rect(outlineArea, 6)
-                         : internal::decrease_rect(outlineArea, 4);
+                         ? decrease_rect(outlineArea, 6)
+                         : decrease_rect(outlineArea, 4);
 
         return model;
     }
@@ -36,12 +35,12 @@ namespace reig::reference_widget {
 
         Color innerColor{baseColor};
         if (model.hoveringOverArea) {
-            innerColor = internal::lighten_color_by(innerColor, 30);
+            innerColor = colors::lighten_color_by(innerColor, 30);
         }
         if (model.holdingClick) {
-            innerColor = internal::lighten_color_by(innerColor, 30);
+            innerColor = colors::lighten_color_by(innerColor, 30);
         }
-        ctx.render_rectangle(model.outlineArea, internal::get_yiq_contrast(innerColor));
+        ctx.render_rectangle(model.outlineArea, colors::get_yiq_contrast(innerColor));
         ctx.render_rectangle(model.baseArea, innerColor);
         ctx.render_text(aTitle, model.baseArea);
 
@@ -79,20 +78,20 @@ namespace reig::reference_widget {
         ctx.fit_rect_in_window(outlineArea);
         bool hoveringOverArea = ctx.mouse.is_hovering_over_rect(outlineArea);
 
-        Rectangle baseArea = internal::decrease_rect(outlineArea, 4);
-        Rectangle checkArea = internal::decrease_rect(baseArea, 4);
+        Rectangle baseArea = decrease_rect(outlineArea, 4);
+        Rectangle checkArea = decrease_rect(baseArea, 4);
 
         bool justClicked = ctx.mouse.leftButton.just_clicked_in_rect(outlineArea);
         if (justClicked) {
-            baseArea = internal::decrease_rect(baseArea, 4);
-            checkArea = internal::decrease_rect(checkArea, 4);
+            baseArea = decrease_rect(baseArea, 4);
+            checkArea = decrease_rect(checkArea, 4);
             aValueRef = !aValueRef;
         }
 
         bool holdingClick = ctx.mouse.leftButton.clicked_in_rect(outlineArea) && ctx.mouse.leftButton.is_held();
         if (holdingClick) {
-            baseArea = internal::decrease_rect(baseArea, 4);
-            checkArea = internal::decrease_rect(checkArea, 4);
+            baseArea = decrease_rect(baseArea, 4);
+            checkArea = decrease_rect(checkArea, 4);
         }
 
         return {baseArea, outlineArea, checkArea, hoveringOverArea, justClicked};
@@ -101,11 +100,11 @@ namespace reig::reference_widget {
     bool checkbox(Context& ctx, Rectangle boundingBox, Color baseColor, bool& valueRef) {
         auto model = get_checkbox_model(ctx, boundingBox, valueRef);
 
-        Color secondaryColor = internal::get_yiq_contrast(baseColor);
+        Color secondaryColor = colors::get_yiq_contrast(baseColor);
         ctx.render_rectangle(model.outlineArea, secondaryColor);
         ctx.render_rectangle(model.baseArea,
                              model.hoveringOverArea
-                             ? internal::lighten_color_by(baseColor, 30)
+                             ? colors::lighten_color_by(baseColor, 30)
                              : baseColor);
 
         if (valueRef) {

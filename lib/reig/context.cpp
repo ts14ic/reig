@@ -2,7 +2,7 @@
 #define STB_TRUETYPE_IMPLEMENTATION
 
 #include "context.h"
-#include "internal.h"
+#include "maths.h"
 #include "exception.h"
 #include <memory>
 #include <algorithm>
@@ -42,7 +42,7 @@ namespace reig {
         long filePos = ftell(file.get());
         if (filePos < 0) throw FailedToLoadFontException::invalidFile(fontFilePath);
 
-        auto fileSize = internal::integral_cast<size_t>(filePos);
+        auto fileSize = math::integral_cast<size_t>(filePos);
         std::rewind(file.get());
 
         auto ttfBuffer = std::vector<unsigned char>(fileSize);
@@ -65,7 +65,7 @@ namespace reig {
 
         using std::data;
         auto bakedChars = std::vector<stbtt_bakedchar>(charsNum);
-        auto bitmap = vector<uint8_t>(internal::integral_cast<size_t>(bitmapWidth * bitmapHeight));
+        auto bitmap = vector<uint8_t>(math::integral_cast<size_t>(bitmapWidth * bitmapHeight));
 
         int bakedHeight = stbtt_BakeFontBitmap(ttfBuffer.data(), 0, fontHeightPx, bitmap.data(),
                                                bitmapWidth, bitmapHeight, ' ', charsNum, data(bakedChars));
@@ -221,7 +221,7 @@ namespace reig {
             };
 
             auto frameColor = it != orderedWindows.end() - 1
-                              ? internal::dim_color_by(mConfig.mTitleBackgroundColor, 127)
+                              ? colors::dim_color_by(mConfig.mTitleBackgroundColor, 127)
                               : mConfig.mTitleBackgroundColor;
 
             if (mConfig.mWindowsTextured) {
@@ -235,10 +235,10 @@ namespace reig {
                 render_rectangle(currentWindow.drawData, bodyBox, mConfig.mWindowBackgroundTexture);
             } else {
                 int thickness = 1;
-                render_rectangle(currentWindow.drawData, internal::decrease_rect(bodyBox, thickness),
+                render_rectangle(currentWindow.drawData, decrease_rect(bodyBox, thickness),
                                  mConfig.mWindowBackgroundColor);
 
-                auto frame = internal::get_rect_frame(bodyBox, thickness);
+                auto frame = get_rect_frame(bodyBox, thickness);
                 for (const auto& frameRect : frame) {
                     render_rectangle(currentWindow.drawData, frameRect, frameColor);
                 }
@@ -270,7 +270,7 @@ namespace reig {
         };
 
         if (mouse.leftButton.is_held()
-            && if_visible_window(window, internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), headerBox))
+            && if_visible_window(window, is_boxed_in(mouse.leftButton.get_clicked_pos(), headerBox))
             && handle_window_focus(window.title, true)) {
             Point moved{
                     mouse.get_cursor_pos().x - mouse.leftButton.get_clicked_pos().x,
@@ -358,12 +358,12 @@ namespace reig {
             if (quad.x0 > get_x2(rect)) {
                 break;
             }
-            quad.x1 = internal::min(quad.x1, get_x2(rect));
+            quad.x1 = math::min(quad.x1, get_x2(rect));
 //            quad.y0 = internal::max(quad.y0, rect.y);
 //            quad.y1 = internal::min(quad.y1, get_y2(rect));
 
-            minY = internal::min(minY, quad.y0);
-            maxY = internal::max(maxY, quad.y1);
+            minY = math::min(minY, quad.y0);
+            maxY = math::max(maxY, quad.y1);
 
             quads.push_back(quad);
         }

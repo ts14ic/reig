@@ -237,7 +237,7 @@ private:
         widget::label(mGui.ctx, mFpsString.c_str(), {0, 0, 128, 32}, reig::text::Alignment::CENTER);
 
         widget::slider(mGui.ctx, {350, 680, 300, 20}, colors::green, mFontScale, 0.0f, 2.0f, 0.05f);
-        Rectangle rect{0, 700, 1000, 40};
+        primitive::Rectangle rect{0, 700, 1000, 40};
         widget::label(mGui.ctx, "The quick brown fox jumps over the lazy dog", rect,
                       reig::text::Alignment::CENTER, mFontScale);
 
