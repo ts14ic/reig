@@ -6,10 +6,10 @@
 
 namespace reig::reference_widget {
     enum class EntryOuput {
-        textUntouched,
-        textModified,
-        textSubmitted,
-        textCancelled
+        UNMODIFIED,
+        MODIFIED,
+        SUBMITTED,
+        CANCELLED
     };
 
     template <typename Char>

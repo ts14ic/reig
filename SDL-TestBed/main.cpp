@@ -340,12 +340,12 @@ private:
         using reig::reference_widget::EntryOuput;
 
         static std::string entry1;;
-        if (widget::entry(mGui.ctx, "Entry 1", rect, colors::violet, entry1) == EntryOuput::textModified) {
+        if (widget::entry(mGui.ctx, "Entry 1", rect, colors::violet, entry1) == EntryOuput::MODIFIED) {
             std::cout << "Entry 1: " << entry1 << '\n';
         }
 
         rect.y += 50;
-        if (widget::entry(mGui.ctx, "Entry 2", rect, colors::black, mTextEntryWindow.title) == EntryOuput::textModified) {
+        if (widget::entry(mGui.ctx, "Entry 2", rect, colors::black, mTextEntryWindow.title) == EntryOuput::MODIFIED) {
             std::cout << "Entry 2: " << mTextEntryWindow.title << '\n';
         }
     }
@@ -379,12 +379,12 @@ private:
 
             rect = {rect.x, rect.y + rect.height + 10, rect.width - 120, 40};
             switch (widget::entry(mGui.ctx, "Add item", rect, colors::darkGrey, itemName)) {
-                case EntryOuput::textSubmitted: {
+                case EntryOuput::SUBMITTED: {
                     foos.push_back(Foo{itemName});
                     break;
                 }
 
-                case EntryOuput::textCancelled: {
+                case EntryOuput::CANCELLED: {
                     itemName.clear();
                     break;
                 }
