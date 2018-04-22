@@ -51,7 +51,6 @@ target_include_directories(sdl_bed
         ${Boost_INCLUDE_DIRS})
 
 # Open GL 3 test bed
-# TODO: Link opengl
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/GL3-TestBed/cmake)
 add_executable(gl3_bed
         GL3-TestBed/Camera.cpp

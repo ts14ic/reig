@@ -125,9 +125,7 @@ namespace reig {
         if (!mouse.leftButton.is_clicked()) return;
 
         for (auto it = mPreviousWindows.begin(); it != mPreviousWindows.end(); ++it) {
-            auto& previousWindow = *it; // TODO: Remove DEBUG stmt
-            if (mouse.leftButton.just_clicked_in_rect_ignore_windows(detail::as_rect(previousWindow))) {
-                auto& swappedWindow = *(mPreviousWindows.end() - 1); // TODO: Remove DEBUG stmt
+            if (mouse.leftButton.just_clicked_in_rect_ignore_windows(detail::as_rect(*it))) {
                 std::iter_swap(it, mPreviousWindows.begin());
                 break;
             }
