@@ -49,12 +49,12 @@ namespace reig::internal {
         fit_size(fitted.height, fitted.y, container.height, container.y);
     }
 
-    std::vector<Rectangle> get_rect_frame(const Rectangle& rect, float thickness) {
+    std::array<Rectangle, 4> get_rect_frame(const Rectangle& rect, float thickness) {
         return {
-                {rect.x,                          rect.y,                           rect.width, thickness},
-                {rect.x,                          rect.y + rect.height - thickness, rect.width, thickness},
-                {rect.x,                          rect.y + thickness,               thickness,  rect.height},
-                {rect.x + rect.width - thickness, rect.y,                           thickness,  rect.height}
+                Rectangle{rect.x,                          rect.y,                           rect.width, thickness},
+                Rectangle{rect.x,                          rect.y + rect.height - thickness, rect.width, thickness},
+                Rectangle{rect.x,                          rect.y + thickness,               thickness,  rect.height},
+                Rectangle{rect.x + rect.width - thickness, rect.y,                           thickness,  rect.height}
         };
     }
 }

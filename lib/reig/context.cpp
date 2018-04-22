@@ -237,8 +237,8 @@ namespace reig {
                                  mConfig.mWindowBackgroundColor);
 
                 auto frameColor = mConfig.mTitleBackgroundColor;
-                auto frameRectangles = internal::get_rect_frame(bodyBox, thickness);
-                for (const auto& frameRect : frameRectangles) {
+                auto frame = internal::get_rect_frame(bodyBox, thickness);
+                for (const auto& frameRect : frame) {
                     render_rectangle(currentWindow.drawData, frameRect, frameColor);
                 }
             }
