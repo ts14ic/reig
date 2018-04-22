@@ -367,15 +367,13 @@ private:
         widget::label(mGui.ctx, "Show list:", {0, 0, 80, 30}, reig::text::Alignment::LEFT);
         if (widget::checkbox(mGui.ctx, {85, 0, 30, 30}, colors::white, listShown)) {
             primitive::Rectangle rect = {0, 35, 280, 280};
-            widget::list(
-                    "Test", rect, colors::blue, foos,
-                    [](const Foo& foo) {
-                        return foo.name.c_str();
-                    },
-                    [](int position, const Foo& foo) {
-                        std::cout << "Clicked on " << position << "th foo: " << foo.name << '\n';
-                    }
-            ).use(mGui.ctx);
+            widget::list(mGui.ctx, "Test", rect, colors::blue, foos,
+                         [](const Foo& foo) {
+                             return foo.name.c_str();
+                         },
+                         [](int position, const Foo& foo) {
+                             std::cout << "Clicked on " << position << "th foo: " << foo.name << '\n';
+                         });
 
             using reig::reference_widget::EntryOuput;
 
