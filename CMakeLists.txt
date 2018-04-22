@@ -17,12 +17,14 @@ add_library(reig_lib
         lib/reig/exception.h lib/reig/exception.cpp
         lib/reig/internal.h lib/reig/internal.cpp
         lib/reig/text.h
+        lib/reig/drawdata.h
         lib/reig/context.h lib/reig/context.cpp
         lib/reig/reference_widget.h lib/reig/reference_widget.cpp
         lib/reig/reference_widget_list.h lib/reig/reference_widget_list.cpp
         lib/reig/reference_widget_slider.cpp
         lib/reig/reference_widget_entry.h lib/reig/reference_widget_entry.tcc
         lib/reig/config.h lib/reig/config.cpp
+        lib/reig/window.h lib/reig/window.cpp
         )
 add_library(my::reig_lib ALIAS reig_lib)
 target_compile_features(reig_lib

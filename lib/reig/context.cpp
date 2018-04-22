@@ -286,28 +286,6 @@ namespace reig {
         }
     }
 
-    void detail::fit_rect_in_window(reig::primitive::Rectangle& rect, reig::detail::Window& window) {
-        rect.x += *window.x + 4;
-        rect.y += *window.y + window.titleBarHeight + 4;
-
-        if (*window.x + window.width < get_x2(rect)) {
-            window.width = get_x2(rect) - *window.x;
-        }
-        if (*window.y + window.height < get_y2(rect)) {
-            window.height = get_y2(rect) - *window.y;
-        }
-        if (rect.x < *window.x) {
-            rect.x = *window.x + 4;
-        }
-        if (rect.y < *window.y) {
-            rect.y = *window.y + 4;
-        }
-    }
-
-    primitive::Rectangle detail::as_rect(const Window& window) {
-        return {*window.x, *window.y, window.width, window.height};
-    }
-
     void Context::fit_rect_in_window(Rectangle& rect) {
         if (!mQueuedWindows.empty()) {
             detail::fit_rect_in_window(rect, mQueuedWindows.back());
