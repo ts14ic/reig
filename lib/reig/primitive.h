@@ -70,16 +70,20 @@ namespace reig::primitive {
                     : val{val} {}
         };
 
-        constexpr Color() = default;
+        constexpr Color() noexcept
+                : Color{0, 0, 0, 0xFFu} {}
+
+        constexpr Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 0xFFu) noexcept
+                : red{red}, green{green}, blue{blue}, alpha{alpha} {}
 
         constexpr Color(const Red& red, const Green& green, const Blue& blue,
                         const Alpha& alpha = Alpha{0xFFu}) noexcept
-                : red{red}, green{green}, blue{blue}, alpha{alpha} {}
+                : Color{red.val, green.val, blue.val, alpha.val} {}
 
-        Red red;
-        Green green;
-        Blue blue;
-        Alpha alpha;
+        uint8_t red;
+        uint8_t green;
+        uint8_t blue;
+        uint8_t alpha;
     };
 
     namespace colors {
@@ -120,15 +124,7 @@ namespace reig::primitive {
                                                              std::is_same_v<Comp, Color::Alpha>;
 
                 template <typename Comp, typename = std::enable_if_t<is_color_component_v<Comp>>>
-                const Comp& get_comp(const Color& color) {
-                    if constexpr (std::is_same_v<Comp, Color::Red>) return color.red;
-                    else if constexpr (std::is_same_v<Comp, Color::Green>) return color.green;
-                    else if constexpr (std::is_same_v<Comp, Color::Blue>) return color.blue;
-                    else return color.alpha;
-                }
-
-                template <typename Comp, typename = std::enable_if_t<is_color_component_v<Comp>>>
-                Comp& get_comp(Color& color) {
+                uint8_t& get_comp(Color& color) {
                     if constexpr (std::is_same_v<Comp, Color::Red>) return color.red;
                     else if constexpr (std::is_same_v<Comp, Color::Green>) return color.green;
                     else if constexpr (std::is_same_v<Comp, Color::Blue>) return color.blue;
@@ -139,21 +135,21 @@ namespace reig::primitive {
             template <typename Comp, typename = std::enable_if_t<detail::is_color_component_v<Comp>>>
             Color operator|(const Color& left, const Comp& right) {
                 Color ret = left;
-                detail::get_comp<Comp>(ret) = right;
+                detail::get_comp<Comp>(ret) = right.val;
                 return ret;
             };
 
             template <typename Comp, typename = std::enable_if_t<detail::is_color_component_v<Comp>>>
             Color operator+(const Color& left, const Comp& right) {
                 Color ret = left;
-                detail::get_comp<Comp>(ret).val += right.val;
+                detail::get_comp<Comp>(ret) += right.val;
                 return ret;
             };
 
             template <typename Comp, typename = std::enable_if_t<detail::is_color_component_v<Comp>>>
             Color operator-(const Color& left, const Comp& right) {
                 Color ret = left;
-                detail::get_comp<Comp>(ret).val -= right.val;
+                detail::get_comp<Comp>(ret) -= right.val;
                 return ret;
             };
         }
@@ -164,19 +160,19 @@ namespace reig::primitive {
         #pragma GCC diagnostic ignored "-Wunknown-pragmas"
         #pragma clang diagnostic push
         #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
-        Color constexpr transparent{Color::Red{},    Color::Green{},    Color::Blue{},    Color::Alpha{}};
-        Color constexpr red        {Color::Red{239}, Color::Green{41},  Color::Blue{41}};
-        Color constexpr orange     {Color::Red{252}, Color::Green{175}, Color::Blue{62}};
-        Color constexpr yellow     {Color::Red{252}, Color::Green{233}, Color::Blue{79}};
-        Color constexpr green      {Color::Red{138}, Color::Green{226}, Color::Blue{52}};
-        Color constexpr blue       {Color::Red{114}, Color::Green{159}, Color::Blue{207}};
-        Color constexpr violet     {Color::Red{173}, Color::Green{127}, Color::Blue{168}};
-        Color constexpr brown      {Color::Red{143}, Color::Green{89},  Color::Blue{2}};
-        Color constexpr white      {Color::Red{255}, Color::Green{255}, Color::Blue{255}};
-        Color constexpr lightGrey  {Color::Red{186}, Color::Green{189}, Color::Blue{182}};
-        Color constexpr mediumGrey {Color::Red{136}, Color::Green{138}, Color::Blue{133}};
-        Color constexpr darkGrey   {Color::Red{46},  Color::Green{52},  Color::Blue{54}};
-        Color constexpr black      {Color::Red{0},   Color::Green{0},   Color::Blue{0}};
+        Color constexpr transparent{0, 0, 0, 0};
+        Color constexpr red        {239, 41,  41};
+        Color constexpr orange     {252, 175, 62};
+        Color constexpr yellow     {252, 233, 79};
+        Color constexpr green      {138, 226, 52};
+        Color constexpr blue       {114, 159, 207};
+        Color constexpr violet     {173, 127, 168};
+        Color constexpr brown      {143, 89,  2};
+        Color constexpr white      {255, 255, 255};
+        Color constexpr lightGrey  {186, 189, 182};
+        Color constexpr mediumGrey {136, 138, 133};
+        Color constexpr darkGrey   {46,  52,  54};
+        Color constexpr black      {0,   0,   0};
         #pragma clang diagnostic pop
         #pragma GCC diagnostic pop
         // @formatter:on

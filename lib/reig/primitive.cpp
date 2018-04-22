@@ -44,25 +44,25 @@ namespace reig::primitive {
     }
 
     uint32_t colors::to_uint(const Color& color) {
-        return (color.alpha.val << 24u)
-               + (color.blue.val << 16u)
-               + (color.green.val << 8u)
-               + color.red.val;
+        return (color.alpha << 24u)
+               + (color.blue << 16u)
+               + (color.green << 8u)
+               + color.red;
     }
 
     Color colors::from_uint(uint32_t rgba) {
         return Color{
-                Color::Red{static_cast<uint8_t>((rgba >> 24u) & 0xFFu)},
-                Color::Green{static_cast<uint8_t>((rgba >> 16u) & 0xFFu)},
-                Color::Blue{static_cast<uint8_t>((rgba >> 8u) & 0xFFu)},
-                Color::Alpha{static_cast<uint8_t>(rgba & 0xFFu)}
+                static_cast<uint8_t>((rgba >> 24u) & 0xFFu),
+                static_cast<uint8_t>((rgba >> 16u) & 0xFFu),
+                static_cast<uint8_t>((rgba >> 8u) & 0xFFu),
+                static_cast<uint8_t>(rgba & 0xFFu)
         };
     }
 
     Color colors::get_yiq_contrast(Color color) {
         using namespace colors::literals;
 
-        uint32_t y = (299u * color.red.val + 587 * color.green.val + 114 * color.blue.val) / 1000;
+        uint32_t y = (299u * color.red + 587 * color.green + 114 * color.blue) / 1000;
         return y >= 128
                ? Color{0_r, 0_g, 0_b, 255_a}
                : Color{255_r, 255_g, 255_b};
@@ -70,17 +70,17 @@ namespace reig::primitive {
 
     Color colors::lighten_color_by(Color color, uint8_t delta) {
         uint8_t max = 255u;
-        color.red.val < max - delta ? color.red.val += delta : color.red.val = max;
-        color.green.val < max - delta ? color.green.val += delta : color.green.val = max;
-        color.blue.val < max - delta ? color.blue.val += delta : color.blue.val = max;
+        color.red < max - delta ? color.red += delta : color.red = max;
+        color.green < max - delta ? color.green += delta : color.green = max;
+        color.blue < max - delta ? color.blue += delta : color.blue = max;
         return color;
     }
 
     Color colors::dim_color_by(Color color, uint8_t delta) {
         uint8_t min = 0u;
-        color.red.val > min + delta ? color.red.val -= delta : color.red.val = min;
-        color.green.val > min + delta ? color.green.val -= delta : color.green.val = min;
-        color.blue.val > min + delta ? color.blue.val -= delta : color.blue.val = min;
+        color.red > min + delta ? color.red -= delta : color.red = min;
+        color.green > min + delta ? color.green -= delta : color.green = min;
+        color.blue > min + delta ? color.blue -= delta : color.blue = min;
         return color;
     }
 
