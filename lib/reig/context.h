@@ -171,6 +171,9 @@ namespace reig {
 
         void handle_window_input(detail::Window& window);
 
+        template <typename C>
+        bool if_on_top(C&& condition);
+
         friend ::reig::detail::Mouse;
         friend ::reig::detail::MouseButton;
 
@@ -188,6 +191,21 @@ namespace reig {
         std::any mUserPtr;
         unsigned mFrameCounter = 0;
     };
+}
+
+template <typename C>
+bool reig::Context::if_on_top(C&& condition) {
+    auto* currentWindow = get_current_window();
+    for (auto& previousWindow : mPreviousWindows) {
+        if (condition(currentWindow, previousWindow)) {
+            if (currentWindow) {
+                return currentWindow->title == previousWindow.title;
+            } else {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 #endif //REIG_CONTEXT_H
