@@ -1,7 +1,9 @@
 #ifndef REIG_CONTEXT_H
 #define REIG_CONTEXT_H
 
+#include "fwd.h"
 #include "defs.h"
+#include "window.h"
 #include "mouse.h"
 #include "keyboard.h"
 #include "text.h"
@@ -15,9 +17,6 @@
 #include <string>
 
 namespace reig {
-    using DrawData = std::vector<primitive::Figure>;
-    using RenderHandler = void(*)(const DrawData&, std::any userPtr);
-
     namespace detail {
         struct Font {
             std::vector<stbtt_bakedchar> mBakedChars;
@@ -26,30 +25,6 @@ namespace reig {
             int mBitmapWidth = 0;
             int mBitmapHeight = 0;
         };
-
-        struct Window {
-            Window(const char* title, float& x, float& y, float width, float height, float titleBarHeight)
-                    : title{title}, x{&x}, y{&y}, width{width}, height{height}, titleBarHeight{titleBarHeight} {}
-
-            DrawData drawData;
-            const char* title = "";
-            float* x = nullptr;
-            float* y = nullptr;
-            float width = 0.f;
-            float height = 0.f;
-            float titleBarHeight = 0.f;
-            bool isFinished = false;
-        };
-
-        /**
-         * Increase the window's width and height to fit rect's bottom right point
-         * Shift rect's y down to accommodate window's title bar
-         * Reset rect's position if it's top left corner can't be fitted
-         * @param rect The rectangle to accommodate
-         */
-        void fit_rect_in_window(primitive::Rectangle& rect, Window& window);
-
-        primitive::Rectangle as_rect(const Window& window);
     }
 
     /**
@@ -163,9 +138,18 @@ namespace reig {
 
         void render_windows();
 
+        void update_previous_windows();
+
+        void cleanup_previous_windows();
+
         bool handle_window_focus(const char* window, bool claiming);
 
         void handle_window_input(detail::Window& window);
+
+        bool if_visible_window(detail::Window& window, bool condition);
+
+        template <typename C>
+        bool if_on_top(C&& condition);
 
         friend ::reig::detail::Mouse;
         friend ::reig::detail::MouseButton;
@@ -184,6 +168,21 @@ namespace reig {
         std::any mUserPtr;
         unsigned mFrameCounter = 0;
     };
+}
+
+template <typename C>
+bool reig::Context::if_on_top(C&& condition) {
+    auto* currentWindow = get_current_window();
+    for (auto& previousWindow : mPreviousWindows) {
+        if (condition(currentWindow, previousWindow)) {
+            if (currentWindow) {
+                return currentWindow->title == previousWindow.title;
+            } else {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 #endif //REIG_CONTEXT_H

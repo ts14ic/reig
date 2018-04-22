@@ -23,6 +23,14 @@ namespace reig::internal {
         return color;
     }
 
+    Color dim_color_by(Color color, uint8_t delta) {
+        uint8_t min = 0u;
+        color.red.val > min + delta ? color.red.val -= delta : color.red.val = min;
+        color.green.val > min + delta ? color.green.val -= delta : color.green.val = min;
+        color.blue.val > min + delta ? color.blue.val -= delta : color.blue.val = min;
+        return color;
+    }
+
     Rectangle decrease_rect(Rectangle aRect, int by) {
         int moveBy = by / 2;
         aRect.x += moveBy;
@@ -47,5 +55,14 @@ namespace reig::internal {
 
         fit_size(fitted.width, fitted.x, container.width, container.x);
         fit_size(fitted.height, fitted.y, container.height, container.y);
+    }
+
+    std::array<Rectangle, 4> get_rect_frame(const Rectangle& rect, float thickness) {
+        return {
+                Rectangle{rect.x,                          rect.y,                           rect.width, thickness},
+                Rectangle{rect.x,                          rect.y + rect.height - thickness, rect.width, thickness},
+                Rectangle{rect.x,                          rect.y + thickness,               thickness,  rect.height},
+                Rectangle{rect.x + rect.width - thickness, rect.y,                           thickness,  rect.height}
+        };
     }
 }

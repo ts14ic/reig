@@ -3,6 +3,7 @@
 
 #include "primitive.h"
 #include <sstream>
+#include <array>
 
 using namespace reig::primitive;
 
@@ -47,7 +48,11 @@ namespace reig::internal {
 
     Color lighten_color_by(Color color, uint8_t delta);
 
+    Color dim_color_by(Color color, uint8_t delta);
+
     Rectangle decrease_rect(Rectangle aRect, int by);
+
+    std::array<Rectangle, 4> get_rect_frame(const Rectangle& rect, float thickness);
 
     template <typename R, typename T, typename = std::enable_if_t<std::is_integral_v<R> && std::is_integral_v<R>>>
     R integral_cast(T t) {

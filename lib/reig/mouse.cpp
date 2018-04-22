@@ -35,18 +35,9 @@ namespace reig::detail {
         bool hoveringOverRect = internal::is_boxed_in(mCursorPos, rect);
         if (mContext.mDraggedWindow || !hoveringOverRect) return false;
 
-        auto* currentWindow = mContext.get_current_window();
-        auto& mPreviousWindows = mContext.mPreviousWindows;
-        bool isRectVisible = true;
-        for (auto& previousWindow : mPreviousWindows) {
-            if (internal::is_boxed_in(mCursorPos, as_rect(previousWindow))) {
-                if (currentWindow) {
-                    return currentWindow->title == previousWindow.title;
-                } else {
-                    return false;
-                }
-            }
-        }
+        bool isRectVisible = mContext.if_on_top([this](Window* currentWindow, Window& previousWindow) {
+            return internal::is_boxed_in(mCursorPos, as_rect(previousWindow));
+        });
 
         return hoveringOverRect && isRectVisible;
     }
@@ -81,18 +72,9 @@ namespace reig::detail {
         bool clickedInRect = internal::is_boxed_in(mClickedPos, rect);
         if (mMouse.mContext.mDraggedWindow || !clickedInRect) return false;
 
-        auto* currentWindow = mMouse.mContext.get_current_window();
-        auto& mPreviousWindows = mMouse.mContext.mPreviousWindows;
-        bool isRectVisible = true;
-        for (auto& previousWindow : mPreviousWindows) {
-            if (internal::is_boxed_in(mClickedPos, as_rect(previousWindow))) {
-                if (currentWindow) {
-                    return currentWindow->title == previousWindow.title;
-                } else {
-                    return false;
-                }
-            }
-        }
+        bool isRectVisible = mMouse.mContext.if_on_top([this](Window* currentWindow, Window& previousWindow) {
+            return internal::is_boxed_in(mClickedPos, as_rect(previousWindow));
+        });
 
         return clickedInRect && isRectVisible;
     }
@@ -101,19 +83,14 @@ namespace reig::detail {
         bool justClickedInRect = mIsClicked && clicked_in_rect(rect);
         if (mMouse.mContext.mDraggedWindow || !justClickedInRect) return false;
 
-        auto* currentWindow = mMouse.mContext.get_current_window();
-        auto& mPreviousWindows = mMouse.mContext.mPreviousWindows;
-        bool isRectVisible = true;
-        for (auto& previousWindow : mPreviousWindows) {
-            if (clicked_in_rect(as_rect(previousWindow))) {
-                if (currentWindow) {
-                    return currentWindow->title == previousWindow.title;
-                } else {
-                    return false;
-                }
-            }
-        }
+        bool isRectVisible = mMouse.mContext.if_on_top([this](Window* currentWindow, Window& previousWindow) {
+            return clicked_in_rect(as_rect(previousWindow));
+        });
 
         return justClickedInRect && isRectVisible;
+    }
+
+    bool MouseButton::just_clicked_in_rect_ignore_windows(const primitive::Rectangle& rect) const {
+        return mIsClicked && internal::is_boxed_in(mClickedPos, rect);
     }
 }

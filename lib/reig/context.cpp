@@ -8,6 +8,7 @@
 #include <algorithm>
 
 using namespace reig::primitive;
+using reig::detail::Window;
 using std::unique_ptr;
 using std::reference_wrapper;
 using std::vector;
@@ -95,15 +96,51 @@ namespace reig {
         }
         end_window();
 
+        update_previous_windows();
+        cleanup_previous_windows();
+
         mRenderHandler(mFreeDrawData, mUserPtr);
         mFreeDrawData.clear();
         render_windows();
 
-        //{{{ persist previous windows
-        mPreviousWindows = move(mQueuedWindows);
         mQueuedWindows.clear();
-        std::reverse(begin(mPreviousWindows), end(mPreviousWindows));
-        //}}}
+    }
+
+    void Context::update_previous_windows() {
+        for (auto it = mQueuedWindows.rbegin(); it != mQueuedWindows.rend(); ++it) {
+            auto& queuedWindow = *it;
+            auto previousWindow = std::find_if(mPreviousWindows.begin(), mPreviousWindows.end(),
+                                               [&queuedWindow](const Window& window) {
+                                                   return queuedWindow.title == window.title;
+                                               });
+
+            if (previousWindow != mPreviousWindows.end()) {
+                (*previousWindow).width = queuedWindow.width;
+                (*previousWindow).height = queuedWindow.height;
+            } else {
+                mPreviousWindows.insert(mPreviousWindows.end(), queuedWindow);
+            }
+        }
+
+        if (!mouse.leftButton.is_clicked()) return;
+
+        for (auto it = mPreviousWindows.begin(); it != mPreviousWindows.end(); ++it) {
+            if (mouse.leftButton.just_clicked_in_rect_ignore_windows(detail::as_rect(*it))) {
+                std::iter_swap(it, mPreviousWindows.begin());
+                break;
+            }
+        }
+    }
+
+    void Context::cleanup_previous_windows() {
+        auto removeFrom = std::remove_if(mPreviousWindows.begin(), mPreviousWindows.end(),
+                                         [this](const Window& previousWindow) {
+                                             return std::find_if(mQueuedWindows.begin(), mQueuedWindows.end(),
+                                                                 [&previousWindow](const Window& window) {
+                                                                     return window.title == previousWindow.title;
+                                                                 }) == mQueuedWindows.end();
+                                         });
+        mPreviousWindows.erase(removeFrom, mPreviousWindows.end());
     }
 
     bool Context::handle_window_focus(const char* window, bool claiming) {
@@ -148,7 +185,19 @@ namespace reig {
     }
 
     void Context::render_windows() {
-        for(auto& currentWindow : mQueuedWindows) {
+        vector<reference_wrapper<Window>> orderedWindows;
+        for (auto pit = mPreviousWindows.rbegin(); pit != mPreviousWindows.rend(); ++pit) {
+            auto& previousWindow = *pit;
+            auto qit = std::find_if(mQueuedWindows.begin(), mQueuedWindows.end(),
+                                   [&previousWindow](const Window& window) {
+                                       return previousWindow.title == window.title;
+                                   });
+            orderedWindows.push_back(std::ref(*qit));
+        }
+
+        for(auto it = orderedWindows.begin(); it != orderedWindows.end(); ++it) {
+            auto& currentWindow = it->get();
+
             auto currentWidgetData = move(currentWindow.drawData);
             currentWindow.drawData.clear();
 
@@ -171,17 +220,28 @@ namespace reig {
                     currentWindow.width, currentWindow.height - currentWindow.titleBarHeight
             };
 
+            auto frameColor = it != orderedWindows.end() - 1
+                              ? internal::dim_color_by(mConfig.mTitleBackgroundColor, 127)
+                              : mConfig.mTitleBackgroundColor;
+
             if (mConfig.mWindowsTextured) {
                 render_rectangle(currentWindow.drawData, headerBox, mConfig.mTitleBackgroundTexture);
             } else {
-                render_rectangle(currentWindow.drawData, headerBox, mConfig.mTitleBackgroundColor);
+                render_rectangle(currentWindow.drawData, headerBox, frameColor);
             }
             render_triangle(currentWindow.drawData, headerTriangle, colors::lightGrey);
             render_text(currentWindow.drawData, currentWindow.title, titleBox);
             if (mConfig.mWindowsTextured) {
                 render_rectangle(currentWindow.drawData, bodyBox, mConfig.mWindowBackgroundTexture);
             } else {
-                render_rectangle(currentWindow.drawData, bodyBox, mConfig.mWindowBackgroundColor);
+                int thickness = 1;
+                render_rectangle(currentWindow.drawData, internal::decrease_rect(bodyBox, thickness),
+                                 mConfig.mWindowBackgroundColor);
+
+                auto frame = internal::get_rect_frame(bodyBox, thickness);
+                for (const auto& frameRect : frame) {
+                    render_rectangle(currentWindow.drawData, frameRect, frameColor);
+                }
             }
 
             mRenderHandler(currentWindow.drawData, mUserPtr);
@@ -210,7 +270,7 @@ namespace reig {
         };
 
         if (mouse.leftButton.is_held()
-            && internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), headerBox)
+            && if_visible_window(window, internal::is_boxed_in(mouse.leftButton.get_clicked_pos(), headerBox))
             && handle_window_focus(window.title, true)) {
             Point moved{
                     mouse.get_cursor_pos().x - mouse.leftButton.get_clicked_pos().x,
@@ -226,26 +286,13 @@ namespace reig {
         }
     }
 
-    void detail::fit_rect_in_window(reig::primitive::Rectangle& rect, reig::detail::Window& window) {
-        rect.x += *window.x + 4;
-        rect.y += *window.y + window.titleBarHeight + 4;
-
-        if (*window.x + window.width < get_x2(rect)) {
-            window.width = get_x2(rect) - *window.x;
+    bool Context::if_visible_window(detail::Window& window, bool condition) {
+        for (auto& previousWindow : mPreviousWindows) {
+            if (condition) {
+                return window.title == previousWindow.title;
+            }
         }
-        if (*window.y + window.height < get_y2(rect)) {
-            window.height = get_y2(rect) - *window.y;
-        }
-        if (rect.x < *window.x) {
-            rect.x = *window.x + 4;
-        }
-        if (rect.y < *window.y) {
-            rect.y = *window.y + 4;
-        }
-    }
-
-    primitive::Rectangle detail::as_rect(const Window& window) {
-        return {*window.x, *window.y, window.width, window.height};
+        return false;
     }
 
     void Context::fit_rect_in_window(Rectangle& rect) {
