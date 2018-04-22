@@ -270,7 +270,7 @@ namespace reig {
         };
 
         if (mouse.leftButton.is_held()
-            && if_visible_window(window, is_boxed_in(mouse.leftButton.get_clicked_pos(), headerBox))
+            && if_visible_window(window, is_point_in_rect(mouse.leftButton.get_clicked_pos(), headerBox))
             && handle_window_focus(window.title, true)) {
             Point moved{
                     mouse.get_cursor_pos().x - mouse.leftButton.get_clicked_pos().x,

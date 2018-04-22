@@ -4,7 +4,7 @@
 using std::vector;
 
 namespace reig::primitive {
-    bool is_boxed_in(const Point& pt, const Rectangle& rect) {
+    bool is_point_in_rect(const Point& pt, const Rectangle& rect) {
         return math::is_between(pt.x, rect.x, get_x2(rect)) && math::is_between(pt.y, rect.y, get_y2(rect));
     }
 

@@ -27,7 +27,7 @@ namespace reig::primitive {
         return rect.y + rect.height;
     }
 
-    bool is_boxed_in(const Point& pt, const Rectangle& rect);
+    bool is_point_in_rect(const Point& pt, const Rectangle& rect);
 
     Rectangle decrease_rect(Rectangle aRect, int by);
 
