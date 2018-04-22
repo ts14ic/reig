@@ -197,8 +197,8 @@ namespace reig {
             orderedWindows.push_back(std::ref(*qit));
         }
 
-        for(auto& currentWindowRef : orderedWindows) {
-            auto& currentWindow = currentWindowRef.get();
+        for(auto it = orderedWindows.begin(); it != orderedWindows.end(); ++it) {
+            auto& currentWindow = it->get();
 
             auto currentWidgetData = move(currentWindow.drawData);
             currentWindow.drawData.clear();
@@ -222,10 +222,14 @@ namespace reig {
                     currentWindow.width, currentWindow.height - currentWindow.titleBarHeight
             };
 
+            auto frameColor = it != orderedWindows.end() - 1
+                              ? internal::dim_color_by(mConfig.mTitleBackgroundColor, 127)
+                              : mConfig.mTitleBackgroundColor;
+
             if (mConfig.mWindowsTextured) {
                 render_rectangle(currentWindow.drawData, headerBox, mConfig.mTitleBackgroundTexture);
             } else {
-                render_rectangle(currentWindow.drawData, headerBox, mConfig.mTitleBackgroundColor);
+                render_rectangle(currentWindow.drawData, headerBox, frameColor);
             }
             render_triangle(currentWindow.drawData, headerTriangle, colors::lightGrey);
             render_text(currentWindow.drawData, currentWindow.title, titleBox);
@@ -236,7 +240,6 @@ namespace reig {
                 render_rectangle(currentWindow.drawData, internal::decrease_rect(bodyBox, thickness),
                                  mConfig.mWindowBackgroundColor);
 
-                auto frameColor = mConfig.mTitleBackgroundColor;
                 auto frame = internal::get_rect_frame(bodyBox, thickness);
                 for (const auto& frameRect : frame) {
                     render_rectangle(currentWindow.drawData, frameRect, frameColor);
