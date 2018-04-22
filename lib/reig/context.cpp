@@ -111,7 +111,7 @@ namespace reig {
             auto& queuedWindow = *it;
             auto previousWindow = std::find_if(mPreviousWindows.begin(), mPreviousWindows.end(),
                                                [&queuedWindow](const Window& window) {
-                                                   return queuedWindow.title == window.title;
+                                                   return queuedWindow.id == window.id;
                                                });
 
             if (previousWindow != mPreviousWindows.end()) {
@@ -139,7 +139,7 @@ namespace reig {
                                          [this](const Window& previousWindow) {
                                              return std::none_of(mQueuedWindows.begin(), mQueuedWindows.end(),
                                                                      [&previousWindow](const Window& window) {
-                                                                         return window.title == previousWindow.title;
+                                                                         return window.id == previousWindow.id;
                                                                      });
                                          });
         mPreviousWindows.erase(removeFrom, mPreviousWindows.end());
@@ -180,12 +180,12 @@ namespace reig {
         }
     }
 
-    void Context::start_window(const char* aTitle, float& aX, float& aY) {
+    void Context::start_window(const char* aTitle, float aX, float aY) {
         if (!mQueuedWindows.empty()) end_window();
 
         auto previousWindow = std::find_if(mPreviousWindows.begin(), mPreviousWindows.end(),
                                            [aTitle](const Window& window) {
-                                               return window.title == aTitle;
+                                               return window.title == aTitle; // TODO: id or title???
                                            });
         if (previousWindow != mPreviousWindows.end()) {
             mQueuedWindows.emplace_back(aTitle, previousWindow->x, previousWindow->y, 0, 0, mFont.mHeight + 8);
@@ -200,7 +200,7 @@ namespace reig {
             auto& previousWindow = *pit;
             auto qit = std::find_if(mQueuedWindows.begin(), mQueuedWindows.end(),
                                    [&previousWindow](const Window& window) {
-                                       return previousWindow.title == window.title;
+                                       return previousWindow.id == window.id;
                                    });
             orderedWindows.push_back(std::ref(*qit));
         }
@@ -272,7 +272,7 @@ namespace reig {
 
         if (mouse.leftButton.is_held()
             && if_visible_window(window, is_point_in_rect(mouse.leftButton.get_clicked_pos(), headerBox))
-            && handle_window_focus(window.title, true)) {
+            && handle_window_focus(window.id, true)) {
             Point moved{
                     mouse.get_cursor_pos().x - mouse.leftButton.get_clicked_pos().x,
                     mouse.get_cursor_pos().y - mouse.leftButton.get_clicked_pos().y
@@ -283,14 +283,14 @@ namespace reig {
             mouse.leftButton.mClickedPos.x += moved.x;
             mouse.leftButton.mClickedPos.y += moved.y;
         } else {
-            handle_window_focus(window.title, false);
+            handle_window_focus(window.id, false);
         }
     }
 
     bool Context::if_visible_window(detail::Window& window, bool condition) {
         for (auto& previousWindow : mPreviousWindows) {
             if (condition) {
-                return window.title == previousWindow.title;
+                return window.id == previousWindow.id;
             }
         }
         return false;

@@ -6,10 +6,14 @@
 namespace reig::detail {
     struct Window {
         Window(const char* title, float x, float y, float width, float height, float titleBarHeight)
-                : title{title}, x{x}, y{y}, width{width}, height{height}, titleBarHeight{titleBarHeight} {}
+                : Window{title, title, x, y, width, height, titleBarHeight} {}
+
+        Window(const char* id, const char* title, float x, float y, float width, float height, float titleBarHeight)
+                : title{title}, id{id}, x{x}, y{y}, width{width}, height{height}, titleBarHeight{titleBarHeight} {}
 
         DrawData drawData;
         const char* title = "";
+        const char* id = nullptr;
         float x = 0.0f;
         float y = 0.0f;
         float width = 0.f;

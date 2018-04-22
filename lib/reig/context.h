@@ -85,7 +85,8 @@ namespace reig {
         detail::Keyboard keyboard;
 
         // Widget renders
-        void start_window(const char* title, float& x, float& y);
+        void start_window(const char* title, float x, float y);
+//        void start_window(const char*id, const char* title, float x, float y);
 
         void end_window();
 
@@ -178,7 +179,7 @@ bool reig::Context::if_on_top(C&& condition) {
     for (auto& previousWindow : mPreviousWindows) {
         if (condition(currentWindow, previousWindow)) {
             if (currentWindow) {
-                return currentWindow->title == previousWindow.title;
+                return currentWindow->id == previousWindow.id;
             } else {
                 return false;
             }
