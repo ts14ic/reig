@@ -219,4 +219,8 @@ namespace reig::primitive {
     };
 }
 
+namespace reig {
+    using DrawData = std::vector<primitive::Figure>;
+}
+
 #endif //REIG_PRIMITIVE_H

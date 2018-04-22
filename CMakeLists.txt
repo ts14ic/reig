@@ -17,7 +17,6 @@ add_library(reig_lib
         lib/reig/exception.h lib/reig/exception.cpp
         lib/reig/maths.h
         lib/reig/text.h
-        lib/reig/drawdata.h
         lib/reig/context.h lib/reig/context.cpp
         lib/reig/reference_widget.h lib/reig/reference_widget.cpp
         lib/reig/reference_widget_list.h lib/reig/reference_widget_list.cpp

@@ -1,7 +1,7 @@
 #ifndef REIG_WINDOW_H
 #define REIG_WINDOW_H
 
-#include "drawdata.h"
+#include "primitive.h"
 
 namespace reig::detail {
     struct Window {

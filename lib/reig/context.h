@@ -17,6 +17,8 @@
 #include <string>
 
 namespace reig {
+    using RenderHandler = void(*)(const DrawData&, std::any userPtr);
+
     namespace detail {
         struct Font {
             std::vector<stbtt_bakedchar> mBakedChars;
