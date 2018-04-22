@@ -345,9 +345,8 @@ private:
         }
 
         rect.y += 50;
-        static std::string entry2;
         if (widget::entry(mGui.ctx, "Entry 2", rect, colors::black, mTextEntryWindow.title) == EntryOuput::textModified) {
-            std::cout << "Entry 2: " << entry2 << '\n';
+            std::cout << "Entry 2: " << mTextEntryWindow.title << '\n';
         }
     }
 
