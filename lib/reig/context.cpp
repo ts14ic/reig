@@ -127,7 +127,7 @@ namespace reig {
         if (!mouse.leftButton.is_clicked()) return;
 
         for (auto it = mPreviousWindows.begin(); it != mPreviousWindows.end(); ++it) {
-            if (mouse.leftButton.just_clicked_in_rect_ignore_windows(detail::as_rect(*it))) {
+            if (mouse.leftButton.just_clicked_in_rect_ignore_windows(detail::get_full_window_rect(*it))) {
                 std::iter_swap(it, mPreviousWindows.begin());
                 break;
             }
@@ -211,44 +211,35 @@ namespace reig {
             auto currentWidgetData = move(currentWindow.drawData);
             currentWindow.drawData.clear();
 
-            Rectangle headerBox{
-                    currentWindow.x, currentWindow.y,
-                    currentWindow.width, currentWindow.titleBarHeight
-            };
+            auto headerRect = detail::get_window_header_rect(currentWindow);
             Triangle headerTriangle{
                     {currentWindow.x + 3.f, currentWindow.y + 3.f},
                     {currentWindow.x + 3.f + currentWindow.titleBarHeight, currentWindow.y + 3.f},
                     {currentWindow.x + 3.f + currentWindow.titleBarHeight / 2.f,
                      currentWindow.y + currentWindow.titleBarHeight - 3.f}
             };
-            Rectangle titleBox{
-                    currentWindow.x + currentWindow.titleBarHeight + 4, currentWindow.y + 4,
-                    currentWindow.width - currentWindow.titleBarHeight - 4, currentWindow.titleBarHeight - 4
-            };
-            Rectangle bodyBox{
-                    currentWindow.x, currentWindow.y + currentWindow.titleBarHeight,
-                    currentWindow.width, currentWindow.height - currentWindow.titleBarHeight
-            };
+            auto titleRect = decrease_rect(headerRect, 4);
+            auto bodyRect = detail::get_window_body_rect(currentWindow);
 
             auto frameColor = it != orderedWindows.end() - 1
                               ? colors::dim_color_by(mConfig.mTitleBackgroundColor, 127)
                               : mConfig.mTitleBackgroundColor;
 
             if (mConfig.mWindowsTextured) {
-                render_rectangle(currentWindow.drawData, headerBox, mConfig.mTitleBackgroundTexture);
+                render_rectangle(currentWindow.drawData, headerRect, mConfig.mTitleBackgroundTexture);
             } else {
-                render_rectangle(currentWindow.drawData, headerBox, frameColor);
+                render_rectangle(currentWindow.drawData, headerRect, frameColor);
             }
             render_triangle(currentWindow.drawData, headerTriangle, colors::lightGrey);
-            render_text(currentWindow.drawData, currentWindow.title, titleBox);
+            render_text(currentWindow.drawData, currentWindow.title, titleRect);
             if (mConfig.mWindowsTextured) {
-                render_rectangle(currentWindow.drawData, bodyBox, mConfig.mWindowBackgroundTexture);
+                render_rectangle(currentWindow.drawData, bodyRect, mConfig.mWindowBackgroundTexture);
             } else {
                 int thickness = 1;
-                render_rectangle(currentWindow.drawData, decrease_rect(bodyBox, thickness),
+                render_rectangle(currentWindow.drawData, decrease_rect(bodyRect, thickness),
                                  mConfig.mWindowBackgroundColor);
 
-                auto frame = get_rect_frame(bodyBox, thickness);
+                auto frame = get_rect_frame(bodyRect, thickness);
                 for (const auto& frameRect : frame) {
                     render_rectangle(currentWindow.drawData, frameRect, frameColor);
                 }

@@ -36,7 +36,7 @@ namespace reig::detail {
         if (mContext.mDraggedWindow || !hoveringOverRect) return false;
 
         bool isRectVisible = mContext.if_on_top([this](Window* currentWindow, Window& previousWindow) {
-            return is_point_in_rect(mCursorPos, as_rect(previousWindow));
+            return is_point_in_rect(mCursorPos, get_full_window_rect(previousWindow));
         });
 
         return hoveringOverRect && isRectVisible;
@@ -73,7 +73,7 @@ namespace reig::detail {
         if (mMouse.mContext.mDraggedWindow || !clickedInRect) return false;
 
         bool isRectVisible = mMouse.mContext.if_on_top([this](Window* currentWindow, Window& previousWindow) {
-            return is_point_in_rect(mClickedPos, as_rect(previousWindow));
+            return is_point_in_rect(mClickedPos, get_full_window_rect(previousWindow));
         });
 
         return clickedInRect && isRectVisible;
@@ -84,7 +84,7 @@ namespace reig::detail {
         if (mMouse.mContext.mDraggedWindow || !justClickedInRect) return false;
 
         bool isRectVisible = mMouse.mContext.if_on_top([this](Window* currentWindow, Window& previousWindow) {
-            return clicked_in_rect(as_rect(previousWindow));
+            return clicked_in_rect(get_full_window_rect(previousWindow));
         });
 
         return justClickedInRect && isRectVisible;
