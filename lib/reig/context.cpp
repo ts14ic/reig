@@ -115,10 +115,12 @@ namespace reig {
                                                });
 
             if (previousWindow != mPreviousWindows.end()) {
-                (*previousWindow).width = queuedWindow.width;
-                (*previousWindow).height = queuedWindow.height;
+                previousWindow->width = queuedWindow.width;
+                previousWindow->height = queuedWindow.height;
+                previousWindow->x = queuedWindow.x;
+                (*previousWindow).y = queuedWindow.y;
             } else {
-                mPreviousWindows.insert(mPreviousWindows.end(), queuedWindow);
+                mPreviousWindows.insert(mPreviousWindows.begin(), queuedWindow);
             }
         }
 
@@ -135,10 +137,10 @@ namespace reig {
     void Context::cleanup_previous_windows() {
         auto removeFrom = std::remove_if(mPreviousWindows.begin(), mPreviousWindows.end(),
                                          [this](const Window& previousWindow) {
-                                             return std::find_if(mQueuedWindows.begin(), mQueuedWindows.end(),
-                                                                 [&previousWindow](const Window& window) {
-                                                                     return window.title == previousWindow.title;
-                                                                 }) == mQueuedWindows.end();
+                                             return std::none_of(mQueuedWindows.begin(), mQueuedWindows.end(),
+                                                                     [&previousWindow](const Window& window) {
+                                                                         return window.title == previousWindow.title;
+                                                                     });
                                          });
         mPreviousWindows.erase(removeFrom, mPreviousWindows.end());
     }
@@ -181,7 +183,15 @@ namespace reig {
     void Context::start_window(const char* aTitle, float& aX, float& aY) {
         if (!mQueuedWindows.empty()) end_window();
 
-        mQueuedWindows.emplace_back(aTitle, aX, aY, 0, 0, mFont.mHeight + 8);
+        auto previousWindow = std::find_if(mPreviousWindows.begin(), mPreviousWindows.end(),
+                                           [aTitle](const Window& window) {
+                                               return window.title == aTitle;
+                                           });
+        if (previousWindow != mPreviousWindows.end()) {
+            mQueuedWindows.emplace_back(aTitle, previousWindow->x, previousWindow->y, 0, 0, mFont.mHeight + 8);
+        } else {
+            mQueuedWindows.emplace_back(aTitle, aX, aY, 0, 0, mFont.mHeight + 8);
+        }
     }
 
     void Context::render_windows() {
@@ -202,21 +212,21 @@ namespace reig {
             currentWindow.drawData.clear();
 
             Rectangle headerBox{
-                    *currentWindow.x, *currentWindow.y,
+                    currentWindow.x, currentWindow.y,
                     currentWindow.width, currentWindow.titleBarHeight
             };
             Triangle headerTriangle{
-                    {*currentWindow.x + 3.f, *currentWindow.y + 3.f},
-                    {*currentWindow.x + 3.f + currentWindow.titleBarHeight, *currentWindow.y + 3.f},
-                    {*currentWindow.x + 3.f + currentWindow.titleBarHeight / 2.f,
-                     *currentWindow.y + currentWindow.titleBarHeight - 3.f}
+                    {currentWindow.x + 3.f, currentWindow.y + 3.f},
+                    {currentWindow.x + 3.f + currentWindow.titleBarHeight, currentWindow.y + 3.f},
+                    {currentWindow.x + 3.f + currentWindow.titleBarHeight / 2.f,
+                     currentWindow.y + currentWindow.titleBarHeight - 3.f}
             };
             Rectangle titleBox{
-                    *currentWindow.x + currentWindow.titleBarHeight + 4, *currentWindow.y + 4,
+                    currentWindow.x + currentWindow.titleBarHeight + 4, currentWindow.y + 4,
                     currentWindow.width - currentWindow.titleBarHeight - 4, currentWindow.titleBarHeight - 4
             };
             Rectangle bodyBox{
-                    *currentWindow.x, *currentWindow.y + currentWindow.titleBarHeight,
+                    currentWindow.x, currentWindow.y + currentWindow.titleBarHeight,
                     currentWindow.width, currentWindow.height - currentWindow.titleBarHeight
             };
 
@@ -265,7 +275,7 @@ namespace reig {
 
     void Context::handle_window_input(detail::Window& window) {
         Rectangle headerBox{
-                *window.x, *window.y,
+                window.x, window.y,
                 window.width, window.titleBarHeight
         };
 
@@ -277,8 +287,8 @@ namespace reig {
                     mouse.get_cursor_pos().y - mouse.leftButton.get_clicked_pos().y
             };
 
-            *window.x += moved.x;
-            *window.y += moved.y;
+            window.x += moved.x;
+            window.y += moved.y;
             mouse.leftButton.mClickedPos.x += moved.x;
             mouse.leftButton.mClickedPos.y += moved.y;
         } else {
