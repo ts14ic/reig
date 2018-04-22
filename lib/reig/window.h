@@ -5,13 +5,17 @@
 
 namespace reig::detail {
     struct Window {
-        Window(const char* title, float& x, float& y, float width, float height, float titleBarHeight)
-                : title{title}, x{&x}, y{&y}, width{width}, height{height}, titleBarHeight{titleBarHeight} {}
+        Window(const char* title, float x, float y, float width, float height, float titleBarHeight)
+                : Window{title, title, x, y, width, height, titleBarHeight} {}
+
+        Window(const char* id, const char* title, float x, float y, float width, float height, float titleBarHeight)
+                : title{title}, id{id}, x{x}, y{y}, width{width}, height{height}, titleBarHeight{titleBarHeight} {}
 
         DrawData drawData;
         const char* title = "";
-        float* x = nullptr;
-        float* y = nullptr;
+        const char* id = nullptr;
+        float x = 0.0f;
+        float y = 0.0f;
         float width = 0.f;
         float height = 0.f;
         float titleBarHeight = 0.f;
@@ -26,7 +30,11 @@ namespace reig::detail {
      */
     void fit_rect_in_window(primitive::Rectangle& rect, Window& window);
 
-    primitive::Rectangle as_rect(const Window& window);
+    primitive::Rectangle get_full_window_rect(const Window& window);
+
+    primitive::Rectangle get_window_header_rect(const Window& window);
+
+    primitive::Rectangle get_window_body_rect(const Window& window);
 }
 
 #endif //REIG_WINDOW_H
