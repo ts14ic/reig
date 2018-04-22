@@ -222,13 +222,21 @@ private:
     }
 
     struct Window {
+        Window(const char* id, std::string title, float x, float y) : id{id}, title{move(title)}, x{x}, y{y} {}
+        Window(std::string title, float x, float y) : title{move(title)}, x{x}, y{y} {}
+
         std::string title;
+        const char* id = nullptr;
         float x = 0;
         float y = 0;
     };
 
     void start_window(Window& window) {
-        mGui.ctx.start_window(window.title.c_str(), window.x, window.y);
+        if (window.id) {
+            mGui.ctx.start_window(window.id, window.title.c_str(), window.x, window.y);
+        } else {
+            mGui.ctx.start_window(window.title.c_str(), window.x, window.y);
+        }
     }
 
     float mFontScale = 1.0f;
@@ -251,7 +259,7 @@ private:
     Window mButtonsWindow {"Buttons", 30, 30};
     Window mCheckboxesWindow {"Checkboxes", 200, 30};
     Window mSlidersWindow {"Sliders", 430, 30};
-    Window mTextEntryWindow {"Text entry", 30, 250};
+    Window mTextEntryWindow {"entry_window", "Text entries", 30, 250};
     Window mListWindow {"List", 800, 30};
 
     void draw_buttons() {

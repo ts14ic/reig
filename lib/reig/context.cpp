@@ -145,17 +145,17 @@ namespace reig {
         mPreviousWindows.erase(removeFrom, mPreviousWindows.end());
     }
 
-    bool Context::handle_window_focus(const char* window, bool claiming) {
+    bool Context::handle_window_focus(const Window& window, bool claiming) {
         if (claiming) {
             if (!mDraggedWindow) {
-                mDraggedWindow = window;
+                mDraggedWindow = window.id;
             }
-            return mDraggedWindow == window;
+            return mDraggedWindow == window.id;
         } else {
-            if (mDraggedWindow == window) {
+            if (mDraggedWindow == window.id) {
                 mDraggedWindow = nullptr;
             }
-            return mDraggedWindow != window;
+            return mDraggedWindow != window.id;
         }
     }
 
@@ -180,17 +180,21 @@ namespace reig {
         }
     }
 
-    void Context::start_window(const char* aTitle, float aX, float aY) {
+    void Context::start_window(const char* title, float defaultX, float defaultY) {
+        start_window(title, title, defaultX, defaultY);
+    }
+
+    void Context::start_window(const char* id, const char* title, float defaultX, float defaultY) {
         if (!mQueuedWindows.empty()) end_window();
 
         auto previousWindow = std::find_if(mPreviousWindows.begin(), mPreviousWindows.end(),
-                                           [aTitle](const Window& window) {
-                                               return window.title == aTitle; // TODO: id or title???
+                                           [id](const Window& window) {
+                                               return window.id == id;
                                            });
         if (previousWindow != mPreviousWindows.end()) {
-            mQueuedWindows.emplace_back(aTitle, previousWindow->x, previousWindow->y, 0, 0, mFont.mHeight + 8);
+            mQueuedWindows.emplace_back(id, title, previousWindow->x, previousWindow->y, 0, 0, mFont.mHeight + 8);
         } else {
-            mQueuedWindows.emplace_back(aTitle, aX, aY, 0, 0, mFont.mHeight + 8);
+            mQueuedWindows.emplace_back(id, title, defaultX, defaultY, 0, 0, mFont.mHeight + 8);
         }
     }
 
@@ -272,7 +276,7 @@ namespace reig {
 
         if (mouse.leftButton.is_held()
             && if_visible_window(window, is_point_in_rect(mouse.leftButton.get_clicked_pos(), headerBox))
-            && handle_window_focus(window.id, true)) {
+            && handle_window_focus(window, true)) {
             Point moved{
                     mouse.get_cursor_pos().x - mouse.leftButton.get_clicked_pos().x,
                     mouse.get_cursor_pos().y - mouse.leftButton.get_clicked_pos().y
@@ -283,7 +287,7 @@ namespace reig {
             mouse.leftButton.mClickedPos.x += moved.x;
             mouse.leftButton.mClickedPos.y += moved.y;
         } else {
-            handle_window_focus(window.id, false);
+            handle_window_focus(window, false);
         }
     }
 

@@ -85,8 +85,19 @@ namespace reig {
         detail::Keyboard keyboard;
 
         // Widget renders
-        void start_window(const char* title, float x, float y);
-//        void start_window(const char*id, const char* title, float x, float y);
+        /**
+         * Starts a new window, with the given title and starting coordinates.
+         * The windows is given an id, that is equals to the title
+         */
+        void start_window(const char* title, float defaultX, float defaultY);
+
+        /**
+         * Same as start_window without the id parameter.
+         *
+         * Starts a new window, with the given id, title and starting coordinates.
+         * Use this one with a constant id, if you know the window title can change
+         */
+        void start_window(const char* id, const char* title, float defaultX, float defaultY);
 
         void end_window();
 
@@ -145,7 +156,7 @@ namespace reig {
 
         void cleanup_previous_windows();
 
-        bool handle_window_focus(const char* window, bool claiming);
+        bool handle_window_focus(const detail::Window& window, bool claiming);
 
         void handle_window_input(detail::Window& window);
 
