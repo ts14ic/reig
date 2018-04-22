@@ -347,7 +347,7 @@ private:
 
         using reig::reference_widget::EntryOuput;
 
-        static std::string entry1;;
+        static std::string entry1;
         if (widget::entry(mGui.ctx, "Entry 1", rect, colors::violet, entry1) == EntryOuput::MODIFIED) {
             std::cout << "Entry 1: " << entry1 << '\n';
         }
