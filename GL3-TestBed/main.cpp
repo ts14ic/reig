@@ -367,8 +367,8 @@ public:
         using namespace reig::primitive::colors::literals;
         using namespace reig::primitive::colors::operators;
         ctx.set_config(reig::Config::builder()
-                               .windowColors(colors::kDarkGrey | 200_a, colors::kBlue | 100_a)
-                               .fontBitmapSizes(1024, 1024)
+                               .window_colors(colors::kDarkGrey | 200_a, colors::kBlue | 100_a)
+                               .font_bitmap_size(1024, 1024)
                                .build());
         ctx.set_render_handler(&render_handler);
         ctx.set_user_ptr(this);

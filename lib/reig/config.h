@@ -7,7 +7,7 @@
 namespace reig {
     class ConfigBuilder;
 
-    struct Config {
+    class Config {
     public:
         static ConfigBuilder builder();
 
@@ -17,36 +17,37 @@ namespace reig {
 
         explicit Config(const ConfigBuilder& builder);
 
-        primitive::Color mWindowBackgroundColor;
-        primitive::Color mTitleBackgroundColor;
-        bool mWindowsTextured;
-        int mWindowBackgroundTexture;
-        int mTitleBackgroundTexture;
-        int mFontBitmapWidth;
-        int mFontBitmapHeight;
+        primitive::Color _window_bg_color;
+        primitive::Color _title_bar_bg_color;
+        bool _are_windows_textured;
+        int _window_bg_texture_id;
+        int _title_bar_bg_texture_id;
+        int _font_bitmap_width;
+        int _font_bitmap_height;
     };
 
     class ConfigBuilder {
     public:
         ConfigBuilder();
 
-        ConfigBuilder& windowColors(const primitive::Color& titleBackground, const primitive::Color& windowBackground);
+        ConfigBuilder& window_colors(const primitive::Color& title_background,
+                                     const primitive::Color& window_background);
 
-        ConfigBuilder& windowTextures(int titleTexture, int backgroundTexture);
+        ConfigBuilder& window_textures(int title_texture, int background_texture);
 
-        ConfigBuilder& fontBitmapSizes(int width, int height);
+        ConfigBuilder& font_bitmap_size(int width, int height);
 
         Config build();
     private:
         friend Config;
 
-        primitive::Color mWindowBackgroundColor = primitive::colors::kTransparent;
-        primitive::Color mTitleBackgroundColor = primitive::colors::kWhite;
-        bool mWindowsTextured = false;
-        int mWindowBackgroundTexture = 0;
-        int mTitleBackgroundTexture = 0;
-        int mFontBitmapWidth = 512;
-        int mFontBitmapHeight = 512;
+        primitive::Color _window_bg_color = primitive::colors::kTransparent;
+        primitive::Color _title_bar_bg_color = primitive::colors::kWhite;
+        bool _are_windows_textured = false;
+        int _window_bg_texture_id = 0;
+        int _title_bar_bg_texture_id = 0;
+        int _font_bitmap_width = 512;
+        int _font_bitmap_height = 512;
     };
 }
 

@@ -79,8 +79,8 @@ private:
 
     void setup_reig() {
         mGui.ctx.set_config(reig::Config::builder()
-                                    .fontBitmapSizes(1024, 1024)
-                                    .windowColors(colors::kRed | 200_a, colors::kWhite | 50_a)
+                                    .font_bitmap_size(1024, 1024)
+                                    .window_colors(colors::kRed | 200_a, colors::kWhite | 50_a)
                                     .build());
         mGui.ctx.set_render_handler(&gui_handler);
         mGui.ctx.set_user_ptr(this);
