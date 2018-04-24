@@ -10,88 +10,90 @@ namespace reig::reference_widget {
      * @brief Render a titled button
      *
      * @param title Text to be displayed on button
-     * @param box Button's bounding box
-     * @param color Button's base color
+     * @param bounding_box Button's bounding box
+     * @param base_color Button's base color
      *
      * @return True if the button was clicked, false otherwise
      */
-    bool button(reig::Context& ctx, const char* title, primitive::Rectangle boundingBox, primitive::Color baseColor);
+    bool button(reig::Context& ctx, const char* title, primitive::Rectangle bounding_box, primitive::Color base_color);
 
     /**
      * @brief Render a titled textured button
-     * @param box Button's bouding box
-     * @param baseTexture Button's texture index, when idle
-     * @param hoverTexture Button's texture index, when button is hoverred
+     * @param bounding_box Button's bouding box
+     * @param base_texture Button's texture index, when idle
+     * @param hover_texture Button's texture index, when button is hovered
      * @return True if the button was clicked, false otherwise
      */
-    bool textured_button(Context& ctx, const char* title, primitive::Rectangle boundingBox,
-                         int mHoverTexture, int mBaseTexture);
+    bool textured_button(Context& ctx, const char* title, primitive::Rectangle bounding_box,
+                         int hover_texture, int base_texture);
 
     /**
      * @brief Render a label, which will be enclosed in the current window, if any
      * @param text Text to be displayed
-     * @param boundingBox Text's bounding box
+     * @param bounding_box Text's bounding box
+     * @param alignment Text's alignment
+     * @param font_scale Text's font scale relative to size set in set_font
      */
-    void label(Context& ctx, char const* title, primitive::Rectangle boundingBox,
-               text::Alignment alignment = text::Alignment::kCenter, float fontScale = 1.f);
+    void label(Context& ctx, char const* title, primitive::Rectangle bounding_box,
+               text::Alignment alignment = text::Alignment::kCenter, float font_scale = 1.f);
 
     /**
      * @brief Renders a slider.
-     * @param box Slider's bounding box
-     * @param color Slider's base color
-     * @param value A reference to the value to be represented and changed
+     * @param bounding_box Slider's bounding box
+     * @param base_color Slider's base color
+     * @param value_ref A reference to the value to be represented and changed
      * @param min The lowest represantable value
      * @param max The highest represantable value
      * @param step The discrete portion by which the value can change
      * @return True if value changed
      */
-    bool slider(Context& ctx, primitive::Rectangle boundingBox, primitive::Color baseColor,
-                float& valueRef, float min, float max, float step);
+    bool slider(Context& ctx, primitive::Rectangle bounding_box, primitive::Color base_color,
+                float& value_ref, float min, float max, float step);
 
     /**
      * @brief
      * @brief Renders a slider.
-     * @param box Slider's bounding box
-     * @param baseTexture Slider's base texture index
-     * @param cursorTexture Slider's cursor texture index
+     * @param bounding_box Slider's bounding box
+     * @param base_texture Slider's base texture index
+     * @param cursor_texture Slider's cursor texture index
      * @param value A reference to the value to be represented and changed
      * @param min The lowest represantable value
      * @param max The highest represantable value
      * @param step The discrete portion by which the value can change
      * @return True if value changed
      */
-    bool textured_slider(Context& ctx, primitive::Rectangle boundingBox, int baseTexture, int cursorTexture,
-                         float& valueRef, float min, float max, float step);
+    bool textured_slider(Context& ctx, primitive::Rectangle bounding_box, int base_texture, int cursor_texture,
+                         float& value_ref, float min, float max, float step);
 
     /**
      * @brief Renders a vertical scrollbar
-     * @param box Scrollbar's position and size
-     * @param color Checkbox's base color
-     * @param value A reference to the float to be changed
+     * @param bounding_box Scrollbar's position and size
+     * @param base_color Checkbox's base color
+     * @param value_ref A reference to the float to be changed
      * @return True if value changed
      */
-    bool scrollbar(Context& ctx, primitive::Rectangle boundingBox, primitive::Color baseColor,
-                   float& valueRef, float viewSize);
+    bool scrollbar(Context& ctx, primitive::Rectangle bounding_box, primitive::Color base_color,
+                   float& value_ref, float view_size);
 
     /**
      * @brief Renders a checkbox
-     * @param box Checkbox's position and size
-     * @param color Checkbox's base color
-     * @param value A reference to the bool to be changed
+     * @param bounding_box Checkbox's position and size
+     * @param base_color Checkbox's base color
+     * @param value_ref A reference to the bool to be changed
      * @return True if value is true
      */
-    bool checkbox(Context& ctx, primitive::Rectangle boundingBox, primitive::Color baseColor, bool& valueRef);
+    bool checkbox(Context& ctx, primitive::Rectangle bounding_box, primitive::Color base_color, bool& value_ref);
 
     /**
      * @brief Renders a textured checkbox
-     * @param box Checkbox's position and size
-     * @param baseTexture Checkbox's base texture
-     * @param tickTexture Checkbox's tick texture
-     * @param value A reference to the bool to be changed
+     * @param bounding_box Checkbox's position and size
+     * @param base_texture Checkbox's base texture
+     * @param check_texture Checkbox's filling texture
+     * @param value_ref A reference to the bool to be changed
      * @return True if value is true
      */
-    bool textured_checkbox(Context& ctx, primitive::Rectangle boundingBox, int baseTexture, int checkTexture,
-                           bool& valueRef);
+    bool textured_checkbox(Context& ctx, primitive::Rectangle bounding_box, int base_texture, int check_texture,
+                           bool& value_ref);
 }
 
 #endif //REIG_REFERENCE_WIDGET_H

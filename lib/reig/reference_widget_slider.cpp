@@ -198,30 +198,30 @@ namespace reig::reference_widget {
         ctx.render_rectangle(model.cursorArea, frameColor);
     }
 
-    bool slider(Context& ctx, Rectangle boundingBox, Color baseColor,
-                float& valueRef, float min, float max, float step) {
-        auto model = get_slider_model(ctx, boundingBox, valueRef, min, max, step);
+    bool slider(Context& ctx, Rectangle bounding_box, Color base_color,
+                float& value_ref, float min, float max, float step) {
+        auto model = get_slider_model(ctx, bounding_box, value_ref, min, max, step);
 
-        draw_slider_model(ctx, model, baseColor);
-
-        return model.valueChanged;
-    }
-
-    bool scrollbar(Context& ctx, Rectangle boundingBox, Color baseColor,
-                   float& valueRef, float viewSize) {
-        auto model = get_scrollbar_model(ctx, boundingBox, viewSize, valueRef);
-
-        draw_slider_model(ctx, model, baseColor);
+        draw_slider_model(ctx, model, base_color);
 
         return model.valueChanged;
     }
 
-    bool textured_slider(Context& ctx, Rectangle boundingBox, int baseTexture, int cursorTexture,
-                              float& valueRef, float min, float max, float step) {
-        auto model = get_slider_model(ctx, boundingBox, valueRef, min, max, step);
+    bool scrollbar(Context& ctx, Rectangle bounding_box, Color base_color,
+                   float& value_ref, float view_size) {
+        auto model = get_scrollbar_model(ctx, bounding_box, view_size, value_ref);
 
-        ctx.render_rectangle(model.outlineArea, baseTexture);
-        ctx.render_rectangle(model.cursorArea, cursorTexture);
+        draw_slider_model(ctx, model, base_color);
+
+        return model.valueChanged;
+    }
+
+    bool textured_slider(Context& ctx, Rectangle bounding_box, int base_texture, int cursor_texture,
+                              float& value_ref, float min, float max, float step) {
+        auto model = get_slider_model(ctx, bounding_box, value_ref, min, max, step);
+
+        ctx.render_rectangle(model.outlineArea, base_texture);
+        ctx.render_rectangle(model.cursorArea, cursor_texture);
 
         return model.valueChanged;
     }
