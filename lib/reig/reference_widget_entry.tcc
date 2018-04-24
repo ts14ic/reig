@@ -34,7 +34,7 @@ namespace reig::reference_widget {
             baseArea = decrease_rect(baseArea, 4);
         }
 
-        EntryOuput output = EntryOuput::UNMODIFIED;
+        EntryOuput output = EntryOuput::kUnmodified;
         if (isSelected) {
             if ((ctx.get_frame_counter() / 30) % 2 == 0) {
                 caretArea = decrease_rect(caretArea, 10);
@@ -45,7 +45,7 @@ namespace reig::reference_widget {
             switch (keyType) {
                 case Key::kChar: {
                     value += ctx.keyboard.get_pressed_char();
-                    output = EntryOuput::MODIFIED;
+                    output = EntryOuput::kModified;
                     break;
                 }
 
@@ -53,20 +53,20 @@ namespace reig::reference_widget {
                     using std::empty;
                     if (!empty(value)) {
                         value.pop_back();
-                        output = EntryOuput::MODIFIED;
+                        output = EntryOuput::kModified;
                     }
                     break;
                 }
 
                 case Key::kReturn: {
-                    output = EntryOuput::SUBMITTED;
+                    output = EntryOuput::kSubmitted;
                     break;
                 }
 
                 case Key::kEscape: {
                     ctx.mouse.leftButton.press(outlineArea.x, outlineArea.y);
                     ctx.mouse.leftButton.release();
-                    output = EntryOuput::CANCELLED;
+                    output = EntryOuput::kCancelled;
                     break;
                 }
 
