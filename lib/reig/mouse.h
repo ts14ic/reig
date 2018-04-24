@@ -47,9 +47,9 @@ namespace reig::detail {
         bool is_clicked() const;
 
         Mouse& mMouse;
-        primitive::Point mClickedPos;
+        primitive::Point _clicked_pos;
         bool mIsPressed = false;
-        bool mIsClicked = false;
+        bool _is_clicked = false;
     };
 
     class Mouse {
@@ -64,8 +64,8 @@ namespace reig::detail {
 
         Mouse& operator=(Mouse&&) = delete;
 
-        detail::MouseButton leftButton;
-        detail::MouseButton rightButton;
+        detail::MouseButton left_button;
+        detail::MouseButton right_button;
 
         /**
          * @brief Moves cursor against previous position
@@ -99,7 +99,7 @@ namespace reig::detail {
 
         Context& mContext;
         primitive::Point mCursorPos;
-        float mScrolled = 0.0f;
+        float _scrolled = 0.0f;
     };
 }
 

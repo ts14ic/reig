@@ -3,7 +3,7 @@
 namespace reig::detail {
     void fit_rect_in_window(reig::primitive::Rectangle& rect, Window& window) {
         rect.x += window.x + 4;
-        rect.y += window.y + window.titleBarHeight + 4;
+        rect.y += window.y + window.title_bar_height + 4;
 
         if (window.x + window.width < get_x2(rect)) {
             window.width = get_x2(rect) - window.x;
@@ -24,10 +24,10 @@ namespace reig::detail {
     }
 
     primitive::Rectangle get_window_header_rect(const Window& window) {
-        return {window.x, window.y, window.width, window.titleBarHeight};
+        return {window.x, window.y, window.width, window.title_bar_height};
     }
 
     primitive::Rectangle get_window_body_rect(const Window& window) {
-        return {window.x, window.y + window.titleBarHeight, window.width, window.height - window.titleBarHeight};
+        return {window.x, window.y + window.title_bar_height, window.width, window.height - window.title_bar_height};
     }
 }

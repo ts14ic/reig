@@ -12,25 +12,25 @@ namespace reig::exception {
         return message.c_str();
     }
 
-    FailedToLoadFontException FailedToLoadFontException::noTextureId(const char* filePath) {
+    FailedToLoadFontException FailedToLoadFontException::no_texture_id(const char* filePath) {
         std::ostringstream ss;
         ss << "No texture id was specified for font: [" << filePath << "]";
         return FailedToLoadFontException(ss.str());
     }
 
-    FailedToLoadFontException FailedToLoadFontException::invalidSize(const char* filePath, float fontSize) {
+    FailedToLoadFontException FailedToLoadFontException::invalid_height(const char* filePath, float fontSize) {
         std::ostringstream ss;
         ss << "Invalid size specified for font: [" << filePath << "], size: [" << fontSize << "]";
         return FailedToLoadFontException(ss.str());
     }
 
-    FailedToLoadFontException FailedToLoadFontException::couldNotOpenFile(const char* filePath) {
+    FailedToLoadFontException FailedToLoadFontException::could_not_open_file(const char* filePath) {
         std::ostringstream ss;
         ss << "Could not open font file: [" << filePath << "]";
         return FailedToLoadFontException(ss.str());
     }
 
-    FailedToLoadFontException FailedToLoadFontException::couldNotFitCharacters(
+    FailedToLoadFontException FailedToLoadFontException::could_not_fit_characters(
             const char* filePath, float fontSize, int width, int height) {
         std::ostringstream ss;
         ss << "Could not fit characters for font: ["
@@ -39,7 +39,7 @@ namespace reig::exception {
         return FailedToLoadFontException(ss.str());
     }
 
-    FailedToLoadFontException FailedToLoadFontException::invalidFile(const char* filePath) {
+    FailedToLoadFontException FailedToLoadFontException::invalid_file(const char* filePath) {
         std::ostringstream ss;
         ss << "Invalid file for font: [" << filePath << "]";
         return FailedToLoadFontException(ss.str());

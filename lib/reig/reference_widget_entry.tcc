@@ -27,8 +27,8 @@ namespace reig::reference_widget {
 
         Rectangle baseArea = decrease_rect(outlineArea, 4);
         Rectangle caretArea {0, baseArea.y, 0, baseArea.height};
-        bool isSelected = ctx.mouse.leftButton.clicked_in_rect(outlineArea);
-        bool holdingClick = isSelected && ctx.mouse.leftButton.is_held();
+        bool isSelected = ctx.mouse.left_button.clicked_in_rect(outlineArea);
+        bool holdingClick = isSelected && ctx.mouse.left_button.is_held();
 
         if (holdingClick) {
             baseArea = decrease_rect(baseArea, 4);
@@ -64,8 +64,8 @@ namespace reig::reference_widget {
                 }
 
                 case Key::kEscape: {
-                    ctx.mouse.leftButton.press(outlineArea.x, outlineArea.y);
-                    ctx.mouse.leftButton.release();
+                    ctx.mouse.left_button.press(outlineArea.x, outlineArea.y);
+                    ctx.mouse.left_button.release();
                     output = EntryOuput::kCancelled;
                     break;
                 }

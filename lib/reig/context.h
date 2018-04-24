@@ -20,11 +20,11 @@ namespace reig {
 
     namespace detail {
         struct Font {
-            std::vector<stbtt_bakedchar> mBakedChars;
-            float mHeight = 0.f;
-            int mTextureId = 0;
-            int mBitmapWidth = 0;
-            int mBitmapHeight = 0;
+            std::vector<stbtt_bakedchar> baked_chars;
+            float height = 0.f;
+            int texture_id = 0;
+            int bitmap_width = 0;
+            int bitmap_height = 0;
         };
     }
 
@@ -42,12 +42,12 @@ namespace reig {
 
         /**
          * @brief Set's a user function, which will draw the gui, based
-         * @param handler A C function pointer to a rendering callback
+         * @param render_handler A C function pointer to a rendering callback
          * The handler should return void and take in const DrawData& and void*
          */
-        void set_render_handler(RenderHandler handler);
+        void set_render_handler(RenderHandler render_handler);
 
-        void set_user_ptr(std::any userPtr);
+        void set_user_ptr(std::any user_ptr);
 
         struct FontBitmap {
             std::vector<uint8_t> bitmap;
@@ -57,13 +57,13 @@ namespace reig {
 
         /**
          * @brief Sets reig's font to be used for labels
-         * @param fontFilePath The path to fonts .ttf file.
-         * @param textureId This id will be passed by reig to render_handler with text vertices
-         * @param fontHeightPx Font's pixel size
+         * @param font_file_path The path to fonts .ttf file.
+         * @param texture_id This id will be passed by reig to render_handler with text vertices
+         * @param font_height_in_px Font's pixel size
          * @return Returns the bitmap, which is used to create a texture by user.
          * Set returned bitmap field to nullptr, to avoid deletion
          */
-        FontBitmap set_font(const char* fontFilePath, int textureId, float fontHeightPx);
+        FontBitmap set_font(const char* font_file_path, int texture_id, float font_height_in_px);
 
         float get_font_size() const;
 
@@ -88,7 +88,7 @@ namespace reig {
          * Starts a new window, with the given title and starting coordinates.
          * The windows is given an id, that is equals to the title
          */
-        void start_window(const char* title, float defaultX, float defaultY);
+        void start_window(const char* title, float default_x, float default_y);
 
         /**
          * Same as start_window without the id parameter.
@@ -96,7 +96,7 @@ namespace reig {
          * Starts a new window, with the given id, title and starting coordinates.
          * Use this one with a constant id, if you know the window title can change
          */
-        void start_window(const char* id, const char* title, float defaultX, float defaultY);
+        void start_window(const char* id, const char* title, float default_x, float default_y);
 
         void end_window();
 
@@ -121,9 +121,9 @@ namespace reig {
         /**
          * @brief Schedules a textured rectangle drawing (the texture is stretched)
          * @param rect Position and size
-         * @param textureId Index to the texture
+         * @param texture_id Index to the texture
          */
-        void render_rectangle(const primitive::Rectangle& rect, int textureId);
+        void render_rectangle(const primitive::Rectangle& rect, int texture_id);
 
         /**
          * @brief Schedules a triangle drawing
@@ -135,19 +135,19 @@ namespace reig {
     private:
         DrawData& get_current_draw_data_buffer();
 
-        float render_text(DrawData& drawData, const char* text, primitive::Rectangle rect,
+        float render_text(DrawData& draw_data, const char* text, primitive::Rectangle rect,
                           text::Alignment alignment = text::Alignment::kCenter, float scale = 1.0f);
 
-        static void render_rectangle(DrawData& drawData, const primitive::Rectangle& rect,
+        static void render_rectangle(DrawData& draw_data, const primitive::Rectangle& rect,
                                      const primitive::Color& color);
 
-        static void render_rectangle(DrawData& drawData, const primitive::Rectangle& rect, int textureId);
+        static void render_rectangle(DrawData& draw_data, const primitive::Rectangle& rect, int texture_id);
 
-        static void render_triangle(DrawData& drawData, const primitive::Triangle& triangle,
+        static void render_triangle(DrawData& draw_data, const primitive::Triangle& triangle,
                                     const primitive::Color& color);
 
-        static void render_text_quads(DrawData& drawData, const std::vector<stbtt_aligned_quad>& quads,
-                                      float horizontalAlignment, float verticalAlignment, int fontTextureId);
+        static void render_text_quads(DrawData& draw_data, const std::vector<stbtt_aligned_quad>& quads,
+                                      float horizontal_alignment, float vertical_alignment, int font_texture_id);
 
         void render_windows();
 
@@ -155,7 +155,7 @@ namespace reig {
 
         void cleanup_previous_windows();
 
-        bool handle_window_focus(const detail::Window& window, bool claiming);
+        bool handle_window_focus(const detail::Window& window, bool is_claiming);
 
         void handle_window_input(detail::Window& window);
 
@@ -169,27 +169,27 @@ namespace reig {
 
         detail::Window* get_current_window();
 
-        const char* mDraggedWindow = nullptr;
-        std::vector<detail::Window> mPreviousWindows;
-        std::vector<detail::Window> mQueuedWindows;
-        DrawData mFreeDrawData;
+        const char* _dragged_window = nullptr;
+        std::vector<detail::Window> _previous_windows;
+        std::vector<detail::Window> _queued_windows;
+        DrawData _free_draw_data;
 
-        detail::Font mFont;
-        Config mConfig;
+        detail::Font _font;
+        Config _config;
 
-        RenderHandler mRenderHandler = nullptr;
-        std::any mUserPtr;
-        unsigned mFrameCounter = 0;
+        RenderHandler _render_handler = nullptr;
+        std::any _user_ptr;
+        unsigned _frame_counter = 0;
     };
 }
 
 template <typename C>
 bool reig::Context::if_on_top(C&& condition) {
-    auto* currentWindow = get_current_window();
-    for (auto& previousWindow : mPreviousWindows) {
-        if (condition(currentWindow, previousWindow)) {
-            if (currentWindow) {
-                return currentWindow->id == previousWindow.id;
+    auto* current_window = get_current_window();
+    for (auto& previousWindow : _previous_windows) {
+        if (condition(current_window, previousWindow)) {
+            if (current_window) {
+                return current_window->id == previousWindow.id;
             } else {
                 return false;
             }

@@ -9,11 +9,12 @@ namespace reig::exception {
     public:
         const char* what() const noexcept override;
 
-        static FailedToLoadFontException noTextureId(const char* filePath);
-        static FailedToLoadFontException invalidSize(const char* filePath, float fontSize);
-        static FailedToLoadFontException couldNotOpenFile(const char* filePath);
-        static FailedToLoadFontException invalidFile(const char* filePath);
-        static FailedToLoadFontException couldNotFitCharacters(const char* filePath, float fontSize, int width, int height);
+        static FailedToLoadFontException no_texture_id(const char* filePath);
+        static FailedToLoadFontException invalid_height(const char* filePath, float fontSize);
+        static FailedToLoadFontException could_not_open_file(const char* filePath);
+        static FailedToLoadFontException invalid_file(const char* filePath);
+        static FailedToLoadFontException could_not_fit_characters(const char* filePath, float fontSize, int width,
+                                                                  int height);
     private:
         explicit FailedToLoadFontException(std::string message);
         const std::string message;

@@ -240,10 +240,10 @@ public:
         
         if(self->mouse.free && button == GLFW_MOUSE_BUTTON_LEFT) {
             if(action == GLFW_PRESS) {
-                self->ctx.mouse.leftButton.press(self->mouse.lastX, self->mouse.lastY);
+                self->ctx.mouse.left_button.press(self->mouse.lastX, self->mouse.lastY);
             }
             else if(action == GLFW_RELEASE) {
-                self->ctx.mouse.leftButton.release();
+                self->ctx.mouse.left_button.release();
             }
         }
     }

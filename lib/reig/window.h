@@ -9,17 +9,17 @@ namespace reig::detail {
                 : Window{title, title, x, y, width, height, titleBarHeight} {}
 
         Window(const char* id, const char* title, float x, float y, float width, float height, float titleBarHeight)
-                : title{title}, id{id}, x{x}, y{y}, width{width}, height{height}, titleBarHeight{titleBarHeight} {}
+                : title{title}, id{id}, x{x}, y{y}, width{width}, height{height}, title_bar_height{titleBarHeight} {}
 
-        DrawData drawData;
+        DrawData draw_data;
         const char* title = "";
         const char* id = nullptr;
         float x = 0.0f;
         float y = 0.0f;
         float width = 0.f;
         float height = 0.f;
-        float titleBarHeight = 0.f;
-        bool isFinished = false;
+        float title_bar_height = 0.f;
+        bool is_finished = false;
     };
 
     /**

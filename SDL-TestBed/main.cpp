@@ -171,14 +171,14 @@ private:
 
                 case SDL_MOUSEBUTTONDOWN: {
                     if (evt.button.button == SDL_BUTTON_LEFT) {
-                        mGui.ctx.mouse.leftButton.press(evt.button.x, evt.button.y);
+                        mGui.ctx.mouse.left_button.press(evt.button.x, evt.button.y);
                     }
                     break;
                 }
 
                 case SDL_MOUSEBUTTONUP: {
                     if (evt.button.button == SDL_BUTTON_LEFT) {
-                        mGui.ctx.mouse.leftButton.release();
+                        mGui.ctx.mouse.left_button.release();
                     }
                     break;
                 }

@@ -17,81 +17,82 @@ namespace reig {
     Context::Context() : Context{Config::builder().build()} {}
 
     Context::Context(const Config& config)
-            : mouse{*this}, mConfig{config} {}
+            : mouse{*this}, _config{config} {}
 
     void Context::set_config(const Config& config) {
-        mConfig = config;
+        _config = config;
     }
 
-    void Context::set_render_handler(RenderHandler renderHandler) {
-        mRenderHandler = renderHandler;
+    void Context::set_render_handler(RenderHandler render_handler) {
+        _render_handler = render_handler;
     }
 
-    void Context::set_user_ptr(std::any userPtr) {
+    void Context::set_user_ptr(std::any user_ptr) {
         using std::move;
-        mUserPtr = move(userPtr);
+        _user_ptr = move(user_ptr);
     }
 
-    vector<uint8_t> read_font_into_buffer(const char* fontFilePath) {
+    vector<uint8_t> read_font_into_buffer(const char* const font_file_path) {
         using exception::FailedToLoadFontException;
 
-        auto file = std::unique_ptr<FILE, decltype(&std::fclose)>(std::fopen(fontFilePath, "rb"), &std::fclose);
-        if (!file) throw FailedToLoadFontException::couldNotOpenFile(fontFilePath);
+        auto file = std::unique_ptr<FILE, decltype(&std::fclose)>(std::fopen(font_file_path, "rb"), &std::fclose);
+        if (!file) throw FailedToLoadFontException::could_not_open_file(font_file_path);
 
         std::fseek(file.get(), 0, SEEK_END);
-        long filePos = ftell(file.get());
-        if (filePos < 0) throw FailedToLoadFontException::invalidFile(fontFilePath);
+        long file_pos = ftell(file.get());
+        if (file_pos < 0) throw FailedToLoadFontException::invalid_file(font_file_path);
 
-        auto fileSize = math::integral_cast<size_t>(filePos);
+        auto file_size = math::integral_cast<size_t>(file_pos);
         std::rewind(file.get());
 
-        auto ttfBuffer = std::vector<unsigned char>(fileSize);
-        std::fread(ttfBuffer.data(), 1, fileSize, file.get());
-        return ttfBuffer;
+        auto ttf_buffer = std::vector<unsigned char>(file_size);
+        std::fread(ttf_buffer.data(), 1, file_size, file.get());
+        return ttf_buffer;
     }
 
-    Context::FontBitmap Context::set_font(const char* fontFilePath, int textureId, float fontHeightPx) {
+    Context::FontBitmap Context::set_font(const char* font_file_path, int texture_id, float font_height_in_px) {
         using exception::FailedToLoadFontException;
 
-        if (textureId == 0) throw FailedToLoadFontException::noTextureId(fontFilePath);
-        if (fontHeightPx <= 0) throw FailedToLoadFontException::invalidSize(fontFilePath, fontHeightPx);
+        if (texture_id == 0) throw FailedToLoadFontException::no_texture_id(font_file_path);
+        if (font_height_in_px <= 0) throw FailedToLoadFontException::invalid_height(font_file_path, font_height_in_px);
 
-        auto ttfBuffer = read_font_into_buffer(fontFilePath);
+        auto ttf_buffer = read_font_into_buffer(font_file_path);
 
         // We want all ASCII chars from space to backspace
-        int const charsNum = 96;
-        int bitmapWidth = mConfig._font_bitmap_width;
-        int bitmapHeight = mConfig._font_bitmap_height;
+        int const num_chars = 96;
+        int bitmap_width = _config._font_bitmap_width;
+        int bitmap_height = _config._font_bitmap_height;
 
         using std::data;
-        auto bakedChars = std::vector<stbtt_bakedchar>(charsNum);
-        auto bitmap = vector<uint8_t>(math::integral_cast<size_t>(bitmapWidth * bitmapHeight));
+        auto baked_chars = std::vector<stbtt_bakedchar>(num_chars);
+        auto bitmap = vector<uint8_t>(math::integral_cast<size_t>(bitmap_width * bitmap_height));
 
-        int bakedHeight = stbtt_BakeFontBitmap(ttfBuffer.data(), 0, fontHeightPx, bitmap.data(),
-                                               bitmapWidth, bitmapHeight, ' ', charsNum, data(bakedChars));
-        if (bakedHeight < 0 || bakedHeight > bitmapHeight) {
-            throw FailedToLoadFontException::couldNotFitCharacters(fontFilePath, fontHeightPx, bitmapWidth, bitmapHeight);
+        int baked_height = stbtt_BakeFontBitmap(ttf_buffer.data(), 0, font_height_in_px, bitmap.data(),
+                                               bitmap_width, bitmap_height, ' ', num_chars, data(baked_chars));
+        if (baked_height < 0 || baked_height > bitmap_height) {
+            throw FailedToLoadFontException::could_not_fit_characters(font_file_path, font_height_in_px,
+                                                                      bitmap_width, bitmap_height);
         } else {
-            bitmapHeight = bakedHeight;
+            bitmap_height = baked_height;
         }
 
         using std::move;
         // If all successful, replace current font data
-        mFont.mBakedChars = move(bakedChars);
-        mFont.mTextureId = textureId;
-        mFont.mBitmapWidth = bitmapWidth;
-        mFont.mBitmapHeight = bitmapHeight;
-        mFont.mHeight = fontHeightPx;
+        _font.baked_chars = move(baked_chars);
+        _font.texture_id = texture_id;
+        _font.bitmap_width = bitmap_width;
+        _font.bitmap_height = bitmap_height;
+        _font.height = font_height_in_px;
 
-        return FontBitmap{bitmap, bitmapWidth, bitmapHeight};
+        return FontBitmap{bitmap, bitmap_width, bitmap_height};
     }
 
     float Context::get_font_size() const {
-        return mFont.mHeight;
+        return _font.height;
     }
 
     void Context::end_frame() {
-        if (!mRenderHandler) {
+        if (!_render_handler) {
             throw exception::NoRenderHandlerException{};
         }
         end_window();
@@ -99,266 +100,266 @@ namespace reig {
         update_previous_windows();
         cleanup_previous_windows();
 
-        mRenderHandler(mFreeDrawData, mUserPtr);
-        mFreeDrawData.clear();
+        _render_handler(_free_draw_data, _user_ptr);
+        _free_draw_data.clear();
         render_windows();
 
-        mQueuedWindows.clear();
+        _queued_windows.clear();
     }
 
     void Context::update_previous_windows() {
-        for (auto it = mQueuedWindows.rbegin(); it != mQueuedWindows.rend(); ++it) {
-            auto& queuedWindow = *it;
-            auto previousWindow = std::find_if(mPreviousWindows.begin(), mPreviousWindows.end(),
-                                               [&queuedWindow](const Window& window) {
-                                                   return queuedWindow.id == window.id;
+        for (auto it = _queued_windows.rbegin(); it != _queued_windows.rend(); ++it) {
+            auto& queued_window = *it;
+            auto previous_window = std::find_if(_previous_windows.begin(), _previous_windows.end(),
+                                               [&queued_window](const Window& window) {
+                                                   return queued_window.id == window.id;
                                                });
 
-            if (previousWindow != mPreviousWindows.end()) {
-                previousWindow->width = queuedWindow.width;
-                previousWindow->height = queuedWindow.height;
-                previousWindow->x = queuedWindow.x;
-                (*previousWindow).y = queuedWindow.y;
+            if (previous_window != _previous_windows.end()) {
+                previous_window->width = queued_window.width;
+                previous_window->height = queued_window.height;
+                previous_window->x = queued_window.x;
+                (*previous_window).y = queued_window.y;
             } else {
-                mPreviousWindows.insert(mPreviousWindows.begin(), queuedWindow);
+                _previous_windows.insert(_previous_windows.begin(), queued_window);
             }
         }
 
-        if (!mouse.leftButton.is_clicked()) return;
+        if (!mouse.left_button.is_clicked()) return;
 
-        for (auto it = mPreviousWindows.begin(); it != mPreviousWindows.end(); ++it) {
-            if (mouse.leftButton.just_clicked_in_rect_ignore_windows(detail::get_full_window_rect(*it))) {
-                std::iter_swap(it, mPreviousWindows.begin());
+        for (auto it = _previous_windows.begin(); it != _previous_windows.end(); ++it) {
+            if (mouse.left_button.just_clicked_in_rect_ignore_windows(detail::get_full_window_rect(*it))) {
+                std::iter_swap(it, _previous_windows.begin());
                 break;
             }
         }
     }
 
     void Context::cleanup_previous_windows() {
-        auto removeFrom = std::remove_if(mPreviousWindows.begin(), mPreviousWindows.end(),
-                                         [this](const Window& previousWindow) {
-                                             return std::none_of(mQueuedWindows.begin(), mQueuedWindows.end(),
-                                                                     [&previousWindow](const Window& window) {
-                                                                         return window.id == previousWindow.id;
+        auto remove_from = std::remove_if(_previous_windows.begin(), _previous_windows.end(),
+                                         [this](const Window& previous_window) {
+                                             return std::none_of(_queued_windows.begin(), _queued_windows.end(),
+                                                                     [&previous_window](const Window& window) {
+                                                                         return window.id == previous_window.id;
                                                                      });
                                          });
-        mPreviousWindows.erase(removeFrom, mPreviousWindows.end());
+        _previous_windows.erase(remove_from, _previous_windows.end());
     }
 
-    bool Context::handle_window_focus(const Window& window, bool claiming) {
-        if (claiming) {
-            if (!mDraggedWindow) {
-                mDraggedWindow = window.id;
+    bool Context::handle_window_focus(const Window& window, bool is_claiming) {
+        if (is_claiming) {
+            if (!_dragged_window) {
+                _dragged_window = window.id;
             }
-            return mDraggedWindow == window.id;
+            return _dragged_window == window.id;
         } else {
-            if (mDraggedWindow == window.id) {
-                mDraggedWindow = nullptr;
+            if (_dragged_window == window.id) {
+                _dragged_window = nullptr;
             }
-            return mDraggedWindow != window.id;
+            return _dragged_window != window.id;
         }
     }
 
     void Context::start_frame() {
-        mouse.leftButton.mIsClicked = false;
-        mouse.mScrolled = 0.f;
+        mouse.left_button._is_clicked = false;
+        mouse._scrolled = 0.f;
 
         keyboard.reset();
 
-        ++mFrameCounter;
+        ++_frame_counter;
     }
 
     unsigned Context::get_frame_counter() const {
-        return mFrameCounter;
+        return _frame_counter;
     }
 
     detail::Window* Context::get_current_window() {
-        if (!mQueuedWindows.empty() && !mQueuedWindows.back().isFinished) {
-            return &mQueuedWindows.back();
+        if (!_queued_windows.empty() && !_queued_windows.back().is_finished) {
+            return &_queued_windows.back();
         } else {
             return nullptr;
         }
     }
 
-    void Context::start_window(const char* title, float defaultX, float defaultY) {
-        start_window(title, title, defaultX, defaultY);
+    void Context::start_window(const char* title, float default_x, float default_y) {
+        start_window(title, title, default_x, default_y);
     }
 
-    void Context::start_window(const char* id, const char* title, float defaultX, float defaultY) {
-        if (!mQueuedWindows.empty()) end_window();
+    void Context::start_window(const char* id, const char* title, float default_x, float default_y) {
+        if (!_queued_windows.empty()) end_window();
 
-        auto previousWindow = std::find_if(mPreviousWindows.begin(), mPreviousWindows.end(),
+        auto previous_window = std::find_if(_previous_windows.begin(), _previous_windows.end(),
                                            [id](const Window& window) {
                                                return window.id == id;
                                            });
-        if (previousWindow != mPreviousWindows.end()) {
-            mQueuedWindows.emplace_back(id, title, previousWindow->x, previousWindow->y, 0, 0, mFont.mHeight + 8);
+        if (previous_window != _previous_windows.end()) {
+            _queued_windows.emplace_back(id, title, previous_window->x, previous_window->y, 0, 0, _font.height + 8);
         } else {
-            mQueuedWindows.emplace_back(id, title, defaultX, defaultY, 0, 0, mFont.mHeight + 8);
+            _queued_windows.emplace_back(id, title, default_x, default_y, 0, 0, _font.height + 8);
         }
     }
 
     void Context::render_windows() {
-        vector<reference_wrapper<Window>> orderedWindows;
-        for (auto pit = mPreviousWindows.rbegin(); pit != mPreviousWindows.rend(); ++pit) {
-            auto& previousWindow = *pit;
-            auto qit = std::find_if(mQueuedWindows.begin(), mQueuedWindows.end(),
-                                   [&previousWindow](const Window& window) {
-                                       return previousWindow.id == window.id;
+        vector<reference_wrapper<Window>> ordered_windows;
+        for (auto pit = _previous_windows.rbegin(); pit != _previous_windows.rend(); ++pit) {
+            auto& previous_window = *pit;
+            auto qit = std::find_if(_queued_windows.begin(), _queued_windows.end(),
+                                   [&previous_window](const Window& window) {
+                                       return previous_window.id == window.id;
                                    });
-            orderedWindows.push_back(std::ref(*qit));
+            ordered_windows.push_back(std::ref(*qit));
         }
 
-        for(auto it = orderedWindows.begin(); it != orderedWindows.end(); ++it) {
-            auto& currentWindow = it->get();
+        for(auto it = ordered_windows.begin(); it != ordered_windows.end(); ++it) {
+            auto& current_window = it->get();
 
-            auto currentWidgetData = move(currentWindow.drawData);
-            currentWindow.drawData.clear();
+            auto current_widget_data = move(current_window.draw_data);
+            current_window.draw_data.clear();
 
-            auto headerRect = detail::get_window_header_rect(currentWindow);
-            Triangle headerTriangle{
-                    {currentWindow.x + 3.f, currentWindow.y + 3.f},
-                    {currentWindow.x + 3.f + currentWindow.titleBarHeight, currentWindow.y + 3.f},
-                    {currentWindow.x + 3.f + currentWindow.titleBarHeight / 2.f,
-                     currentWindow.y + currentWindow.titleBarHeight - 3.f}
+            auto header_rect = detail::get_window_header_rect(current_window);
+            Triangle header_triangle{
+                    {current_window.x + 3.f, current_window.y + 3.f},
+                    {current_window.x + 3.f + current_window.title_bar_height, current_window.y + 3.f},
+                    {current_window.x + 3.f + current_window.title_bar_height / 2.f,
+                     current_window.y + current_window.title_bar_height - 3.f}
             };
-            auto titleRect = decrease_rect(headerRect, 4);
-            auto bodyRect = detail::get_window_body_rect(currentWindow);
+            auto title_rect = decrease_rect(header_rect, 4);
+            auto body_rect = detail::get_window_body_rect(current_window);
 
-            auto frameColor = it != orderedWindows.end() - 1
-                              ? colors::dim_color_by(mConfig._title_bar_bg_color, 127)
-                              : mConfig._title_bar_bg_color;
+            auto frame_color = it != ordered_windows.end() - 1
+                              ? colors::dim_color_by(_config._title_bar_bg_color, 127)
+                              : _config._title_bar_bg_color;
 
-            if (mConfig._are_windows_textured) {
-                render_rectangle(currentWindow.drawData, headerRect, mConfig._title_bar_bg_texture_id);
+            if (_config._are_windows_textured) {
+                render_rectangle(current_window.draw_data, header_rect, _config._title_bar_bg_texture_id);
             } else {
-                render_rectangle(currentWindow.drawData, headerRect, frameColor);
+                render_rectangle(current_window.draw_data, header_rect, frame_color);
             }
-            render_triangle(currentWindow.drawData, headerTriangle, colors::kLightGrey);
-            render_text(currentWindow.drawData, currentWindow.title, titleRect);
-            if (mConfig._are_windows_textured) {
-                render_rectangle(currentWindow.drawData, bodyRect, mConfig._window_bg_texture_id);
+            render_triangle(current_window.draw_data, header_triangle, colors::kLightGrey);
+            render_text(current_window.draw_data, current_window.title, title_rect);
+            if (_config._are_windows_textured) {
+                render_rectangle(current_window.draw_data, body_rect, _config._window_bg_texture_id);
             } else {
                 int thickness = 1;
-                render_rectangle(currentWindow.drawData, decrease_rect(bodyRect, thickness),
-                                 mConfig._window_bg_color);
+                render_rectangle(current_window.draw_data, decrease_rect(body_rect, thickness),
+                                 _config._window_bg_color);
 
-                auto frame = get_rect_frame(bodyRect, thickness);
-                for (const auto& frameRect : frame) {
-                    render_rectangle(currentWindow.drawData, frameRect, frameColor);
+                auto frame = get_rect_frame(body_rect, thickness);
+                for (const auto& frame_rect : frame) {
+                    render_rectangle(current_window.draw_data, frame_rect, frame_color);
                 }
             }
 
-            mRenderHandler(currentWindow.drawData, mUserPtr);
-            currentWindow.drawData.clear();
+            _render_handler(current_window.draw_data, _user_ptr);
+            current_window.draw_data.clear();
 
-            mRenderHandler(currentWidgetData, mUserPtr);
+            _render_handler(current_widget_data, _user_ptr);
         }
     }
 
     void Context::end_window() {
-        if (mQueuedWindows.empty()) return;
+        if (_queued_windows.empty()) return;
 
-        auto& currentWindow = *get_current_window();
+        auto& current_window = *get_current_window();
 
-        currentWindow.isFinished = true;
-        currentWindow.width += 4;
-        currentWindow.height += 4;
+        current_window.is_finished = true;
+        current_window.width += 4;
+        current_window.height += 4;
 
-        handle_window_input(currentWindow);
+        handle_window_input(current_window);
     }
 
     void Context::handle_window_input(detail::Window& window) {
-        Rectangle headerBox{
+        Rectangle header_rect{
                 window.x, window.y,
-                window.width, window.titleBarHeight
+                window.width, window.title_bar_height
         };
 
-        if (mouse.leftButton.is_held()
-            && if_visible_window(window, is_point_in_rect(mouse.leftButton.get_clicked_pos(), headerBox))
+        if (mouse.left_button.is_held()
+            && if_visible_window(window, is_point_in_rect(mouse.left_button.get_clicked_pos(), header_rect))
             && handle_window_focus(window, true)) {
             Point moved{
-                    mouse.get_cursor_pos().x - mouse.leftButton.get_clicked_pos().x,
-                    mouse.get_cursor_pos().y - mouse.leftButton.get_clicked_pos().y
+                    mouse.get_cursor_pos().x - mouse.left_button.get_clicked_pos().x,
+                    mouse.get_cursor_pos().y - mouse.left_button.get_clicked_pos().y
             };
 
             window.x += moved.x;
             window.y += moved.y;
-            mouse.leftButton.mClickedPos.x += moved.x;
-            mouse.leftButton.mClickedPos.y += moved.y;
+            mouse.left_button._clicked_pos.x += moved.x;
+            mouse.left_button._clicked_pos.y += moved.y;
         } else {
             handle_window_focus(window, false);
         }
     }
 
     bool Context::if_visible_window(detail::Window& window, bool condition) {
-        for (auto& previousWindow : mPreviousWindows) {
+        for (auto& previous_window : _previous_windows) {
             if (condition) {
-                return window.id == previousWindow.id;
+                return window.id == previous_window.id;
             }
         }
         return false;
     }
 
     void Context::fit_rect_in_window(Rectangle& rect) {
-        if (!mQueuedWindows.empty()) {
-            detail::fit_rect_in_window(rect, mQueuedWindows.back());
+        if (!_queued_windows.empty()) {
+            detail::fit_rect_in_window(rect, _queued_windows.back());
         }
     }
 
     bool has_alignment(text::Alignment container, text::Alignment alignment) {
-        auto containerU = static_cast<unsigned>(container);
-        auto alignmentU = static_cast<unsigned>(alignment);
-        return (alignmentU & containerU) == alignmentU;
+        auto container_as_uint = static_cast<unsigned>(container);
+        auto alignment_as_uint = static_cast<unsigned>(alignment);
+        return (alignment_as_uint & container_as_uint) == alignment_as_uint;
     }
 
     inline stbtt_aligned_quad get_char_quad(int charIndex, float& x, float& y, const detail::Font& font) {
         stbtt_aligned_quad quad;
-        stbtt_GetBakedQuad(data(font.mBakedChars), font.mBitmapWidth, font.mBitmapHeight, charIndex, &x, &y, &quad, true);
+        stbtt_GetBakedQuad(data(font.baked_chars), font.bitmap_width, font.bitmap_height, charIndex, &x, &y, &quad, true);
         return quad;
     }
 
-    inline Point scale_quad(stbtt_aligned_quad& quad, float scale, float x, float previousX) {
-        float antiScale = 1.0f - scale;
+    inline Point scale_quad(stbtt_aligned_quad& quad, float scale, float x, float previous_x) {
+        float anti_scale = 1.0f - scale;
 
-        float scalingHorizontalOffset = (x - previousX) * antiScale;
-        quad.x1 -= scalingHorizontalOffset;
-        float scalingVerticalOffset = (quad.y1 - quad.y0) * antiScale;
-        quad.y0 += scalingVerticalOffset;
+        float scaling_horizontal_offset = (x - previous_x) * anti_scale;
+        quad.x1 -= scaling_horizontal_offset;
+        float scaling_vertical_offset = (quad.y1 - quad.y0) * anti_scale;
+        quad.y0 += scaling_vertical_offset;
 
-        return Point{scalingHorizontalOffset, scalingVerticalOffset};
+        return Point{scaling_horizontal_offset, scaling_vertical_offset};
     }
 
     float Context::render_text(const char* text, const Rectangle rect, text::Alignment alignment, float scale) {
         return render_text(get_current_draw_data_buffer(), text, rect, alignment, scale);
     }
 
-    float Context::render_text(DrawData& drawData, const char* text, Rectangle rect, text::Alignment alignment,
+    float Context::render_text(DrawData& draw_data, const char* text, Rectangle rect, text::Alignment alignment,
                                float scale) {
-        if (mFont.mBakedChars.empty() || !text) return rect.x;
+        if (_font.baked_chars.empty() || !text) return rect.x;
 
         float x = rect.x;
         float y = rect.y + rect.height;
 
-        float minY = y;
-        float maxY = y;
+        float min_y = y;
+        float max_y = y;
 
         vector<stbtt_aligned_quad> quads;
         quads.reserve(20);
 
-        int fromChar = ' ';
-        int toChar = fromChar + 95;
-        int fallbackChar = toChar; // The backspace character
+        auto from_char = int{' '};
+        int to_char = from_char + 95;
+        int fallback_char = to_char; // The backspace character
         for (int ch = *text; ch != '\0'; ch = *++text) {
-            if (!(ch >= fromChar && ch <= toChar)) {
-                ch = fallbackChar;
+            if (!(ch >= from_char && ch <= to_char)) {
+                ch = fallback_char;
             }
 
-            float previousX = x;
-            auto quad = get_char_quad(ch - fromChar, x, y, mFont);
+            float previous_x = x;
+            auto quad = get_char_quad(ch - from_char, x, y, _font);
 
-            auto scalingOffsets = scale_quad(quad, scale, x, previousX);
-            x -= scalingOffsets.x;
+            auto scaling_offsets = scale_quad(quad, scale, x, previous_x);
+            x -= scaling_offsets.x;
 
             if (quad.x0 > get_x2(rect)) {
                 break;
@@ -367,50 +368,50 @@ namespace reig {
 //            quad.y0 = internal::max(quad.y0, rect.y);
 //            quad.y1 = internal::min(quad.y1, get_y2(rect));
 
-            minY = math::min(minY, quad.y0);
-            maxY = math::max(maxY, quad.y1);
+            min_y = math::min(min_y, quad.y0);
+            max_y = math::max(max_y, quad.y1);
 
             quads.push_back(quad);
         }
 
-        float textHeight = maxY - minY;
-        float textWidth = 0.0f;
+        float text_height = max_y - min_y;
+        float text_width = 0.0f;
         if (!quads.empty()) {
-            textWidth = quads.back().x1 - quads.front().x0;
+            text_width = quads.back().x1 - quads.front().x0;
         }
 
-        float horizontalAlignment =
-                has_alignment(alignment, text::Alignment::kRight) ? rect.width - textWidth :
+        float horizontal_alignment =
+                has_alignment(alignment, text::Alignment::kRight) ? rect.width - text_width :
                 has_alignment(alignment, text::Alignment::kLeft) ? 0.0f :
-                (rect.width - textWidth) * 0.5f;
-        float verticalAlignment =
-                has_alignment(alignment, text::Alignment::kTop) ? -(rect.height - textHeight) :
+                (rect.width - text_width) * 0.5f;
+        float vertical_alignment =
+                has_alignment(alignment, text::Alignment::kTop) ? -(rect.height - text_height) :
                 has_alignment(alignment, text::Alignment::kBottom) ? 0.0f :
-                (rect.height - textHeight) * -0.5f;
+                (rect.height - text_height) * -0.5f;
 
-        render_text_quads(drawData, quads, horizontalAlignment, verticalAlignment, mFont.mTextureId);
+        render_text_quads(draw_data, quads, horizontal_alignment, vertical_alignment, _font.texture_id);
 
         return x;
     }
 
     DrawData& Context::get_current_draw_data_buffer() {
-        auto* currentWindow = get_current_window();
-        return currentWindow ? currentWindow->drawData : mFreeDrawData;
+        auto* current_window = get_current_window();
+        return current_window ? current_window->draw_data : _free_draw_data;
     }
 
     void Context::render_rectangle(const Rectangle& rect, const Color& color) {
         render_rectangle(get_current_draw_data_buffer(), rect, color);
     }
 
-    void Context::render_rectangle(const Rectangle& rect, int textureId) {
-        render_rectangle(get_current_draw_data_buffer(), rect, textureId);
+    void Context::render_rectangle(const Rectangle& rect, int texture_id) {
+        render_rectangle(get_current_draw_data_buffer(), rect, texture_id);
     }
 
     void Context::render_triangle(const Triangle& triangle, const Color& color) {
         render_triangle(get_current_draw_data_buffer(), triangle, color);
     }
 
-    void Context::render_rectangle(DrawData& drawData, const Rectangle& rect, const Color& color) {
+    void Context::render_rectangle(DrawData& draw_data, const Rectangle& rect, const Color& color) {
         vector<Vertex> vertices{
                 {{rect.x,       rect.y},       {}, color},
                 {{get_x2(rect), rect.y},       {}, color},
@@ -421,10 +422,10 @@ namespace reig {
 
         Figure fig;
         fig.form(vertices, indices);
-        drawData.push_back(fig);
+        draw_data.push_back(fig);
     }
 
-    void Context::render_rectangle(DrawData& drawData, const Rectangle& rect, int textureId) {
+    void Context::render_rectangle(DrawData& draw_data, const Rectangle& rect, int texture_id) {
         vector<Vertex> vertices{
                 {{rect.x,       rect.y},       {0.f, 0.f}, {}},
                 {{get_x2(rect), rect.y},       {1.f, 0.f}, {}},
@@ -434,11 +435,11 @@ namespace reig {
         vector<int> indices{0, 1, 2, 2, 3, 0};
 
         Figure fig;
-        fig.form(vertices, indices, textureId);
-        drawData.push_back(fig);
+        fig.form(vertices, indices, texture_id);
+        draw_data.push_back(fig);
     }
 
-    void Context::render_triangle(DrawData& drawData, const Triangle& triangle, const Color& color) {
+    void Context::render_triangle(DrawData& draw_data, const Triangle& triangle, const Color& color) {
         vector<Vertex> vertices{
                 {{triangle.pos0}, {}, color},
                 {{triangle.pos1}, {}, color},
@@ -448,23 +449,23 @@ namespace reig {
 
         Figure fig;
         fig.form(vertices, indices);
-        drawData.push_back(fig);
+        draw_data.push_back(fig);
     }
 
-    void Context::render_text_quads(DrawData& drawData, const std::vector<stbtt_aligned_quad>& quads,
-                                    float horizontalAlignment, float verticalAlignment, int fontTextureId) {
+    void Context::render_text_quads(DrawData& draw_data, const std::vector<stbtt_aligned_quad>& quads,
+                                    float horizontal_alignment, float vertical_alignment, int font_texture_id) {
         for (auto& q : quads) {
             vector<Vertex> vertices{
-                    {{q.x0 + horizontalAlignment, q.y0 + verticalAlignment}, {q.s0, q.t0}, {}},
-                    {{q.x1 + horizontalAlignment, q.y0 + verticalAlignment}, {q.s1, q.t0}, {}},
-                    {{q.x1 + horizontalAlignment, q.y1 + verticalAlignment}, {q.s1, q.t1}, {}},
-                    {{q.x0 + horizontalAlignment, q.y1 + verticalAlignment}, {q.s0, q.t1}, {}}
+                    {{q.x0 + horizontal_alignment, q.y0 + vertical_alignment}, {q.s0, q.t0}, {}},
+                    {{q.x1 + horizontal_alignment, q.y0 + vertical_alignment}, {q.s1, q.t0}, {}},
+                    {{q.x1 + horizontal_alignment, q.y1 + vertical_alignment}, {q.s1, q.t1}, {}},
+                    {{q.x0 + horizontal_alignment, q.y1 + vertical_alignment}, {q.s0, q.t1}, {}}
             };
             vector<int> indices{0, 1, 2, 2, 3, 0};
 
             Figure fig;
-            fig.form(vertices, indices, fontTextureId);
-            drawData.push_back(fig);
+            fig.form(vertices, indices, font_texture_id);
+            draw_data.push_back(fig);
         }
     }
 }

@@ -66,8 +66,8 @@ namespace reig::reference_widget {
     SliderModel tweak_slider_model(Context& ctx, float& aValueRef, const SliderValues& values,
                                    Rectangle outlineArea, Rectangle baseArea, Rectangle cursorArea) {
         bool hoveringOverCursor = ctx.mouse.is_hovering_over_rect(outlineArea);
-        bool holdingClickOnSlider = ctx.mouse.leftButton.clicked_in_rect(outlineArea)
-                                    && ctx.mouse.leftButton.is_held();
+        bool holdingClickOnSlider = ctx.mouse.left_button.clicked_in_rect(outlineArea)
+                                    && ctx.mouse.left_button.is_held();
 
         if (holdingClickOnSlider) {
             baseArea = decrease_rect(baseArea, 2);
@@ -100,8 +100,8 @@ namespace reig::reference_widget {
         }
 
         bool hoveringOverCursor = ctx.mouse.is_hovering_over_rect(outlineArea);
-        bool holdingClickOnSlider = ctx.mouse.leftButton.clicked_in_rect(outlineArea)
-                                    && ctx.mouse.leftButton.is_held();
+        bool holdingClickOnSlider = ctx.mouse.left_button.clicked_in_rect(outlineArea)
+                                    && ctx.mouse.left_button.is_held();
 
         if (holdingClickOnSlider) {
             if (orientation == SliderOrientation::HORIZONTAL) {
@@ -167,8 +167,8 @@ namespace reig::reference_widget {
         }
 
         bool hoveringOverCursor = ctx.mouse.is_hovering_over_rect(outlineArea);
-        bool holdingClickOnSlider = ctx.mouse.leftButton.clicked_in_rect(outlineArea)
-                                    && ctx.mouse.leftButton.is_held();
+        bool holdingClickOnSlider = ctx.mouse.left_button.clicked_in_rect(outlineArea)
+                                    && ctx.mouse.left_button.is_held();
 
         if (holdingClickOnSlider) {
             if (orientation == SliderOrientation::HORIZONTAL) {

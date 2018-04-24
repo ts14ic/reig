@@ -17,10 +17,10 @@ namespace reig::reference_widget {
 
         ButtonModel model;
         model.hoveringOverArea = ctx.mouse.is_hovering_over_rect(outlineArea);
-        model.justClicked = ctx.mouse.leftButton.just_clicked_in_rect(outlineArea);
+        model.justClicked = ctx.mouse.left_button.just_clicked_in_rect(outlineArea);
         model.holdingClick = model.hoveringOverArea
-                             && ctx.mouse.leftButton.clicked_in_rect(outlineArea)
-                             && ctx.mouse.leftButton.is_held();
+                             && ctx.mouse.left_button.clicked_in_rect(outlineArea)
+                             && ctx.mouse.left_button.is_held();
 
         model.outlineArea = outlineArea;
         model.baseArea = model.holdingClick
@@ -81,14 +81,14 @@ namespace reig::reference_widget {
         Rectangle baseArea = decrease_rect(outlineArea, 4);
         Rectangle checkArea = decrease_rect(baseArea, 4);
 
-        bool justClicked = ctx.mouse.leftButton.just_clicked_in_rect(outlineArea);
+        bool justClicked = ctx.mouse.left_button.just_clicked_in_rect(outlineArea);
         if (justClicked) {
             baseArea = decrease_rect(baseArea, 4);
             checkArea = decrease_rect(checkArea, 4);
             aValueRef = !aValueRef;
         }
 
-        bool holdingClick = ctx.mouse.leftButton.clicked_in_rect(outlineArea) && ctx.mouse.leftButton.is_held();
+        bool holdingClick = ctx.mouse.left_button.clicked_in_rect(outlineArea) && ctx.mouse.left_button.is_held();
         if (holdingClick) {
             baseArea = decrease_rect(baseArea, 4);
             checkArea = decrease_rect(checkArea, 4);
