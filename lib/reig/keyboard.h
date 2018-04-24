@@ -55,9 +55,9 @@ namespace reig {
             friend ::reig::Context;
             void reset();
 
-            std::vector<KeyModifier> mModifiers;
-            Key mSpecialKey = Key::kNone;
-            int mKeyCode = 0;
+            std::vector<KeyModifier> _modifiers;
+            Key _special_key = Key::kNone;
+            int _key_code = 0;
         };
     }
 }
