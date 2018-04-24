@@ -12,36 +12,36 @@ namespace reig::exception {
         return message.c_str();
     }
 
-    FailedToLoadFontException FailedToLoadFontException::no_texture_id(const char* filePath) {
+    FailedToLoadFontException FailedToLoadFontException::no_texture_id(const char* file_path) {
         std::ostringstream ss;
-        ss << "No texture id was specified for font: [" << filePath << "]";
+        ss << "No texture id was specified for font: [" << file_path << "]";
         return FailedToLoadFontException(ss.str());
     }
 
-    FailedToLoadFontException FailedToLoadFontException::invalid_height(const char* filePath, float fontSize) {
+    FailedToLoadFontException FailedToLoadFontException::invalid_height(const char* file_path, float font_size) {
         std::ostringstream ss;
-        ss << "Invalid size specified for font: [" << filePath << "], size: [" << fontSize << "]";
+        ss << "Invalid size specified for font: [" << file_path << "], size: [" << font_size << "]";
         return FailedToLoadFontException(ss.str());
     }
 
-    FailedToLoadFontException FailedToLoadFontException::could_not_open_file(const char* filePath) {
+    FailedToLoadFontException FailedToLoadFontException::could_not_open_file(const char* file_path) {
         std::ostringstream ss;
-        ss << "Could not open font file: [" << filePath << "]";
+        ss << "Could not open font file: [" << file_path << "]";
         return FailedToLoadFontException(ss.str());
     }
 
     FailedToLoadFontException FailedToLoadFontException::could_not_fit_characters(
-            const char* filePath, float fontSize, int width, int height) {
+            const char* file_path, float font_size, int width, int height) {
         std::ostringstream ss;
         ss << "Could not fit characters for font: ["
-           << filePath << "], size: [" << fontSize << "], atlas size: ["
+           << file_path << "], size: [" << font_size << "], atlas size: ["
            << width << "x" << height << "]";
         return FailedToLoadFontException(ss.str());
     }
 
-    FailedToLoadFontException FailedToLoadFontException::invalid_file(const char* filePath) {
+    FailedToLoadFontException FailedToLoadFontException::invalid_file(const char* file_path) {
         std::ostringstream ss;
-        ss << "Invalid file for font: [" << filePath << "]";
+        ss << "Invalid file for font: [" << file_path << "]";
         return FailedToLoadFontException(ss.str());
     }
 
@@ -49,7 +49,7 @@ namespace reig::exception {
         return "No render handler specified";
     }
 
-    IntegralCastException::IntegralCastException(long long val, const char* srcType, const char* destType)
-            : std::range_error{"Bad integral cast from "s + srcType + " (" + std::to_string(val) + ") to " + destType} {
+    IntegralCastException::IntegralCastException(long long val, const char* src_type, const char* dest_type)
+            : std::range_error{"Bad integral cast from "s + src_type + " (" + std::to_string(val) + ") to " + dest_type} {
     }
 }

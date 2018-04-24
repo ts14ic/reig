@@ -9,12 +9,12 @@ namespace reig::exception {
     public:
         const char* what() const noexcept override;
 
-        static FailedToLoadFontException no_texture_id(const char* filePath);
-        static FailedToLoadFontException invalid_height(const char* filePath, float fontSize);
-        static FailedToLoadFontException could_not_open_file(const char* filePath);
-        static FailedToLoadFontException invalid_file(const char* filePath);
-        static FailedToLoadFontException could_not_fit_characters(const char* filePath, float fontSize, int width,
-                                                                  int height);
+        static FailedToLoadFontException no_texture_id(const char* file_path);
+        static FailedToLoadFontException invalid_height(const char* file_path, float font_size);
+        static FailedToLoadFontException could_not_open_file(const char* file_path);
+        static FailedToLoadFontException invalid_file(const char* file_path);
+        static FailedToLoadFontException could_not_fit_characters(const char* file_path, float font_size,
+                                                                  int width, int height);
     private:
         explicit FailedToLoadFontException(std::string message);
         const std::string message;
@@ -25,7 +25,7 @@ namespace reig::exception {
     };
 
     struct IntegralCastException : std::range_error {
-        IntegralCastException(long long val, const char* srcType, const char* destType);
+        IntegralCastException(long long val, const char* src_type, const char* dest_type);
     };
 }
 
