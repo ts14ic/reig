@@ -28,7 +28,7 @@ namespace reig::primitive {
 
     bool is_point_in_rect(const Point& pt, const Rectangle& rect);
 
-    Rectangle decrease_rect(Rectangle aRect, int by);
+    Rectangle decrease_rect(Rectangle rect, int by);
 
     std::array<Rectangle, 4> get_rect_frame(const Rectangle& rect, float thickness);
 
@@ -212,9 +212,9 @@ namespace reig::primitive {
 
         void form(std::vector<Vertex>& vertices, std::vector<int>& indices, int id = 0);
 
-        std::vector<Vertex> mVertices;
-        std::vector<int> mIndices;
-        int mTextureId = 0;
+        std::vector<Vertex> _vertices;
+        std::vector<int> _indices;
+        int _texture_id = 0;
     };
 }
 

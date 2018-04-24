@@ -8,26 +8,26 @@ namespace reig::primitive {
         return math::is_between(pt.x, rect.x, get_x2(rect)) && math::is_between(pt.y, rect.y, get_y2(rect));
     }
 
-    Rectangle decrease_rect(Rectangle aRect, int by) {
-        int moveBy = by / 2;
-        aRect.x += moveBy;
-        aRect.y += moveBy;
-        aRect.width = math::max(aRect.width - by, 2.0f);
-        aRect.height = math::max(aRect.height - by, 2.0f);
-        return aRect;
+    Rectangle decrease_rect(Rectangle rect, int by) {
+        int offset = by / 2;
+        rect.x += offset;
+        rect.y += offset;
+        rect.width = math::max(rect.width - by, 2.0f);
+        rect.height = math::max(rect.height - by, 2.0f);
+        return rect;
     }
 
     void trim_rect_in_other(Rectangle& fitted, const Rectangle& container) {
         fitted.x = math::max(fitted.x, container.x);
         fitted.y = math::max(fitted.y, container.y);
 
-        auto fit_size = [](float& fittedSize, const float& fittedCoord,
-                           const float& containerSize, const float& containerCoord) {
-            auto fittedEnd = fittedCoord + fittedSize;
-            auto containerEnd = containerCoord + containerSize;
-            auto end = math::min(fittedEnd, containerEnd);
-            auto excess = fittedEnd - end;
-            fittedSize = math::max(fittedSize - excess, 0.0f);
+        auto fit_size = [](float& fitted_size, const float& fitted_coord,
+                           const float& container_size, const float& container_coord) {
+            auto fitted_end = fitted_coord + fitted_size;
+            auto container_end = container_coord + container_size;
+            auto end = math::min(fitted_end, container_end);
+            auto excess = fitted_end - end;
+            fitted_size = math::max(fitted_size - excess, 0.0f);
         };
 
         fit_size(fitted.width, fitted.x, container.width, container.x);
@@ -85,20 +85,20 @@ namespace reig::primitive {
     }
 
     void Figure::form(vector<Vertex>& vertices, vector<int>& indices, int id) {
-        vertices.swap(mVertices);
-        indices.swap(mIndices);
-        mTextureId = id;
+        vertices.swap(_vertices);
+        indices.swap(_indices);
+        _texture_id = id;
     }
 
     const vector<Vertex>& Figure::vertices() const {
-        return mVertices;
+        return _vertices;
     }
 
     const vector<int>& Figure::indices() const {
-        return mIndices;
+        return _indices;
     }
 
     int Figure::texture() const {
-        return mTextureId;
+        return _texture_id;
     }
 }
