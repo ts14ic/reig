@@ -7,24 +7,24 @@ using std::reference_wrapper;
 using namespace reig::primitive;
 
 namespace reig::detail {
-    Mouse::Mouse(reig::Context& context) : left_button{*this}, right_button{*this}, mContext{context} {}
+    Mouse::Mouse(reig::Context& context) : left_button{*this}, right_button{*this}, _context{context} {}
 
-    void Mouse::move(float difx, float dify) {
-        mCursorPos.x += difx;
-        mCursorPos.y += dify;
+    void Mouse::move(float on_x, float on_y) {
+        _cursor_pos.x += on_x;
+        _cursor_pos.y += on_y;
     }
 
     void Mouse::place(float x, float y) {
-        mCursorPos.x = x;
-        mCursorPos.y = y;
+        _cursor_pos.x = x;
+        _cursor_pos.y = y;
     }
 
-    void Mouse::scroll(float dy) {
-        _scrolled = dy;
+    void Mouse::scroll(float amount) {
+        _scrolled = amount;
     }
 
     const Point& Mouse::get_cursor_pos() const {
-        return mCursorPos;
+        return _cursor_pos;
     }
 
     float Mouse::get_scrolled() const {
@@ -32,28 +32,28 @@ namespace reig::detail {
     }
 
     bool Mouse::is_hovering_over_rect(const Rectangle& rect) const {
-        bool hoveringOverRect = is_point_in_rect(mCursorPos, rect);
-        if (mContext._dragged_window || !hoveringOverRect) return false;
+        bool hovering_over_rect = is_point_in_rect(_cursor_pos, rect);
+        if (_context._dragged_window || !hovering_over_rect) return false;
 
-        bool isRectVisible = mContext.if_on_top([this](Window* currentWindow, Window& previousWindow) {
-            return is_point_in_rect(mCursorPos, get_full_window_rect(previousWindow));
+        bool is_rect_visible = _context.if_on_top([this](Window* current_window, Window& previous_window) {
+            return is_point_in_rect(_cursor_pos, get_full_window_rect(previous_window));
         });
 
-        return hoveringOverRect && isRectVisible;
+        return hovering_over_rect && is_rect_visible;
     }
 
-    MouseButton::MouseButton(Mouse& mouse) : mMouse{mouse} {}
+    MouseButton::MouseButton(Mouse& mouse) : _mouse{mouse} {}
 
     void MouseButton::press(float x, float y) {
-        if (!mIsPressed) {
-            mIsPressed = true;
+        if (!_is_pressed) {
+            _is_pressed = true;
             _is_clicked = true;
             _clicked_pos = {x, y};
         }
     }
 
     void MouseButton::release() {
-        mIsPressed = false;
+        _is_pressed = false;
     }
 
     const Point& MouseButton::get_clicked_pos() const {
@@ -61,7 +61,7 @@ namespace reig::detail {
     }
 
     bool MouseButton::is_held() const {
-        return mIsPressed;
+        return _is_pressed;
     }
 
     bool MouseButton::is_clicked() const {
@@ -69,25 +69,25 @@ namespace reig::detail {
     }
 
     bool MouseButton::clicked_in_rect(const primitive::Rectangle& rect) const {
-        bool clickedInRect = is_point_in_rect(_clicked_pos, rect);
-        if (mMouse.mContext._dragged_window || !clickedInRect) return false;
+        bool clicked_in_rect = is_point_in_rect(_clicked_pos, rect);
+        if (_mouse._context._dragged_window || !clicked_in_rect) return false;
 
-        bool isRectVisible = mMouse.mContext.if_on_top([this](Window* currentWindow, Window& previousWindow) {
-            return is_point_in_rect(_clicked_pos, get_full_window_rect(previousWindow));
+        bool is_rect_visible = _mouse._context.if_on_top([this](Window* current_window, Window& previous_window) {
+            return is_point_in_rect(_clicked_pos, get_full_window_rect(previous_window));
         });
 
-        return clickedInRect && isRectVisible;
+        return clicked_in_rect && is_rect_visible;
     }
 
     bool MouseButton::just_clicked_in_rect(const primitive::Rectangle& rect) const {
-        bool justClickedInRect = _is_clicked && clicked_in_rect(rect);
-        if (mMouse.mContext._dragged_window || !justClickedInRect) return false;
+        bool just_clicked_in_rect = _is_clicked && clicked_in_rect(rect);
+        if (_mouse._context._dragged_window || !just_clicked_in_rect) return false;
 
-        bool isRectVisible = mMouse.mContext.if_on_top([this](Window* currentWindow, Window& previousWindow) {
-            return clicked_in_rect(get_full_window_rect(previousWindow));
+        bool is_rect_visible = _mouse._context.if_on_top([this](Window* current_window, Window& previous_window) {
+            return clicked_in_rect(get_full_window_rect(previous_window));
         });
 
-        return justClickedInRect && isRectVisible;
+        return just_clicked_in_rect && is_rect_visible;
     }
 
     bool MouseButton::just_clicked_in_rect_ignore_windows(const primitive::Rectangle& rect) const {

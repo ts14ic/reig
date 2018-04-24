@@ -46,9 +46,9 @@ namespace reig::detail {
 
         bool is_clicked() const;
 
-        Mouse& mMouse;
+        Mouse& _mouse;
         primitive::Point _clicked_pos;
-        bool mIsPressed = false;
+        bool _is_pressed = false;
         bool _is_clicked = false;
     };
 
@@ -69,10 +69,10 @@ namespace reig::detail {
 
         /**
          * @brief Moves cursor against previous position
-         * @param difx Delta x coordinate
-         * @param dify Delta y coordinate
+         * @param on_x Delta x coordinate
+         * @param on_y Delta y coordinate
          */
-        void move(float difx, float dify);
+        void move(float on_x, float on_y);
 
         /**
          * @brief Places the cursors in abosulute coordinates
@@ -83,9 +83,9 @@ namespace reig::detail {
 
         /**
          * @brief Scrolls the virtual mouse wheel
-         * @param dy Amount of scrolling
+         * @param amount Amount of scrolling
          */
-        void scroll(float dy);
+        void scroll(float amount);
 
         bool is_hovering_over_rect(const primitive::Rectangle& rect) const;
 
@@ -97,8 +97,8 @@ namespace reig::detail {
         friend class ::reig::Context;
         friend class ::reig::detail::MouseButton;
 
-        Context& mContext;
-        primitive::Point mCursorPos;
+        Context& _context;
+        primitive::Point _cursor_pos;
         float _scrolled = 0.0f;
     };
 }
