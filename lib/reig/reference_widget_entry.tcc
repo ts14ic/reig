@@ -43,13 +43,13 @@ namespace reig::reference_widget {
 
             Key keyType = ctx.keyboard.get_pressed_key_type();
             switch (keyType) {
-                case Key::CHAR: {
+                case Key::kChar: {
                     value += ctx.keyboard.get_pressed_char();
                     output = EntryOuput::MODIFIED;
                     break;
                 }
 
-                case Key::BACKSPACE: {
+                case Key::kBackspace: {
                     using std::empty;
                     if (!empty(value)) {
                         value.pop_back();
@@ -58,12 +58,12 @@ namespace reig::reference_widget {
                     break;
                 }
 
-                case Key::RETURN: {
+                case Key::kReturn: {
                     output = EntryOuput::SUBMITTED;
                     break;
                 }
 
-                case Key::ESCAPE: {
+                case Key::kEscape: {
                     ctx.mouse.leftButton.press(outlineArea.x, outlineArea.y);
                     ctx.mouse.leftButton.release();
                     output = EntryOuput::CANCELLED;

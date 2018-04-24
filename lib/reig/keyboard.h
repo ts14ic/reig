@@ -6,15 +6,15 @@
 
 namespace reig {
     enum class Key {
-        NONE,
-        CHAR,
-        RETURN,
-        BACKSPACE,
-        ESCAPE
+        kNone,
+        kChar,
+        kReturn,
+        kBackspace,
+        kEscape
     };
 
     enum class KeyModifier {
-        SHIFT
+        kShift
     };
 
     namespace detail {
@@ -56,7 +56,7 @@ namespace reig {
             void reset();
 
             std::vector<KeyModifier> mModifiers;
-            Key mSpecialKey = Key::NONE;
+            Key mSpecialKey = Key::kNone;
             int mKeyCode = 0;
         };
     }

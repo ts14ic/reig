@@ -6,11 +6,11 @@
 namespace reig::detail {
     void Keyboard::press_key(int key) {
         mKeyCode = key;
-        mSpecialKey = Key::NONE;
+        mSpecialKey = Key::kNone;
     }
 
     void Keyboard::press_special_key(Key key) {
-        if (key != Key::CHAR) {
+        if (key != Key::kChar) {
             mKeyCode = 0;
             mSpecialKey = key;
         }
@@ -24,7 +24,7 @@ namespace reig::detail {
 
     void Keyboard::reset() {
         mKeyCode = 0;
-        mSpecialKey = Key::NONE;
+        mSpecialKey = Key::kNone;
         mModifiers.clear();
     }
 
@@ -37,11 +37,11 @@ namespace reig::detail {
     Key Keyboard::get_pressed_key_type() const {
         int from = ' ';
         int to = from + 95;
-        return mKeyCode >= from && mKeyCode < to ? Key::CHAR : mSpecialKey;
+        return mKeyCode >= from && mKeyCode < to ? Key::kChar : mSpecialKey;
     }
 
     int Keyboard::get_pressed_char() const {
-        if (is_modifier_pressed(KeyModifier::SHIFT)) {
+        if (is_modifier_pressed(KeyModifier::kShift)) {
             return shift_to_upper(mKeyCode);
         } else {
             return mKeyCode;

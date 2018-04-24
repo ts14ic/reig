@@ -197,17 +197,17 @@ private:
     void handle_key_event(SDL_Event& evt) {
         switch (evt.key.keysym.sym) {
             case SDLK_RETURN: {
-                mGui.ctx.keyboard.press_special_key(reig::Key::RETURN);
+                mGui.ctx.keyboard.press_special_key(reig::Key::kReturn);
                 break;
             }
 
             case SDLK_BACKSPACE: {
-                mGui.ctx.keyboard.press_special_key(reig::Key::BACKSPACE);
+                mGui.ctx.keyboard.press_special_key(reig::Key::kBackspace);
                 break;
             }
 
             case SDLK_ESCAPE: {
-                mGui.ctx.keyboard.press_special_key(reig::Key::ESCAPE);
+                mGui.ctx.keyboard.press_special_key(reig::Key::kEscape);
                 break;
             }
 
@@ -217,7 +217,7 @@ private:
             }
         }
         if (evt.key.keysym.mod & KMOD_SHIFT) { // NOLINT
-            mGui.ctx.keyboard.press_modifier(reig::KeyModifier::SHIFT);
+            mGui.ctx.keyboard.press_modifier(reig::KeyModifier::kShift);
         }
     }
 
