@@ -40,8 +40,8 @@ namespace reig {
     private:
         friend Config;
 
-        primitive::Color mWindowBackgroundColor = primitive::colors::transparent;
-        primitive::Color mTitleBackgroundColor = primitive::colors::white;
+        primitive::Color mWindowBackgroundColor = primitive::colors::kTransparent;
+        primitive::Color mTitleBackgroundColor = primitive::colors::kWhite;
         bool mWindowsTextured = false;
         int mWindowBackgroundTexture = 0;
         int mTitleBackgroundTexture = 0;

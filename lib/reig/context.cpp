@@ -234,7 +234,7 @@ namespace reig {
             } else {
                 render_rectangle(currentWindow.drawData, headerRect, frameColor);
             }
-            render_triangle(currentWindow.drawData, headerTriangle, colors::lightGrey);
+            render_triangle(currentWindow.drawData, headerTriangle, colors::kLightGrey);
             render_text(currentWindow.drawData, currentWindow.title, titleRect);
             if (mConfig.mWindowsTextured) {
                 render_rectangle(currentWindow.drawData, bodyRect, mConfig.mWindowBackgroundTexture);
