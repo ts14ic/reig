@@ -33,7 +33,7 @@ namespace reig::reference_widget {
      * @param boundingBox Text's bounding box
      */
     void label(Context& ctx, char const* title, primitive::Rectangle boundingBox,
-               text::Alignment alignment = text::Alignment::CENTER, float fontScale = 1.f);
+               text::Alignment alignment = text::Alignment::kCenter, float fontScale = 1.f);
 
     /**
      * @brief Renders a slider.

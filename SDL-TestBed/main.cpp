@@ -242,12 +242,12 @@ private:
     float mFontScale = 1.0f;
 
     void draw_gui() {
-        widget::label(mGui.ctx, mFpsString.c_str(), {0, 0, 128, 32}, reig::text::Alignment::CENTER);
+        widget::label(mGui.ctx, mFpsString.c_str(), {0, 0, 128, 32}, reig::text::Alignment::kCenter);
 
         widget::slider(mGui.ctx, {350, 680, 300, 20}, colors::kGreen, mFontScale, 0.0f, 2.0f, 0.05f);
         primitive::Rectangle rect{0, 700, 1000, 40};
         widget::label(mGui.ctx, "The quick brown fox jumps over the lazy dog", rect,
-                      reig::text::Alignment::CENTER, mFontScale);
+                      reig::text::Alignment::kCenter, mFontScale);
 
         draw_buttons();
         draw_checkboxes();
@@ -295,9 +295,9 @@ private:
         rect = {rect.x + 80, rect.y + 50, 50, 50};
         static bool checkBox2 = true;
         if (widget::checkbox(mGui.ctx, rect, color, checkBox2)) {
-            widget::label(mGui.ctx, "o!", {rect.x + rect.width + 5, rect.y, 50, rect.height}, reig::text::Alignment::LEFT);
+            widget::label(mGui.ctx, "o!", {rect.x + rect.width + 5, rect.y, 50, rect.height}, reig::text::Alignment::kLeft);
         } else {
-            widget::label(mGui.ctx, "o-O-o!", {rect.x + rect.width + 5, rect.y, 50, rect.height}, reig::text::Alignment::LEFT);
+            widget::label(mGui.ctx, "o-O-o!", {rect.x + rect.width + 5, rect.y, 50, rect.height}, reig::text::Alignment::kLeft);
         }
 
         color = colors::kWhite;
@@ -372,7 +372,7 @@ private:
 
         start_window(mListWindow);
 
-        widget::label(mGui.ctx, "Show list:", {0, 0, 80, 30}, reig::text::Alignment::LEFT);
+        widget::label(mGui.ctx, "Show list:", {0, 0, 80, 30}, reig::text::Alignment::kLeft);
         if (widget::checkbox(mGui.ctx, {85, 0, 30, 30}, colors::kWhite, listShown)) {
             primitive::Rectangle rect = {0, 35, 280, 280};
             widget::list(mGui.ctx, "Test", rect, colors::kBlue, foos,

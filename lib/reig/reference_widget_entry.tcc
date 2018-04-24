@@ -95,14 +95,14 @@ namespace reig::reference_widget {
         }
         ctx.render_rectangle(model.baseArea, primaryColor);
         if (model.isSelected) {
-            float caretX = ctx.render_text(valueRef.c_str(), model.baseArea, text::Alignment::LEFT);
+            float caretX = ctx.render_text(valueRef.c_str(), model.baseArea, text::Alignment::kLeft);
 
             Rectangle caretArea = model.caretArea;
             caretArea.x = caretX;
             trim_rect_in_other(caretArea, model.baseArea);
             ctx.render_rectangle(caretArea, secondaryColor);
         } else {
-            ctx.render_text(valueRef.empty() ? title : valueRef.c_str(), model.baseArea, text::Alignment::LEFT);
+            ctx.render_text(valueRef.empty() ? title : valueRef.c_str(), model.baseArea, text::Alignment::kLeft);
         }
     }
 }

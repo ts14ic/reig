@@ -380,12 +380,12 @@ namespace reig {
         }
 
         float horizontalAlignment =
-                has_alignment(alignment, text::Alignment::RIGHT) ? rect.width - textWidth :
-                has_alignment(alignment, text::Alignment::LEFT) ? 0.0f :
+                has_alignment(alignment, text::Alignment::kRight) ? rect.width - textWidth :
+                has_alignment(alignment, text::Alignment::kLeft) ? 0.0f :
                 (rect.width - textWidth) * 0.5f;
         float verticalAlignment =
-                has_alignment(alignment, text::Alignment::TOP) ? -(rect.height - textHeight) :
-                has_alignment(alignment, text::Alignment::BOTTOM) ? 0.0f :
+                has_alignment(alignment, text::Alignment::kTop) ? -(rect.height - textHeight) :
+                has_alignment(alignment, text::Alignment::kBottom) ? 0.0f :
                 (rect.height - textHeight) * -0.5f;
 
         render_text_quads(drawData, quads, horizontalAlignment, verticalAlignment, mFont.mTextureId);

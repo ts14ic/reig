@@ -109,7 +109,7 @@ namespace reig {
          * @param rect Text's bounding box
          * @return x coordinate after printing
          */
-        float render_text(const char* text, primitive::Rectangle rect, text::Alignment alignment = text::Alignment::CENTER, float scale = 1.f);
+        float render_text(const char* text, primitive::Rectangle rect, text::Alignment alignment = text::Alignment::kCenter, float scale = 1.f);
 
         /**
          * @brief Schedules a rectangle drawing
@@ -136,7 +136,7 @@ namespace reig {
         DrawData& get_current_draw_data_buffer();
 
         float render_text(DrawData& drawData, const char* text, primitive::Rectangle rect,
-                          text::Alignment alignment = text::Alignment::CENTER, float scale = 1.0f);
+                          text::Alignment alignment = text::Alignment::kCenter, float scale = 1.0f);
 
         static void render_rectangle(DrawData& drawData, const primitive::Rectangle& rect,
                                      const primitive::Color& color);
