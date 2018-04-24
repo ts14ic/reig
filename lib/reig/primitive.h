@@ -159,19 +159,19 @@ namespace reig::primitive {
         #pragma GCC diagnostic ignored "-Wunknown-pragmas"
         #pragma clang diagnostic push
         #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
-        Color constexpr transparent{0, 0, 0, 0};
-        Color constexpr red        {239, 41,  41};
-        Color constexpr orange     {252, 175, 62};
-        Color constexpr yellow     {252, 233, 79};
-        Color constexpr green      {138, 226, 52};
-        Color constexpr blue       {114, 159, 207};
-        Color constexpr violet     {173, 127, 168};
-        Color constexpr brown      {143, 89,  2};
-        Color constexpr white      {255, 255, 255};
-        Color constexpr lightGrey  {186, 189, 182};
-        Color constexpr mediumGrey {136, 138, 133};
-        Color constexpr darkGrey   {46,  52,  54};
-        Color constexpr black      {0,   0,   0};
+        Color constexpr kTransparent{0, 0, 0, 0};
+        Color constexpr kRed        {239, 41,  41};
+        Color constexpr kOrange     {252, 175, 62};
+        Color constexpr kYellow     {252, 233, 79};
+        Color constexpr kGreen      {138, 226, 52};
+        Color constexpr kBlue       {114, 159, 207};
+        Color constexpr kViolet     {173, 127, 168};
+        Color constexpr kBrown      {143, 89,  2};
+        Color constexpr kWhite      {255, 255, 255};
+        Color constexpr kLightGrey  {186, 189, 182};
+        Color constexpr kMediumGrey {136, 138, 133};
+        Color constexpr kDarkGrey   {46,  52,  54};
+        Color constexpr kBlack      {0,   0,   0};
         #pragma clang diagnostic pop
         #pragma GCC diagnostic pop
         // @formatter:on

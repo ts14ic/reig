@@ -80,7 +80,7 @@ private:
     void setup_reig() {
         mGui.ctx.set_config(reig::Config::builder()
                                     .fontBitmapSizes(1024, 1024)
-                                    .windowColors(colors::red | 200_a, colors::white | 50_a)
+                                    .windowColors(colors::kRed | 200_a, colors::kWhite | 50_a)
                                     .build());
         mGui.ctx.set_render_handler(&gui_handler);
         mGui.ctx.set_user_ptr(this);
@@ -244,7 +244,7 @@ private:
     void draw_gui() {
         widget::label(mGui.ctx, mFpsString.c_str(), {0, 0, 128, 32}, reig::text::Alignment::CENTER);
 
-        widget::slider(mGui.ctx, {350, 680, 300, 20}, colors::green, mFontScale, 0.0f, 2.0f, 0.05f);
+        widget::slider(mGui.ctx, {350, 680, 300, 20}, colors::kGreen, mFontScale, 0.0f, 2.0f, 0.05f);
         primitive::Rectangle rect{0, 700, 1000, 40};
         widget::label(mGui.ctx, "The quick brown fox jumps over the lazy dog", rect,
                       reig::text::Alignment::CENTER, mFontScale);
@@ -300,7 +300,7 @@ private:
             widget::label(mGui.ctx, "o-O-o!", {rect.x + rect.width + 5, rect.y, 50, rect.height}, reig::text::Alignment::LEFT);
         }
 
-        color = colors::white;
+        color = colors::kWhite;
         rect = {rect.x + 80, rect.y - 50, 25, 25};
         static bool checkBox3 = false;
         widget::checkbox(mGui.ctx, rect, color, checkBox3);
@@ -334,10 +334,10 @@ private:
         static float scrollValue0 = 0.0f;
 
         rect = {0, 5, 30, 200};
-        widget::scrollbar(mGui.ctx, rect, colors::black, scrollValue0, 1000.0f);
+        widget::scrollbar(mGui.ctx, rect, colors::kBlack, scrollValue0, 1000.0f);
 
         rect = {rect.x + 50, rect.y + 150, rect.height, rect.width};
-        widget::scrollbar(mGui.ctx, rect, colors::black, scrollValue0, 1000.0f);
+        widget::scrollbar(mGui.ctx, rect, colors::kBlack, scrollValue0, 1000.0f);
     }
 
     void draw_text_entries() {
@@ -348,12 +348,12 @@ private:
         using reig::reference_widget::EntryOuput;
 
         static std::string entry1;
-        if (widget::entry(mGui.ctx, "Entry 1", rect, colors::violet, entry1) == EntryOuput::MODIFIED) {
+        if (widget::entry(mGui.ctx, "Entry 1", rect, colors::kViolet, entry1) == EntryOuput::MODIFIED) {
             std::cout << "Entry 1: " << entry1 << '\n';
         }
 
         rect.y += 50;
-        if (widget::entry(mGui.ctx, "Entry 2", rect, colors::black, mTextEntryWindow.title) == EntryOuput::MODIFIED) {
+        if (widget::entry(mGui.ctx, "Entry 2", rect, colors::kBlack, mTextEntryWindow.title) == EntryOuput::MODIFIED) {
             std::cout << "Entry 2: " << mTextEntryWindow.title << '\n';
         }
     }
@@ -373,9 +373,9 @@ private:
         start_window(mListWindow);
 
         widget::label(mGui.ctx, "Show list:", {0, 0, 80, 30}, reig::text::Alignment::LEFT);
-        if (widget::checkbox(mGui.ctx, {85, 0, 30, 30}, colors::white, listShown)) {
+        if (widget::checkbox(mGui.ctx, {85, 0, 30, 30}, colors::kWhite, listShown)) {
             primitive::Rectangle rect = {0, 35, 280, 280};
-            widget::list(mGui.ctx, "Test", rect, colors::blue, foos,
+            widget::list(mGui.ctx, "Test", rect, colors::kBlue, foos,
                          [](const Foo& foo) {
                              return foo.name.c_str();
                          },
@@ -386,7 +386,7 @@ private:
             using reig::reference_widget::EntryOuput;
 
             rect = {rect.x, rect.y + rect.height + 10, rect.width - 120, 40};
-            switch (widget::entry(mGui.ctx, "Add item", rect, colors::darkGrey, itemName)) {
+            switch (widget::entry(mGui.ctx, "Add item", rect, colors::kDarkGrey, itemName)) {
                 case EntryOuput::SUBMITTED: {
                     foos.push_back(Foo{itemName});
                     break;
@@ -402,12 +402,12 @@ private:
             }
 
             rect = {rect.x + rect.width + 5, rect.y, 35, 40};
-            if (widget::button(mGui.ctx, "+", rect, colors::yellow)) {
+            if (widget::button(mGui.ctx, "+", rect, colors::kYellow)) {
                 foos.push_back(Foo{std::to_string(foos.size())});
             }
 
             rect = {0, rect.y + rect.height + 5, 280, 40};
-            if (widget::button(mGui.ctx, "Remove last", rect, colors::red)) {
+            if (widget::button(mGui.ctx, "Remove last", rect, colors::kRed)) {
                 if (!foos.empty()) {
                     foos.pop_back();
                 }
