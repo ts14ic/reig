@@ -1,7 +1,7 @@
 #ifndef REIG_CONFIG_H
 #define REIG_CONFIG_H
 
-#include "fwd.h"
+#include "context_fwd.h"
 #include "primitive.h"
 
 namespace reig {

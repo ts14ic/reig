@@ -1,7 +1,7 @@
 #ifndef REIG_CONTEXT_H
 #define REIG_CONTEXT_H
 
-#include "fwd.h"
+#include "context_fwd.h"
 #include "window.h"
 #include "mouse.h"
 #include "keyboard.h"

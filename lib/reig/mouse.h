@@ -2,7 +2,7 @@
 #define REIG_MOUSE_H
 
 #include "primitive.h"
-#include "fwd.h"
+#include "context_fwd.h"
 
 namespace reig::detail {
     class Mouse;

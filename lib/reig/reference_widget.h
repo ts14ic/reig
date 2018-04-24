@@ -1,7 +1,7 @@
 #ifndef REIG_REFERENCE_WIDGET_H
 #define REIG_REFERENCE_WIDGET_H
 
-#include "fwd.h"
+#include "context_fwd.h"
 #include "text.h"
 #include "primitive.h"
 

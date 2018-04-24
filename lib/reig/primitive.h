@@ -1,7 +1,7 @@
 #ifndef REIG_PRIMITIVE_H
 #define REIG_PRIMITIVE_H
 
-#include "fwd.h"
+#include "context_fwd.h"
 #include <vector>
 #include <array>
 
