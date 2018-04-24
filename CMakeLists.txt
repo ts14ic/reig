@@ -9,7 +9,6 @@ set(CMAKE_CXX_COMPILER clang++)
 add_library(reig_lib
         lib/reig/stb_truetype.h
         lib/reig/fwd.h
-        lib/reig/defs.h
         lib/reig/primitive.h lib/reig/primitive.cpp
         lib/reig/mouse.h lib/reig/mouse.cpp
         lib/reig/keyboard.h lib/reig/keyboard.cpp

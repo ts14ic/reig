@@ -2,7 +2,6 @@
 #define REIG_CONTEXT_H
 
 #include "fwd.h"
-#include "defs.h"
 #include "window.h"
 #include "mouse.h"
 #include "keyboard.h"

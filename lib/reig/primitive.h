@@ -1,7 +1,6 @@
 #ifndef REIG_PRIMITIVE_H
 #define REIG_PRIMITIVE_H
 
-#include "defs.h"
 #include "fwd.h"
 #include <vector>
 #include <array>
