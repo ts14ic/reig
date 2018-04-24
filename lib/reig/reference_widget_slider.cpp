@@ -11,110 +11,109 @@ namespace reig::reference_widget {
         float max = 0.0f;
         float value = 0.0f;
         int offset = 0;
-        int valuesNum = 0;
+        int num_values = 0;
     };
 
-    SliderValues prepare_slider_values(float aMin, float aMax, float aValue, float aStep) {
-        float min = math::min(aMin, aMax);
-        float max = math::max(aMin, aMax);
+    SliderValues prepare_slider_values(float min, float max, float value, float step) {
+        float min_end = math::min(min, max);
+        float max_end = math::max(min, max);
         return SliderValues{
-                min, max, math::clamp(aValue, min, max),
-                static_cast<int>((aValue - min) / aStep),
-                static_cast<int>((max - min) / aStep + 1)
+                min_end, max_end, math::clamp(value, min_end, max_end),
+                static_cast<int>((value - min_end) / step),
+                static_cast<int>((max_end - min_end) / step + 1)
         };
     };
 
-    void size_slider_cursor(float& coord, float& size, int valuesNum, int offset) {
-        size /= valuesNum;
+    void size_slider_cursor(float& coord, float& size, int num_values, int offset) {
+        size /= num_values;
         if (size < 1) size = 1;
         coord += offset * size;
     }
 
-    float get_distance_to_slider(float mouseCursorCoord, float cursorSize, float sliderCursorCoord) {
-        auto halfCursorSize = cursorSize / 2;
-        sliderCursorCoord += halfCursorSize;
-        return mouseCursorCoord - sliderCursorCoord;
+    float get_distance_to_slider(float mouse_cursor_coord, float cursor_size, float slider_cursor_coord) {
+        auto half_cursor_size = cursor_size / 2;
+        slider_cursor_coord += half_cursor_size;
+        return mouse_cursor_coord - slider_cursor_coord;
     }
 
-    void progress_slider_value(float mouseCursorCoord, float cursorSize,
-                               float sliderCursorCoord, float step, float& value) {
-        float distance = get_distance_to_slider(mouseCursorCoord, cursorSize, sliderCursorCoord);
-        if (math::abs(distance) > cursorSize / 2) {
-            value += static_cast<int>(distance / cursorSize) * step;
+    void progress_slider_value(float mouse_cursor_coord, float cursor_size,
+                               float slider_cursor_coord, float step, float& value) {
+        float distance = get_distance_to_slider(mouse_cursor_coord, cursor_size, slider_cursor_coord);
+        if (math::abs(distance) > cursor_size / 2) {
+            value += static_cast<int>(distance / cursor_size) * step;
         }
     }
 
     enum class SliderOrientation {
-        HORIZONTAL, VERTICAL
+        kHorizontal, kVertical
     };
 
     SliderOrientation calculate_slider_orientation(const Rectangle& rect) {
         return rect.height > rect.width
-               ? SliderOrientation::VERTICAL
-               : SliderOrientation::HORIZONTAL;
+               ? SliderOrientation::kVertical
+               : SliderOrientation::kHorizontal;
     }
 
     struct SliderModel {
-        Rectangle baseArea;
-        Rectangle outlineArea;
-        Rectangle cursorArea;
-        bool hoveringOverCursor = false;
-        bool holdingClickOnSlider = false;
-        bool valueChanged = false;
+        Rectangle base_area;
+        Rectangle outline_area;
+        Rectangle cursor_area;
+        bool is_hovering_over_area = false;
+        bool is_holding_click = false;
+        bool has_value_changed = false;
     };
 
-    SliderModel tweak_slider_model(Context& ctx, float& aValueRef, const SliderValues& values,
-                                   Rectangle outlineArea, Rectangle baseArea, Rectangle cursorArea) {
-        bool hoveringOverCursor = ctx.mouse.is_hovering_over_rect(outlineArea);
-        bool holdingClickOnSlider = ctx.mouse.left_button.clicked_in_rect(outlineArea)
+    SliderModel tweak_slider_model(Context& ctx, float& value_ref, const SliderValues& values,
+                                   Rectangle outline_area, Rectangle base_area, Rectangle cursor_area) {
+        bool is_hovering_over_area = ctx.mouse.is_hovering_over_rect(outline_area);
+        bool is_holding_click_on_slider = ctx.mouse.left_button.clicked_in_rect(outline_area)
                                     && ctx.mouse.left_button.is_held();
 
-        if (holdingClickOnSlider) {
-            baseArea = decrease_rect(baseArea, 2);
-            cursorArea = decrease_rect(cursorArea, 4);
+        if (is_holding_click_on_slider) {
+            base_area = decrease_rect(base_area, 2);
+            cursor_area = decrease_rect(cursor_area, 4);
         }
 
-        bool valueChanged = false;
-        if (aValueRef != values.value) {
-            aValueRef = math::clamp(values.value, values.min, values.max);
-            valueChanged = true;
+        bool has_value_changed = false;
+        if (value_ref != values.value) {
+            value_ref = math::clamp(values.value, values.min, values.max);
+            has_value_changed = true;
         }
 
-        return {baseArea, outlineArea, cursorArea, hoveringOverCursor, holdingClickOnSlider, valueChanged};
+        return {base_area, outline_area, cursor_area, is_hovering_over_area, is_holding_click_on_slider, has_value_changed};
     }
 
-    SliderModel get_slider_model(Context& ctx, Rectangle outlineArea, float& aValueRef, float aMin, float aMax, float aStep) {
-        ctx.fit_rect_in_window(outlineArea);
+    SliderModel get_slider_model(Context& ctx, Rectangle outline_area, float& value_ref, float min, float max, float step) {
+        ctx.fit_rect_in_window(outline_area);
+        Rectangle base_area = decrease_rect(outline_area, 4);
 
-        Rectangle baseArea = decrease_rect(outlineArea, 4);
+        auto values = prepare_slider_values(min, max, value_ref, step);
 
-        auto values = prepare_slider_values(aMin, aMax, aValueRef, aStep);
+        SliderOrientation orientation = calculate_slider_orientation(base_area);
 
-        SliderOrientation orientation = calculate_slider_orientation(baseArea);
-
-        auto cursorArea = decrease_rect(baseArea, 4);
-        if (orientation == SliderOrientation::HORIZONTAL) {
-            size_slider_cursor(cursorArea.x, cursorArea.width, values.valuesNum, values.offset);
+        auto cursor_area = decrease_rect(base_area, 4);
+        if (orientation == SliderOrientation::kHorizontal) {
+            size_slider_cursor(cursor_area.x, cursor_area.width, values.num_values, values.offset);
         } else {
-            size_slider_cursor(cursorArea.y, cursorArea.height, values.valuesNum, values.offset);
+            size_slider_cursor(cursor_area.y, cursor_area.height, values.num_values, values.offset);
         }
 
-        bool hoveringOverCursor = ctx.mouse.is_hovering_over_rect(outlineArea);
-        bool holdingClickOnSlider = ctx.mouse.left_button.clicked_in_rect(outlineArea)
-                                    && ctx.mouse.left_button.is_held();
+        bool is_hovering_over_area = ctx.mouse.is_hovering_over_rect(outline_area);
+        bool is_holding_click_on_slider = ctx.mouse.left_button.clicked_in_rect(outline_area)
+                                          && ctx.mouse.left_button.is_held();
 
-        if (holdingClickOnSlider) {
-            if (orientation == SliderOrientation::HORIZONTAL) {
-                progress_slider_value(ctx.mouse.get_cursor_pos().x, cursorArea.width, cursorArea.x,
-                                      aStep, values.value);
+        if (is_holding_click_on_slider) {
+            if (orientation == SliderOrientation::kHorizontal) {
+                progress_slider_value(ctx.mouse.get_cursor_pos().x, cursor_area.width, cursor_area.x,
+                                      step, values.value);
             } else {
-                progress_slider_value(ctx.mouse.get_cursor_pos().y, cursorArea.height, cursorArea.y,
-                                      aStep, values.value);
+                progress_slider_value(ctx.mouse.get_cursor_pos().y, cursor_area.height, cursor_area.y,
+                                      step, values.value);
             }
-        } else if (ctx.mouse.get_scrolled() != 0 && hoveringOverCursor) {
-            values.value += static_cast<int>(ctx.mouse.get_scrolled()) * aStep;
+        } else if (ctx.mouse.get_scrolled() != 0 && is_hovering_over_area) {
+            values.value += static_cast<int>(ctx.mouse.get_scrolled()) * step;
         }
-        return tweak_slider_model(ctx, aValueRef, values, outlineArea, baseArea, cursorArea);
+        return tweak_slider_model(ctx, value_ref, values, outline_area, base_area, cursor_area);
     }
 
     void size_scrollbar_cursor(float& coord, float& size, float step, int offset, float viewSize) {
@@ -126,76 +125,76 @@ namespace reig::reference_widget {
         }
     }
 
-    SliderValues prepare_scrollbar_values(float maxScroll, float value, float step) {
+    SliderValues prepare_scrollbar_values(float max_scroll, float value, float step) {
         float min = 0.0f;
-        float max = math::max(0.f, maxScroll);
-        float clampedValue = math::clamp(value, min, max);
+        float max = math::max(0.f, max_scroll);
+        float clamped_value = math::clamp(value, min, max);
         return SliderValues{
-                min, max, clampedValue,
+                min, max, clamped_value,
                 static_cast<int>((value - min) / step),
                 static_cast<int>((max - min) / step + 1)
         };
     }
 
-    void progress_scrollbar_value(float mouseCursorCoord, float cursorSize,
-                                  float sliderCursorCoord, float step, float& value) {
-        float distance = get_distance_to_slider(mouseCursorCoord, cursorSize, sliderCursorCoord);
-        if (math::abs(distance) > cursorSize / 2) {
-            value += static_cast<int>(distance * step) / cursorSize;
+    void progress_scrollbar_value(float mouse_cursor_coord, float cursor_size,
+                                  float slider_cursor_coord, float step, float& value) {
+        float distance = get_distance_to_slider(mouse_cursor_coord, cursor_size, slider_cursor_coord);
+        if (math::abs(distance) > cursor_size / 2) {
+            value += static_cast<int>(distance * step) / cursor_size;
         }
     }
 
-    SliderModel get_scrollbar_model(Context& ctx, Rectangle outlineArea, float viewSize, float& aValueRef) {
-        ctx.fit_rect_in_window(outlineArea);
-        Rectangle baseArea = decrease_rect(outlineArea, 4);
+    SliderModel get_scrollbar_model(Context& ctx, Rectangle outline_area, float view_size, float& value_ref) {
+        ctx.fit_rect_in_window(outline_area);
+        Rectangle base_area = decrease_rect(outline_area, 4);
 
         auto step = ctx.get_font_size();
 
-        SliderOrientation orientation = calculate_slider_orientation(baseArea);
+        SliderOrientation orientation = calculate_slider_orientation(base_area);
         SliderValues values;
-        if (orientation == SliderOrientation::VERTICAL) {
-            values = prepare_scrollbar_values(viewSize - baseArea.height, aValueRef, step);
+        if (orientation == SliderOrientation::kVertical) {
+            values = prepare_scrollbar_values(view_size - base_area.height, value_ref, step);
         } else {
-            values = prepare_scrollbar_values(viewSize - baseArea.width, aValueRef, step);
+            values = prepare_scrollbar_values(view_size - base_area.width, value_ref, step);
         }
 
-        auto cursorArea = decrease_rect(baseArea, 4);
-        if (orientation == SliderOrientation::HORIZONTAL) {
-            size_scrollbar_cursor(cursorArea.x, cursorArea.width, step, values.offset, viewSize);
+        auto cursor_area = decrease_rect(base_area, 4);
+        if (orientation == SliderOrientation::kHorizontal) {
+            size_scrollbar_cursor(cursor_area.x, cursor_area.width, step, values.offset, view_size);
         } else {
-            size_scrollbar_cursor(cursorArea.y, cursorArea.height, step, values.offset, viewSize);
+            size_scrollbar_cursor(cursor_area.y, cursor_area.height, step, values.offset, view_size);
         }
 
-        bool hoveringOverCursor = ctx.mouse.is_hovering_over_rect(outlineArea);
-        bool holdingClickOnSlider = ctx.mouse.left_button.clicked_in_rect(outlineArea)
-                                    && ctx.mouse.left_button.is_held();
+        bool is_hovering_over_area = ctx.mouse.is_hovering_over_rect(outline_area);
+        bool is_holding_click_on_slider = ctx.mouse.left_button.clicked_in_rect(outline_area)
+                                          && ctx.mouse.left_button.is_held();
 
-        if (holdingClickOnSlider) {
-            if (orientation == SliderOrientation::HORIZONTAL) {
-                progress_scrollbar_value(ctx.mouse.get_cursor_pos().x, cursorArea.width, cursorArea.x,
+        if (is_holding_click_on_slider) {
+            if (orientation == SliderOrientation::kHorizontal) {
+                progress_scrollbar_value(ctx.mouse.get_cursor_pos().x, cursor_area.width, cursor_area.x,
                                          step, values.value);
             } else {
-                progress_scrollbar_value(ctx.mouse.get_cursor_pos().y, cursorArea.height, cursorArea.y,
+                progress_scrollbar_value(ctx.mouse.get_cursor_pos().y, cursor_area.height, cursor_area.y,
                                          step, values.value);
             }
-        } else if (ctx.mouse.get_scrolled() != 0 && hoveringOverCursor) {
+        } else if (ctx.mouse.get_scrolled() != 0 && is_hovering_over_area) {
             values.value += static_cast<int>(ctx.mouse.get_scrolled()) * step;
         }
-        return tweak_slider_model(ctx, aValueRef, values, outlineArea, baseArea, cursorArea);
+        return tweak_slider_model(ctx, value_ref, values, outline_area, base_area, cursor_area);
     }
 
     void draw_slider_model(Context& ctx, const SliderModel& model, const Color& baseColor) {
-        Color frameColor = colors::get_yiq_contrast(baseColor);
-        ctx.render_rectangle(model.outlineArea, frameColor);
-        ctx.render_rectangle(model.baseArea, baseColor);
+        Color frame_color = colors::get_yiq_contrast(baseColor);
+        ctx.render_rectangle(model.outline_area, frame_color);
+        ctx.render_rectangle(model.base_area, baseColor);
 
-        if (model.hoveringOverCursor) {
-            frameColor = colors::lighten_color_by(frameColor, 30);
+        if (model.is_hovering_over_area) {
+            frame_color = colors::lighten_color_by(frame_color, 30);
         }
-        if (model.holdingClickOnSlider) {
-            frameColor = colors::lighten_color_by(frameColor, 30);
+        if (model.is_holding_click) {
+            frame_color = colors::lighten_color_by(frame_color, 30);
         }
-        ctx.render_rectangle(model.cursorArea, frameColor);
+        ctx.render_rectangle(model.cursor_area, frame_color);
     }
 
     bool slider(Context& ctx, Rectangle bounding_box, Color base_color,
@@ -204,7 +203,7 @@ namespace reig::reference_widget {
 
         draw_slider_model(ctx, model, base_color);
 
-        return model.valueChanged;
+        return model.has_value_changed;
     }
 
     bool scrollbar(Context& ctx, Rectangle bounding_box, Color base_color,
@@ -213,16 +212,16 @@ namespace reig::reference_widget {
 
         draw_slider_model(ctx, model, base_color);
 
-        return model.valueChanged;
+        return model.has_value_changed;
     }
 
     bool textured_slider(Context& ctx, Rectangle bounding_box, int base_texture, int cursor_texture,
                               float& value_ref, float min, float max, float step) {
         auto model = get_slider_model(ctx, bounding_box, value_ref, min, max, step);
 
-        ctx.render_rectangle(model.outlineArea, base_texture);
-        ctx.render_rectangle(model.cursorArea, cursor_texture);
+        ctx.render_rectangle(model.outline_area, base_texture);
+        ctx.render_rectangle(model.cursor_area, cursor_texture);
 
-        return model.valueChanged;
+        return model.has_value_changed;
     }
 }
