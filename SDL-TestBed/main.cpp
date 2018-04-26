@@ -126,27 +126,27 @@ private:
                 for(auto i = 0ul; i < number; i += 3) {
                     filledTrigonColor(
                         self->mSdl.renderer,
-                        vertices[indices[i  ]].position.x,
-                        vertices[indices[i  ]].position.y,
-                        vertices[indices[i+1]].position.x,
-                        vertices[indices[i+1]].position.y,
-                        vertices[indices[i+2]].position.x,
-                        vertices[indices[i+2]].position.y,
+                        static_cast<Sint16>(vertices[indices[i  ]].position.x),
+                        static_cast<Sint16>(vertices[indices[i  ]].position.y),
+                        static_cast<Sint16>(vertices[indices[i+1]].position.x),
+                        static_cast<Sint16>(vertices[indices[i+1]].position.y),
+                        static_cast<Sint16>(vertices[indices[i+2]].position.x),
+                        static_cast<Sint16>(vertices[indices[i+2]].position.y),
                         colors::to_uint(vertices[i].color)
                     );
                 }
             }
             else if(fig.texture() == self->mGui.font.id) {
                 SDL_Rect src;
-                src.x = vertices[0].texCoord.x * self->mGui.font.data.width;
-                src.y = vertices[0].texCoord.y * self->mGui.font.data.height;
-                src.w = vertices[2].texCoord.x * self->mGui.font.data.width  - src.x;
-                src.h = vertices[2].texCoord.y * self->mGui.font.data.height - src.y;
+                src.x = static_cast<int>(vertices[0].texCoord.x * self->mGui.font.data.width);
+                src.y = static_cast<int>(vertices[0].texCoord.y * self->mGui.font.data.height);
+                src.w = static_cast<int>(vertices[2].texCoord.x * self->mGui.font.data.width  - src.x);
+                src.h = static_cast<int>(vertices[2].texCoord.y * self->mGui.font.data.height - src.y);
                 SDL_Rect dst;
-                dst.x = vertices[0].position.x;
-                dst.y = vertices[0].position.y;
-                dst.w = vertices[2].position.x - dst.x;
-                dst.h = vertices[2].position.y - dst.y;
+                dst.x = static_cast<int>(vertices[0].position.x);
+                dst.y = static_cast<int>(vertices[0].position.y);
+                dst.w = static_cast<int>(vertices[2].position.x - dst.x);
+                dst.h = static_cast<int>(vertices[2].position.y - dst.y);
                 SDL_RenderCopy(self->mSdl.renderer, self->mGui.font.tex, &src, &dst);
             }
         }
@@ -429,7 +429,8 @@ private:
         int mx, my;
         int state = SDL_GetMouseState(&mx, &my);
         if((state & SDL_BUTTON_LMASK) == SDL_BUTTON_LMASK) { //NOLINT
-            filledCircleRGBA(mSdl.renderer, mx, my, 15, 150, 220, 220, 150);
+            filledCircleRGBA(mSdl.renderer, static_cast<Sint16>(mx), static_cast<Sint16>(my),
+                             15, 150, 220, 220, 150);
         }
 
         SDL_RenderPresent(mSdl.renderer);
