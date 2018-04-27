@@ -6,26 +6,25 @@ using namespace reig::primitive;
 
 namespace reig::reference_widget {
     struct ButtonModel {
-        const Rectangle bounding_box;
         const bool is_hovering_over_area = false;
         const bool has_just_clicked = false;
         const bool is_holding_click = false;
     };
 
-    ButtonModel get_button_model(Context& ctx, Rectangle bounding_box) {
-        ctx.fit_rect_in_window(bounding_box);
+    ButtonModel get_button_model(Context& ctx, Rectangle* bounding_box) {
+        ctx.fit_rect_in_window(*bounding_box);
 
-        bool is_hovering_over_area = ctx.mouse.is_hovering_over_rect(bounding_box);
-        bool has_just_clicked = ctx.mouse.left_button.just_clicked_in_rect(bounding_box);
+        bool is_hovering_over_area = ctx.mouse.is_hovering_over_rect(*bounding_box);
+        bool has_just_clicked = ctx.mouse.left_button.just_clicked_in_rect(*bounding_box);
         bool is_holding_click = is_hovering_over_area
-                             && ctx.mouse.left_button.clicked_in_rect(bounding_box)
+                             && ctx.mouse.left_button.clicked_in_rect(*bounding_box)
                              && ctx.mouse.left_button.is_held();
 
-        return {bounding_box, is_hovering_over_area, has_just_clicked, is_holding_click};
+        return {is_hovering_over_area, has_just_clicked, is_holding_click};
     }
 
     bool button(Context& ctx, const char* title, Rectangle bounding_box, Color base_color) {
-        auto model = get_button_model(ctx, bounding_box);
+        auto model = get_button_model(ctx, &bounding_box);
 
         Color inner_color{base_color};
         if (model.is_hovering_over_area) {
@@ -34,12 +33,12 @@ namespace reig::reference_widget {
         Rectangle base_area;
         if (model.is_holding_click) {
             inner_color = colors::lighten_color_by(inner_color, 30);
-            base_area = decrease_rect(model.bounding_box, 6);
+            base_area = decrease_rect(bounding_box, 6);
         } else {
-            base_area = decrease_rect(model.bounding_box, 4);
+            base_area = decrease_rect(bounding_box, 4);
         }
 
-        ctx.render_rectangle(model.bounding_box, colors::get_yiq_contrast(inner_color));
+        ctx.render_rectangle(bounding_box, colors::get_yiq_contrast(inner_color));
         ctx.render_rectangle(base_area, inner_color);
         ctx.render_text(title, base_area);
 
@@ -48,14 +47,14 @@ namespace reig::reference_widget {
 
     bool textured_button(Context& ctx, const char* title, Rectangle bounding_box,
                          int hover_texture, int base_texture) {
-        auto model = get_button_model(ctx, bounding_box);
+        auto model = get_button_model(ctx, &bounding_box);
 
         int texture = base_texture;
         if (model.is_holding_click || model.is_hovering_over_area) {
             texture = hover_texture;
         }
-        ctx.render_rectangle(model.bounding_box, texture);
-        ctx.render_text(title, model.bounding_box);
+        ctx.render_rectangle(bounding_box, texture);
+        ctx.render_text(title, bounding_box);
 
         return model.has_just_clicked;
     }
