@@ -79,21 +79,21 @@ namespace reig::reference_widget {
      * @brief Renders a checkbox
      * @param bounding_box Checkbox's position and size
      * @param base_color Checkbox's base color
-     * @param value_ref A reference to the bool to be changed
+     * @param value A bool to be represented
      * @return True if value is true
      */
-    bool checkbox(Context& ctx, primitive::Rectangle bounding_box, primitive::Color base_color, bool& value_ref);
+    bool checkbox(Context& ctx, primitive::Rectangle bounding_box, primitive::Color base_color, bool* value);
 
     /**
      * @brief Renders a textured checkbox
      * @param bounding_box Checkbox's position and size
      * @param base_texture Checkbox's base texture
      * @param check_texture Checkbox's filling texture
-     * @param value_ref A reference to the bool to be changed
+     * @param value A reference to the bool to be changed
      * @return True if value is true
      */
     bool textured_checkbox(Context& ctx, primitive::Rectangle bounding_box, int base_texture, int check_texture,
-                           bool& value_ref);
+                           bool* value);
 }
 
 #endif //REIG_REFERENCE_WIDGET_H

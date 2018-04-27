@@ -153,7 +153,7 @@ public:
             float yline = 0; float step = 28;
             ctx.start_window("Cube manipulation", winX, winY);
             
-            if(widget::checkbox(ctx, {0, yline, 25, 25}, colors::kDarkGrey, windowShown)) {
+            if(widget::checkbox(ctx, {0, yline, 25, 25}, colors::kDarkGrey, &windowShown)) {
                 if (widget::button(ctx, "S", {31, yline, 60, 25}, colors::kMediumGrey)) {
                     scaling = 1.f;
                 }

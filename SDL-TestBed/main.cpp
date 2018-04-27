@@ -287,14 +287,14 @@ private:
 
         static bool checkBox1 = false;
 //        if(widget::textured_checkbox{rect, 0, mGui.font.id, checkBox1}.use(mGui.ctx)) {
-        if (widget::checkbox(mGui.ctx, rect, color, checkBox1)) {
+        if (widget::checkbox(mGui.ctx, rect, color, &checkBox1)) {
             widget::label(mGui.ctx, "checked", {rect.x + rect.width + 5, rect.y, 80, rect.height});
         }
 
         color = color - 100_r + 100_g + 100_b;
         rect = {rect.x + 80, rect.y + 50, 50, 50};
         static bool checkBox2 = true;
-        if (widget::checkbox(mGui.ctx, rect, color, checkBox2)) {
+        if (widget::checkbox(mGui.ctx, rect, color, &checkBox2)) {
             widget::label(mGui.ctx, "o!", {rect.x + rect.width + 5, rect.y, 50, rect.height}, reig::text::Alignment::kLeft);
         } else {
             widget::label(mGui.ctx, "o-O-o!", {rect.x + rect.width + 5, rect.y, 50, rect.height}, reig::text::Alignment::kLeft);
@@ -303,7 +303,7 @@ private:
         color = colors::kWhite;
         rect = {rect.x + 80, rect.y - 50, 25, 25};
         static bool checkBox3 = false;
-        widget::checkbox(mGui.ctx, rect, color, checkBox3);
+        widget::checkbox(mGui.ctx, rect, color, &checkBox3);
     }
 
     void draw_sliders() {
@@ -373,7 +373,7 @@ private:
         start_window(mListWindow);
 
         widget::label(mGui.ctx, "Show list:", {0, 0, 80, 30}, reig::text::Alignment::kLeft);
-        if (widget::checkbox(mGui.ctx, {85, 0, 30, 30}, colors::kWhite, listShown)) {
+        if (widget::checkbox(mGui.ctx, {85, 0, 30, 30}, colors::kWhite, &listShown)) {
             primitive::Rectangle rect = {0, 35, 280, 280};
             widget::list(mGui.ctx, "Test", rect, colors::kBlue, foos,
                          [](const Foo& foo) {
