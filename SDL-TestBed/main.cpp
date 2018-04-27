@@ -244,7 +244,7 @@ private:
     void draw_gui() {
         widget::label(mGui.ctx, mFpsString.c_str(), {0, 0, 128, 32}, reig::text::Alignment::kCenter);
 
-        widget::slider(mGui.ctx, {350, 680, 300, 20}, colors::kGreen, mFontScale, 0.0f, 2.0f, 0.05f);
+        widget::slider(mGui.ctx, {350, 680, 300, 20}, colors::kGreen, &mFontScale, 0.0f, 2.0f, 0.05f);
         primitive::Rectangle rect{0, 700, 1000, 40};
         widget::label(mGui.ctx, "The quick brown fox jumps over the lazy dog", rect,
                       reig::text::Alignment::kCenter, mFontScale);
@@ -314,30 +314,30 @@ private:
 
         static float sliderValue0 = 20;
 //        if (widget::textured_slider{rect, 0, mGui.font.id, sliderValue0, 20, 40, 5}.use(mGui.ctx)) {
-        if (widget::slider(mGui.ctx, rect, color, sliderValue0, 20, 40, 5)) {
+        if (widget::slider(mGui.ctx, rect, color, &sliderValue0, 20, 40, 5)) {
             std::cout << boost::format("Slider 0: new value %.2f\n") % sliderValue0;
         }
 
         rect = {rect.x, rect.y + 40, rect.width + 50, rect.height};
         color = color + 50_g;
         static float sliderValue1 = 5.4f;
-        if (widget::slider(mGui.ctx, rect, color, sliderValue1, 3, 7, 0.1f)) {
+        if (widget::slider(mGui.ctx, rect, color, &sliderValue1, 3, 7, 0.1f)) {
             std::cout << "Slider 1: new value " << sliderValue1 << std::endl;
         }
 
         rect = {rect.x, rect.y + 40, rect.width + 80, rect.height + 10};
         static float sliderValue2 = 0.3f;
-        if (widget::slider(mGui.ctx, rect, {220_r, 200_g, 150_b}, sliderValue2, 0.1f, 0.5f, 0.05f)) {
+        if (widget::slider(mGui.ctx, rect, {220_r, 200_g, 150_b}, &sliderValue2, 0.1f, 0.5f, 0.05f)) {
             std::cout << "Slider 2: new value " << sliderValue2 << std::endl;
         }
 
         static float scrollValue0 = 0.0f;
 
         rect = {0, 5, 30, 200};
-        widget::scrollbar(mGui.ctx, rect, colors::kBlack, scrollValue0, 1000.0f);
+        widget::scrollbar(mGui.ctx, rect, colors::kBlack, &scrollValue0, 1000.0f);
 
         rect = {rect.x + 50, rect.y + 150, rect.height, rect.width};
-        widget::scrollbar(mGui.ctx, rect, colors::kBlack, scrollValue0, 1000.0f);
+        widget::scrollbar(mGui.ctx, rect, colors::kBlack, &scrollValue0, 1000.0f);
     }
 
     void draw_text_entries() {

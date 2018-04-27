@@ -46,7 +46,7 @@ namespace reig::reference_widget {
 
         auto itemCount = elem_end - elem_begin;
         Rectangle scrollbar_area {bounding_box.x, bounding_box.y, scrollbar_width, bounding_box.height};
-        scrollbar(ctx, scrollbar_area, base_color, scrolled, itemCount * font_height);
+        scrollbar(ctx, scrollbar_area, base_color, &scrolled, itemCount * font_height);
     };
 }
 
