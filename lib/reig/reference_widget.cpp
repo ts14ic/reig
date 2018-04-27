@@ -66,30 +66,29 @@ namespace reig::reference_widget {
     }
 
     struct CheckboxModel {
-        const Rectangle bounding_box;
         const bool is_hovering_over_area = false;
         const bool has_just_clicked = false;
         const bool is_holding_click = false;
     };
 
-    CheckboxModel get_checkbox_model(Context& ctx, Rectangle bounding_box, bool* value) {
-        ctx.fit_rect_in_window(bounding_box);
-        bool is_hovering_over_area = ctx.mouse.is_hovering_over_rect(bounding_box);
-        bool has_just_clicked = ctx.mouse.left_button.just_clicked_in_rect(bounding_box);
-        bool is_holding_click = ctx.mouse.left_button.clicked_in_rect(bounding_box)
+    CheckboxModel get_checkbox_model(Context& ctx, Rectangle* bounding_box, bool* value) {
+        ctx.fit_rect_in_window(*bounding_box);
+        bool is_hovering_over_area = ctx.mouse.is_hovering_over_rect(*bounding_box);
+        bool has_just_clicked = ctx.mouse.left_button.just_clicked_in_rect(*bounding_box);
+        bool is_holding_click = ctx.mouse.left_button.clicked_in_rect(*bounding_box)
                                 && ctx.mouse.left_button.is_held();
         if (has_just_clicked) {
             *value = !*value;
         }
 
-        return {bounding_box, is_hovering_over_area, has_just_clicked, is_holding_click};
+        return {is_hovering_over_area, has_just_clicked, is_holding_click};
     }
 
     bool checkbox(Context& ctx, Rectangle bounding_box, Color base_color, bool* value) {
         assert(value != nullptr && "Can't represent a null bool");
-        auto model = get_checkbox_model(ctx, bounding_box, value);
+        auto model = get_checkbox_model(ctx, &bounding_box, value);
 
-        Rectangle base_area = decrease_rect(model.bounding_box, 4);
+        Rectangle base_area = decrease_rect(bounding_box, 4);
         Rectangle check_area = decrease_rect(base_area, 4);
         if (model.has_just_clicked) {
             base_area = decrease_rect(base_area, 4);
@@ -101,7 +100,7 @@ namespace reig::reference_widget {
         }
 
         Color secondary_color = colors::get_yiq_contrast(base_color);
-        ctx.render_rectangle(model.bounding_box, secondary_color);
+        ctx.render_rectangle(bounding_box, secondary_color);
         ctx.render_rectangle(base_area,
                              model.is_hovering_over_area
                              ? colors::lighten_color_by(base_color, 30)
@@ -115,9 +114,9 @@ namespace reig::reference_widget {
 
     bool textured_checkbox(Context& ctx, primitive::Rectangle bounding_box,
                            int base_texture, int check_texture, bool* value) {
-        auto model = get_checkbox_model(ctx, bounding_box, value);
+        auto model = get_checkbox_model(ctx, &bounding_box, value);
 
-        Rectangle check_area = decrease_rect(model.bounding_box, 8);
+        Rectangle check_area = decrease_rect(bounding_box, 8);
         if (model.has_just_clicked) {
             check_area = decrease_rect(check_area, 4);
         }
@@ -125,7 +124,7 @@ namespace reig::reference_widget {
             check_area = decrease_rect(check_area, 4);
         }
 
-        ctx.render_rectangle(model.bounding_box, base_texture);
+        ctx.render_rectangle(bounding_box, base_texture);
         if (*value) {
             ctx.render_rectangle(check_area, check_texture);
         }
