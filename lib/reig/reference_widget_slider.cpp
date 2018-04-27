@@ -56,7 +56,6 @@ namespace reig::reference_widget {
 
     struct SliderModel {
         Rectangle base_area;
-        Rectangle outline_area;
         Rectangle cursor_area;
         bool is_hovering_over_area = false;
         bool is_holding_click = false;
@@ -64,9 +63,9 @@ namespace reig::reference_widget {
     };
 
     SliderModel tweak_slider_model(Context& ctx, float* value, const SliderValues& values,
-                                   Rectangle outline_area, Rectangle base_area, Rectangle cursor_area) {
-        bool is_hovering_over_area = ctx.mouse.is_hovering_over_rect(outline_area);
-        bool is_holding_click_on_slider = ctx.mouse.left_button.clicked_in_rect(outline_area)
+                                   Rectangle* outline_area, Rectangle base_area, Rectangle cursor_area) {
+        bool is_hovering_over_area = ctx.mouse.is_hovering_over_rect(*outline_area);
+        bool is_holding_click_on_slider = ctx.mouse.left_button.clicked_in_rect(*outline_area)
                                     && ctx.mouse.left_button.is_held();
 
         if (is_holding_click_on_slider) {
@@ -80,12 +79,12 @@ namespace reig::reference_widget {
             has_value_changed = true;
         }
 
-        return {base_area, outline_area, cursor_area, is_hovering_over_area, is_holding_click_on_slider, has_value_changed};
+        return {base_area, cursor_area, is_hovering_over_area, is_holding_click_on_slider, has_value_changed};
     }
 
-    SliderModel get_slider_model(Context& ctx, Rectangle outline_area, float* value, float min, float max, float step) {
-        ctx.fit_rect_in_window(outline_area);
-        Rectangle base_area = decrease_rect(outline_area, 4);
+    SliderModel get_slider_model(Context& ctx, Rectangle* outline_area, float* value, float min, float max, float step) {
+        ctx.fit_rect_in_window(*outline_area);
+        Rectangle base_area = decrease_rect(*outline_area, 4);
 
         auto values = prepare_slider_values(min, max, *value, step);
 
@@ -98,8 +97,8 @@ namespace reig::reference_widget {
             size_slider_cursor(cursor_area.y, cursor_area.height, values.num_values, values.offset);
         }
 
-        bool is_hovering_over_area = ctx.mouse.is_hovering_over_rect(outline_area);
-        bool is_holding_click_on_slider = ctx.mouse.left_button.clicked_in_rect(outline_area)
+        bool is_hovering_over_area = ctx.mouse.is_hovering_over_rect(*outline_area);
+        bool is_holding_click_on_slider = ctx.mouse.left_button.clicked_in_rect(*outline_area)
                                           && ctx.mouse.left_button.is_held();
 
         if (is_holding_click_on_slider) {
@@ -144,9 +143,9 @@ namespace reig::reference_widget {
         }
     }
 
-    SliderModel get_scrollbar_model(Context& ctx, Rectangle outline_area, float view_size, float* value) {
-        ctx.fit_rect_in_window(outline_area);
-        Rectangle base_area = decrease_rect(outline_area, 4);
+    SliderModel get_scrollbar_model(Context& ctx, Rectangle* outline_area, float view_size, float* value) {
+        ctx.fit_rect_in_window(*outline_area);
+        Rectangle base_area = decrease_rect(*outline_area, 4);
 
         auto step = ctx.get_font_size();
 
@@ -165,8 +164,8 @@ namespace reig::reference_widget {
             size_scrollbar_cursor(cursor_area.y, cursor_area.height, step, values.offset, view_size);
         }
 
-        bool is_hovering_over_area = ctx.mouse.is_hovering_over_rect(outline_area);
-        bool is_holding_click_on_slider = ctx.mouse.left_button.clicked_in_rect(outline_area)
+        bool is_hovering_over_area = ctx.mouse.is_hovering_over_rect(*outline_area);
+        bool is_holding_click_on_slider = ctx.mouse.left_button.clicked_in_rect(*outline_area)
                                           && ctx.mouse.left_button.is_held();
 
         if (is_holding_click_on_slider) {
@@ -183,10 +182,11 @@ namespace reig::reference_widget {
         return tweak_slider_model(ctx, value, values, outline_area, base_area, cursor_area);
     }
 
-    void draw_slider_model(Context& ctx, const SliderModel& model, const Color& baseColor) {
-        Color frame_color = colors::get_yiq_contrast(baseColor);
-        ctx.render_rectangle(model.outline_area, frame_color);
-        ctx.render_rectangle(model.base_area, baseColor);
+    void draw_slider_model(Context& ctx, const SliderModel& model, const Rectangle& bounding_box,
+                           const Color& base_color) {
+        Color frame_color = colors::get_yiq_contrast(base_color);
+        ctx.render_rectangle(bounding_box, frame_color);
+        ctx.render_rectangle(model.base_area, base_color);
 
         if (model.is_hovering_over_area) {
             frame_color = colors::lighten_color_by(frame_color, 30);
@@ -200,9 +200,9 @@ namespace reig::reference_widget {
     bool slider(Context& ctx, Rectangle bounding_box, Color base_color,
                 float* value, float min, float max, float step) {
         assert(value != nullptr && "Can't represent null float");
-        auto model = get_slider_model(ctx, bounding_box, value, min, max, step);
+        auto model = get_slider_model(ctx, &bounding_box, value, min, max, step);
 
-        draw_slider_model(ctx, model, base_color);
+        draw_slider_model(ctx, model, bounding_box, base_color);
 
         return model.has_value_changed;
     }
@@ -210,9 +210,9 @@ namespace reig::reference_widget {
     bool scrollbar(Context& ctx, Rectangle bounding_box, Color base_color,
                    float* value, float view_size) {
         assert(value != nullptr && "Can't represent null float");
-        auto model = get_scrollbar_model(ctx, bounding_box, view_size, value);
+        auto model = get_scrollbar_model(ctx, &bounding_box, view_size, value);
 
-        draw_slider_model(ctx, model, base_color);
+        draw_slider_model(ctx, model, bounding_box, base_color);
 
         return model.has_value_changed;
     }
@@ -220,9 +220,9 @@ namespace reig::reference_widget {
     bool textured_slider(Context& ctx, Rectangle bounding_box, int base_texture, int cursor_texture,
                          float* value, float min, float max, float step) {
         assert(value != nullptr && "Can't represent null float");
-        auto model = get_slider_model(ctx, bounding_box, value, min, max, step);
+        auto model = get_slider_model(ctx, &bounding_box, value, min, max, step);
 
-        ctx.render_rectangle(model.outline_area, base_texture);
+        ctx.render_rectangle(bounding_box, base_texture);
         ctx.render_rectangle(model.cursor_area, cursor_texture);
 
         return model.has_value_changed;
