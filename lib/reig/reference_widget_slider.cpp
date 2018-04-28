@@ -37,10 +37,10 @@ float get_distance_to_slider(float mouse_cursor_coord, float cursor_size, float 
 }
 
 void progress_slider_value(float mouse_cursor_coord, float cursor_size,
-                           float slider_cursor_coord, float step, float& value) {
+                           float slider_cursor_coord, float step, float* value) {
     float distance = get_distance_to_slider(mouse_cursor_coord, cursor_size, slider_cursor_coord);
     if (math::abs(distance) > cursor_size / 2) {
-        value += static_cast<int>(distance / cursor_size) * step;
+        *value += static_cast<int>(distance / cursor_size) * step;
     }
 }
 
@@ -104,10 +104,10 @@ SliderModel get_slider_model(Context& ctx, Rectangle* outline_area, float* value
     if (is_holding_click_on_slider) {
         if (orientation == SliderOrientation::kHorizontal) {
             progress_slider_value(ctx.mouse.get_cursor_pos().x, cursor_area.width, cursor_area.x,
-                                  step, values.value);
+                                  step, &values.value);
         } else {
             progress_slider_value(ctx.mouse.get_cursor_pos().y, cursor_area.height, cursor_area.y,
-                                  step, values.value);
+                                  step, &values.value);
         }
     } else if (ctx.mouse.get_scrolled() != 0 && is_hovering_over_area) {
         values.value += static_cast<int>(ctx.mouse.get_scrolled()) * step;
