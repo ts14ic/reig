@@ -55,8 +55,8 @@ SliderOrientation calculate_slider_orientation(const Rectangle& rect) {
 }
 
 struct SliderModel {
-    Rectangle base_area;
-    Rectangle cursor_area;
+    Rectangle bounding_box;
+    Rectangle cursor_bounding_box;
     bool is_hovering_over_area = false;
     bool is_holding_click = false;
     bool has_value_changed = false;
@@ -186,7 +186,7 @@ void draw_slider_model(Context& ctx, const SliderModel& model, const Rectangle& 
                        const Color& base_color) {
     Color frame_color = colors::get_yiq_contrast(base_color);
     ctx.render_rectangle(bounding_box, frame_color);
-    ctx.render_rectangle(model.base_area, base_color);
+    ctx.render_rectangle(model.bounding_box, base_color);
 
     if (model.is_hovering_over_area) {
         frame_color = colors::lighten_color_by(frame_color, 30);
@@ -194,7 +194,7 @@ void draw_slider_model(Context& ctx, const SliderModel& model, const Rectangle& 
     if (model.is_holding_click) {
         frame_color = colors::lighten_color_by(frame_color, 30);
     }
-    ctx.render_rectangle(model.cursor_area, frame_color);
+    ctx.render_rectangle(model.cursor_bounding_box, frame_color);
 }
 
 bool slider(Context& ctx, Rectangle bounding_box, Color base_color,
@@ -223,7 +223,7 @@ bool textured_slider(Context& ctx, Rectangle bounding_box, int base_texture, int
     auto model = get_slider_model(ctx, &bounding_box, value, min, max, step);
 
     ctx.render_rectangle(bounding_box, base_texture);
-    ctx.render_rectangle(model.cursor_area, cursor_texture);
+    ctx.render_rectangle(model.cursor_bounding_box, cursor_texture);
 
     return model.has_value_changed;
 }
