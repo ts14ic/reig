@@ -2,6 +2,7 @@
 #define REIG_REFERENCE_WIDGET_ENTRY_TCC
 
 #include "reference_widget_entry.h"
+#include <cassert>
 
 namespace reig::reference_widget {
     namespace detail {
@@ -20,7 +21,8 @@ namespace reig::reference_widget {
 
     template <typename C>
     EntryOuput entry(reig::Context& ctx, const char* title, const primitive::Rectangle& bounding_area,
-                     const primitive::Color& base_color, std::basic_string<C>& value_ref) {
+                     const primitive::Color& base_color, std::basic_string<C>* value) {
+        assert(value != nullptr && "Can't represent null string");
         using namespace primitive;
         Rectangle outline_area = bounding_area;
         ctx.fit_rect_in_window(outline_area);
@@ -44,15 +46,15 @@ namespace reig::reference_widget {
             Key key_type = ctx.keyboard.get_pressed_key_type();
             switch (key_type) {
                 case Key::kChar: {
-                    value_ref += ctx.keyboard.get_pressed_char();
+                    *value += ctx.keyboard.get_pressed_char();
                     output = EntryOuput::kModified;
                     break;
                 }
 
                 case Key::kBackspace: {
                     using std::empty;
-                    if (!empty(value_ref)) {
-                        value_ref.pop_back();
+                    if (!empty(*value)) {
+                        value->pop_back();
                         output = EntryOuput::kModified;
                     }
                     break;
@@ -78,14 +80,16 @@ namespace reig::reference_widget {
 
         detail::EntryModel model{outline_area, base_area, caret_area, is_selected, is_holding_click};
 
-        display_entry_model(ctx, model, base_color, value_ref, title);
+        display_entry_model(ctx, model, base_color, *value, title);
 
         return output;
     }
 
     template <typename C>
     void detail::display_entry_model(Context& ctx, const EntryModel& model,
-                                     primitive::Color primary_color, const std::basic_string<C>& value_ref, const char* title) {
+                                     primitive::Color primary_color,
+                                     const std::basic_string<C>& value_ref,
+                                     const char* title) {
         using namespace primitive;
         Color secondary_color = colors::get_yiq_contrast(primary_color);
 

@@ -14,7 +14,7 @@ namespace reig::reference_widget {
 
     template <typename Char>
     EntryOuput entry(Context& ctx, const char* title, const primitive::Rectangle& bounding_area,
-                     const primitive::Color& base_color, std::basic_string<Char>& value_ref);
+                     const primitive::Color& base_color, std::basic_string<Char>* value);
 }
 
 #include "reference_widget_entry.tcc"
