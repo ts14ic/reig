@@ -34,7 +34,7 @@ namespace reig::reference_widget {
      * @param alignment Text's alignment
      * @param font_scale Text's font scale relative to size set in set_font
      */
-    void label(Context& ctx, char const* title, primitive::Rectangle bounding_box,
+    void label(Context& ctx, const char* title, primitive::Rectangle bounding_box,
                text::Alignment alignment = text::Alignment::kCenter, float font_scale = 1.f);
 
     /**
@@ -48,7 +48,7 @@ namespace reig::reference_widget {
      * @return True if value changed
      */
     bool slider(Context& ctx, primitive::Rectangle bounding_box, primitive::Color base_color,
-                float* value, float min, float max, float step);
+                float& value, float min, float max, float step);
 
     /**
      * @brief Renders a slider.
@@ -63,7 +63,7 @@ namespace reig::reference_widget {
      */
     bool textured_slider(Context& ctx, primitive::Rectangle bounding_box,
                          int base_texture, int cursor_texture,
-                         float* value, float min, float max, float step);
+                         float& value, float min, float max, float step);
 
     /**
      * @brief Renders a vertical scrollbar
@@ -73,7 +73,7 @@ namespace reig::reference_widget {
      * @return True if value changed
      */
     bool scrollbar(Context& ctx, primitive::Rectangle bounding_box, primitive::Color base_color,
-                   float* value, float view_size);
+                   float& value, float view_size);
 
     /**
      * @brief Renders a checkbox
@@ -82,7 +82,7 @@ namespace reig::reference_widget {
      * @param value A reference to the bool to be represented
      * @return True if value is true
      */
-    bool checkbox(Context& ctx, primitive::Rectangle bounding_box, primitive::Color base_color, bool* value);
+    bool checkbox(Context& ctx, primitive::Rectangle bounding_box, primitive::Color base_color, bool& value);
 
     /**
      * @brief Renders a textured checkbox
@@ -93,7 +93,7 @@ namespace reig::reference_widget {
      * @return True if value is true
      */
     bool textured_checkbox(Context& ctx, primitive::Rectangle bounding_box, int base_texture, int check_texture,
-                           bool* value);
+                           bool& value);
 }
 
 #endif //REIG_REFERENCE_WIDGET_H

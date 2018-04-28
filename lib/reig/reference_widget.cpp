@@ -1,6 +1,5 @@
 #include "reference_widget.h"
 #include "context.h"
-#include <cassert>
 
 using namespace reig::primitive;
 
@@ -11,20 +10,20 @@ namespace reig::reference_widget {
         const bool is_holding_click = false;
     };
 
-    ButtonModel get_button_model(Context& ctx, Rectangle* bounding_box) {
-        ctx.fit_rect_in_window(*bounding_box);
+    ButtonModel get_button_model(Context& ctx, Rectangle& bounding_box) {
+        ctx.fit_rect_in_window(bounding_box);
 
-        bool is_hovering_over_area = ctx.mouse.is_hovering_over_rect(*bounding_box);
-        bool has_just_clicked = ctx.mouse.left_button.just_clicked_in_rect(*bounding_box);
+        bool is_hovering_over_area = ctx.mouse.is_hovering_over_rect(bounding_box);
+        bool has_just_clicked = ctx.mouse.left_button.just_clicked_in_rect(bounding_box);
         bool is_holding_click = is_hovering_over_area
-                                && ctx.mouse.left_button.clicked_in_rect(*bounding_box)
+                                && ctx.mouse.left_button.clicked_in_rect(bounding_box)
                                 && ctx.mouse.left_button.is_held();
 
         return {is_hovering_over_area, has_just_clicked, is_holding_click};
     }
 
     bool button(Context& ctx, const char* title, Rectangle bounding_box, Color base_color) {
-        auto model = get_button_model(ctx, &bounding_box);
+        auto model = get_button_model(ctx, bounding_box);
 
         Color inner_color{base_color};
         if (model.is_hovering_over_area) {
@@ -47,7 +46,7 @@ namespace reig::reference_widget {
 
     bool textured_button(Context& ctx, const char* title, Rectangle bounding_box,
                          int hover_texture, int base_texture) {
-        auto model = get_button_model(ctx, &bounding_box);
+        auto model = get_button_model(ctx, bounding_box);
 
         int texture = base_texture;
         if (model.is_holding_click || model.is_hovering_over_area) {
@@ -70,22 +69,21 @@ namespace reig::reference_widget {
         const bool is_holding_click = false;
     };
 
-    CheckboxModel get_checkbox_model(Context& ctx, Rectangle* bounding_box, bool* value) {
-        ctx.fit_rect_in_window(*bounding_box);
-        bool is_hovering_over_area = ctx.mouse.is_hovering_over_rect(*bounding_box);
-        bool has_just_clicked = ctx.mouse.left_button.just_clicked_in_rect(*bounding_box);
-        bool is_holding_click = ctx.mouse.left_button.clicked_in_rect(*bounding_box)
+    CheckboxModel get_checkbox_model(Context& ctx, Rectangle& bounding_box, bool& value) {
+        ctx.fit_rect_in_window(bounding_box);
+        bool is_hovering_over_area = ctx.mouse.is_hovering_over_rect(bounding_box);
+        bool has_just_clicked = ctx.mouse.left_button.just_clicked_in_rect(bounding_box);
+        bool is_holding_click = ctx.mouse.left_button.clicked_in_rect(bounding_box)
                                 && ctx.mouse.left_button.is_held();
         if (has_just_clicked) {
-            *value = !*value;
+            value = !value;
         }
 
         return {is_hovering_over_area, has_just_clicked, is_holding_click};
     }
 
-    bool checkbox(Context& ctx, Rectangle bounding_box, Color base_color, bool* value) {
-        assert(value != nullptr && "Can't represent a null bool");
-        auto model = get_checkbox_model(ctx, &bounding_box, value);
+    bool checkbox(Context& ctx, Rectangle bounding_box, Color base_color, bool& value) {
+        auto model = get_checkbox_model(ctx, bounding_box, value);
 
         Rectangle base_area = decrease_rect(bounding_box, 4);
         Rectangle check_area = decrease_rect(base_area, 4);
@@ -104,16 +102,16 @@ namespace reig::reference_widget {
                              model.is_hovering_over_area
                              ? colors::lighten_color_by(base_color, 30)
                              : base_color);
-        if (*value) {
+        if (value) {
             ctx.render_rectangle(check_area, secondary_color);
         }
 
-        return *value;
+        return value;
     }
 
     bool textured_checkbox(Context& ctx, primitive::Rectangle bounding_box,
-                           int base_texture, int check_texture, bool* value) {
-        auto model = get_checkbox_model(ctx, &bounding_box, value);
+                           int base_texture, int check_texture, bool& value) {
+        auto model = get_checkbox_model(ctx, bounding_box, value);
 
         Rectangle check_area = decrease_rect(bounding_box, 8);
         if (model.has_just_clicked) {
@@ -124,10 +122,10 @@ namespace reig::reference_widget {
         }
 
         ctx.render_rectangle(bounding_box, base_texture);
-        if (*value) {
+        if (value) {
             ctx.render_rectangle(check_area, check_texture);
         }
 
-        return *value;
+        return value;
     }
 }

@@ -2,7 +2,6 @@
 #define REIG_REFERENCE_WIDGET_ENTRY_TCC
 
 #include "reference_widget_entry.h"
-#include <cassert>
 
 namespace reig::reference_widget {
     namespace detail {
@@ -20,9 +19,8 @@ namespace reig::reference_widget {
 
     template <typename C>
     EntryOuput entry(reig::Context& ctx, const char* title, primitive::Rectangle bounding_box,
-                     const primitive::Color& base_color, std::basic_string<C>* value) {
+                     const primitive::Color& base_color, std::basic_string<C>& value) {
         using namespace primitive;
-        assert(value != nullptr && "Can't represent null string");
         ctx.fit_rect_in_window(bounding_box);
 
         Rectangle caret_area {0, bounding_box.y + 2, 0, bounding_box.height - 4};
@@ -39,15 +37,15 @@ namespace reig::reference_widget {
             Key key_type = ctx.keyboard.get_pressed_key_type();
             switch (key_type) {
                 case Key::kChar: {
-                    *value += ctx.keyboard.get_pressed_char();
+                    value += ctx.keyboard.get_pressed_char();
                     output = EntryOuput::kModified;
                     break;
                 }
 
                 case Key::kBackspace: {
                     using std::empty;
-                    if (!empty(*value)) {
-                        value->pop_back();
+                    if (!empty(value)) {
+                        value.pop_back();
                         output = EntryOuput::kModified;
                     }
                     break;
@@ -73,7 +71,7 @@ namespace reig::reference_widget {
 
         detail::EntryModel model{bounding_box, caret_area, is_selected, is_holding_click};
 
-        display_entry_model(ctx, model, base_color, *value, title);
+        display_entry_model(ctx, model, base_color, value, title);
 
         return output;
     }
