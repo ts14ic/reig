@@ -153,7 +153,7 @@ public:
             float yline = 0; float step = 28;
             ctx.start_window("Cube manipulation", winX, winY);
             
-            if(widget::checkbox(ctx, {0, yline, 25, 25}, colors::kDarkGrey, windowShown)) {
+            if(widget::checkbox(ctx, {0, yline, 25, 25}, colors::kDarkGrey, &windowShown)) {
                 if (widget::button(ctx, "S", {31, yline, 60, 25}, colors::kMediumGrey)) {
                     scaling = 1.f;
                 }
@@ -167,20 +167,20 @@ public:
                 yline += step;
                 widget::label(ctx, "Scale:", {0, yline, 230, 25});
                 yline += step;
-                widget::slider(ctx, {0, yline, 230, 25}, colors::kLightGrey, scaling, 0.1f, 2.5f, 0.1f);
+                widget::slider(ctx, {0, yline, 230, 25}, colors::kLightGrey, &scaling, 0.1f, 2.5f, 0.1f);
                 
                 yline += step;
                 widget::label(ctx, "Rotation:", {0, yline, 230, 25});
                 yline += step;
                 for(int i = 0; i < 3; ++i) {
-                    widget::slider(ctx, {0, yline, 230, 25}, colors::kDarkGrey, rotation[i], 0.f, 360.f, 5.f);
+                    widget::slider(ctx, {0, yline, 230, 25}, colors::kDarkGrey, &rotation[i], 0.f, 360.f, 5.f);
                     yline += step;
                 }
 
                 widget::label(ctx, "Color:", {0, yline, 230, 25});
-                widget::slider(ctx, {0, yline += step, 230, 25}, colors::kRed, cubeColor[0], 0.f, 255.f, 10.f);
-                widget::slider(ctx, {0, yline += step, 230, 25}, colors::kGreen, cubeColor[1], 0.f, 255.f, 10.f);
-                widget::slider(ctx, {0, yline + step, 230, 25}, colors::kBlue, cubeColor[2], 0.f, 255.f, 10.f);
+                widget::slider(ctx, {0, yline += step, 230, 25}, colors::kRed, &cubeColor[0], 0.f, 255.f, 10.f);
+                widget::slider(ctx, {0, yline += step, 230, 25}, colors::kGreen, &cubeColor[1], 0.f, 255.f, 10.f);
+                widget::slider(ctx, {0, yline + step, 230, 25}, colors::kBlue, &cubeColor[2], 0.f, 255.f, 10.f);
             }
             
             shader.use();
