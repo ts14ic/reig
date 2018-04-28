@@ -136,10 +136,10 @@ SliderValues prepare_scrollbar_values(float max_scroll, float value, float step)
 }
 
 void progress_scrollbar_value(float mouse_cursor_coord, float cursor_size,
-                              float slider_cursor_coord, float step, float& value) {
+                              float slider_cursor_coord, float step, float* value) {
     float distance = get_distance_to_slider(mouse_cursor_coord, cursor_size, slider_cursor_coord);
     if (math::abs(distance) > cursor_size / 2) {
-        value += static_cast<int>(distance * step) / cursor_size;
+        *value += static_cast<int>(distance * step) / cursor_size;
     }
 }
 
@@ -171,10 +171,10 @@ SliderModel get_scrollbar_model(Context& ctx, Rectangle* outline_area, float vie
     if (is_holding_click_on_slider) {
         if (orientation == SliderOrientation::kHorizontal) {
             progress_scrollbar_value(ctx.mouse.get_cursor_pos().x, cursor_area.width, cursor_area.x,
-                                     step, values.value);
+                                     step, &values.value);
         } else {
             progress_scrollbar_value(ctx.mouse.get_cursor_pos().y, cursor_area.height, cursor_area.y,
-                                     step, values.value);
+                                     step, &values.value);
         }
     } else if (ctx.mouse.get_scrolled() != 0 && is_hovering_over_area) {
         values.value += static_cast<int>(ctx.mouse.get_scrolled()) * step;
