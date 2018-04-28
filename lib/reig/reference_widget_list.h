@@ -11,7 +11,7 @@ namespace reig::reference_widget {
     }
 
     template <typename Range, typename Adapter, typename Action>
-    auto list(Context& ctx, const char* scrollbarId, const primitive::Rectangle& bounding_box,
+    auto list(Context& ctx, const char* scrollbar_id, const primitive::Rectangle& bounding_box,
               const primitive::Color& base_color, Range&& range, Adapter&& adapter, Action&& action) {
         using namespace primitive;
         using std::begin;
@@ -28,7 +28,7 @@ namespace reig::reference_widget {
             ctx.render_rectangle(decrease_rect(list_area, 2), base_color - 50_a);
         }
 
-        auto& scrolled = detail::get_scroll_value(scrollbarId);
+        auto& scrolled = detail::get_scroll_value(scrollbar_id);
         float font_height = ctx.get_font_size();
         auto skipped_item_count = static_cast<int>(scrolled / font_height);
 
