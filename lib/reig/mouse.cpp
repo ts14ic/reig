@@ -35,11 +35,9 @@ namespace reig::detail {
         bool hovering_over_rect = is_point_in_rect(_cursor_pos, rect);
         if (_context._dragged_window || !hovering_over_rect) return false;
 
-        bool is_rect_visible = _context.if_on_top([this](Window& previous_window) {
-            return is_point_in_rect(_cursor_pos, get_full_window_rect(previous_window));
-        });
+        bool is_hovered_point_visible = _context.is_window_body_point_visible(_cursor_pos);
 
-        return hovering_over_rect && is_rect_visible;
+        return hovering_over_rect && is_hovered_point_visible;
     }
 
     MouseButton::MouseButton(Mouse& mouse) : _mouse{mouse} {}
@@ -72,25 +70,16 @@ namespace reig::detail {
         bool clicked_in_rect = is_point_in_rect(_clicked_pos, rect);
         if (_mouse._context._dragged_window || !clicked_in_rect) return false;
 
-        bool is_rect_visible = _mouse._context.if_on_top([this](Window& previous_window) {
-            return is_point_in_rect(_clicked_pos, get_full_window_rect(previous_window));
-        });
+        bool is_clicked_point_visible = _mouse._context.is_window_body_point_visible(_clicked_pos);
 
-        return clicked_in_rect && is_rect_visible;
+        return clicked_in_rect && is_clicked_point_visible;
     }
 
     bool MouseButton::just_clicked_in_rect(const primitive::Rectangle& rect) const {
-        bool just_clicked_in_rect = _is_clicked && clicked_in_rect(rect);
-        if (_mouse._context._dragged_window || !just_clicked_in_rect) return false;
-
-        bool is_rect_visible = _mouse._context.if_on_top([this](Window& previous_window) {
-            return clicked_in_rect(get_full_window_rect(previous_window));
-        });
-
-        return just_clicked_in_rect && is_rect_visible;
+        return _is_clicked && clicked_in_rect(rect);
     }
 
-    bool MouseButton::just_clicked_in_rect_ignore_windows(const primitive::Rectangle& rect) const {
+    bool MouseButton::just_clicked_in_window(const primitive::Rectangle& rect) const {
         return _is_clicked && is_point_in_rect(_clicked_pos, rect);
     }
 }

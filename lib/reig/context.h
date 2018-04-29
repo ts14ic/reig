@@ -160,10 +160,9 @@ namespace reig {
 
         void handle_window_input(detail::Window& window);
 
-        bool is_point_on_visible_window_header(const detail::Window& window, const primitive::Point& point);
+        bool is_window_header_point_visible(const detail::Window& window, const primitive::Point& point);
 
-        template <typename C>
-        bool if_on_top(C&& condition);
+        bool is_window_body_point_visible(const primitive::Point& point);
 
         friend ::reig::detail::Mouse;
         friend ::reig::detail::MouseButton;
@@ -182,21 +181,6 @@ namespace reig {
         std::any _user_ptr;
         unsigned _frame_counter = 0;
     };
-}
-
-template <typename C>
-bool reig::Context::if_on_top(C&& condition) {
-    auto* current_window = get_current_window();
-    for (auto& previousWindow : _previous_windows) {
-        if (condition(previousWindow)) {
-            if (current_window) {
-                return current_window->id == previousWindow.id;
-            } else {
-                return false;
-            }
-        }
-    }
-    return true;
 }
 
 #endif //REIG_CONTEXT_H

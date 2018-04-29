@@ -40,7 +40,7 @@ namespace reig::detail {
         friend class ::reig::Context;
         friend class ::reig::detail::Mouse;
 
-        bool just_clicked_in_rect_ignore_windows(const primitive::Rectangle& rect) const;
+        bool just_clicked_in_window(const primitive::Rectangle& rect) const;
 
         const primitive::Point& get_clicked_pos() const;
 

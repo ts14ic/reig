@@ -128,7 +128,7 @@ namespace reig {
         if (!mouse.left_button.is_clicked()) return;
 
         for (auto it = _previous_windows.begin(); it != _previous_windows.end(); ++it) {
-            if (mouse.left_button.just_clicked_in_rect_ignore_windows(detail::get_full_window_rect(*it))) {
+            if (mouse.left_button.just_clicked_in_window(detail::get_full_window_rect(*it))) {
                 std::iter_swap(it, _previous_windows.begin());
                 break;
             }
@@ -271,7 +271,7 @@ namespace reig {
 
     void Context::handle_window_input(detail::Window& window) {
         if (mouse.left_button.is_held()
-            && is_point_on_visible_window_header(window, mouse.left_button.get_clicked_pos())
+            && is_window_header_point_visible(window, mouse.left_button.get_clicked_pos())
             && handle_window_focus(window, true)) {
             Point moved{
                     mouse.get_cursor_pos().x - mouse.left_button.get_clicked_pos().x,
@@ -287,13 +287,27 @@ namespace reig {
         }
     }
 
-    bool Context::is_point_on_visible_window_header(const Window& window, const Point& point) {
+    bool Context::is_window_header_point_visible(const Window& window, const Point& point) {
         for (auto& previous_window : _previous_windows) {
             if (is_point_in_rect(point, get_window_header_rect(window))) {
                 return window.id == previous_window.id;
             }
         }
         return false;
+    }
+
+    bool reig::Context::is_window_body_point_visible(const primitive::Point& point) {
+        auto* current_window = get_current_window();
+        for (auto& previousWindow : _previous_windows) {
+            if (is_point_in_rect(point, get_window_body_rect(previousWindow))) {
+                if (current_window) {
+                    return current_window->id == previousWindow.id;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     void Context::fit_rect_in_window(Rectangle& rect) {
