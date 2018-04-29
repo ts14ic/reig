@@ -276,7 +276,7 @@ namespace reig {
         };
 
         if (mouse.left_button.is_held()
-            && if_visible_window(window, is_point_in_rect(mouse.left_button.get_clicked_pos(), header_rect))
+            && is_point_on_visible_window_header(window, mouse.left_button.get_clicked_pos())
             && handle_window_focus(window, true)) {
             Point moved{
                     mouse.get_cursor_pos().x - mouse.left_button.get_clicked_pos().x,
@@ -292,9 +292,9 @@ namespace reig {
         }
     }
 
-    bool Context::if_visible_window(detail::Window& window, bool condition) {
+    bool Context::is_point_on_visible_window_header(const Window& window, const Point& point) {
         for (auto& previous_window : _previous_windows) {
-            if (condition) {
+            if (is_point_in_rect(point, get_window_header_rect(window))) {
                 return window.id == previous_window.id;
             }
         }

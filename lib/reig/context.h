@@ -160,7 +160,7 @@ namespace reig {
 
         void handle_window_input(detail::Window& window);
 
-        bool if_visible_window(detail::Window& window, bool condition);
+        bool is_point_on_visible_window_header(const detail::Window& window, const primitive::Point& point);
 
         template <typename C>
         bool if_on_top(C&& condition);
