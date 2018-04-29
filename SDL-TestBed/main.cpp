@@ -1,12 +1,9 @@
-#include "StopWatch.h"
-
 #include <reig/context.h>
 #include <reig/reference_widget.h>
 #include <reig/reference_widget_list.h>
 #include <reig/reference_widget_entry.h>
 
 #include <SDL2_gfxPrimitives.h>
-#include <SDL2_framerate.h>
 
 #include <iostream>
 #include <boost/format.hpp>
