@@ -32,8 +32,9 @@ namespace reig::detail {
     }
 
     bool Mouse::is_hovering_over_rect(const Rectangle& rect) const {
-        bool hovering_over_rect = is_point_in_rect(_cursor_pos, rect);
-        if (_context._dragged_window || !hovering_over_rect) return false;
+        bool hovering_over_rect = !_context._dragged_window
+                                  && is_point_in_rect(_cursor_pos, rect);
+        if (!hovering_over_rect) return false;
 
         bool is_hovered_point_visible = _context.is_window_body_point_visible(_cursor_pos);
 
@@ -67,8 +68,9 @@ namespace reig::detail {
     }
 
     bool MouseButton::clicked_in_rect(const primitive::Rectangle& rect) const {
-        bool clicked_in_rect = is_point_in_rect(_clicked_pos, rect);
-        if (_mouse._context._dragged_window || !clicked_in_rect) return false;
+        bool clicked_in_rect = !_mouse._context._dragged_window
+                               && is_point_in_rect(_clicked_pos, rect);
+        if (!clicked_in_rect) return false;
 
         bool is_clicked_point_visible = _mouse._context.is_window_body_point_visible(_clicked_pos);
 
