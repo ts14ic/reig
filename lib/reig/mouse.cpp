@@ -35,7 +35,7 @@ namespace reig::detail {
         bool hovering_over_rect = is_point_in_rect(_cursor_pos, rect);
         if (_context._dragged_window || !hovering_over_rect) return false;
 
-        bool is_rect_visible = _context.if_on_top([this](Window* current_window, Window& previous_window) {
+        bool is_rect_visible = _context.if_on_top([this](Window& previous_window) {
             return is_point_in_rect(_cursor_pos, get_full_window_rect(previous_window));
         });
 
@@ -72,7 +72,7 @@ namespace reig::detail {
         bool clicked_in_rect = is_point_in_rect(_clicked_pos, rect);
         if (_mouse._context._dragged_window || !clicked_in_rect) return false;
 
-        bool is_rect_visible = _mouse._context.if_on_top([this](Window* current_window, Window& previous_window) {
+        bool is_rect_visible = _mouse._context.if_on_top([this](Window& previous_window) {
             return is_point_in_rect(_clicked_pos, get_full_window_rect(previous_window));
         });
 
@@ -83,7 +83,7 @@ namespace reig::detail {
         bool just_clicked_in_rect = _is_clicked && clicked_in_rect(rect);
         if (_mouse._context._dragged_window || !just_clicked_in_rect) return false;
 
-        bool is_rect_visible = _mouse._context.if_on_top([this](Window* current_window, Window& previous_window) {
+        bool is_rect_visible = _mouse._context.if_on_top([this](Window& previous_window) {
             return clicked_in_rect(get_full_window_rect(previous_window));
         });
 

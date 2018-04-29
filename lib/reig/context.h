@@ -188,7 +188,7 @@ template <typename C>
 bool reig::Context::if_on_top(C&& condition) {
     auto* current_window = get_current_window();
     for (auto& previousWindow : _previous_windows) {
-        if (condition(current_window, previousWindow)) {
+        if (condition(previousWindow)) {
             if (current_window) {
                 return current_window->id == previousWindow.id;
             } else {

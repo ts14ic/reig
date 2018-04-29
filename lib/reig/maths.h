@@ -42,7 +42,7 @@ namespace reig::math {
     template <typename R, typename T, typename = std::enable_if_t<std::is_integral_v<R> && std::is_integral_v<R>>>
     R integral_cast(T t) {
         auto r = static_cast<R>(t);
-        if (r != t || (std::is_signed_v<T> != std::is_signed_v<R> && ((t < T{}) != r < R{}))) {
+        if (static_cast<R>(t) != r || (std::is_signed_v<T> != std::is_signed_v<R> && ((t < T{}) != r < R{}))) {
             throw exception::IntegralCastException{t, typeid(T).name(), typeid(R).name()};
         }
         return r;

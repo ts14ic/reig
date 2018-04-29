@@ -222,7 +222,7 @@ private:
     }
 
     struct Window {
-        Window(const char* id, std::string title, float x, float y) : id{id}, title{move(title)}, x{x}, y{y} {}
+        Window(const char* id, std::string title, float x, float y) : title{move(title)}, id{id}, x{x}, y{y} {}
         Window(std::string title, float x, float y) : title{move(title)}, x{x}, y{y} {}
 
         std::string title;
@@ -343,7 +343,6 @@ private:
     void draw_text_entries() {
         start_window(mTextEntryWindow);
         primitive::Rectangle rect {0, 0, 300, 40};
-        primitive::Color color {120_r, 100_g, 150_b};
 
         using reig::reference_widget::EntryOuput;
 
