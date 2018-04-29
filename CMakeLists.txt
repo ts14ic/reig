@@ -5,6 +5,11 @@ project(reig
 
 set(CMAKE_CXX_COMPILER clang++)
 
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang|GNU")
+    message("Clang/GCC detected")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+endif ()
+
 # reig library
 add_library(reig_lib
         lib/reig/gsl.h
