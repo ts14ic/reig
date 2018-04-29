@@ -270,11 +270,6 @@ namespace reig {
     }
 
     void Context::handle_window_input(detail::Window& window) {
-        Rectangle header_rect{
-                window.x, window.y,
-                window.width, window.title_bar_height
-        };
-
         if (mouse.left_button.is_held()
             && is_point_on_visible_window_header(window, mouse.left_button.get_clicked_pos())
             && handle_window_focus(window, true)) {
