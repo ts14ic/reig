@@ -116,10 +116,7 @@ namespace reig {
                                                });
 
             if (previous_window != _previous_windows.end()) {
-                previous_window->set_width(queued_window.width());
-                previous_window->set_height(queued_window.height());
-                previous_window->set_x(queued_window.x());
-                previous_window->set_y(queued_window.y());
+                update_window(*previous_window, queued_window);
             } else {
                 _previous_windows.insert(_previous_windows.begin(), queued_window);
             }

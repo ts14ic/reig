@@ -30,4 +30,11 @@ namespace reig::detail {
     primitive::Rectangle get_window_body_rect(const Window& window) {
         return {window.x(), window.y() + window.title_bar_height(), window.width(), window.height() - window.title_bar_height()};
     }
+
+    void update_window(Window& old_window, const Window& new_window) {
+        old_window.set_x(new_window.x());
+        old_window.set_y(new_window.y());
+        old_window.set_width(new_window.width());
+        old_window.set_height(new_window.height());
+    }
 }

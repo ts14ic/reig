@@ -78,6 +78,8 @@ namespace reig::detail {
     primitive::Rectangle get_window_header_rect(const Window& window);
 
     primitive::Rectangle get_window_body_rect(const Window& window);
+
+    void update_window(Window& old_window, const Window& new_window);
 }
 
 #endif //REIG_WINDOW_H
