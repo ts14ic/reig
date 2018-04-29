@@ -5,22 +5,64 @@
 #include "gsl.h"
 
 namespace reig::detail {
-    struct Window {
-        Window(gsl::czstring title, float x, float y, float width, float height, float titleBarHeight)
-                : Window{title, title, x, y, width, height, titleBarHeight} {}
+    class Window {
+    public:
+        Window(gsl::czstring title, float x, float y, float width, float height, float title_bar_height)
+                : Window{title, title, x, y, width, height, title_bar_height} {}
 
-        Window(gsl::czstring id, gsl::czstring title, float x, float y, float width, float height, float titleBarHeight)
-                : title{title}, id{id}, x{x}, y{y}, width{width}, height{height}, title_bar_height{titleBarHeight} {}
+        Window(gsl::czstring id, gsl::czstring title, float x, float y,
+               float width, float height, float title_bar_height)
+                : _title{title}, _id{id}, _x{x}, _y{y}, _width{width}, _height{height},
+                  _title_bar_height{title_bar_height} {}
 
-        DrawData draw_data;
-        gsl::czstring title = "";
-        gsl::czstring id = nullptr;
-        float x = 0.0f;
-        float y = 0.0f;
-        float width = 0.f;
-        float height = 0.f;
-        float title_bar_height = 0.f;
-        bool is_finished = false;
+        DrawData& draw_data() {
+            return _draw_data;
+        }
+
+        const DrawData& draw_data() const {
+            return _draw_data;
+        }
+
+        gsl::czstring title() const {
+            return _title;
+        }
+
+        gsl::czstring id() const {
+            return _id;
+        }
+
+        float x() const { return _x; }
+
+        void set_x(float x) { _x = x; }
+
+        float y() const { return _y; }
+
+        void set_y(float y) { _y = y; }
+
+        float width() const { return _width; }
+
+        void set_width(float width) { _width = width; }
+
+        float height() const { return _height; }
+
+        void set_height(float height) { _height = height; }
+
+        float title_bar_height() const { return _title_bar_height; }
+
+        bool is_finished() const { return _is_finished; }
+
+        void finish() { _is_finished = true; }
+
+    private:
+        DrawData _draw_data;
+        gsl::czstring _title = "";
+        gsl::czstring _id = nullptr;
+        float _x = 0.0f;
+        float _y = 0.0f;
+        float _width = 0.f;
+        float _height = 0.f;
+        float _title_bar_height = 0.f;
+        bool _is_finished = false;
     };
 
     /**
