@@ -4,6 +4,7 @@
 #include "context_fwd.h"
 #include "text.h"
 #include "primitive.h"
+#include "gsl.h"
 
 namespace reig::reference_widget {
     /**
@@ -15,7 +16,7 @@ namespace reig::reference_widget {
      *
      * @return True if the button was clicked, false otherwise
      */
-    bool button(reig::Context& ctx, const char* title, primitive::Rectangle bounding_box, primitive::Color base_color);
+    bool button(reig::Context& ctx, gsl::czstring title, primitive::Rectangle bounding_box, primitive::Color base_color);
 
     /**
      * @brief Render a titled textured button
@@ -24,7 +25,7 @@ namespace reig::reference_widget {
      * @param hover_texture Button's texture index, when button is hovered
      * @return True if the button was clicked, false otherwise
      */
-    bool textured_button(Context& ctx, const char* title, primitive::Rectangle bounding_box,
+    bool textured_button(Context& ctx, gsl::czstring title, primitive::Rectangle bounding_box,
                          int hover_texture, int base_texture);
 
     /**
@@ -34,7 +35,7 @@ namespace reig::reference_widget {
      * @param alignment Text's alignment
      * @param font_scale Text's font scale relative to size set in set_font
      */
-    void label(Context& ctx, const char* title, primitive::Rectangle bounding_box,
+    void label(Context& ctx, gsl::czstring title, primitive::Rectangle bounding_box,
                text::Alignment alignment = text::Alignment::kCenter, float font_scale = 1.f);
 
     /**

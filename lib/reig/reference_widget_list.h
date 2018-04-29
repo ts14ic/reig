@@ -11,7 +11,7 @@ namespace reig::reference_widget {
     }
 
     template <typename Range, typename Adapter, typename Action>
-    void list(Context& ctx, const char* scrollbar_id, const primitive::Rectangle& bounding_box,
+    void list(Context& ctx, gsl::czstring scrollbar_id, const primitive::Rectangle& bounding_box,
               const primitive::Color& base_color, Range&& range, Adapter&& adapter, Action&& action);
 }
 

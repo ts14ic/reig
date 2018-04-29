@@ -32,7 +32,7 @@ namespace reig {
         _user_ptr = move(user_ptr);
     }
 
-    vector<uint8_t> read_font_into_buffer(const char* const font_file_path) {
+    vector<uint8_t> read_font_into_buffer(gsl::czstring const font_file_path) {
         using exception::FailedToLoadFontException;
 
         auto file = std::unique_ptr<FILE, decltype(&std::fclose)>(std::fopen(font_file_path, "rb"), &std::fclose);
@@ -50,7 +50,7 @@ namespace reig {
         return ttf_buffer;
     }
 
-    Context::FontBitmap Context::set_font(const char* font_file_path, int texture_id, float font_height_in_px) {
+    Context::FontBitmap Context::set_font(gsl::czstring font_file_path, int texture_id, float font_height_in_px) {
         using exception::FailedToLoadFontException;
 
         if (texture_id == 0) throw FailedToLoadFontException::no_texture_id(font_file_path);
@@ -181,11 +181,11 @@ namespace reig {
         }
     }
 
-    void Context::start_window(const char* title, float default_x, float default_y) {
+    void Context::start_window(gsl::czstring title, float default_x, float default_y) {
         start_window(title, title, default_x, default_y);
     }
 
-    void Context::start_window(const char* id, const char* title, float default_x, float default_y) {
+    void Context::start_window(gsl::czstring id, gsl::czstring title, float default_x, float default_y) {
         if (!_queued_windows.empty()) end_window();
 
         auto previous_window = std::find_if(_previous_windows.begin(), _previous_windows.end(),
@@ -330,11 +330,11 @@ namespace reig {
         return Point{scaling_horizontal_offset, scaling_vertical_offset};
     }
 
-    float Context::render_text(const char* text, const Rectangle rect, text::Alignment alignment, float scale) {
+    float Context::render_text(gsl::czstring text, const Rectangle rect, text::Alignment alignment, float scale) {
         return render_text(get_current_draw_data_buffer(), text, rect, alignment, scale);
     }
 
-    float Context::render_text(DrawData& draw_data, const char* text, Rectangle rect, text::Alignment alignment,
+    float Context::render_text(DrawData& draw_data, gsl::czstring text, Rectangle rect, text::Alignment alignment,
                                float scale) {
         if (_font.baked_chars.empty() || !text) return rect.x;
 

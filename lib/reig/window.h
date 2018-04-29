@@ -2,18 +2,19 @@
 #define REIG_WINDOW_H
 
 #include "primitive.h"
+#include "gsl.h"
 
 namespace reig::detail {
     struct Window {
-        Window(const char* title, float x, float y, float width, float height, float titleBarHeight)
+        Window(gsl::czstring title, float x, float y, float width, float height, float titleBarHeight)
                 : Window{title, title, x, y, width, height, titleBarHeight} {}
 
-        Window(const char* id, const char* title, float x, float y, float width, float height, float titleBarHeight)
+        Window(gsl::czstring id, gsl::czstring title, float x, float y, float width, float height, float titleBarHeight)
                 : title{title}, id{id}, x{x}, y{y}, width{width}, height{height}, title_bar_height{titleBarHeight} {}
 
         DrawData draw_data;
-        const char* title = "";
-        const char* id = nullptr;
+        gsl::czstring title = "";
+        gsl::czstring id = nullptr;
         float x = 0.0f;
         float y = 0.0f;
         float width = 0.f;

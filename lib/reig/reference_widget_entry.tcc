@@ -14,11 +14,11 @@ namespace reig::reference_widget {
 
         template <typename C>
         void display_entry_model(Context& ctx, const EntryModel& model, primitive::Color primary_color,
-                                 const std::basic_string<C>& value_ref, const char* title);
+                                 const std::basic_string<C>& value_ref, gsl::czstring title);
     }
 
     template <typename C>
-    EntryOuput entry(reig::Context& ctx, const char* title, primitive::Rectangle bounding_box,
+    EntryOuput entry(reig::Context& ctx, gsl::czstring title, primitive::Rectangle bounding_box,
                      const primitive::Color& base_color, std::basic_string<C>& value) {
         using namespace primitive;
         ctx.fit_rect_in_window(bounding_box);
@@ -80,7 +80,7 @@ namespace reig::reference_widget {
     void detail::display_entry_model(Context& ctx, const EntryModel& model,
                                      primitive::Color primary_color,
                                      const std::basic_string<C>& value_ref,
-                                     const char* title) {
+                                     gsl::czstring title) {
         using namespace primitive;
         Color secondary_color = colors::get_yiq_contrast(primary_color);
 

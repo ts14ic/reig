@@ -7,6 +7,7 @@
 #include "keyboard.h"
 #include "text.h"
 #include "config.h"
+#include "gsl.h"
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 #include "stb_truetype.h"
@@ -63,7 +64,7 @@ namespace reig {
          * @return Returns the bitmap, which is used to create a texture by user.
          * Set returned bitmap field to nullptr, to avoid deletion
          */
-        FontBitmap set_font(const char* font_file_path, int texture_id, float font_height_in_px);
+        FontBitmap set_font(gsl::czstring font_file_path, int texture_id, float font_height_in_px);
 
         float get_font_size() const;
 
@@ -88,7 +89,7 @@ namespace reig {
          * Starts a new window, with the given title and starting coordinates.
          * The windows is given an id, that is equals to the title
          */
-        void start_window(const char* title, float default_x, float default_y);
+        void start_window(gsl::czstring title, float default_x, float default_y);
 
         /**
          * Same as start_window without the id parameter.
@@ -96,7 +97,7 @@ namespace reig {
          * Starts a new window, with the given id, title and starting coordinates.
          * Use this one with a constant id, if you know the window title can change
          */
-        void start_window(const char* id, const char* title, float default_x, float default_y);
+        void start_window(gsl::czstring id, gsl::czstring title, float default_x, float default_y);
 
         void end_window();
 
@@ -109,7 +110,7 @@ namespace reig {
          * @param rect Text's bounding box
          * @return x coordinate after printing
          */
-        float render_text(const char* text, primitive::Rectangle rect, text::Alignment alignment = text::Alignment::kCenter, float scale = 1.f);
+        float render_text(gsl::czstring text, primitive::Rectangle rect, text::Alignment alignment = text::Alignment::kCenter, float scale = 1.f);
 
         /**
          * @brief Schedules a rectangle drawing
@@ -135,7 +136,7 @@ namespace reig {
     private:
         DrawData& get_current_draw_data_buffer();
 
-        float render_text(DrawData& draw_data, const char* text, primitive::Rectangle rect,
+        float render_text(DrawData& draw_data, gsl::czstring text, primitive::Rectangle rect,
                           text::Alignment alignment = text::Alignment::kCenter, float scale = 1.0f);
 
         static void render_rectangle(DrawData& draw_data, const primitive::Rectangle& rect,
@@ -169,7 +170,7 @@ namespace reig {
 
         detail::Window* get_current_window();
 
-        const char* _dragged_window = nullptr;
+        gsl::czstring _dragged_window = nullptr;
         std::vector<detail::Window> _previous_windows;
         std::vector<detail::Window> _queued_windows;
         DrawData _free_draw_data;

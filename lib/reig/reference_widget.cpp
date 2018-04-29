@@ -22,7 +22,7 @@ namespace reig::reference_widget {
         return {is_hovering_over_area, has_just_clicked, is_holding_click};
     }
 
-    bool button(Context& ctx, const char* title, Rectangle bounding_box, Color base_color) {
+    bool button(Context& ctx, gsl::czstring title, Rectangle bounding_box, Color base_color) {
         auto model = get_button_model(ctx, bounding_box);
 
         Color inner_color{base_color};
@@ -44,7 +44,7 @@ namespace reig::reference_widget {
         return model.has_just_clicked;
     }
 
-    bool textured_button(Context& ctx, const char* title, Rectangle bounding_box,
+    bool textured_button(Context& ctx, gsl::czstring title, Rectangle bounding_box,
                          int hover_texture, int base_texture) {
         auto model = get_button_model(ctx, bounding_box);
 

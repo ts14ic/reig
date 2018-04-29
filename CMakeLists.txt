@@ -7,6 +7,7 @@ set(CMAKE_CXX_COMPILER clang++)
 
 # reig library
 add_library(reig_lib
+        lib/reig/gsl.h
         lib/reig/stb_truetype.h
         lib/reig/context_fwd.h
         lib/reig/primitive.h lib/reig/primitive.cpp
