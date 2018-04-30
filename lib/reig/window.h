@@ -57,16 +57,21 @@ namespace reig::detail {
 
         void set_collapsed(bool is_collapsed) { _is_collapsed = is_collapsed; }
 
+        bool is_queued() const { return _is_queued; }
+
+        void set_queued(bool is_queued) { _is_queued = is_queued; }
+
     private:
         DrawData _draw_data;
         gsl::czstring _title = "";
         gsl::czstring _id = nullptr;
         float _x = 0.0f;
         float _y = 0.0f;
-        float _width = 0.f;
-        float _height = 0.f;
-        float _title_bar_height = 0.f;
+        float _width = 0.0f;
+        float _height = 0.0f;
+        float _title_bar_height = 0.0f;
         bool _is_finished = false;
+        bool _is_queued = false;
         bool _is_collapsed = false;
     };
 
