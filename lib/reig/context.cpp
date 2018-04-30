@@ -157,19 +157,6 @@ namespace reig {
         }
     }
 
-    void Context::start_frame() {
-        mouse.left_button._is_clicked = false;
-        mouse._scrolled = 0.f;
-
-        keyboard.reset();
-
-        ++_frame_counter;
-    }
-
-    unsigned Context::get_frame_counter() const {
-        return _frame_counter;
-    }
-
     detail::Window* Context::get_current_window() {
         if (!_queued_windows.empty() && !_queued_windows.back().is_finished()) {
             return &_queued_windows.back();
@@ -313,6 +300,28 @@ namespace reig {
         }
     }
 
+    DrawData& Context::get_current_draw_data_buffer() {
+        auto* current_window = get_current_window();
+        if (current_window) {
+            return current_window->draw_data();
+        } else {
+            return _free_draw_data;
+        }
+    }
+
+    void Context::start_frame() {
+        mouse.left_button._is_clicked = false;
+        mouse._scrolled = 0.f;
+
+        keyboard.reset();
+
+        ++_frame_counter;
+    }
+
+    unsigned Context::get_frame_counter() const {
+        return _frame_counter;
+    }
+
     bool has_alignment(text::Alignment container, text::Alignment alignment) {
         auto container_as_uint = static_cast<unsigned>(container);
         auto alignment_as_uint = static_cast<unsigned>(alignment);
@@ -398,15 +407,6 @@ namespace reig {
         render_text_quads(draw_data, quads, horizontal_alignment, vertical_alignment, _font.texture_id);
 
         return x;
-    }
-
-    DrawData& Context::get_current_draw_data_buffer() {
-        auto* current_window = get_current_window();
-        if (current_window) {
-            return current_window->draw_data();
-        } else {
-            return _free_draw_data;
-        }
     }
 
     void Context::render_rectangle(const Rectangle& rect, const Color& color) {
