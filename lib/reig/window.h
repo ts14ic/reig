@@ -53,6 +53,10 @@ namespace reig::detail {
 
         void finish() { _is_finished = true; }
 
+        bool is_collapsed() const { return _is_collapsed; }
+
+        void set_collapsed(bool is_collapsed) { _is_collapsed = is_collapsed; }
+
     private:
         DrawData _draw_data;
         gsl::czstring _title = "";
@@ -63,6 +67,7 @@ namespace reig::detail {
         float _height = 0.f;
         float _title_bar_height = 0.f;
         bool _is_finished = false;
+        bool _is_collapsed = false;
     };
 
     /**
