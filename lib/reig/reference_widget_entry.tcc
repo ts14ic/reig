@@ -6,15 +6,15 @@
 namespace reig::reference_widget {
     namespace detail {
         struct EntryModel {
-            const primitive::Rectangle bounding_box;
             const primitive::Rectangle caret_box;
             const bool is_selected = false;
             const bool is_holding_click = false;
         };
 
         template <typename C>
-        void display_entry_model(Context& ctx, const EntryModel& model, primitive::Color primary_color,
-                                 const std::basic_string<C>& value_ref, gsl::czstring title);
+        void display_entry_model(Context& ctx, const EntryModel& model, primitive::Rectangle bounding_box,
+                                 primitive::Color primary_color, const std::basic_string<C>& value_ref,
+                                 gsl::czstring title);
     }
 
     template <typename C>
@@ -69,24 +69,25 @@ namespace reig::reference_widget {
             }
         }
 
-        detail::EntryModel model{bounding_box, caret_area, is_selected, is_holding_click};
+        detail::EntryModel model{caret_area, is_selected, is_holding_click};
 
-        display_entry_model(ctx, model, base_color, value, title);
+        display_entry_model(ctx, model, bounding_box, base_color, value, title);
 
         return output;
     }
 
     template <typename C>
     void detail::display_entry_model(Context& ctx, const EntryModel& model,
+                                     primitive::Rectangle bounding_box,
                                      primitive::Color primary_color,
                                      const std::basic_string<C>& value_ref,
                                      gsl::czstring title) {
         using namespace primitive;
         Color secondary_color = colors::get_yiq_contrast(primary_color);
 
-        Rectangle base_area = decrease_rect(model.bounding_box, 4);
+        Rectangle base_area = decrease_rect(bounding_box, 4);
 
-        ctx.render_rectangle(model.bounding_box, secondary_color);
+        ctx.render_rectangle(bounding_box, secondary_color);
         if (model.is_holding_click) {
             base_area = decrease_rect(base_area, 4);
             primary_color = colors::lighten_color_by(primary_color, 30);
