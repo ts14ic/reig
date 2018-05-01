@@ -137,17 +137,6 @@ namespace reig {
         }
     }
 
-    detail::Window* Context::get_current_window() {
-        auto current_window = std::find_if(_windows.begin(), _windows.end(), [](const Window& window) {
-            return window.is_queued() && !window.is_finished();
-        });
-        if (current_window != _windows.end()) {
-            return &*current_window;
-        } else {
-            return nullptr;
-        }
-    }
-
     void Context::start_window(gsl::czstring title, float default_x, float default_y) {
         start_window(title, title, default_x, default_y);
     }
@@ -160,8 +149,10 @@ namespace reig {
         });
         if (window != _windows.end()) {
             detail::restart_window(*window, title);
+            _current_window = &*window;
         } else {
             _windows.emplace(_windows.begin(), id, title, default_x, default_y, 0, 0, _font.height + 8);
+            _current_window = &_windows.front();
         }
     }
 
@@ -217,10 +208,10 @@ namespace reig {
     void Context::end_window() {
         if (_windows.empty()) return;
 
-        auto* current_window = get_current_window();
-        if (current_window != nullptr) {
-            current_window->set_finished(true);
-            handle_window_input(*current_window);
+        if (_current_window != nullptr) {
+            _current_window->set_finished(true);
+            handle_window_input(*_current_window);
+            _current_window = nullptr;
         }
     }
 
@@ -252,11 +243,10 @@ namespace reig {
     }
 
     bool reig::Context::is_window_body_point_visible(const primitive::Point& point) {
-        auto* current_window = get_current_window();
         for (auto& window : _windows) {
             if (is_point_in_rect(point, get_window_body_rect(window))) {
-                if (current_window) {
-                    return current_window->id() == window.id();
+                if (_current_window) {
+                    return _current_window->id() == window.id();
                 } else {
                     return false;
                 }
@@ -266,16 +256,14 @@ namespace reig {
     }
 
     void Context::fit_rect_in_window(Rectangle& rect) {
-        auto* current_window = get_current_window();
-        if (current_window != nullptr) {
-            detail::fit_rect_in_window(rect, *current_window);
+        if (_current_window != nullptr) {
+            detail::fit_rect_in_window(rect, *_current_window);
         }
     }
 
     DrawData& Context::get_current_draw_data_buffer() {
-        auto* current_window = get_current_window();
-        if (current_window) {
-            return current_window->draw_data();
+        if (_current_window) {
+            return _current_window->draw_data();
         } else {
             return _free_draw_data;
         }
