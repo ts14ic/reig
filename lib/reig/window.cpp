@@ -1,7 +1,10 @@
 #include "window.h"
 
+using reig::primitive::Rectangle;
+using reig::primitive::Triangle;
+
 namespace reig::detail {
-    void fit_rect_in_window(reig::primitive::Rectangle& rect, Window& window) {
+    void fit_rect_in_window(Rectangle& rect, Window& window) {
         rect.x += window.x() + 4;
         rect.y += window.y() + window.title_bar_height() + 4;
 
@@ -19,15 +22,15 @@ namespace reig::detail {
         }
     }
 
-    primitive::Rectangle get_window_full_rect(const Window& window) {
+    Rectangle get_window_full_rect(const Window& window) {
         return {window.x(), window.y(), window.width(), window.height()};
     }
 
-    primitive::Rectangle get_window_header_rect(const Window& window) {
+    Rectangle get_window_header_rect(const Window& window) {
         return {window.x(), window.y(), window.width(), window.title_bar_height()};
     }
 
-    primitive::Triangle get_window_minimize_triangle(const Window& window) {
+    Triangle get_window_minimize_triangle(const Window& window) {
         if (!window.is_collapsed()) {
             return {{window.x() + 3,                                 window.y() + 3},
                     {window.x() + 3 + window.title_bar_height(),     window.y() + 3},
@@ -39,12 +42,12 @@ namespace reig::detail {
         }
     }
 
-    primitive::Rectangle get_window_minimize_rect(const Window& window) {
+    Rectangle get_window_minimize_rect(const Window& window) {
         return {window.x() + 3, window.y() + 3,
                 window.title_bar_height() + 3, window.title_bar_height() - 3};
     }
 
-    primitive::Rectangle get_window_body_rect(const Window& window) {
+    Rectangle get_window_body_rect(const Window& window) {
         return {window.x(), window.y() + window.title_bar_height(),
                 window.width(), window.height() - window.title_bar_height()};
     }
