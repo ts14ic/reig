@@ -152,9 +152,9 @@ namespace reig {
 
         void render_windows();
 
-        void update_previous_windows();
+        void update_window_layers();
 
-        void cleanup_previous_windows();
+        void remove_unqueued_windows();
 
         bool handle_window_focus(const detail::Window& window, bool is_claiming);
 

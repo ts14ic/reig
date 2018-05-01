@@ -97,30 +97,26 @@ namespace reig {
         }
         end_window();
 
-        update_previous_windows();
-        cleanup_previous_windows();
+        update_window_layers();
+        remove_unqueued_windows();
 
         _render_handler(_free_draw_data, _user_ptr);
         _free_draw_data.clear();
         render_windows();
-
-        for (auto& window : _windows) {
-            window.set_queued(false);
-        }
     }
 
-    void Context::update_previous_windows() {
-        if (mouse.left_button.is_clicked()) {
-            for (auto it = _windows.begin(); it != _windows.end(); ++it) {
-                if (mouse.left_button.just_clicked_in_window(detail::get_full_window_rect(*it))) {
-                    std::iter_swap(it, _windows.begin());
-                    break;
-                }
+    void Context::update_window_layers() {
+        if (!mouse.left_button.is_clicked()) return;
+
+        for (auto it = _windows.begin(); it != _windows.end(); ++it) {
+            if (mouse.left_button.just_clicked_in_window(detail::get_full_window_rect(*it))) {
+                std::iter_swap(it, _windows.begin());
+                break;
             }
         }
     }
 
-    void Context::cleanup_previous_windows() {
+    void Context::remove_unqueued_windows() {
         auto remove_from = std::remove_if(_windows.begin(), _windows.end(),
                                           [](const Window& window) {
                                               return !window.is_queued();
@@ -160,12 +156,12 @@ namespace reig {
     void Context::start_window(gsl::czstring id, gsl::czstring title, float default_x, float default_y) {
         if (!_windows.empty()) end_window();
 
-        auto previous_window = std::find_if(_windows.begin(), _windows.end(),
+        auto window = std::find_if(_windows.begin(), _windows.end(),
                                            [id](const Window& window) {
                                                return window.id() == id;
                                            });
-        if (previous_window != _windows.end()) {
-            detail::restart_window(*previous_window, title);
+        if (window != _windows.end()) {
+            detail::restart_window(*window, title);
         } else {
             _windows.emplace(_windows.begin(), id, title, default_x, default_y, 0, 0, _font.height + 8);
         }
@@ -259,10 +255,10 @@ namespace reig {
 
     bool reig::Context::is_window_body_point_visible(const primitive::Point& point) {
         auto* current_window = get_current_window();
-        for (auto& previousWindow : _windows) {
-            if (is_point_in_rect(point, get_window_body_rect(previousWindow))) {
+        for (auto& window : _windows) {
+            if (is_point_in_rect(point, get_window_body_rect(window))) {
                 if (current_window) {
-                    return current_window->id() == previousWindow.id();
+                    return current_window->id() == window.id();
                 } else {
                     return false;
                 }
@@ -292,6 +288,10 @@ namespace reig {
         mouse._scrolled = 0.f;
 
         keyboard.reset();
+
+        for (auto& window : _windows) {
+            window.set_queued(false);
+        }
 
         ++_frame_counter;
     }
