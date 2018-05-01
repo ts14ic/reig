@@ -165,7 +165,6 @@ namespace reig {
 
             auto header_rect = get_window_header_rect(current_window);
             auto minimize_triangle = get_window_minimize_triangle(current_window);
-            auto minimize_rect = get_window_minimize_rect(current_window);
             auto title_rect = decrease_rect(header_rect, 4);
             auto body_rect = get_window_body_rect(current_window);
 
@@ -212,13 +211,15 @@ namespace reig {
     }
 
     void Context::handle_window_input(detail::Window& window) {
+        bool clicked_minimize = is_point_in_rect(mouse.left_button.get_clicked_pos(), get_window_minimize_rect(window));
+
         if (mouse.left_button.is_clicked()
-            && is_point_in_rect(mouse.left_button.get_clicked_pos(), get_window_minimize_rect(window))
+            && clicked_minimize
             && is_window_header_point_visible(window, mouse.left_button.get_clicked_pos())
             && handle_window_focus(window, true)) {
             window.set_collapsed(!window.is_collapsed());
         } else if (mouse.left_button.is_held()
-                   && !is_point_in_rect(mouse.left_button.get_clicked_pos(), get_window_minimize_rect(window))
+                   && !clicked_minimize
                    && is_window_header_point_visible(window, mouse.left_button.get_clicked_pos())
                    && handle_window_focus(window, true)) {
             Point moved{
