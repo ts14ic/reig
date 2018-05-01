@@ -2,12 +2,11 @@
 #include <reig/reference_widget.h>
 #include <reig/reference_widget_list.h>
 #include <reig/reference_widget_entry.h>
-
 #include <SDL2_gfxPrimitives.h>
-
-#include <iostream>
 #include <boost/format.hpp>
+#include <iostream>
 #include <iomanip>
+#include <chrono>
 
 using namespace std::string_literals;
 using namespace reig::primitive::colors::literals;
@@ -42,9 +41,12 @@ public:
     }
 
     int run() {
-        int previousFrameTimestamp;
+        namespace chrono = std::chrono;
+        std::vector<long> measurements;
+        mFpsString = "? us per frame";
+
         while(true) {
-            previousFrameTimestamp = SDL_GetTicks();
+            auto start_timestamp = chrono::steady_clock::now();
             mGui.ctx.start_frame();
 
             if(!handle_input_events()) {
@@ -53,7 +55,20 @@ public:
 
             draw_gui();
 
-            render_frame(previousFrameTimestamp);
+            auto end_timestamp = chrono::steady_clock::now();
+            auto ticks = chrono::duration_cast<chrono::microseconds>(end_timestamp - start_timestamp).count();
+            measurements.push_back(ticks);
+
+            if (measurements.size() >= 5) {
+                double count = measurements.size();
+                double avg_us_per_frame = 0.0f;
+                for (auto measurement : measurements) {
+                    avg_us_per_frame += measurement / count;
+                }
+                measurements.clear();
+                mFpsString = str(boost::format("%.0f us per frame") % avg_us_per_frame);
+            }
+            render_frame();
         }
 
         return 0;
@@ -239,7 +254,7 @@ private:
     float mFontScale = 1.0f;
 
     void draw_gui() {
-        widget::label(mGui.ctx, mFpsString.c_str(), {0, 0, 128, 32}, reig::text::Alignment::kCenter);
+        widget::label(mGui.ctx, mFpsString.c_str(), {0, 0, 128, 32}, reig::text::Alignment::kRight);
 
         widget::slider(mGui.ctx, {350, 680, 300, 20}, colors::kGreen, mFontScale, 0.0f, 2.0f, 0.05f);
         primitive::Rectangle rect{0, 700, 1000, 40};
@@ -411,15 +426,10 @@ private:
         }
     }
 
-    void render_frame(int& previousFrameTimestamp) {
+    void render_frame() {
         SDL_SetRenderDrawColor(mSdl.renderer, 50, 50, 50, 255);
         SDL_RenderClear(mSdl.renderer);
 
-        auto ticks = SDL_GetTicks() - previousFrameTimestamp;
-        if(ticks != 0) {
-            ticks = 1000 / ticks;
-            mFpsString = std::to_string(ticks) + " FPS";
-        }
         mGui.ctx.end_frame();
 
         int mx, my;
