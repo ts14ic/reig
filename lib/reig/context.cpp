@@ -165,11 +165,7 @@ namespace reig {
                                                return window.id() == id;
                                            });
         if (previous_window != _windows.end()) {
-            previous_window->set_queued(true);
-            previous_window->set_finished(false);
-            previous_window->set_title(title);
-            previous_window->set_width(0);
-            previous_window->set_height(0);
+            detail::restart_window(*previous_window, title);
         } else {
             _windows.emplace(_windows.begin(), id, title, default_x, default_y, 0, 0, _font.height + 8);
         }

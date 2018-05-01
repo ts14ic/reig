@@ -31,10 +31,11 @@ namespace reig::detail {
         return {window.x(), window.y() + window.title_bar_height(), window.width(), window.height() - window.title_bar_height()};
     }
 
-    void update_window(Window& old_window, const Window& new_window) {
-        old_window.set_x(new_window.x());
-        old_window.set_y(new_window.y());
-        old_window.set_width(new_window.width());
-        old_window.set_height(new_window.height());
+    void restart_window(Window& window, gsl::czstring title) {
+        window.set_queued(true);
+        window.set_finished(false);
+        window.set_title(title);
+        window.set_width(0.0f);
+        window.set_height(0.0f);
     }
 }

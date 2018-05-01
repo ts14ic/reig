@@ -93,7 +93,7 @@ namespace reig::detail {
 
     primitive::Rectangle get_window_body_rect(const Window& window);
 
-    void update_window(Window& old_window, const Window& new_window);
+    void restart_window(Window& old_window, gsl::czstring title);
 }
 
 #endif //REIG_WINDOW_H
