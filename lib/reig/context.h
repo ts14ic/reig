@@ -152,9 +152,9 @@ namespace reig {
 
         void render_windows();
 
-        void update_previous_windows();
+        void update_window_layers();
 
-        void cleanup_previous_windows();
+        void remove_unqueued_windows();
 
         bool handle_window_focus(const detail::Window& window, bool is_claiming);
 
@@ -167,11 +167,9 @@ namespace reig {
         friend ::reig::detail::Mouse;
         friend ::reig::detail::MouseButton;
 
-        detail::Window* get_current_window();
-
         gsl::czstring _dragged_window = nullptr;
-        std::vector<detail::Window> _previous_windows;
-        std::vector<detail::Window> _queued_windows;
+        detail::Window* _queued_window = nullptr;
+        std::vector<detail::Window> _windows;
         DrawData _free_draw_data;
 
         detail::Font _font;

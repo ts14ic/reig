@@ -2,8 +2,8 @@
 #define STB_TRUETYPE_IMPLEMENTATION
 
 #include "context.h"
-#include "maths.h"
 #include "exception.h"
+#include "maths.h"
 #include <memory>
 #include <algorithm>
 
@@ -97,87 +97,43 @@ namespace reig {
         }
         end_window();
 
-        update_previous_windows();
-        cleanup_previous_windows();
+        update_window_layers();
+        remove_unqueued_windows();
 
         _render_handler(_free_draw_data, _user_ptr);
         _free_draw_data.clear();
         render_windows();
-
-        _queued_windows.clear();
     }
 
-    void Context::update_previous_windows() {
-        for (auto it = _queued_windows.rbegin(); it != _queued_windows.rend(); ++it) {
-            auto& queued_window = *it;
-            auto previous_window = std::find_if(_previous_windows.begin(), _previous_windows.end(),
-                                               [&queued_window](const Window& window) {
-                                                   return queued_window.id == window.id;
-                                               });
-
-            if (previous_window != _previous_windows.end()) {
-                previous_window->width = queued_window.width;
-                previous_window->height = queued_window.height;
-                previous_window->x = queued_window.x;
-                (*previous_window).y = queued_window.y;
-            } else {
-                _previous_windows.insert(_previous_windows.begin(), queued_window);
-            }
-        }
-
+    void Context::update_window_layers() {
         if (!mouse.left_button.is_clicked()) return;
 
-        for (auto it = _previous_windows.begin(); it != _previous_windows.end(); ++it) {
+        for (auto it = _windows.begin(); it != _windows.end(); ++it) {
             if (mouse.left_button.just_clicked_in_window(detail::get_full_window_rect(*it))) {
-                std::iter_swap(it, _previous_windows.begin());
+                std::iter_swap(it, _windows.begin());
                 break;
             }
         }
     }
 
-    void Context::cleanup_previous_windows() {
-        auto remove_from = std::remove_if(_previous_windows.begin(), _previous_windows.end(),
-                                         [this](const Window& previous_window) {
-                                             return std::none_of(_queued_windows.begin(), _queued_windows.end(),
-                                                                     [&previous_window](const Window& window) {
-                                                                         return window.id == previous_window.id;
-                                                                     });
-                                         });
-        _previous_windows.erase(remove_from, _previous_windows.end());
+    void Context::remove_unqueued_windows() {
+        auto remove_from = std::remove_if(_windows.begin(), _windows.end(), [](const Window& window) {
+            return !window.is_queued();
+        });
+        _windows.erase(remove_from, _windows.end());
     }
 
     bool Context::handle_window_focus(const Window& window, bool is_claiming) {
         if (is_claiming) {
             if (!_dragged_window) {
-                _dragged_window = window.id;
+                _dragged_window = window.id();
             }
-            return _dragged_window == window.id;
+            return _dragged_window == window.id();
         } else {
-            if (_dragged_window == window.id) {
+            if (_dragged_window == window.id()) {
                 _dragged_window = nullptr;
             }
-            return _dragged_window != window.id;
-        }
-    }
-
-    void Context::start_frame() {
-        mouse.left_button._is_clicked = false;
-        mouse._scrolled = 0.f;
-
-        keyboard.reset();
-
-        ++_frame_counter;
-    }
-
-    unsigned Context::get_frame_counter() const {
-        return _frame_counter;
-    }
-
-    detail::Window* Context::get_current_window() {
-        if (!_queued_windows.empty() && !_queued_windows.back().is_finished) {
-            return &_queued_windows.back();
-        } else {
-            return nullptr;
+            return _dragged_window != window.id();
         }
     }
 
@@ -186,87 +142,77 @@ namespace reig {
     }
 
     void Context::start_window(gsl::czstring id, gsl::czstring title, float default_x, float default_y) {
-        if (!_queued_windows.empty()) end_window();
+        if (!_windows.empty()) end_window();
 
-        auto previous_window = std::find_if(_previous_windows.begin(), _previous_windows.end(),
-                                           [id](const Window& window) {
-                                               return window.id == id;
-                                           });
-        if (previous_window != _previous_windows.end()) {
-            _queued_windows.emplace_back(id, title, previous_window->x, previous_window->y, 0, 0, _font.height + 8);
+        auto window = std::find_if(_windows.begin(), _windows.end(), [id](const Window& window) {
+            return window.id() == id;
+        });
+        if (window != _windows.end()) {
+            detail::restart_window(*window, title);
+            _queued_window = &*window;
         } else {
-            _queued_windows.emplace_back(id, title, default_x, default_y, 0, 0, _font.height + 8);
+            _windows.emplace(_windows.begin(), id, title, default_x, default_y, 0, 0, _font.height + 8);
+            _queued_window = &_windows.front();
         }
     }
 
     void Context::render_windows() {
-        vector<reference_wrapper<Window>> ordered_windows;
-        for (auto pit = _previous_windows.rbegin(); pit != _previous_windows.rend(); ++pit) {
-            auto& previous_window = *pit;
-            auto qit = std::find_if(_queued_windows.begin(), _queued_windows.end(),
-                                   [&previous_window](const Window& window) {
-                                       return previous_window.id == window.id;
-                                   });
-            ordered_windows.push_back(std::ref(*qit));
-        }
+        for(auto it = _windows.rbegin(); it != _windows.rend(); ++it) {
+            auto& current_window = *it;
 
-        for(auto it = ordered_windows.begin(); it != ordered_windows.end(); ++it) {
-            auto& current_window = it->get();
-
-            auto current_widget_data = move(current_window.draw_data);
-            current_window.draw_data.clear();
+            auto current_widget_data = move(current_window.draw_data());
+            current_window.draw_data().clear();
 
             auto header_rect = detail::get_window_header_rect(current_window);
             Triangle header_triangle{
-                    {current_window.x + 3.f, current_window.y + 3.f},
-                    {current_window.x + 3.f + current_window.title_bar_height, current_window.y + 3.f},
-                    {current_window.x + 3.f + current_window.title_bar_height / 2.f,
-                     current_window.y + current_window.title_bar_height - 3.f}
+                    {current_window.x() + 3.f, current_window.y() + 3.f},
+                    {current_window.x() + 3.f + current_window.title_bar_height(), current_window.y() + 3.f},
+                    {current_window.x() + 3.f + current_window.title_bar_height() / 2.f,
+                     current_window.y() + current_window.title_bar_height() - 3.f}
             };
             auto title_rect = decrease_rect(header_rect, 4);
             auto body_rect = detail::get_window_body_rect(current_window);
 
-            auto frame_color = it != ordered_windows.end() - 1
+            auto frame_color = it != _windows.rend() - 1
                               ? colors::dim_color_by(_config._title_bar_bg_color, 127)
                               : _config._title_bar_bg_color;
 
             if (_config._are_windows_textured) {
-                render_rectangle(current_window.draw_data, header_rect, _config._title_bar_bg_texture_id);
+                render_rectangle(current_window.draw_data(), header_rect, _config._title_bar_bg_texture_id);
             } else {
-                render_rectangle(current_window.draw_data, header_rect, frame_color);
+                render_rectangle(current_window.draw_data(), header_rect, frame_color);
             }
-            render_triangle(current_window.draw_data, header_triangle, colors::kLightGrey);
-            render_text(current_window.draw_data, current_window.title, title_rect);
+            render_triangle(current_window.draw_data(), header_triangle, colors::kLightGrey);
+            render_text(current_window.draw_data(), current_window.title(), title_rect);
             if (_config._are_windows_textured) {
-                render_rectangle(current_window.draw_data, body_rect, _config._window_bg_texture_id);
+                render_rectangle(current_window.draw_data(), body_rect, _config._window_bg_texture_id);
             } else {
                 int thickness = 1;
-                render_rectangle(current_window.draw_data, decrease_rect(body_rect, thickness),
+                render_rectangle(current_window.draw_data(), decrease_rect(body_rect, thickness),
                                  _config._window_bg_color);
 
                 auto frame = get_rect_frame(body_rect, thickness);
                 for (const auto& frame_rect : frame) {
-                    render_rectangle(current_window.draw_data, frame_rect, frame_color);
+                    render_rectangle(current_window.draw_data(), frame_rect, frame_color);
                 }
             }
 
-            _render_handler(current_window.draw_data, _user_ptr);
-            current_window.draw_data.clear();
-
+            _render_handler(current_window.draw_data(), _user_ptr);
             _render_handler(current_widget_data, _user_ptr);
+            // current_widget_data is likely to have larger capacity, so place it back
+            current_widget_data.clear();
+            current_window.draw_data() = move(current_widget_data);
         }
     }
 
     void Context::end_window() {
-        if (_queued_windows.empty()) return;
+        if (_windows.empty()) return;
 
-        auto& current_window = *get_current_window();
-
-        current_window.is_finished = true;
-        current_window.width += 4;
-        current_window.height += 4;
-
-        handle_window_input(current_window);
+        if (_queued_window != nullptr) {
+            _queued_window->set_finished(true);
+            handle_window_input(*_queued_window);
+            _queued_window = nullptr;
+        }
     }
 
     void Context::handle_window_input(detail::Window& window) {
@@ -278,8 +224,8 @@ namespace reig {
                     mouse.get_cursor_pos().y - mouse.left_button.get_clicked_pos().y
             };
 
-            window.x += moved.x;
-            window.y += moved.y;
+            window.set_x(window.x() + moved.x);
+            window.set_y(window.y() + moved.y);
             mouse.left_button._clicked_pos.x += moved.x;
             mouse.left_button._clicked_pos.y += moved.y;
         } else {
@@ -288,20 +234,19 @@ namespace reig {
     }
 
     bool Context::is_window_header_point_visible(const Window& window, const Point& point) {
-        for (auto& previous_window : _previous_windows) {
+        for (auto& previous_window : _windows) {
             if (is_point_in_rect(point, get_window_header_rect(window))) {
-                return window.id == previous_window.id;
+                return window.id() == previous_window.id();
             }
         }
         return false;
     }
 
     bool reig::Context::is_window_body_point_visible(const primitive::Point& point) {
-        auto* current_window = get_current_window();
-        for (auto& previousWindow : _previous_windows) {
-            if (is_point_in_rect(point, get_window_body_rect(previousWindow))) {
-                if (current_window) {
-                    return current_window->id == previousWindow.id;
+        for (auto& window : _windows) {
+            if (is_point_in_rect(point, get_window_body_rect(window))) {
+                if (_queued_window) {
+                    return _queued_window->id() == window.id();
                 } else {
                     return false;
                 }
@@ -311,9 +256,34 @@ namespace reig {
     }
 
     void Context::fit_rect_in_window(Rectangle& rect) {
-        if (!_queued_windows.empty()) {
-            detail::fit_rect_in_window(rect, _queued_windows.back());
+        if (_queued_window != nullptr) {
+            detail::fit_rect_in_window(rect, *_queued_window);
         }
+    }
+
+    DrawData& Context::get_current_draw_data_buffer() {
+        if (_queued_window) {
+            return _queued_window->draw_data();
+        } else {
+            return _free_draw_data;
+        }
+    }
+
+    void Context::start_frame() {
+        mouse.left_button._is_clicked = false;
+        mouse._scrolled = 0.f;
+
+        keyboard.reset();
+
+        for (auto& window : _windows) {
+            window.set_queued(false);
+        }
+
+        ++_frame_counter;
+    }
+
+    unsigned Context::get_frame_counter() const {
+        return _frame_counter;
     }
 
     bool has_alignment(text::Alignment container, text::Alignment alignment) {
@@ -401,11 +371,6 @@ namespace reig {
         render_text_quads(draw_data, quads, horizontal_alignment, vertical_alignment, _font.texture_id);
 
         return x;
-    }
-
-    DrawData& Context::get_current_draw_data_buffer() {
-        auto* current_window = get_current_window();
-        return current_window ? current_window->draw_data : _free_draw_data;
     }
 
     void Context::render_rectangle(const Rectangle& rect, const Color& color) {
