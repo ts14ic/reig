@@ -149,10 +149,10 @@ namespace reig {
         });
         if (window != _windows.end()) {
             detail::restart_window(*window, title);
-            _current_window = &*window;
+            _queued_window = &*window;
         } else {
             _windows.emplace(_windows.begin(), id, title, default_x, default_y, 0, 0, _font.height + 8);
-            _current_window = &_windows.front();
+            _queued_window = &_windows.front();
         }
     }
 
@@ -208,10 +208,10 @@ namespace reig {
     void Context::end_window() {
         if (_windows.empty()) return;
 
-        if (_current_window != nullptr) {
-            _current_window->set_finished(true);
-            handle_window_input(*_current_window);
-            _current_window = nullptr;
+        if (_queued_window != nullptr) {
+            _queued_window->set_finished(true);
+            handle_window_input(*_queued_window);
+            _queued_window = nullptr;
         }
     }
 
@@ -245,8 +245,8 @@ namespace reig {
     bool reig::Context::is_window_body_point_visible(const primitive::Point& point) {
         for (auto& window : _windows) {
             if (is_point_in_rect(point, get_window_body_rect(window))) {
-                if (_current_window) {
-                    return _current_window->id() == window.id();
+                if (_queued_window) {
+                    return _queued_window->id() == window.id();
                 } else {
                     return false;
                 }
@@ -256,14 +256,14 @@ namespace reig {
     }
 
     void Context::fit_rect_in_window(Rectangle& rect) {
-        if (_current_window != nullptr) {
-            detail::fit_rect_in_window(rect, *_current_window);
+        if (_queued_window != nullptr) {
+            detail::fit_rect_in_window(rect, *_queued_window);
         }
     }
 
     DrawData& Context::get_current_draw_data_buffer() {
-        if (_current_window) {
-            return _current_window->draw_data();
+        if (_queued_window) {
+            return _queued_window->draw_data();
         } else {
             return _free_draw_data;
         }

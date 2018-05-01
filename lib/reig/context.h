@@ -168,7 +168,7 @@ namespace reig {
         friend ::reig::detail::MouseButton;
 
         gsl::czstring _dragged_window = nullptr;
-        detail::Window* _current_window = nullptr;
+        detail::Window* _queued_window = nullptr;
         std::vector<detail::Window> _windows;
         DrawData _free_draw_data;
 
