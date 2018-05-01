@@ -204,7 +204,6 @@ namespace reig {
         if (_windows.empty()) return;
 
         if (_queued_window != nullptr) {
-            _queued_window->set_finished(true);
             handle_window_input(*_queued_window);
             _queued_window = nullptr;
         }

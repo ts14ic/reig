@@ -51,7 +51,6 @@ namespace reig::detail {
 
     void restart_window(Window& window, gsl::czstring title) {
         window.set_queued(true);
-        window.set_finished(false);
         window.set_title(title);
         window.set_width(0.0f);
         window.set_height(window.title_bar_height());

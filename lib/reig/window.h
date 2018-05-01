@@ -53,10 +53,6 @@ namespace reig::detail {
 
         float title_bar_height() const { return _title_bar_height; }
 
-        bool is_finished() const { return _is_finished; }
-
-        void set_finished(bool is_finished) { _is_finished = is_finished; }
-
         bool is_collapsed() const { return _is_collapsed; }
 
         void set_collapsed(bool is_collapsed) { _is_collapsed = is_collapsed; }
@@ -75,7 +71,6 @@ namespace reig::detail {
         float _height = 0.0f;
         float _title_bar_height = 0.0f;
         bool _is_queued = true;
-        bool _is_finished = false;
         bool _is_collapsed = false;
     };
 
