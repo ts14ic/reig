@@ -155,10 +155,9 @@ namespace reig {
     void Context::start_window(gsl::czstring id, gsl::czstring title, float default_x, float default_y) {
         if (!_windows.empty()) end_window();
 
-        auto window = std::find_if(_windows.begin(), _windows.end(),
-                                           [id](const Window& window) {
-                                               return window.id() == id;
-                                           });
+        auto window = std::find_if(_windows.begin(), _windows.end(), [id](const Window& window) {
+            return window.id() == id;
+        });
         if (window != _windows.end()) {
             detail::restart_window(*window, title);
         } else {
