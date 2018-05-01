@@ -134,7 +134,7 @@ namespace reig {
         void render_triangle(const primitive::Triangle& triangle, const primitive::Color& color);
 
     private:
-        DrawData& get_current_draw_data_buffer();
+        DrawData* get_current_draw_data_buffer();
 
         float render_text(DrawData& draw_data, gsl::czstring text, primitive::Rectangle rect,
                           text::Alignment alignment = text::Alignment::kCenter, float scale = 1.0f);

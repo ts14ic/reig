@@ -8,7 +8,7 @@ namespace reig::detail {
         if (window.x() + window.width() < get_x2(rect)) {
             window.set_width(get_x2(rect) - window.x() + 4);
         }
-        if (window.y() + window.height() < get_y2(rect)) {
+        if (!window.is_collapsed() && window.y() + window.height() < get_y2(rect)) {
             window.set_height(get_y2(rect) - window.y() + 4);
         }
         if (rect.x < window.x()) {
@@ -27,6 +27,17 @@ namespace reig::detail {
         return {window.x(), window.y(), window.width(), window.title_bar_height()};
     }
 
+    primitive::Triangle get_window_minimize_triangle(const Window& window) {
+        return {{window.x() + 3.f,                                   window.y() + 3.f},
+                {window.x() + 3.f + window.title_bar_height(),       window.y() + 3.f},
+                {window.x() + 3.f + window.title_bar_height() / 2.f, window.y() + window.title_bar_height() - 3.f}};
+    }
+
+    primitive::Rectangle get_window_minimize_rect(const Window& window) {
+        auto triangle = get_window_minimize_triangle(window);
+        return {triangle.pos0.x, triangle.pos0.y, triangle.pos1.x - triangle.pos0.x, triangle.pos2.y - triangle.pos0.y};
+    }
+
     primitive::Rectangle get_window_body_rect(const Window& window) {
         return {window.x(), window.y() + window.title_bar_height(), window.width(), window.height() - window.title_bar_height()};
     }
@@ -36,6 +47,6 @@ namespace reig::detail {
         window.set_finished(false);
         window.set_title(title);
         window.set_width(0.0f);
-        window.set_height(0.0f);
+        window.set_height(window.title_bar_height());
     }
 }

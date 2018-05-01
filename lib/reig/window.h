@@ -91,6 +91,10 @@ namespace reig::detail {
 
     primitive::Rectangle get_window_header_rect(const Window& window);
 
+    primitive::Triangle get_window_minimize_triangle(const Window& window);
+
+    primitive::Rectangle get_window_minimize_rect(const Window& window);
+
     primitive::Rectangle get_window_body_rect(const Window& window);
 
     void restart_window(Window& old_window, gsl::czstring title);
