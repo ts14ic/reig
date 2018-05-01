@@ -87,7 +87,7 @@ namespace reig::detail {
      */
     void fit_rect_in_window(primitive::Rectangle& rect, Window& window);
 
-    primitive::Rectangle get_full_window_rect(const Window& window);
+    primitive::Rectangle get_window_full_rect(const Window& window);
 
     primitive::Rectangle get_window_header_rect(const Window& window);
 

@@ -19,7 +19,7 @@ namespace reig::detail {
         }
     }
 
-    primitive::Rectangle get_full_window_rect(const Window& window) {
+    primitive::Rectangle get_window_full_rect(const Window& window) {
         return {window.x(), window.y(), window.width(), window.height()};
     }
 

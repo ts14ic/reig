@@ -109,7 +109,7 @@ namespace reig {
         if (!mouse.left_button.is_clicked()) return;
 
         for (auto it = _windows.begin(); it != _windows.end(); ++it) {
-            if (mouse.left_button.just_clicked_in_window(detail::get_full_window_rect(*it))) {
+            if (mouse.left_button.just_clicked_in_window(detail::get_window_full_rect(*it))) {
                 std::iter_swap(it, _windows.begin());
                 break;
             }
@@ -241,7 +241,7 @@ namespace reig {
         if (!point_in_header) return false;
 
         for (auto& previous_window : _windows) {
-            if (is_point_in_rect(point, get_full_window_rect(previous_window))) {
+            if (is_point_in_rect(point, get_window_full_rect(previous_window))) {
                 return window.id() == previous_window.id();
             }
         }
@@ -250,7 +250,7 @@ namespace reig {
 
     bool reig::Context::is_window_body_point_visible(const primitive::Point& point) {
         for (auto& window : _windows) {
-            if (is_point_in_rect(point, get_full_window_rect(window))) {
+            if (is_point_in_rect(point, get_window_full_rect(window))) {
                 if (_queued_window) {
                     return _queued_window->id() == window.id();
                 } else {
