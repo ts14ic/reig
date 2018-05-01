@@ -164,7 +164,7 @@ namespace reig {
             current_window.draw_data().clear();
 
             auto header_rect = get_window_header_rect(current_window);
-            auto minimize_triangle = get_window_minimize_triangle(current_window);
+            auto minimize_rect = get_window_minimize_rect(current_window);
             auto title_rect = decrease_rect(header_rect, 4);
             auto body_rect = get_window_body_rect(current_window);
 
@@ -177,7 +177,20 @@ namespace reig {
             } else {
                 render_rectangle(current_window.draw_data(), header_rect, frame_color);
             }
-            render_triangle(current_window.draw_data(), minimize_triangle, colors::kLightGrey);
+            render_rectangle(current_window.draw_data(), minimize_rect, colors::kLightGrey);
+            render_rectangle(current_window.draw_data(), decrease_rect(minimize_rect, 2), colors::kBlack);
+            if (current_window.is_collapsed()) {
+                minimize_rect = decrease_rect(minimize_rect, 8);
+                render_rectangle(current_window.draw_data(), minimize_rect, colors::kLightGrey);
+            } else {
+                minimize_rect = decrease_rect(minimize_rect, 12);
+                minimize_rect.x = minimize_rect.x - 2;
+                minimize_rect.y = minimize_rect.y - 2;
+                render_rectangle(current_window.draw_data(), minimize_rect, colors::kLightGrey);
+                minimize_rect.x += 4;
+                minimize_rect.y += 4;
+                render_rectangle(current_window.draw_data(), minimize_rect, colors::kLightGrey);
+            }
             render_text(current_window.draw_data(), current_window.title(), title_rect);
             if (_config._are_windows_textured) {
                 render_rectangle(current_window.draw_data(), body_rect, _config._window_bg_texture_id);
