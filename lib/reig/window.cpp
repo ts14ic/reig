@@ -2,6 +2,7 @@
 
 using reig::primitive::Rectangle;
 using reig::primitive::Triangle;
+using reig::primitive::Point;
 
 namespace reig::detail {
     void fit_rect_in_window(Rectangle& rect, Window& window) {
@@ -37,14 +38,14 @@ namespace reig::detail {
                     {window.x() + 3 + window.title_bar_height() / 2, window.y() + window.title_bar_height() - 3}};
         } else {
             return {{window.x() + 3,                             window.y() + 3},
-                    {window.x() + 3,                             window.y() + window.title_bar_height() - 3},
-                    {window.x() + window.title_bar_height() + 3, window.y() + window.title_bar_height() / 2 - 1.5f}};
+                    {window.x() + 3,                             window.y() - 3 + window.title_bar_height()},
+                    {window.x() - 3 + window.title_bar_height(), window.y() - 1.5f + window.title_bar_height() / 2}};
         }
     }
 
     Rectangle get_window_minimize_rect(const Window& window) {
-        return {window.x() + 3, window.y() + 3,
-                window.title_bar_height() + 3, window.title_bar_height() - 3};
+        auto size = window.title_bar_height() - 3;
+        return {window.x() + 3, window.y() + 3, size, size};
     }
 
     Rectangle get_window_body_rect(const Window& window) {
