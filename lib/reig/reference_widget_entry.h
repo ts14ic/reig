@@ -5,7 +5,7 @@
 #include <string>
 
 namespace reig::reference_widget {
-    enum class EntryOuput {
+    enum class EntryOutput {
         kUnmodified,
         kModified,
         kSubmitted,
@@ -13,7 +13,7 @@ namespace reig::reference_widget {
     };
 
     template <typename Char>
-    EntryOuput entry(Context& ctx, gsl::czstring title, primitive::Rectangle bounding_box,
+    EntryOutput entry(Context& ctx, gsl::czstring title, primitive::Rectangle bounding_box,
                      const primitive::Color& base_color, std::basic_string<Char>& value);
 }
 

@@ -356,15 +356,15 @@ private:
         start_window(mTextEntryWindow);
         primitive::Rectangle rect {0, 0, 300, 40};
 
-        using reig::reference_widget::EntryOuput;
+        using reig::reference_widget::EntryOutput;
 
         static std::string entry1;
-        if (widget::entry(mGui.ctx, "Entry 1", rect, colors::kViolet, entry1) == EntryOuput::kModified) {
+        if (widget::entry(mGui.ctx, "Entry 1", rect, colors::kViolet, entry1) == EntryOutput::kModified) {
             std::cout << "Entry 1: " << entry1 << '\n';
         }
 
         rect.y += 50;
-        if (widget::entry(mGui.ctx, "Entry 2", rect, colors::kBlack, mTextEntryWindow.title) == EntryOuput::kModified) {
+        if (widget::entry(mGui.ctx, "Entry 2", rect, colors::kBlack, mTextEntryWindow.title) == EntryOutput::kModified) {
             std::cout << "Entry 2: " << mTextEntryWindow.title << '\n';
         }
     }
@@ -394,16 +394,16 @@ private:
                              std::cout << "Clicked on " << position << "th foo: " << foo.name << '\n';
                          });
 
-            using reig::reference_widget::EntryOuput;
+            using reig::reference_widget::EntryOutput;
 
             rect = {rect.x, rect.y + rect.height + 10, rect.width - 120, 40};
             switch (widget::entry(mGui.ctx, "Add item", rect, colors::kDarkGrey, itemName)) {
-                case EntryOuput::kSubmitted: {
+                case EntryOutput::kSubmitted: {
                     foos.push_back(Foo{itemName});
                     break;
                 }
 
-                case EntryOuput::kCancelled: {
+                case EntryOutput::kCancelled: {
                     itemName.clear();
                     break;
                 }

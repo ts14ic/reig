@@ -18,7 +18,7 @@ namespace reig::reference_widget {
     }
 
     template <typename C>
-    EntryOuput entry(reig::Context& ctx, gsl::czstring title, primitive::Rectangle bounding_box,
+    EntryOutput entry(reig::Context& ctx, gsl::czstring title, primitive::Rectangle bounding_box,
                      const primitive::Color& base_color, std::basic_string<C>& value) {
         using namespace primitive;
         ctx.fit_rect_in_window(bounding_box);
@@ -27,7 +27,7 @@ namespace reig::reference_widget {
         bool is_selected = ctx.mouse.left_button.clicked_in_rect(bounding_box);
         bool is_holding_click = is_selected && ctx.mouse.left_button.is_held();
 
-        EntryOuput output = EntryOuput::kUnmodified;
+        EntryOutput output = EntryOutput::kUnmodified;
         if (is_selected) {
             if ((ctx.get_frame_counter() / 30) % 2 == 0) {
                 caret_area = decrease_rect(caret_area, 10);
@@ -38,7 +38,7 @@ namespace reig::reference_widget {
             switch (key_type) {
                 case Key::kChar: {
                     value += ctx.keyboard.get_pressed_char();
-                    output = EntryOuput::kModified;
+                    output = EntryOutput::kModified;
                     break;
                 }
 
@@ -46,20 +46,20 @@ namespace reig::reference_widget {
                     using std::empty;
                     if (!empty(value)) {
                         value.pop_back();
-                        output = EntryOuput::kModified;
+                        output = EntryOutput::kModified;
                     }
                     break;
                 }
 
                 case Key::kReturn: {
-                    output = EntryOuput::kSubmitted;
+                    output = EntryOutput::kSubmitted;
                     break;
                 }
 
                 case Key::kEscape: {
                     ctx.mouse.left_button.press(bounding_box.x, bounding_box.y);
                     ctx.mouse.left_button.release();
-                    output = EntryOuput::kCancelled;
+                    output = EntryOutput::kCancelled;
                     break;
                 }
 
