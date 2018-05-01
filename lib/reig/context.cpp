@@ -117,10 +117,9 @@ namespace reig {
     }
 
     void Context::remove_unqueued_windows() {
-        auto remove_from = std::remove_if(_windows.begin(), _windows.end(),
-                                          [](const Window& window) {
-                                              return !window.is_queued();
-                                          });
+        auto remove_from = std::remove_if(_windows.begin(), _windows.end(), [](const Window& window) {
+            return !window.is_queued();
+        });
         _windows.erase(remove_from, _windows.end());
     }
 
