@@ -7,9 +7,6 @@
 namespace reig::detail {
     class Window {
     public:
-        Window(gsl::czstring title, float x, float y, float width, float height, float title_bar_height)
-                : Window{title, title, x, y, width, height, title_bar_height} {}
-
         Window(gsl::czstring id, gsl::czstring title, float x, float y,
                float width, float height, float title_bar_height)
                 : _title{title}, _id{id}, _x{x}, _y{y}, _width{width}, _height{height},
@@ -53,10 +50,6 @@ namespace reig::detail {
 
         float title_bar_height() const { return _title_bar_height; }
 
-        bool is_finished() const { return _is_finished; }
-
-        void set_finished(bool is_finished) { _is_finished = is_finished; }
-
         bool is_collapsed() const { return _is_collapsed; }
 
         void set_collapsed(bool is_collapsed) { _is_collapsed = is_collapsed; }
@@ -75,7 +68,6 @@ namespace reig::detail {
         float _height = 0.0f;
         float _title_bar_height = 0.0f;
         bool _is_queued = true;
-        bool _is_finished = false;
         bool _is_collapsed = false;
     };
 
@@ -87,9 +79,11 @@ namespace reig::detail {
      */
     void fit_rect_in_window(primitive::Rectangle& rect, Window& window);
 
-    primitive::Rectangle get_full_window_rect(const Window& window);
+    primitive::Rectangle get_window_full_rect(const Window& window);
 
     primitive::Rectangle get_window_header_rect(const Window& window);
+
+    primitive::Rectangle get_window_minimize_rect(const Window& window);
 
     primitive::Rectangle get_window_body_rect(const Window& window);
 

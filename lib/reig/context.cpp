@@ -109,7 +109,7 @@ namespace reig {
         if (!mouse.left_button.is_clicked()) return;
 
         for (auto it = _windows.begin(); it != _windows.end(); ++it) {
-            if (mouse.left_button.just_clicked_in_window(detail::get_full_window_rect(*it))) {
+            if (mouse.left_button.just_clicked_in_window(detail::get_window_full_rect(*it))) {
                 std::iter_swap(it, _windows.begin());
                 break;
             }
@@ -163,15 +163,10 @@ namespace reig {
             auto current_widget_data = move(current_window.draw_data());
             current_window.draw_data().clear();
 
-            auto header_rect = detail::get_window_header_rect(current_window);
-            Triangle header_triangle{
-                    {current_window.x() + 3.f, current_window.y() + 3.f},
-                    {current_window.x() + 3.f + current_window.title_bar_height(), current_window.y() + 3.f},
-                    {current_window.x() + 3.f + current_window.title_bar_height() / 2.f,
-                     current_window.y() + current_window.title_bar_height() - 3.f}
-            };
+            auto header_rect = get_window_header_rect(current_window);
+            auto minimize_rect = get_window_minimize_rect(current_window);
             auto title_rect = decrease_rect(header_rect, 4);
-            auto body_rect = detail::get_window_body_rect(current_window);
+            auto body_rect = get_window_body_rect(current_window);
 
             auto frame_color = it != _windows.rend() - 1
                               ? colors::dim_color_by(_config._title_bar_bg_color, 127)
@@ -182,7 +177,20 @@ namespace reig {
             } else {
                 render_rectangle(current_window.draw_data(), header_rect, frame_color);
             }
-            render_triangle(current_window.draw_data(), header_triangle, colors::kLightGrey);
+            render_rectangle(current_window.draw_data(), minimize_rect, colors::kLightGrey);
+            render_rectangle(current_window.draw_data(), decrease_rect(minimize_rect, 2), colors::kBlack);
+            if (current_window.is_collapsed()) {
+                minimize_rect = decrease_rect(minimize_rect, 8);
+                render_rectangle(current_window.draw_data(), minimize_rect, colors::kLightGrey);
+            } else {
+                minimize_rect = decrease_rect(minimize_rect, 12);
+                minimize_rect.x = minimize_rect.x - 2;
+                minimize_rect.y = minimize_rect.y - 2;
+                render_rectangle(current_window.draw_data(), minimize_rect, colors::kLightGrey);
+                minimize_rect.x += 4;
+                minimize_rect.y += 4;
+                render_rectangle(current_window.draw_data(), minimize_rect, colors::kLightGrey);
+            }
             render_text(current_window.draw_data(), current_window.title(), title_rect);
             if (_config._are_windows_textured) {
                 render_rectangle(current_window.draw_data(), body_rect, _config._window_bg_texture_id);
@@ -209,16 +217,23 @@ namespace reig {
         if (_windows.empty()) return;
 
         if (_queued_window != nullptr) {
-            _queued_window->set_finished(true);
             handle_window_input(*_queued_window);
             _queued_window = nullptr;
         }
     }
 
     void Context::handle_window_input(detail::Window& window) {
-        if (mouse.left_button.is_held()
+        bool clicked_minimize = is_point_in_rect(mouse.left_button.get_clicked_pos(), get_window_minimize_rect(window));
+
+        if (mouse.left_button.is_clicked()
+            && clicked_minimize
             && is_window_header_point_visible(window, mouse.left_button.get_clicked_pos())
             && handle_window_focus(window, true)) {
+            window.set_collapsed(!window.is_collapsed());
+        } else if (mouse.left_button.is_held()
+                   && !clicked_minimize
+                   && is_window_header_point_visible(window, mouse.left_button.get_clicked_pos())
+                   && handle_window_focus(window, true)) {
             Point moved{
                     mouse.get_cursor_pos().x - mouse.left_button.get_clicked_pos().x,
                     mouse.get_cursor_pos().y - mouse.left_button.get_clicked_pos().y
@@ -234,17 +249,21 @@ namespace reig {
     }
 
     bool Context::is_window_header_point_visible(const Window& window, const Point& point) {
+        auto header_rect = get_window_header_rect(window);
+        bool point_in_header = is_point_in_rect(point, header_rect);
+        if (!point_in_header) return false;
+
         for (auto& previous_window : _windows) {
-            if (is_point_in_rect(point, get_window_header_rect(window))) {
+            if (is_point_in_rect(point, get_window_full_rect(previous_window))) {
                 return window.id() == previous_window.id();
             }
         }
-        return false;
+        return true;
     }
 
     bool reig::Context::is_window_body_point_visible(const primitive::Point& point) {
         for (auto& window : _windows) {
-            if (is_point_in_rect(point, get_window_body_rect(window))) {
+            if (is_point_in_rect(point, get_window_full_rect(window))) {
                 if (_queued_window) {
                     return _queued_window->id() == window.id();
                 } else {
@@ -252,7 +271,7 @@ namespace reig {
                 }
             }
         }
-        return true;
+        return _queued_window != nullptr ? !_queued_window->is_collapsed() : true;
     }
 
     void Context::fit_rect_in_window(Rectangle& rect) {
@@ -261,11 +280,11 @@ namespace reig {
         }
     }
 
-    DrawData& Context::get_current_draw_data_buffer() {
+    DrawData* Context::get_current_draw_data_buffer() {
         if (_queued_window) {
-            return _queued_window->draw_data();
+            return !_queued_window->is_collapsed() ? &_queued_window->draw_data() : nullptr;
         } else {
-            return _free_draw_data;
+            return &_free_draw_data;
         }
     }
 
@@ -310,7 +329,11 @@ namespace reig {
     }
 
     float Context::render_text(gsl::czstring text, const Rectangle rect, text::Alignment alignment, float scale) {
-        return render_text(get_current_draw_data_buffer(), text, rect, alignment, scale);
+        auto* buffer = get_current_draw_data_buffer();
+        if (buffer != nullptr) {
+            return render_text(*buffer, text, rect, alignment, scale);
+        }
+        return rect.x;
     }
 
     float Context::render_text(DrawData& draw_data, gsl::czstring text, Rectangle rect, text::Alignment alignment,
@@ -374,15 +397,24 @@ namespace reig {
     }
 
     void Context::render_rectangle(const Rectangle& rect, const Color& color) {
-        render_rectangle(get_current_draw_data_buffer(), rect, color);
+        auto* buffer = get_current_draw_data_buffer();
+        if (buffer != nullptr) {
+            render_rectangle(*buffer, rect, color);
+        }
     }
 
     void Context::render_rectangle(const Rectangle& rect, int texture_id) {
-        render_rectangle(get_current_draw_data_buffer(), rect, texture_id);
+        auto* buffer = get_current_draw_data_buffer();
+        if (buffer != nullptr) {
+            render_rectangle(*buffer, rect, texture_id);
+        }
     }
 
     void Context::render_triangle(const Triangle& triangle, const Color& color) {
-        render_triangle(get_current_draw_data_buffer(), triangle, color);
+        auto* buffer = get_current_draw_data_buffer();
+        if (buffer != nullptr) {
+            render_triangle(*buffer, triangle, color);
+        }
     }
 
     void Context::render_rectangle(DrawData& draw_data, const Rectangle& rect, const Color& color) {
