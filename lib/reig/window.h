@@ -27,6 +27,10 @@ namespace reig::detail {
             return _title;
         }
 
+        void set_title(gsl::czstring title) {
+            _title = title;
+        }
+
         gsl::czstring id() const {
             return _id;
         }
@@ -51,7 +55,7 @@ namespace reig::detail {
 
         bool is_finished() const { return _is_finished; }
 
-        void finish() { _is_finished = true; }
+        void set_finished(bool is_finished) { _is_finished = is_finished; }
 
         bool is_collapsed() const { return _is_collapsed; }
 
@@ -70,8 +74,8 @@ namespace reig::detail {
         float _width = 0.0f;
         float _height = 0.0f;
         float _title_bar_height = 0.0f;
+        bool _is_queued = true;
         bool _is_finished = false;
-        bool _is_queued = false;
         bool _is_collapsed = false;
     };
 

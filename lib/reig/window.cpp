@@ -6,10 +6,10 @@ namespace reig::detail {
         rect.y += window.y() + window.title_bar_height() + 4;
 
         if (window.x() + window.width() < get_x2(rect)) {
-            window.set_width(get_x2(rect) - window.x());
+            window.set_width(get_x2(rect) - window.x() + 4);
         }
         if (window.y() + window.height() < get_y2(rect)) {
-            window.set_height(get_y2(rect) - window.y());
+            window.set_height(get_y2(rect) - window.y() + 4);
         }
         if (rect.x < window.x()) {
             rect.x = window.x() + 4;

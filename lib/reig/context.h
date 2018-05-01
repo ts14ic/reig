@@ -170,8 +170,7 @@ namespace reig {
         detail::Window* get_current_window();
 
         gsl::czstring _dragged_window = nullptr;
-        std::vector<detail::Window> _previous_windows;
-        std::vector<detail::Window> _queued_windows;
+        std::vector<detail::Window> _windows;
         DrawData _free_draw_data;
 
         detail::Font _font;
