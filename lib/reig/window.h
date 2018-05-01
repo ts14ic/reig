@@ -7,9 +7,6 @@
 namespace reig::detail {
     class Window {
     public:
-        Window(gsl::czstring title, float x, float y, float width, float height, float title_bar_height)
-                : Window{title, title, x, y, width, height, title_bar_height} {}
-
         Window(gsl::czstring id, gsl::czstring title, float x, float y,
                float width, float height, float title_bar_height)
                 : _title{title}, _id{id}, _x{x}, _y{y}, _width{width}, _height{height},
