@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <vector>
+#include <sstream>
 
 namespace g {
     template <typename T = int>
@@ -39,26 +40,7 @@ public:
             return -1;
         }
         
-        GLuint woodTex;
-        {
-            glGenTextures(1, &woodTex);
-            glBindTexture(GL_TEXTURE_2D, woodTex);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            
-            GLint width, height;
-            GLubyte* pixels = SOIL_load_image("gfx/wood.jpg", &width, &height, 0, SOIL_LOAD_RGB);
-            if(!pixels) {
-                std::cout << "Failed to load wood texture!" << std::endl;
-                return -1;
-            }
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
-            glGenerateMipmap(GL_TEXTURE_2D);
-            SOIL_free_image_data(pixels);
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
+        GLuint woodTex = loadTexture("gfx/wood.jpg");
         
         GLfloat vertices[] = {
             // position                // tex coords
@@ -167,7 +149,7 @@ public:
                 yline += step;
                 widget::label(ctx, "Scale:", {0, yline, 230, 25});
                 yline += step;
-                widget::slider(ctx, {0, yline, 230, 25}, colors::kLightGrey, scaling, 0.1f, 2.5f, 0.1f);
+                widget::textured_slider(ctx, {0, yline, 230, 25}, woodTex, woodTex, scaling, 0.1f, 2.5f, 0.1f);
                 
                 yline += step;
                 widget::label(ctx, "Rotation:", {0, yline, 230, 25});
@@ -437,6 +419,30 @@ public:
     }
     
 private:
+    GLuint loadTexture(const char* path) {
+        GLuint ret;
+        glGenTextures(1, &ret);
+        glBindTexture(GL_TEXTURE_2D, ret);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        GLint width, height;
+        GLubyte* pixels = SOIL_load_image("gfx/wood.jpg", &width, &height, 0, SOIL_LOAD_RGB);
+        if(!pixels) {
+            std::stringstream ss;
+            ss << "Failed to load texture on path: " << path << "\n";
+            throw std::runtime_error{ss.str()};
+        }
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        SOIL_free_image_data(pixels);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        return ret;
+    }
+
     GLFWwindow* window = nullptr;
     
     Camera camera {{0.f, 0.f, 3.f}};
