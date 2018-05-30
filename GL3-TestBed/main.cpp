@@ -149,7 +149,7 @@ public:
                 yline += step;
                 widget::label(ctx, "Scale:", {0, yline, 230, 25});
                 yline += step;
-                widget::textured_slider(ctx, {0, yline, 230, 25}, woodTex, woodTex, scaling, 0.1f, 2.5f, 0.1f);
+                widget::textured_slider(ctx, {0, yline, 230, 25}, woodTex, 0, scaling, 0.1f, 2.5f, 0.1f);
                 
                 yline += step;
                 widget::label(ctx, "Rotation:", {0, yline, 230, 25});
@@ -429,7 +429,7 @@ private:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         GLint width, height;
-        GLubyte* pixels = SOIL_load_image("gfx/wood.jpg", &width, &height, 0, SOIL_LOAD_RGB);
+        GLubyte* pixels = SOIL_load_image(path, &width, &height, 0, SOIL_LOAD_RGB);
         if(!pixels) {
             std::stringstream ss;
             ss << "Failed to load texture on path: " << path << "\n";
