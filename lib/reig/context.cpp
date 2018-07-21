@@ -14,7 +14,7 @@ using std::reference_wrapper;
 using std::vector;
 
 namespace reig {
-    Context::Context() : Context{Config::builder().build()} {}
+    Context::Context() : Context{Config{}} {}
 
     Context::Context(const Config& config)
             : mouse{*this}, _config{config} {}
@@ -168,13 +168,12 @@ namespace reig {
             auto title_rect = decrease_rect(header_rect, 4);
             auto body_rect = get_window_body_rect(current_window);
 
-            auto frame_color = it != _windows.rend() - 1
-                              ? colors::dim_color_by(_config.title_bar_bg_color(), 127)
-                              : _config.title_bar_bg_color();
-
-            if (_config.are_windows_textured()) {
+            if (_config.fill_mode() == FillMode::kTextured) {
                 render_rectangle(current_window.draw_data(), header_rect, _config.title_bar_bg_texture_id());
             } else {
+                auto frame_color = it != _windows.rend() - 1
+                                   ? colors::dim_color_by(_config.title_bar_bg_color(), 127)
+                                   : _config.title_bar_bg_color();
                 render_rectangle(current_window.draw_data(), header_rect, frame_color);
             }
             render_rectangle(current_window.draw_data(), minimize_rect, colors::kLightGrey);
@@ -192,9 +191,13 @@ namespace reig {
                 render_rectangle(current_window.draw_data(), minimize_rect, colors::kLightGrey);
             }
             render_text(current_window.draw_data(), current_window.title(), title_rect);
-            if (_config.are_windows_textured()) {
+            if (_config.fill_mode() == FillMode::kTextured) {
                 render_rectangle(current_window.draw_data(), body_rect, _config.window_bg_texture_id());
             } else {
+                auto frame_color = it != _windows.rend() - 1
+                                   ? colors::dim_color_by(_config.title_bar_bg_color(), 127)
+                                   : _config.title_bar_bg_color();
+
                 int thickness = 1;
                 render_rectangle(current_window.draw_data(), decrease_rect(body_rect, thickness),
                                  _config.window_bg_color());

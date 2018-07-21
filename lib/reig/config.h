@@ -5,19 +5,27 @@
 #include "primitive.h"
 
 namespace reig {
-    class ConfigBuilder;
+    enum class FillMode {
+        kColored,
+        kTextured,
+    };
 
     class Config {
     public:
-        explicit Config(const ConfigBuilder& builder);
+        Config();
 
-        static ConfigBuilder builder();
+        Config& window_colors(const primitive::Color& title_background,
+                              const primitive::Color& window_background);
+
+        Config& window_textures(int title_texture, int background_texture);
+
+        Config& font_bitmap_size(int width, int height);
 
         const primitive::Color& window_bg_color() const;
 
         const primitive::Color& title_bar_bg_color() const;
 
-        bool are_windows_textured() const;
+        FillMode fill_mode() const;
 
         int window_bg_texture_id() const;
 
@@ -28,48 +36,15 @@ namespace reig {
         int font_bitmap_height() const;
 
     private:
-        primitive::Color _window_bg_color;
-        primitive::Color _title_bar_bg_color;
-        bool _are_windows_textured;
-        int _window_bg_texture_id;
-        int _title_bar_bg_texture_id;
-        int _font_bitmap_width;
-        int _font_bitmap_height;
-    };
+        void throw_if_not_textured() const;
 
-    class ConfigBuilder {
-    public:
-        ConfigBuilder();
+        void throw_if_not_colored() const;
 
-        ConfigBuilder& window_colors(const primitive::Color& title_background,
-                                     const primitive::Color& window_background);
-
-        ConfigBuilder& window_textures(int title_texture, int background_texture);
-
-        ConfigBuilder& font_bitmap_size(int width, int height);
-
-        const primitive::Color& window_bg_color() const;
-
-        const primitive::Color& title_bar_bg_color() const;
-
-        bool are_windows_textured() const;
-
-        int window_bg_texture_id() const;
-
-        int title_bar_bg_texture_id() const;
-
-        int font_bitmap_width() const;
-
-        int font_bitmap_height() const;
-
-        Config build();
-
-    private:
-        primitive::Color _window_bg_color = primitive::colors::kTransparent;
-        primitive::Color _title_bar_bg_color = primitive::colors::kWhite;
-        bool _are_windows_textured = false;
+        FillMode _fill_mode = FillMode::kColored;
         int _window_bg_texture_id = 0;
         int _title_bar_bg_texture_id = 0;
+        primitive::Color _window_bg_color;
+        primitive::Color _title_bar_bg_color;
         int _font_bitmap_width = 512;
         int _font_bitmap_height = 512;
     };
