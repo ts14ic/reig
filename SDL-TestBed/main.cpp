@@ -97,7 +97,7 @@ private:
         mGui.ctx.set_render_handler(&gui_handler);
         mGui.ctx.set_user_ptr(this);
 
-        mGui.font.data = mGui.ctx.set_font("/usr/share/fonts/TTF/impact.ttf", mGui.font.id, 20.f);
+        mGui.font.data = mGui.ctx.set_font("/usr/share/fonts/TTF/DejaVuSans.ttf", mGui.font.id, 20.f);
         auto* surf = SDL_CreateRGBSurfaceFrom(
                 mGui.font.data.bitmap.data(), mGui.font.data.width, mGui.font.data.height, 8, mGui.font.data.width,
                 0, 0, 0, 0

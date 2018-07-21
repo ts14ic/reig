@@ -60,8 +60,8 @@ namespace reig {
 
         // We want all ASCII chars from space to backspace
         int const num_chars = 96;
-        int bitmap_width = _config._font_bitmap_width;
-        int bitmap_height = _config._font_bitmap_height;
+        int bitmap_width = _config.font_bitmap_width();
+        int bitmap_height = _config.font_bitmap_height();
 
         using std::data;
         auto baked_chars = std::vector<stbtt_bakedchar>(num_chars);
@@ -169,11 +169,11 @@ namespace reig {
             auto body_rect = get_window_body_rect(current_window);
 
             auto frame_color = it != _windows.rend() - 1
-                              ? colors::dim_color_by(_config._title_bar_bg_color, 127)
-                              : _config._title_bar_bg_color;
+                              ? colors::dim_color_by(_config.title_bar_bg_color(), 127)
+                              : _config.title_bar_bg_color();
 
-            if (_config._are_windows_textured) {
-                render_rectangle(current_window.draw_data(), header_rect, _config._title_bar_bg_texture_id);
+            if (_config.are_windows_textured()) {
+                render_rectangle(current_window.draw_data(), header_rect, _config.title_bar_bg_texture_id());
             } else {
                 render_rectangle(current_window.draw_data(), header_rect, frame_color);
             }
@@ -192,12 +192,12 @@ namespace reig {
                 render_rectangle(current_window.draw_data(), minimize_rect, colors::kLightGrey);
             }
             render_text(current_window.draw_data(), current_window.title(), title_rect);
-            if (_config._are_windows_textured) {
-                render_rectangle(current_window.draw_data(), body_rect, _config._window_bg_texture_id);
+            if (_config.are_windows_textured()) {
+                render_rectangle(current_window.draw_data(), body_rect, _config.window_bg_texture_id());
             } else {
                 int thickness = 1;
                 render_rectangle(current_window.draw_data(), decrease_rect(body_rect, thickness),
-                                 _config._window_bg_color);
+                                 _config.window_bg_color());
 
                 auto frame = get_rect_frame(body_rect, thickness);
                 for (const auto& frame_rect : frame) {

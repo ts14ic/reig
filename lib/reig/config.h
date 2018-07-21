@@ -9,14 +9,25 @@ namespace reig {
 
     class Config {
     public:
-        static ConfigBuilder builder();
-
-    private:
-        friend Context;
-        friend ConfigBuilder;
-
         explicit Config(const ConfigBuilder& builder);
 
+        static ConfigBuilder builder();
+
+        const primitive::Color& window_bg_color() const;
+
+        const primitive::Color& title_bar_bg_color() const;
+
+        bool are_windows_textured() const;
+
+        int window_bg_texture_id() const;
+
+        int title_bar_bg_texture_id() const;
+
+        int font_bitmap_width() const;
+
+        int font_bitmap_height() const;
+
+    private:
         primitive::Color _window_bg_color;
         primitive::Color _title_bar_bg_color;
         bool _are_windows_textured;
@@ -37,10 +48,23 @@ namespace reig {
 
         ConfigBuilder& font_bitmap_size(int width, int height);
 
-        Config build();
-    private:
-        friend Config;
+        const primitive::Color& window_bg_color() const;
 
+        const primitive::Color& title_bar_bg_color() const;
+
+        bool are_windows_textured() const;
+
+        int window_bg_texture_id() const;
+
+        int title_bar_bg_texture_id() const;
+
+        int font_bitmap_width() const;
+
+        int font_bitmap_height() const;
+
+        Config build();
+
+    private:
         primitive::Color _window_bg_color = primitive::colors::kTransparent;
         primitive::Color _title_bar_bg_color = primitive::colors::kWhite;
         bool _are_windows_textured = false;
