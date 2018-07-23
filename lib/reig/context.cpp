@@ -14,7 +14,7 @@ using std::reference_wrapper;
 using std::vector;
 
 namespace reig {
-    Context::Context() : Context{Config{}} {}
+    Context::Context() : Context{Config::Builder{}.build()} {}
 
     Context::Context(const Config& config)
             : mouse{*this}, _config{config} {}
