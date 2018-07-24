@@ -126,13 +126,6 @@ namespace reig {
          */
         void render_rectangle(const primitive::Rectangle& rect, int texture_id);
 
-        /**
-         * @brief Schedules a triangle drawing
-         * @param triangle Position and size
-         * @param color Color
-         */
-        void render_triangle(const primitive::Triangle& triangle, const primitive::Color& color);
-
     private:
         DrawData* get_current_draw_data_buffer();
 
@@ -144,9 +137,6 @@ namespace reig {
 
         static void render_rectangle(DrawData& draw_data, const primitive::Rectangle& rect, int texture_id);
 
-        static void render_triangle(DrawData& draw_data, const primitive::Triangle& triangle,
-                                    const primitive::Color& color);
-
         static void render_text_quads(DrawData& draw_data, const std::vector<stbtt_aligned_quad>& quads,
                                       float horizontal_alignment, float vertical_alignment, int font_texture_id);
 
@@ -156,7 +146,9 @@ namespace reig {
 
         void remove_unqueued_windows();
 
-        bool handle_window_focus(const detail::Window& window, bool is_claiming);
+        bool claim_window_focus(const detail::Window& window);
+
+        bool release_window_focus(const detail::Window& window);
 
         void handle_window_input(detail::Window& window);
 

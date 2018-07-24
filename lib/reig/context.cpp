@@ -123,18 +123,18 @@ namespace reig {
         _windows.erase(remove_from, _windows.end());
     }
 
-    bool Context::handle_window_focus(const Window& window, bool is_claiming) {
-        if (is_claiming) {
-            if (!_dragged_window) {
-                _dragged_window = window.id();
-            }
-            return _dragged_window == window.id();
-        } else {
-            if (_dragged_window == window.id()) {
-                _dragged_window = nullptr;
-            }
-            return _dragged_window != window.id();
+    bool Context::claim_window_focus(const Window& window) {
+        if (!_dragged_window) {
+            _dragged_window = window.id();
         }
+        return _dragged_window == window.id();
+    }
+
+    bool Context::release_window_focus(const Window& window) {
+        if (_dragged_window == window.id()) {
+            _dragged_window = nullptr;
+        }
+        return _dragged_window != window.id();
     }
 
     void Context::start_window(gsl::czstring title, float default_x, float default_y) {
@@ -231,12 +231,12 @@ namespace reig {
         if (mouse.left_button.is_clicked()
             && clicked_minimize
             && is_window_header_point_visible(window, mouse.left_button.get_clicked_pos())
-            && handle_window_focus(window, true)) {
+            && claim_window_focus(window)) {
             window.set_collapsed(!window.is_collapsed());
         } else if (mouse.left_button.is_held()
                    && !clicked_minimize
                    && is_window_header_point_visible(window, mouse.left_button.get_clicked_pos())
-                   && handle_window_focus(window, true)) {
+                   && claim_window_focus(window)) {
             Point moved{
                     mouse.get_cursor_pos().x - mouse.left_button.get_clicked_pos().x,
                     mouse.get_cursor_pos().y - mouse.left_button.get_clicked_pos().y
@@ -247,7 +247,7 @@ namespace reig {
             mouse.left_button._clicked_pos.x += moved.x;
             mouse.left_button._clicked_pos.y += moved.y;
         } else {
-            handle_window_focus(window, false);
+            release_window_focus(window);
         }
     }
 
@@ -413,13 +413,6 @@ namespace reig {
         }
     }
 
-    void Context::render_triangle(const Triangle& triangle, const Color& color) {
-        auto* buffer = get_current_draw_data_buffer();
-        if (buffer != nullptr) {
-            render_triangle(*buffer, triangle, color);
-        }
-    }
-
     void Context::render_rectangle(DrawData& draw_data, const Rectangle& rect, const Color& color) {
         vector<Vertex> vertices{
                 {{rect.x,       rect.y},       {}, color},
@@ -445,19 +438,6 @@ namespace reig {
 
         Figure fig;
         fig.form(vertices, indices, texture_id);
-        draw_data.push_back(fig);
-    }
-
-    void Context::render_triangle(DrawData& draw_data, const Triangle& triangle, const Color& color) {
-        vector<Vertex> vertices{
-                {{triangle.pos0}, {}, color},
-                {{triangle.pos1}, {}, color},
-                {{triangle.pos2}, {}, color}
-        };
-        vector<int> indices = {0, 1, 2};
-
-        Figure fig;
-        fig.form(vertices, indices);
         draw_data.push_back(fig);
     }
 
