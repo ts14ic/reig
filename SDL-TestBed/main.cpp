@@ -23,9 +23,9 @@ struct Sdl {
 };
 
 struct Font {
-    reig::Context::FontBitmap data;
-    SDL_Texture* tex = nullptr;
-    int id = 100;
+    reig::Context::FontBitmap font_bitmap;
+    SDL_Texture* texture = nullptr;
+    int font_texture_id = 100;
 };
 
 struct Gui {
@@ -43,11 +43,11 @@ public:
     int run() {
         namespace chrono = std::chrono;
         std::vector<long> measurements;
-        mFpsString = "? us per frame";
+        _fps_string = "? us per frame";
 
         while (true) {
             auto start_timestamp = chrono::steady_clock::now();
-            mGui.ctx.start_frame();
+            _gui.ctx.start_frame();
 
             if (!handle_input_events()) {
                 break;
@@ -66,7 +66,7 @@ public:
                     avg_us_per_frame += measurement / count;
                 }
                 measurements.clear();
-                mFpsString = str(boost::format("%.0f us per frame") % avg_us_per_frame);
+                _fps_string = str(boost::format("%.0f us per frame") % avg_us_per_frame);
             }
             render_frame();
         }
@@ -77,29 +77,29 @@ public:
 private:
     void setup_sdl() {
         SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS);
-        mSdl.window = SDL_CreateWindow(
+        _sdl.window = SDL_CreateWindow(
                 "reig SDL testbed",
                 SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, //NOLINT
-                mSdl.width, mSdl.height,
+                _sdl.width, _sdl.height,
                 SDL_WINDOW_SHOWN
         );
-        mSdl.renderer = SDL_CreateRenderer(
-                mSdl.window, -1,
+        _sdl.renderer = SDL_CreateRenderer(
+                _sdl.window, -1,
                 SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
         );
     }
 
     void setup_reig() {
-        mGui.ctx.set_config(reig::Config::Builder()
+        _gui.ctx.set_config(reig::Config::Builder()
                                     .set_font_bitmap_size(1024, 1024)
                                     .set_window_colors(colors::kRed | 200_a, colors::kMediumGrey | 150_a)
                                     .build());
-        mGui.ctx.set_render_handler(&gui_handler);
-        mGui.ctx.set_user_ptr(this);
+        _gui.ctx.set_render_handler(&gui_handler);
+        _gui.ctx.set_user_ptr(this);
 
-        mGui.font.data = mGui.ctx.set_font("/usr/share/fonts/TTF/DejaVuSans.ttf", mGui.font.id, 20.f);
+        _gui.font.font_bitmap = _gui.ctx.set_font("/usr/share/fonts/TTF/DejaVuSans.ttf", _gui.font.font_texture_id, 20.f);
         auto* surf = SDL_CreateRGBSurfaceFrom(
-                mGui.font.data.bitmap.data(), mGui.font.data.width, mGui.font.data.height, 8, mGui.font.data.width,
+                _gui.font.font_bitmap.bitmap.data(), _gui.font.font_bitmap.width, _gui.font.font_bitmap.height, 8, _gui.font.font_bitmap.width,
                 0, 0, 0, 0
         );
         SDL_Color colors[256];
@@ -114,8 +114,8 @@ private:
             std::cerr << "Failed to set palette\n";
             exit(1);
         }
-        mGui.font.tex = SDL_CreateTextureFromSurface(mSdl.renderer, surf);
-        if (SDL_SetTextureBlendMode(mGui.font.tex, SDL_BLENDMODE_BLEND) < 0) {
+        _gui.font.texture = SDL_CreateTextureFromSurface(_sdl.renderer, surf);
+        if (SDL_SetTextureBlendMode(_gui.font.texture, SDL_BLENDMODE_BLEND) < 0) {
             std::cerr << "Failed to set texture blend mode: [" << SDL_GetError() << "]\n";
             exit(0);
         }
@@ -137,7 +137,7 @@ private:
             if (fig.texture() == 0) {
                 for (auto i = 0ul; i < number; i += 3) {
                     filledTrigonColor(
-                            self->mSdl.renderer,
+                            self->_sdl.renderer,
                             static_cast<Sint16>(vertices[indices[i]].position.x),
                             static_cast<Sint16>(vertices[indices[i]].position.y),
                             static_cast<Sint16>(vertices[indices[i + 1]].position.x),
@@ -147,18 +147,18 @@ private:
                             colors::to_uint(vertices[i].color)
                     );
                 }
-            } else if (fig.texture() == self->mGui.font.id) {
+            } else if (fig.texture() == self->_gui.font.font_texture_id) {
                 SDL_Rect src;
-                src.x = static_cast<int>(vertices[0].texCoord.x * self->mGui.font.data.width);
-                src.y = static_cast<int>(vertices[0].texCoord.y * self->mGui.font.data.height);
-                src.w = static_cast<int>(vertices[2].texCoord.x * self->mGui.font.data.width - src.x);
-                src.h = static_cast<int>(vertices[2].texCoord.y * self->mGui.font.data.height - src.y);
+                src.x = static_cast<int>(vertices[0].texCoord.x * self->_gui.font.font_bitmap.width);
+                src.y = static_cast<int>(vertices[0].texCoord.y * self->_gui.font.font_bitmap.height);
+                src.w = static_cast<int>(vertices[2].texCoord.x * self->_gui.font.font_bitmap.width - src.x);
+                src.h = static_cast<int>(vertices[2].texCoord.y * self->_gui.font.font_bitmap.height - src.y);
                 SDL_Rect dst;
                 dst.x = static_cast<int>(vertices[0].position.x);
                 dst.y = static_cast<int>(vertices[0].position.y);
                 dst.w = static_cast<int>(vertices[2].position.x - dst.x);
                 dst.h = static_cast<int>(vertices[2].position.y - dst.y);
-                SDL_RenderCopy(self->mSdl.renderer, self->mGui.font.tex, &src, &dst);
+                SDL_RenderCopy(self->_sdl.renderer, self->_gui.font.texture, &src, &dst);
             }
         }
     }
@@ -171,25 +171,25 @@ private:
                 }
 
                 case SDL_MOUSEMOTION: {
-                    mGui.ctx.mouse.place(evt.motion.x, evt.motion.y);
+                    _gui.ctx.mouse.place(evt.motion.x, evt.motion.y);
                     break;
                 }
 
                 case SDL_MOUSEWHEEL: {
-                    mGui.ctx.mouse.scroll(-evt.wheel.y);
+                    _gui.ctx.mouse.scroll(-evt.wheel.y);
                     break;
                 }
 
                 case SDL_MOUSEBUTTONDOWN: {
                     if (evt.button.button == SDL_BUTTON_LEFT) {
-                        mGui.ctx.mouse.left_button.press(evt.button.x, evt.button.y);
+                        _gui.ctx.mouse.left_button.press(evt.button.x, evt.button.y);
                     }
                     break;
                 }
 
                 case SDL_MOUSEBUTTONUP: {
                     if (evt.button.button == SDL_BUTTON_LEFT) {
-                        mGui.ctx.mouse.left_button.release();
+                        _gui.ctx.mouse.left_button.release();
                     }
                     break;
                 }
@@ -208,27 +208,27 @@ private:
     void handle_key_event(SDL_Event& evt) {
         switch (evt.key.keysym.sym) {
             case SDLK_RETURN: {
-                mGui.ctx.keyboard.press_special_key(reig::Key::kReturn);
+                _gui.ctx.keyboard.press_special_key(reig::Key::kReturn);
                 break;
             }
 
             case SDLK_BACKSPACE: {
-                mGui.ctx.keyboard.press_special_key(reig::Key::kBackspace);
+                _gui.ctx.keyboard.press_special_key(reig::Key::kBackspace);
                 break;
             }
 
             case SDLK_ESCAPE: {
-                mGui.ctx.keyboard.press_special_key(reig::Key::kEscape);
+                _gui.ctx.keyboard.press_special_key(reig::Key::kEscape);
                 break;
             }
 
             default: {
-                mGui.ctx.keyboard.press_key(evt.key.keysym.sym);
+                _gui.ctx.keyboard.press_key(evt.key.keysym.sym);
                 break;
             }
         }
         if (evt.key.keysym.mod & KMOD_SHIFT) { // NOLINT
-            mGui.ctx.keyboard.press_modifier(reig::KeyModifier::kShift);
+            _gui.ctx.keyboard.press_modifier(reig::KeyModifier::kShift);
         }
     }
 
@@ -247,21 +247,21 @@ private:
 
     void start_window(Window& window) {
         if (window.id) {
-            mGui.ctx.start_window(window.id, window.title.c_str(), window.x, window.y);
+            _gui.ctx.start_window(window.id, window.title.c_str(), window.x, window.y);
         } else {
-            mGui.ctx.start_window(window.title.c_str(), window.x, window.y);
+            _gui.ctx.start_window(window.title.c_str(), window.x, window.y);
         }
     }
 
-    float mFontScale = 1.0f;
+    float font_scale = 1.0f;
 
     void draw_gui() {
-        widget::label(mGui.ctx, mFpsString.c_str(), {0, 0, 128, 32}, reig::text::Alignment::kRight);
+        widget::label(_gui.ctx, _fps_string.c_str(), {0, 0, 128, 32}, reig::text::Alignment::kRight);
 
-        widget::slider(mGui.ctx, {350, 680, 300, 20}, colors::kGreen, mFontScale, 0.0f, 2.0f, 0.05f);
+        widget::slider(_gui.ctx, {350, 680, 300, 20}, colors::kGreen, font_scale, 0.0f, 2.0f, 0.05f);
         primitive::Rectangle rect{0, 700, 1000, 40};
-        widget::label(mGui.ctx, "The quick brown fox jumps over the lazy dog", rect,
-                      reig::text::Alignment::kCenter, mFontScale);
+        widget::label(_gui.ctx, "The quick brown fox jumps over the lazy dog", rect,
+                      reig::text::Alignment::kCenter, font_scale);
 
         draw_buttons();
         draw_checkboxes();
@@ -270,107 +270,107 @@ private:
         draw_list();
     }
 
-    Window mButtonsWindow{"Buttons", 30, 30};
-    Window mCheckboxesWindow{"Checkboxes", 200, 30};
-    Window mSlidersWindow{"Sliders", 430, 30};
-    Window mTextEntryWindow{"entry_window", "Text entries", 30, 250};
-    Window mListWindow{"List", 800, 30};
+    Window _buttons_window{"Buttons", 30, 30};
+    Window _checkboxes_window{"Checkboxes", 200, 30};
+    Window _sliders_window{"Sliders", 430, 30};
+    Window _text_entry_window{"entry_window", "Text entries", 30, 250};
+    Window _list_window{"List", 800, 30};
 
     void draw_buttons() {
         primitive::Rectangle rect{40, 0, 100, 30};
         primitive::Color color{120_r, 100_g, 150_b};
 
-        start_window(mButtonsWindow);
+        start_window(_buttons_window);
         for (int i = 0; i < 4; ++i) {
             rect = {rect.x - 10, 40.0f * i, rect.width, rect.height};
             color = color + 25_r + 25_g;
 
             std::string title = boost::str(boost::format("some %d") % (i + 1));
 
-            if (widget::button(mGui.ctx, title.c_str(), rect, color)) {
+            if (widget::button(_gui.ctx, title.c_str(), rect, color)) {
                 std::cout << boost::format("Button {%s} pressed\n") % title;
             }
         }
     }
 
     void draw_checkboxes() {
-        start_window(mCheckboxesWindow);
+        start_window(_checkboxes_window);
 
         primitive::Color color{150_r, 115_g, 140_b};
         primitive::Rectangle rect = {0, 0, 40, 20};
 
         static bool checkBox1 = false;
 //        if(widget::textured_checkbox{rect, 0, mGui.font.id, checkBox1}.use(mGui.ctx)) {
-        if (widget::checkbox(mGui.ctx, rect, color, checkBox1)) {
-            widget::label(mGui.ctx, "checked", {rect.x + rect.width + 5, rect.y, 80, rect.height});
+        if (widget::checkbox(_gui.ctx, rect, color, checkBox1)) {
+            widget::label(_gui.ctx, "checked", {rect.x + rect.width + 5, rect.y, 80, rect.height});
         }
 
         color = color - 100_r + 100_g + 100_b;
         rect = {rect.x + 80, rect.y + 50, 50, 50};
         static bool checkBox2 = true;
-        if (widget::checkbox(mGui.ctx, rect, color, checkBox2)) {
-            widget::label(mGui.ctx, "o!", {rect.x + rect.width + 5, rect.y, 50, rect.height},
+        if (widget::checkbox(_gui.ctx, rect, color, checkBox2)) {
+            widget::label(_gui.ctx, "o!", {rect.x + rect.width + 5, rect.y, 50, rect.height},
                           reig::text::Alignment::kLeft);
         } else {
-            widget::label(mGui.ctx, "o-O-o!", {rect.x + rect.width + 5, rect.y, 50, rect.height},
+            widget::label(_gui.ctx, "o-O-o!", {rect.x + rect.width + 5, rect.y, 50, rect.height},
                           reig::text::Alignment::kLeft);
         }
 
         color = colors::kWhite;
         rect = {rect.x + 80, rect.y - 50, 25, 25};
         static bool checkBox3 = false;
-        widget::checkbox(mGui.ctx, rect, color, checkBox3);
+        widget::checkbox(_gui.ctx, rect, color, checkBox3);
     }
 
     void draw_sliders() {
-        start_window(mSlidersWindow);
+        start_window(_sliders_window);
 
         primitive::Rectangle rect{50, 0, 150, 30};
         primitive::Color color{120_r, 150_g, 150_b};
 
         static float sliderValue0 = 20;
 //        if (widget::textured_slider{rect, 0, mGui.font.id, sliderValue0, 20, 40, 5}.use(mGui.ctx)) {
-        if (widget::slider(mGui.ctx, rect, color, sliderValue0, 20, 40, 5)) {
+        if (widget::slider(_gui.ctx, rect, color, sliderValue0, 20, 40, 5)) {
             std::cout << boost::format("Slider 0: new value %.2f\n") % sliderValue0;
         }
 
         rect = {rect.x, rect.y + 40, rect.width + 50, rect.height};
         color = color + 50_g;
         static float sliderValue1 = 5.4f;
-        if (widget::slider(mGui.ctx, rect, color, sliderValue1, 3, 7, 0.1f)) {
+        if (widget::slider(_gui.ctx, rect, color, sliderValue1, 3, 7, 0.1f)) {
             std::cout << "Slider 1: new value " << sliderValue1 << std::endl;
         }
 
         rect = {rect.x, rect.y + 40, rect.width + 80, rect.height + 10};
         static float sliderValue2 = 0.3f;
-        if (widget::slider(mGui.ctx, rect, {220_r, 200_g, 150_b}, sliderValue2, 0.1f, 0.5f, 0.05f)) {
+        if (widget::slider(_gui.ctx, rect, {220_r, 200_g, 150_b}, sliderValue2, 0.1f, 0.5f, 0.05f)) {
             std::cout << "Slider 2: new value " << sliderValue2 << std::endl;
         }
 
         static float scrollValue0 = 0.0f;
 
         rect = {0, 5, 30, 200};
-        widget::scrollbar(mGui.ctx, rect, colors::kBlack, scrollValue0, 1000.0f);
+        widget::scrollbar(_gui.ctx, rect, colors::kBlack, scrollValue0, 1000.0f);
 
         rect = {rect.x + 50, rect.y + 150, rect.height, rect.width};
-        widget::scrollbar(mGui.ctx, rect, colors::kBlack, scrollValue0, 1000.0f);
+        widget::scrollbar(_gui.ctx, rect, colors::kBlack, scrollValue0, 1000.0f);
     }
 
     void draw_text_entries() {
-        start_window(mTextEntryWindow);
+        start_window(_text_entry_window);
         primitive::Rectangle rect{0, 0, 300, 40};
 
         using reig::reference_widget::EntryOutput;
 
         static std::string entry1;
-        if (widget::entry(mGui.ctx, "Entry 1", rect, colors::kViolet, entry1) == EntryOutput::kModified) {
+        if (widget::entry(_gui.ctx, "Entry 1", rect, colors::kViolet, entry1) == EntryOutput::kModified) {
             std::cout << "Entry 1: " << entry1 << '\n';
         }
 
         rect.y += 50;
-        if (widget::entry(mGui.ctx, "Entry 2", rect, colors::kBlack, mTextEntryWindow.title) ==
+        if (widget::entry(_gui.ctx, "Entry 2", rect, colors::kBlack, _text_entry_window.title) ==
             EntryOutput::kModified) {
-            std::cout << "Entry 2: " << mTextEntryWindow.title << '\n';
+            std::cout << "Entry 2: " << _text_entry_window.title << '\n';
         }
     }
 
@@ -395,12 +395,12 @@ private:
         static std::string itemName;
         static bool listShown = false;
 
-        start_window(mListWindow);
+        start_window(_list_window);
 
-        widget::label(mGui.ctx, "Show list:", {0, 0, 80, 30}, reig::text::Alignment::kLeft);
-        if (widget::checkbox(mGui.ctx, {85, 0, 30, 30}, colors::kWhite, listShown)) {
+        widget::label(_gui.ctx, "Show list:", {0, 0, 80, 30}, reig::text::Alignment::kLeft);
+        if (widget::checkbox(_gui.ctx, {85, 0, 30, 30}, colors::kWhite, listShown)) {
             primitive::Rectangle rect = {0, 35, 280, 280};
-            widget::list(mGui.ctx, "Test", rect, colors::kBlue, foos,
+            widget::list(_gui.ctx, "Test", rect, colors::kBlue, foos,
                          [](const Foo& foo) {
                              return foo.name.c_str();
                          },
@@ -411,7 +411,7 @@ private:
             using reig::reference_widget::EntryOutput;
 
             rect = {rect.x, rect.y + rect.height + 10, rect.width - 120, 40};
-            switch (widget::entry(mGui.ctx, "Add item", rect, colors::kDarkGrey, itemName)) {
+            switch (widget::entry(_gui.ctx, "Add item", rect, colors::kDarkGrey, itemName)) {
                 case EntryOutput::kSubmitted: {
                     foos.push_back(Foo{itemName});
                     break;
@@ -427,12 +427,12 @@ private:
             }
 
             rect = {rect.x + rect.width + 5, rect.y, 35, 40};
-            if (widget::button(mGui.ctx, "+", rect, colors::kYellow)) {
+            if (widget::button(_gui.ctx, "+", rect, colors::kYellow)) {
                 foos.push_back(Foo{std::to_string(foos.size())});
             }
 
             rect = {0, rect.y + rect.height + 5, 280, 40};
-            if (widget::button(mGui.ctx, "Remove last", rect, colors::kRed)) {
+            if (widget::button(_gui.ctx, "Remove last", rect, colors::kRed)) {
                 if (!foos.empty()) {
                     foos.pop_back();
                 }
@@ -441,25 +441,25 @@ private:
     }
 
     void render_frame() {
-        SDL_SetRenderDrawColor(mSdl.renderer, 50, 50, 50, 255);
-        SDL_RenderClear(mSdl.renderer);
+        SDL_SetRenderDrawColor(_sdl.renderer, 50, 50, 50, 255);
+        SDL_RenderClear(_sdl.renderer);
 
-        mGui.ctx.end_frame();
+        _gui.ctx.end_frame();
 
-        int mx, my;
-        int state = SDL_GetMouseState(&mx, &my);
+        int mouse_x, mouse_y;
+        int state = SDL_GetMouseState(&mouse_x, &mouse_y);
         if ((state & SDL_BUTTON_LMASK) == SDL_BUTTON_LMASK) { //NOLINT
-            filledCircleRGBA(mSdl.renderer, static_cast<Sint16>(mx), static_cast<Sint16>(my),
+            filledCircleRGBA(_sdl.renderer, static_cast<Sint16>(mouse_x), static_cast<Sint16>(mouse_y),
                              15, 150, 220, 220, 150);
         }
 
-        SDL_RenderPresent(mSdl.renderer);
+        SDL_RenderPresent(_sdl.renderer);
     }
 
 private:
-    std::string mFpsString;
-    Sdl mSdl;
-    Gui mGui;
+    std::string _fps_string;
+    Sdl _sdl;
+    Gui _gui;
 };
 
 int main(int, char* []) {
