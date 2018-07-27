@@ -121,11 +121,11 @@ private:
         }
     }
 
-    void static gui_handler(const reig::DrawData& drawData, std::any userPtr) {
-        auto* self = std::any_cast<Main*>(userPtr);
+    void static gui_handler(const reig::DrawData& draw_data, std::any user_ptr) {
+        auto* self = std::any_cast<Main*>(user_ptr);
         namespace colors = reig::primitive::colors;
 
-        for (auto const& fig : drawData) {
+        for (auto const& fig : draw_data) {
             auto const& vertices = fig.vertices();
             auto const& indices = fig.indices();
             auto number = indices.size();
