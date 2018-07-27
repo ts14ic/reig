@@ -15,6 +15,8 @@ namespace widget = reig::reference_widget;
 namespace primitive = reig::primitive;
 namespace colors = reig::primitive::colors;
 
+const int PALLETE_COLORS_COUNT = 256;
+
 struct Sdl {
     SDL_Renderer* renderer = nullptr;
     SDL_Window* window = nullptr;
@@ -98,26 +100,41 @@ private:
         _gui.ctx.set_user_ptr(this);
 
         _gui.font.font_bitmap = _gui.ctx.set_font("/usr/share/fonts/TTF/DejaVuSans.ttf", _gui.font.font_texture_id, 20.f);
-        auto* surf = SDL_CreateRGBSurfaceFrom(
-                _gui.font.font_bitmap.bitmap.data(), _gui.font.font_bitmap.width, _gui.font.font_bitmap.height, 8, _gui.font.font_bitmap.width,
+        _gui.font.texture = allocate_font_texture(_gui.font.font_bitmap);
+    }
+    
+    SDL_Texture* allocate_font_texture(reig::Context::FontBitmap& font_bitmap) {
+        auto* font_surface = SDL_CreateRGBSurfaceFrom(
+                font_bitmap.bitmap.data(), font_bitmap.width, font_bitmap.height,
+                8, font_bitmap.width,
                 0, 0, 0, 0
         );
-        SDL_Color colors[256];
-        {
-            Uint8 v = 0;
-            for (SDL_Color& color: colors) {
-                color.r = color.g = color.b = 0xFF;
-                color.a = v++;
-            }
+        init_font_pallete(font_surface);
+
+        auto* font_texture = SDL_CreateTextureFromSurface(_sdl.renderer, font_surface);
+        if (SDL_SetTextureBlendMode(font_texture, SDL_BLENDMODE_BLEND) < 0) {
+            std::cerr << "Failed to set texture blend mode: [" << SDL_GetError() << "]\n";
+            exit(0);
         }
-        if (SDL_SetPaletteColors(surf->format->palette, colors, 0, 256) < 0) {
+
+        return font_texture;
+    }
+
+    void init_font_pallete(SDL_Surface* font_surface) {
+        SDL_Color colors[PALLETE_COLORS_COUNT];
+        init_font_pallete_colors(colors);
+        if (SDL_SetPaletteColors(font_surface->format->palette, colors, 0, PALLETE_COLORS_COUNT) < 0) {
             std::cerr << "Failed to set palette\n";
             exit(1);
         }
-        _gui.font.texture = SDL_CreateTextureFromSurface(_sdl.renderer, surf);
-        if (SDL_SetTextureBlendMode(_gui.font.texture, SDL_BLENDMODE_BLEND) < 0) {
-            std::cerr << "Failed to set texture blend mode: [" << SDL_GetError() << "]\n";
-            exit(0);
+    }
+
+    void init_font_pallete_colors(SDL_Color (& colors)[PALLETE_COLORS_COUNT]) {
+        Uint8 alpha = 0;
+        for (SDL_Color& color: colors) {
+            color.r = color.g = color.b = 0xFF;
+            color.a = alpha;
+            ++alpha;
         }
     }
 
