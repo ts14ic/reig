@@ -45,11 +45,11 @@ public:
         std::vector<long> measurements;
         mFpsString = "? us per frame";
 
-        while(true) {
+        while (true) {
             auto start_timestamp = chrono::steady_clock::now();
             mGui.ctx.start_frame();
 
-            if(!handle_input_events()) {
+            if (!handle_input_events()) {
                 break;
             }
 
@@ -105,18 +105,18 @@ private:
         SDL_Color colors[256];
         {
             Uint8 v = 0;
-            for(SDL_Color& color: colors) {
+            for (SDL_Color& color: colors) {
                 color.r = color.g = color.b = 0xFF;
                 color.a = v++;
             }
         }
-        if(SDL_SetPaletteColors(surf->format->palette, colors, 0, 256) < 0) {
+        if (SDL_SetPaletteColors(surf->format->palette, colors, 0, 256) < 0) {
             std::cerr << "Failed to set palette\n";
             exit(1);
         }
         mGui.font.tex = SDL_CreateTextureFromSurface(mSdl.renderer, surf);
-        if(SDL_SetTextureBlendMode(mGui.font.tex, SDL_BLENDMODE_BLEND) < 0) {
-            std::cerr << "Failed to set texture blend mode: ["<< SDL_GetError() << "]\n";
+        if (SDL_SetTextureBlendMode(mGui.font.tex, SDL_BLENDMODE_BLEND) < 0) {
+            std::cerr << "Failed to set texture blend mode: [" << SDL_GetError() << "]\n";
             exit(0);
         }
     }
@@ -125,34 +125,33 @@ private:
         auto* self = std::any_cast<Main*>(userPtr);
         namespace colors = reig::primitive::colors;
 
-        for(auto const& fig : drawData) {
+        for (auto const& fig : drawData) {
             auto const& vertices = fig.vertices();
             auto const& indices = fig.indices();
             auto number = indices.size();
 
-            if(number % 3 != 0) {
+            if (number % 3 != 0) {
                 continue;
             }
 
-            if(fig.texture() == 0) {
-                for(auto i = 0ul; i < number; i += 3) {
+            if (fig.texture() == 0) {
+                for (auto i = 0ul; i < number; i += 3) {
                     filledTrigonColor(
-                        self->mSdl.renderer,
-                        static_cast<Sint16>(vertices[indices[i  ]].position.x),
-                        static_cast<Sint16>(vertices[indices[i  ]].position.y),
-                        static_cast<Sint16>(vertices[indices[i+1]].position.x),
-                        static_cast<Sint16>(vertices[indices[i+1]].position.y),
-                        static_cast<Sint16>(vertices[indices[i+2]].position.x),
-                        static_cast<Sint16>(vertices[indices[i+2]].position.y),
-                        colors::to_uint(vertices[i].color)
+                            self->mSdl.renderer,
+                            static_cast<Sint16>(vertices[indices[i]].position.x),
+                            static_cast<Sint16>(vertices[indices[i]].position.y),
+                            static_cast<Sint16>(vertices[indices[i + 1]].position.x),
+                            static_cast<Sint16>(vertices[indices[i + 1]].position.y),
+                            static_cast<Sint16>(vertices[indices[i + 2]].position.x),
+                            static_cast<Sint16>(vertices[indices[i + 2]].position.y),
+                            colors::to_uint(vertices[i].color)
                     );
                 }
-            }
-            else if(fig.texture() == self->mGui.font.id) {
+            } else if (fig.texture() == self->mGui.font.id) {
                 SDL_Rect src;
                 src.x = static_cast<int>(vertices[0].texCoord.x * self->mGui.font.data.width);
                 src.y = static_cast<int>(vertices[0].texCoord.y * self->mGui.font.data.height);
-                src.w = static_cast<int>(vertices[2].texCoord.x * self->mGui.font.data.width  - src.x);
+                src.w = static_cast<int>(vertices[2].texCoord.x * self->mGui.font.data.width - src.x);
                 src.h = static_cast<int>(vertices[2].texCoord.y * self->mGui.font.data.height - src.y);
                 SDL_Rect dst;
                 dst.x = static_cast<int>(vertices[0].position.x);
@@ -165,8 +164,8 @@ private:
     }
 
     bool handle_input_events() {
-        for(SDL_Event evt; SDL_PollEvent(&evt);) {
-            switch(evt.type) {
+        for (SDL_Event evt; SDL_PollEvent(&evt);) {
+            switch (evt.type) {
                 case SDL_QUIT: {
                     return false;
                 }
@@ -234,8 +233,11 @@ private:
     }
 
     struct Window {
-        Window(const char* id, std::string title, float x, float y) : title{move(title)}, id{id}, x{x}, y{y} {}
-        Window(std::string title, float x, float y) : title{move(title)}, x{x}, y{y} {}
+        Window(const char* id, std::string title, float x, float y)
+                : title{move(title)}, id{id}, x{x}, y{y} {}
+
+        Window(std::string title, float x, float y)
+                : title{move(title)}, x{x}, y{y} {}
 
         std::string title;
         const char* id = nullptr;
@@ -268,11 +270,11 @@ private:
         draw_list();
     }
 
-    Window mButtonsWindow {"Buttons", 30, 30};
-    Window mCheckboxesWindow {"Checkboxes", 200, 30};
-    Window mSlidersWindow {"Sliders", 430, 30};
-    Window mTextEntryWindow {"entry_window", "Text entries", 30, 250};
-    Window mListWindow {"List", 800, 30};
+    Window mButtonsWindow{"Buttons", 30, 30};
+    Window mCheckboxesWindow{"Checkboxes", 200, 30};
+    Window mSlidersWindow{"Sliders", 430, 30};
+    Window mTextEntryWindow{"entry_window", "Text entries", 30, 250};
+    Window mListWindow{"List", 800, 30};
 
     void draw_buttons() {
         primitive::Rectangle rect{40, 0, 100, 30};
@@ -307,9 +309,11 @@ private:
         rect = {rect.x + 80, rect.y + 50, 50, 50};
         static bool checkBox2 = true;
         if (widget::checkbox(mGui.ctx, rect, color, checkBox2)) {
-            widget::label(mGui.ctx, "o!", {rect.x + rect.width + 5, rect.y, 50, rect.height}, reig::text::Alignment::kLeft);
+            widget::label(mGui.ctx, "o!", {rect.x + rect.width + 5, rect.y, 50, rect.height},
+                          reig::text::Alignment::kLeft);
         } else {
-            widget::label(mGui.ctx, "o-O-o!", {rect.x + rect.width + 5, rect.y, 50, rect.height}, reig::text::Alignment::kLeft);
+            widget::label(mGui.ctx, "o-O-o!", {rect.x + rect.width + 5, rect.y, 50, rect.height},
+                          reig::text::Alignment::kLeft);
         }
 
         color = colors::kWhite;
@@ -354,7 +358,7 @@ private:
 
     void draw_text_entries() {
         start_window(mTextEntryWindow);
-        primitive::Rectangle rect {0, 0, 300, 40};
+        primitive::Rectangle rect{0, 0, 300, 40};
 
         using reig::reference_widget::EntryOutput;
 
@@ -364,7 +368,8 @@ private:
         }
 
         rect.y += 50;
-        if (widget::entry(mGui.ctx, "Entry 2", rect, colors::kBlack, mTextEntryWindow.title) == EntryOutput::kModified) {
+        if (widget::entry(mGui.ctx, "Entry 2", rect, colors::kBlack, mTextEntryWindow.title) ==
+            EntryOutput::kModified) {
             std::cout << "Entry 2: " << mTextEntryWindow.title << '\n';
         }
     }
@@ -374,9 +379,18 @@ private:
         struct Foo {
             const std::string name;
         };
-        static std::vector<Foo> foos {
-                {"Zero"}, {"One"}, {"Two"}, {"Three"}, {"Four"}, {"Five"},
-                {"Six"}, {"Seven"}, {"Eight"}, {"Nine"}, {"Ten"}
+        static std::vector<Foo> foos{
+                {"Zero"},
+                {"One"},
+                {"Two"},
+                {"Three"},
+                {"Four"},
+                {"Five"},
+                {"Six"},
+                {"Seven"},
+                {"Eight"},
+                {"Nine"},
+                {"Ten"}
         };
         static std::string itemName;
         static bool listShown = false;
@@ -434,7 +448,7 @@ private:
 
         int mx, my;
         int state = SDL_GetMouseState(&mx, &my);
-        if((state & SDL_BUTTON_LMASK) == SDL_BUTTON_LMASK) { //NOLINT
+        if ((state & SDL_BUTTON_LMASK) == SDL_BUTTON_LMASK) { //NOLINT
             filledCircleRGBA(mSdl.renderer, static_cast<Sint16>(mx), static_cast<Sint16>(my),
                              15, 150, 220, 220, 150);
         }
@@ -448,6 +462,6 @@ private:
     Gui mGui;
 };
 
-int main(int, char*[]) {
+int main(int, char* []) {
     return Main{}.run();
 }
